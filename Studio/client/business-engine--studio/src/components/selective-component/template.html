@@ -1,0 +1,53 @@
+<div class="selective-picker-wrapper b-input form-control" role="button" ng-click="$.onShowModal()">
+    <input type="text" ng-model="$.selected.text" class="selected-item-input" placeholder="{{$.placeholder}}"
+        role="button" readonly />
+    <button type="button" role="button">...</button>
+</div>
+<div class="modal" tabindex="-1" id="wnSelectiveModal{{$.id}}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{$.modal.title}}</h5>
+                <button type="button" ng-show="$.modal.showCloseButton" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="selective-headers">
+                    <input type="text" ng-model="$.filter.searchText" class="b-input form-control me-1"
+                        placeholder="{{$.modal.placeholder}}" b-custom-focus="onFocusModalInput{{$.id}}"
+                        ng-enter="$.onSearchTextChange()" />
+                        <button type="button" class="b-btn btn-text-icon btn-action" ng-click="$.onResetClick()">
+                            <i class="codicon codicon-refresh"></i>
+                            Reset
+                        </button>
+                </div>
+                <div class="selective-body">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="header in $.table.headers">{{header.title}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in $.items" role="button"
+                                ng-class="{'active':item[$.value]==$.selected.value}"
+                                ng-click="$.onSelectItemClick(item)">
+                                <td ng-repeat="header in $.table.headers">{{item[header.column]}}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="10">
+                                    <ul id="paging{{$.id}}" ng-if="$.items.length" b-custom-paging options="$.paging"></ul>
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

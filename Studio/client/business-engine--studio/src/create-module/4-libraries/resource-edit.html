@@ -1,0 +1,66 @@
+<b-right-widget ng-if="$.workingMode=='resource-edit'" data-title="Add {{$.resource.ResourceName}} Resource"
+    data-icon="resource-group" data-subtitle="Add or edit module custom resource" data-await-action="$.awaitAction"
+    data-module="$">
+    <!------------------------------------>
+    <!--Resource Info-->
+    <!------------------------------------>
+    <div class="d-flex">
+        <div class="col-5 b-splitter border-end pe-3">
+            <div class="b-field">
+                <label class="form-label">Address Type</label>
+                <div class="b-input-group">
+                    <select ng-model="$.resource.AddressType" class="b-input form-select" chosen
+                        inherit-select-classes="true" placeholder-text-single="'Select url address type'" required>
+                        <option disabled></option>
+                        <option value="internal">Internal</option>
+                        <option value="global">Global(External)</option>
+                    </select>
+                    <span><i class="codicon codicon-resource"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Resource Type</label>
+                <div class="b-input-group">
+                    <select ng-model="$.resource.ResourceType" class="b-input form-select" chosen
+                        inherit-select-classes="true" placeholder-text-single="'Select resource type'" required>
+                        <option disabled></option>
+                        <option value="css">Css</option>
+                        <option value="js">Js</option>
+                    </select>
+                    <span><i class="codicon codicon-resource"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-7 ps-3">
+            <div class="b-field">
+                <label class="form-label">Resource Path</label>
+                <div class="b-input-group">
+                    <input type="text" class="b-input form-control" ng-model="$.resource.ResourcePath"
+                        placeholder="Url Address" autocomplete="off" required />
+                    <span><i class="codicon codicon-resource"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Load Order</label>
+                <input type="number" ng-model="$.resource.LoadOrder" class="b-input form-control"
+                    placeholder="Enter load order" autocomplete="off" />
+            </div>
+        </div>
+    </div>
+    <hr class="mb-4" />
+    <!------------------------------------>
+    <!--Action Buttons-->
+    <!------------------------------------>
+    <div class="mb-1 d-flex justify-content-end mt-auto">
+        <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveResourceClick($event,true)"
+            ng-disabled="$.running">
+            <i class="codicon codicon-save" ng-class="{'loading-circle mini':$.running=='save-action'}"></i>
+            Save Resource
+        </button>
+        <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelResourceClick()"
+            ng-disabled="$.running">
+            <i class="codicon codicon-circle-slash"></i>
+            Cancel
+        </button>
+    </div>
+</b-right-widget>

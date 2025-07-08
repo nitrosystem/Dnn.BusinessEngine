@@ -1,0 +1,4 @@
+<div ng-controller="moduleBuilderController as $">
+    <div ng-if="$.moduleBuilderType===0" ng-include="$.formDesignerTemplate"></div>
+    <div ng-if="$.moduleBuilderType===1" ng-include="$.htmlEditorTemplate"></div>
+</div>

@@ -1,0 +1,191 @@
+<div ng-controller="createDashboardLibrariesController as $" class="custom-libraries-resources">
+    <b-content-widget data-title="Custom Libraries & Resources" data-icon="folder-library"
+        data-module-type="create-module" data-subtitle="Create module - Load Custom Libraries & Resources"
+        data-await-action="$.awaitAction" data-module="$" data-reload-method="onPageLoad"
+        data-close-method="onCloseWindow">
+        <!------------------------------------>
+        <!--Search Box-->
+        <!------------------------------------>
+        <div class="search-panel mb-3">
+            <div class="row">
+                <div class="col-3 me-3">
+                    <div class="b-input-group">
+                        <input type="text" ng-model="$.filter.searchText" class="b-input form-control"
+                            ng-enter="$.onApplyFilter()" placeholder="Search by name(Press Enter)" />
+                        <span><i class="codicon codicon-table"></i></span>
+                    </div>
+                </div>
+                <div class="col-3 me-3">
+                    <div class="b-input-group">
+                        <select ng-model="$.filter.entityType" class="b-input form-select" chosen
+                            inherit-select-classes="true" placeholder-text-single="'Select entity type'"
+                            ng-change="$.onApplyFilter()" ng-disabled="$.running" required>
+                            <option ng-value="'table'">Table</option>
+                            <option ng-value="'view'">View</option>
+                        </select>
+                        <span><i class="codicon codicon-circuit-board"></i></span>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="b-field b-switch-inline mt-2 mb-2">
+                        <label class="form-label d-block mb-0">Is Readonly</label>
+                        <label class="b-switch">
+                            <input type="checkbox" ng-model="$.filter.IsReadonly">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col text-end">
+                    <div class="b-btn-group">
+                        <button type="button" class="b-btn btn-text-icon btn-submit" ng-click="$.onAddLibraryClick()"
+                            ng-disabled="$.running">
+                            <i class="codicon codicon-plus" ng-disabled="$.running"></i>
+                            Add Library
+                        </button>
+                        <button type="button" class="b-btn btn-submit dropdown-toggle dropdown-toggle-split"
+                            ng-disabled="$.running" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                        <ul class="dropdown-menu b-dropdown-menu">
+                            <li><a class="dropdown-item" href="" ng-click="$.onAddResourceClick()">Add Resource</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!--Custom Libraries-->
+        <!------------------------------------>
+        <div class="libraries">
+            <div class="b-group mb-4">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpCustomLibraries">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Custom Libraries
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpCustomLibraries" class="libraries collapse show" ng-model="$.customLibraries"
+                    ui-sortable="$.sortableOptions" data-type="library">
+                    <div class="library-item" ng-repeat="library in $.customLibraries | orderBy: 'LoadOrder'">
+                        <div class="content-wrapper">
+                            <div class="expand-resources">
+                                <i class="codicon codicon-chevron-right collapsed" role="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#grpLibraryResources{{library.LibraryId}}">
+                                </i>
+                                <abbr ng-if="library.Resources" title="Library Resources"
+                                    class="library-resources">{{library.Resources.length}}</abbr>
+                            </div>
+                            <div class="image-wrapper">
+                                <img ng-if="library.Logo" ng-src="{{library.Logo}}" />
+                                <i ng-if="!library.Logo" class="codicon codicon-library"></i>
+                            </div>
+                            <h4 class="library-name">{{library.LibraryName}}</h4>
+                            <span class="library-version">{{library.Version}}</span>
+                            <div class="library-load-order">
+                                <i class="codicon codicon-arrow-small-up"></i>
+                                <span>{{library.LoadOrder}}</span>
+                            </div>
+                            <button type="button" class="btn-remove-library b-btn btn-sm" role="button"
+                                ng-click="$.onDeleteLibraryClick(library.Id,$index)">
+                                <i class="codicon codicon-trash me-0"></i>
+                            </button>
+                        </div>
+                        <div id="grpLibraryResources{{library.LibraryId}}" class="library-resources collapse mt-3">
+                            <div class="d-flex flex-column align-items-start small mb-3 b-notify hover-box-shadow">
+                                <table class="table small">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Type</th>
+                                            <th>Resource Path</th>
+                                            <th class="text-center">
+                                                <i class="codicon codicon-arrow-up d-inline-block"></i>
+                                                <i class="codicon codicon-arrow-down d-inline-block"></i>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="resource in library.Resources | orderBy: 'LoadOrder'">
+                                            <td class="text-center">{{resource.ResourceType}}</td>
+                                            <td>{{resource.ResourcePath}}</td>
+                                            <td class="text-center">{{resource.LoadOrder}}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot ng-if="!library.Resources|| !library.Resources.length">
+                                        <th colspan="5">
+                                            <div class="table-footer">
+                                                <p class="b-notify notify-warning">
+                                                    The library has not any resource!.
+                                                </p>
+                                            </div>
+                                        </th>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!--Custom Resources-->
+        <!------------------------------------>
+        <div class="resources">
+            <div class="b-group mb-4">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpCustomResources">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Custom Resources
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpCustomResources" class="resources collapse show" ng-model="$.customResources"
+                    ui-sortable="$.sortableOptions" data-type="resource">
+                    <div class="resource-item" ng-repeat="resource in $.customResources | orderBy: 'LoadOrder'">
+                        <div class="content-wrapper">
+                            <span class="address-type">{{resource.AddressType}}</span>
+                            <div class="image-wrapper">
+                                <i ng-if="!resource.Logo" class="codicon codicon-link"></i>
+                            </div>
+                            <h4 class="resource-name">{{resource.ResourcePath}}</h4>
+                            <span class="resource-version">{{resource.ResourceType}}</span>
+                            <div class="resource-load-order">
+                                <i class="codicon codicon-arrow-small-up"></i>
+                                <span>{{resource.LoadOrder}}</span>
+                            </div>
+                            <button type="button" class="btn-remove-resource b-btn btn-sm" role="button"
+                                ng-click="$.onDeleteResourceClick(resource.Id,$index)">
+                                <i class="codicon codicon-trash me-0"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!--Action Buttons-->
+        <!------------------------------------>
+        <hr class="mb-4" />
+        <div class="d-flex mb-1">
+            <div class="justify-content-start">
+                <!-- Previous Button -->
+                <button type="button" class="b-btn btn-danger me-2" ng-click="$.onPreviousStepClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-arrow-left me-0"></i>
+                </button>
+                <!-- Next Button -->
+                <button type="button" class="b-btn btn-blue me-2" ng-click="$.onNextStepClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-arrow-right me-0"></i>
+                </button>
+            </div>
+        </div>
+    </b-content-widget>
+    <div ng-include="$.libraryEditWidget"></div>
+    <div ng-include="$.resourceEditWidget"></div>
+</div>

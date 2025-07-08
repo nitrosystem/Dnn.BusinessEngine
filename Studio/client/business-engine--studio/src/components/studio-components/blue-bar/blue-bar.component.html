@@ -1,0 +1,18 @@
+<div class="notification">
+    <p class="text" ng-class="{'pre-icon':$.notification.preIcon}" ng-if="$.notification.text"
+        ng-mouseenter="$.onNotificationMouseenter()">
+        {{$.notification.text}}
+    </p>
+    <span class="timer" ng-if="$.action.timer">
+        {{$.action.text}} {{$.action.timer}}
+        seconds...
+    </span>
+    <button type="button" class="b-btn action shine-small {{$.action.doCallback.css}}" ng-if="$.action.doCallback"
+        ng-click="$.action.doCallback.invoke()">
+        {{$.action.doCallback.text}}
+    </button>
+    <button type="button" class="b-btn action {{$.action.cancelCallback.css}}" ng-if="$.action.cancelCallback"
+        ng-click="$.action.cancelCallback.invoke()">
+        {{$.action.cancelCallback.text}}
+    </button>
+</div>

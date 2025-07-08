@@ -1,0 +1,158 @@
+<div ng-controller="createModuleBasicOptionsController as $" ng-class="{'was-validated':$.form.validated}">
+    <b-content-widget data-title="Basic Options" data-icon="archive" data-module-type="create-module"
+        data-subtitle="Create module - basic options" data-await-action="$.awaitAction" data-module="$"
+        data-reload-method="onPageLoad" data-close-method="onCloseWindow">
+        <div class="d-flex">
+            <!------------------------------------>
+            <!--Module Type Options-->
+            <!------------------------------------>
+            <div class="col-6 b-splitter border-end pe-5">
+                <div class="b-field">
+                    <label class="form-label">Scenario</label>
+                    <div class="b-input-group">
+                        <select id="drpScenarioId" ng-model="$.module.ScenarioId" class="b-input form-select"
+                            ng-options="scenario.Id as scenario.ScenarioTitle for scenario in $.$rootScope.scenarios"
+                            ng-disabled="$.running" chosen inherit-select-classes="true"
+                            placeholder-text-single="'Select module scenario'" required>
+                        </select>
+                        <span><i class="codicon codicon-activate-breakpoints"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Module Type</label>
+                    <select id="drpModuleType" ng-model="$.module.ModuleType" class="b-input form-select" ng-disabled="$.running" chosen
+                        inherit-select-classes="true" placeholder-text-single="'Select module type'" required>
+                        <option ng-value="1">Form</option>
+                        <option ng-value="2">List</option>
+                        <option ng-value="3">Details</option>
+                    </select>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Module Builder Type</label>
+                    <div class="b-input-group mb-2">
+                        <select id="drpModuleBuilderType" ng-model="$.module.ModuleBuilderType"
+                            class="b-input form-select" ng-disabled="$.running" chosen inherit-select-classes="true"
+                            placeholder-text-single=" 'Select module builder type'" required>
+                            <option ng-value="0">Form Designer</option>
+                            <option ng-value="1">Html Editor</option>
+                        </select>
+                        <span><i class="codicon codicon-code"></i></span>
+                    </div>
+                    <div class="b-notify notify-small notify-note">
+                        <i class="codicon codicon-symbol-snippet b-icon-2"></i>
+                        <p class="text text-justify mb-0">
+                            This item is very effective according to the type of module construction.
+                            By choosing the first option, you design your form fields through an advanced form builder.
+                            And in the second case, you have to create your own form and module through coding.
+                        </p>
+                    </div>
+                </div>
+                <div class="b-field" ng-if="$.module.ModuleBuilderType===1">
+                    <label class="form-label">Files(html,js,css)</label>
+                    <div class="b-small-nowrap b-input form-control">
+                        /Portals/[Portal-System]/BusinessEngine/[ScenarioName]/[ModuleName]/custom.html
+                    </div>
+                    <div class="b-small-nowrap b-input form-control">
+                        /Portals/[Portal-System]/BusinessEngine/[ScenarioName]/[ModuleName]/custom.js
+                    </div>
+                    <div class="b-small-nowrap b-input form-control">
+                        /Portals/[Portal-System]/BusinessEngine/[ScenarioName]/[ModuleName]/custom.css
+                    </div>
+                </div>
+            </div>
+            <!------------------------------------>
+            <!--Module Name Options-->
+            <!------------------------------------>
+            <div class="col ps-5">
+                <div class="b-field">
+                    <div class="b-notify notify-small notify-note mb-2">
+                        <i class="codicon codicon-feedback b-icon-2"></i>
+                        <p class="text text-justify mb-0">
+                            <b>Very important note:</b>
+                            Be careful in choosing the name of the module because it is not possible to change the name
+                            of the module after saving the module.
+                        </p>
+                    </div>
+                    <label class="form-label">Module Name</label>
+                    <div class="d-flex mb-2">
+                        <div class="col-7">
+                            <div class=" b-input-group">
+                                <input type="text" id="txtModuleName" ng-model="$.module.ModuleName"
+                                    class="b-input form-control" placeholder="Enter form name(like top examples)"
+                                    autocomplete="off" required ng-disabled="$.module.Id" />
+                                <span><i class="codicon codicon-gear"></i></span>
+                            </div>
+                        </div>
+                        <div class="col-3 ms-3">
+                            <button type="button" class="b-btn btn-text-icon btn-green-lite h-100 ps-4 pe-4"
+                                ng-click="$.validateModuleName()" ng-disabled="!$.module.ModuleName">
+                                <i class=" codicon codicon-go-to-search"></i>
+                                Validate Name
+                            </button>
+                        </div>
+                    </div>
+                    <div class="b-notify mb-2">
+                        <i class="codicon codicon-info b-icon-1"></i>
+                        <p class="subtext m-0">
+                            <b>Example:</b> basic-form, login, user-profile-module,...
+                        </p>
+                    </div>
+                    <div ng-if="$.moduleNameIsValid==false">
+                        <div class="b-notify notify-warning mb-2" ng-if="!$.moduleNameIsValidPattern">
+                            <i class="codicon codicon-regex b-icon-2"></i>
+                            <p class="text mb-0"> This name does not match with the pattern.</p>
+                        </div>
+                        <div class="b-notify notify-warning mb-2" ng-if="$.moduleNameIsExists">
+                            <i class="codicon codicon-references b-icon-2"></i>
+                            <p class="text mb-0"> this name is already exists on the database table.</p>
+                        </div>
+                        <div class="b-notify notify-warning mb-2"
+                            ng-if="$.moduleNameIsValidPattern && !$.moduleNameIsExists">
+                            <i class="codicon codicon-warning b-icon-2"></i>
+                            <p class="text mb-0"> This name is not valid.</p>
+                        </div>
+                    </div>
+                    <div class="b-notify notify-success mb-2" ng-if="$.moduleNameIsValid">
+                        <i class="codicon codicon-check-all b-icon-2"></i>
+                        <p class="text mb-0"> This name is valid.</p>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Module Title</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtModuleTitle" ng-model="$.module.ModuleTitle"
+                            class="b-input form-control" placeholder="Enter form title" autocomplete="off" required />
+                        <span><i class="codicon codicon-gear"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="mb-4" />
+        <div class="d-flex mb-1">
+            <div class="justify-content-start">
+                <!-- Previous Button -->
+                <button type="button" class="b-btn btn-danger me-2" ng-click="$.onPreviousStepClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-arrow-left me-0"></i>
+                </button>
+                <!-- Next Button -->
+                <button type="button" class="b-btn btn-blue me-2" ng-click="$.onNextStepClick()"
+                    ng-disabled="$.running || !$.module.Id">
+                    <i class="codicon codicon-arrow-right me-0"></i>
+                </button>
+            </div>
+            <div class="d-flex justify-content-end ms-auto">
+                <button type="button" class="b-btn btn-text-icon btn-text-icon btn-submit me-2"
+                    ng-click="$.onSaveModuleClick()" ng-disabled="$.running">
+                    <i class="codicon codicon-save" ng-class="{ 'loading-circle mini':$.running=='save-form' }"></i>
+                    Save Module
+                </button>
+                <button type="button" class="b-btn btn-text-icon btn-text-icon btn-cancel"
+                    ng-click="$.onCancelModuleClick()" ng-disabled="$.running">
+                    <i class="codicon codicon-circle-slash"></i>
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </b-content-widget>
+</div>

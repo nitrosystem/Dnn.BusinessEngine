@@ -1,0 +1,166 @@
+<div ng-controller="entitiesController as $" class="entities overflow-hidden">
+    <b-content-widget data-title="Entities" data-icon="combine" data-module-type="entities" data-sorting="true" data-sort-method="onSortingClick"
+        data-subtitle="Scenario entities - tables & views on database" data-await-action="$.awaitAction" data-module="$"
+        extra-icon1="codicon codicon-table" extra-icon1-title="Table Mode" extra-icon1-method="onTableModeClick"
+        extra-icon2="codicon codicon-chrome-restore" extra-icon2-title="Box Mode" extra-icon2-method="onBoxModeClick">
+        <div class="advanced-search-box">
+            <div class="content-pane">
+                <div class="row">
+                    <div class="col-4 me-3">
+                        <div class="b-input-group">
+                            <input type="text" ng-model="$.filter.searchText" class="b-input form-control"
+                                ng-enter="$.onApplyFilter()" placeholder="Search by name(Press Enter)" />
+                            <span><i class="codicon codicon-table"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-3 me-3">
+                        <div class="b-input-group">
+                            <select ng-model="$.filter.entityType" class="b-input form-select" chosen
+                                inherit-select-classes="true" placeholder-text-single="'Select entity type'"
+                                ng-change="$.onApplyFilter()" ng-disabled="$.running" required>
+                                <option value="">Service Type(None)</option>
+                                <option ng-value="0">Table</option>
+                                <option ng-value="1">View</option>
+                            </select>
+                            <span><i class="codicon codicon-circuit-board"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="b-field b-switch-inline mt-2 mb-2">
+                            <label class="form-label d-block mb-0">Is Readonly</label>
+                            <label class="b-switch">
+                                <input type="checkbox" ng-model="$.filter.IsReadonly" ng-change="$.onApplyFilter()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col text-end">
+                        <div class="b-btn-group">
+                            <button type="button" class="b-btn btn-text-icon btn-submit" ng-click="$.onAddEntityClick()"
+                                ng-disabled="$.column">
+                                <i class="codicon codicon-plus" ng-disabled="$.running"></i>
+                                Add Entity
+                            </button>
+                            <button type="button" class="b-btn btn-submit dropdown-toggle dropdown-toggle-split"
+                                ng-disabled="$.column" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                            <div class="dropdown-menu b-dropdown-menu"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="b-table" ng-if="$.displayMode=='table'">
+            <div class="table-body">
+                <div class="grid columns-name">
+                    <div class="g-col-1">
+                        <label class="b-checkbox">
+                            <input type="checkbox" ng-model="$.filter.IsSelectedAll">
+                            <i class="checkbox-icon"></i>
+                        </label>
+                    </div>
+                    <div class="g-col-2">Entity Type</div>
+                    <div class="g-col-3">Entity Name</div>
+                    <div class="g-col-2">Is Readonly</div>
+                    <div class="g-col-2">
+                        <i class="codicon codicon-arrow-up d-inline-block"></i>
+                        <i class="codicon codicon-arrow-down d-inline-block"></i>
+                    </div>
+                    <div class="g-col-2">
+                        <i class="codicon codicon-ellipsis"></i>
+                    </div>
+                </div>
+                <div class="grid table-row" ng-repeat="entity in $.entities | orderBy: 'ViewOrder'">
+                    <div class="g-col-1">
+                        <label class="b-checkbox">
+                            <input type="checkbox" ng-model="$.entity.IsSelected">
+                            <i class="checkbox-icon"></i>
+                        </label>
+                    </div>
+                    <div class="g-col-2">
+                        {{entity.EntityType}}
+                    </div>
+                    <div class="g-col-3">
+                        <span class="text"> {{entity.EntityName}} </span>
+                        <span class="subtext"> {{entity.TableName}} </span>
+                    </div>
+                    <div class="g-col-2">
+                        <i ng-if="!entity.IsReadonly" class="codicon codicon-chrome-maximize fs-4 text-start"></i>
+                        <i ng-if="entity.IsReadonly" class="codicon codicon-check fs-4 text-start"></i>
+                    </div>
+                    <div class="g-col-2">
+                        <button type="button" class="b-clean text-light p-0" ng-disabled="$.running || $index==0">
+                            <i class="codicon codicon-arrow-up d-inline-block me-1"
+                                ng-click="$.onEntitySwapClick($index,$index-1)"></i>
+                        </button>
+                        <button type="button" class="b-clean text-light p-0"
+                            ng-disabled="$.running || $index==$.entities.length-1">
+                            <i class="codicon codicon-arrow-down d-inline-block"
+                                ng-click="$.onEntitySwapClick($index,$index+1)"></i>
+                        </button>
+                    </div>
+                    <div class="g-col-2">
+                        <div class="b-multi-btns">
+                            <button type="button" ng-click="$.onEditEntityClick(entity.Id,entity.EntityName)">
+                                <i class="codicon codicon-edit"></i>
+                            </button>
+                            <button type="button" ng-click="$.onDeleteEntityClick(entity.Id,$index)">
+                                <i class="codicon codicon-trash"></i>
+                            </button>
+                            <button type="button">
+                                <i class="codicon codicon-ellipsis"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-footer">
+                <div ng-if="!$.entities.length" class="b-notify notify-info mb-4">
+                    <i class="codicon codicon-info b-icon-2"></i>
+                    <div class="text">
+                        <h4 class="label">No entities.</h4>
+                        <span class="subtext">
+                            Click
+                            <button type="button" class="b-btn btn-text-icon btn-sm ms-2 me-2"
+                                ng-click="$.onAddEntityClick()">
+                                Add Entity
+                            </button>
+                            for creating a new entity.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="!$.displayMode || $.displayMode=='box'">
+            <div class="entities-box">
+                <div class="entity-item" ng-repeat="entity in $.entities"
+                    ng-style="{'grid-row':'span ' + entity.Columns.length}">
+                    <div class="entity-title-wrapper">
+                        <i class="codicon codicon-ungroup-by-ref-type"></i>
+                        <h5 class="entity-title">{{entity.EntityName}}</h5>
+                        <div class="action-tools">
+                            <button type="button" ng-click="$.onEditEntityClick(entity.Id,entity.EntityName)">
+                                <i class="codicon codicon-edit"></i>
+                            </button>
+                            <button type="button" ng-click="$.onDeleteEntityClick(entity.Id,$index)">
+                                <i class="codicon codicon-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h6 class="entity-subtitle">{{entity.TableName}}</h6>
+                    <ul class="entity-columns">
+                        <li class="column-item" ng-repeat="column in entity.Columns">
+                            <div class="column-title-wrapper">
+                                <h6 class="column-title">
+                                    {{column.ColumnName}}
+                                    <span class="sub-title">({{column.ColumnType}})</span>
+                                </h6>
+                                <i ng-if="column.IsPrimary" class="codicon codicon-key"></i>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <ul id="entitiesPaging" ng-if="$.entities.length" b-custom-paging options="$.paging"></ul>
+    </b-content-widget>
+</div>

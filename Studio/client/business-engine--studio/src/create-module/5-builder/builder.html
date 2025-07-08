@@ -1,0 +1,18 @@
+<div ng-include="$.moduleBuilderTemplate"></div>
+
+<!------------------------------------>
+<!--Wizard Steps Buttons-->
+<!------------------------------------>
+<hr class="mb-4" />
+<div class="d-flex mb-4">
+    <div class="justify-content-start">
+        <!-- Previous Button -->
+        <button type="button" class="b-btn btn-danger me-2" ng-click="$.onPreviousStepClick()" ng-disabled="$.running">
+            <i class="codicon codicon-arrow-left me-0"></i>
+        </button>
+        <!-- Next Button -->
+        <button type="button" class="b-btn btn-blue me-2" ng-click="$.onNextStepClick()" ng-disabled="$.running">
+            <i class="codicon codicon-arrow-right me-0"></i>
+        </button>
+    </div>
+</div>

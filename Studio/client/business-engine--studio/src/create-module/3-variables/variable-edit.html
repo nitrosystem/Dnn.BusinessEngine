@@ -1,0 +1,87 @@
+<div ng-class="{'was-validated':$.form.validated}">
+    <b-right-widget ng-if="$.workingMode=='variable-edit'" data-title="Edit {{$.variable.VariableName}} Variable"
+        data-icon="variable-group" data-subtitle="Add or edit module variable" data-await-action="$.awaitAction"
+        data-module="$">
+        <!------------------------------------>
+        <!--Variable Info-->
+        <!------------------------------------>
+        <div class="d-flex">
+            <div class="col-7 b-splitter border-end pe-3">
+                <div class="b-field">
+                    <label class="form-label">Variable Type</label>
+                    <div class="b-input-group">
+                        <select id="drpVariableType" ng-model="$.variable.VariableType" class="b-input form-select"
+                            ng-options="vt.VariableType as vt.VariableType for vt in $.variableTypes"
+                            ng-disabled="$.running" chosen inherit-select-classes="true"
+                            placeholder-text-single="'Select variable type'" required>
+                        </select>
+                        <span><i class="codicon codicon-activate-breakpoints"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Variable Name</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtVariableName" class="b-input form-control"
+                            ng-model="$.variable.VariableName" placeholder="Enter variable name" autocomplete="off"
+                            required />
+                        <span><i class="codicon codicon-gear"></i></span>
+                    </div>
+                </div>
+            </div>
+            <!-- ng-class="{'opacity-50':$.variable.Settings.IsHideVariableType}" -->
+            <div class="col-5 ps-3">
+                <div class="b-field">
+                    <label class="form-label">Scope</label>
+                    <div class="b-input-group mb-2">
+                        <select id="drpVariableScope" ng-model="$.variable.Scope" class="b-input form-select" chosen
+                            inherit-select-classes="true" placeholder-text-single="'Select variable scope'" required>
+                            <option ng-value="0">Global</option>
+                            <option ng-value="1">Client Side</option>
+                            <option ng-value="2">Server Side</option>
+                        </select>
+                        <span><i class="codicon codicon-gear"></i></span>
+                    </div>
+                    <div class="b-notify notify-small notify-note">
+                        <i class="codicon codicon-target b-icon-2"></i>
+                        <p class="text text-justify mb-0">
+                            The variable scope is very important!.This option allows you to set variable access ranges.
+                            And
+                            it helps you in data security.
+                        </p>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label d-block">Description</label>
+                    <div class="b-input-group">
+                        <textarea ng-model="$.variable.Description" class="b-input form-control"
+                            placeholder="Enter variable description"></textarea>
+                        <span><i class="codicon codicon-note"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">View Order</label>
+                    <div class="b-input-group">
+                        <input type="number" class="b-input form-control" ng-model="$.variable.ViewOrder"
+                            placeholder="Enter variable order" autocomplete="off" />
+                        <span><i class="codicon codicon-list-ordered"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="mb-4" />
+        <!------------------------------------>
+        <!--Action Buttons-->
+        <!------------------------------------>
+        <div class="mb-1 d-flex justify-content-end mt-auto">
+            <button type="button" class="b-btn btn-text-icon btn-submit me-2"
+                ng-click="$.onSaveVariableClick($event,true)" ng-disabled="$.running">
+                <i class="codicon codicon-save" ng-class="{'loading-circle mini':$.running=='save-action'}"></i>
+                Save Variable
+            </button>
+            <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelVariableClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-circle-slash"></i>
+                Cancel
+            </button>
+        </div>
+    </b-right-widget>

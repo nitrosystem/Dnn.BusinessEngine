@@ -1,0 +1,473 @@
+/* --------------------------------------------------------
+        spin animation
+    -----------------------------------------------------------*/
+
+.spin {
+    -webkit-animation-name: spin;
+    -webkit-animation-duration: 4000ms;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-name: spin;
+    -moz-animation-duration: 4000ms;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+    -ms-animation-name: spin;
+    -ms-animation-duration: 4000ms;
+    -ms-animation-iteration-count: infinite;
+    -ms-animation-timing-function: linear;
+    animation-name: spin;
+    animation-duration: 4000ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@-moz-keyframes spin {
+    from {
+        -moz-transform: rotate(0deg);
+    }
+
+    to {
+        -moz-transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* --------------------------------------------------------
+        progress animation
+    -----------------------------------------------------------*/
+
+.progress-animation {
+    animation: progress-animation 2s linear infinite;
+}
+
+@keyframes progress-animation {
+    from {
+        background-position: 100%;
+    }
+
+    to {
+        background-position: 0;
+    }
+}
+
+
+/* --------------------------------------------------------
+        shimmer animation
+    -----------------------------------------------------------*/
+
+.shimmer {
+    /* the shimmer magic */
+    background: -webkit-gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff));
+    background: -moz-gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff));
+    background: gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff));
+    -webkit-background-size: 125px 100%;
+    -moz-background-size: 125px 100%;
+    background-size: 125px 100%;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    -webkit-animation-name: shimmer;
+    -moz-animation-name: shimmer;
+    -webkit-animation-name: shimmer;
+    animation-name: shimmer;
+    -webkit-animation-duration: 2s;
+    -moz-animation-duration: 2s;
+    -webkit-animation-duration: 2s;
+    animation-duration: 2s;
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-iteration-count: infinite;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-color: #222;
+}
+
+@-moz-keyframes shimmer {
+    0% {
+        background-position: top left;
+    }
+
+    100% {
+        background-position: top right;
+    }
+}
+
+@-webkit-keyframes shimmer {
+    0% {
+        background-position: top left;
+    }
+
+    100% {
+        background-position: top right;
+    }
+}
+
+@-o-keyframes shimmer {
+    0% {
+        background-position: top left;
+    }
+
+    100% {
+        background-position: top right;
+    }
+}
+
+@-ms-keyframes shimmer {
+    0% {
+        background-position: top left;
+    }
+
+    100% {
+        background-position: top right;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: top left;
+    }
+
+    100% {
+        background-position: top right;
+    }
+}
+
+
+/* --------------------------------------------------------
+        Rotate & Border Color Animation
+    -----------------------------------------------------------*/
+
+.rotate-border-color {
+    animation: rotate-border-color 1.2s linear infinite;
+    transition: border-color 0.6s linear;
+}
+
+@keyframes rotate-border-color {
+    50% {
+        border-left-color: #9b59b6;
+    }
+
+    75% {
+        border-left-color: #e67e22;
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* --------------------------------------------------------
+        Tik Animation
+    -----------------------------------------------------------*/
+
+.tik {
+    animation: check-icon 0.8s ease;
+}
+
+@keyframes tik {
+    0% {
+        height: 0;
+        width: 0;
+    }
+
+    20% {
+        height: 0;
+        width: 0.4rem;
+    }
+
+    40% {
+        height: 0.5rem;
+        width: 0.4rem;
+    }
+
+    100% {
+        height: 1rem;
+        width: 0.4rem;
+    }
+}
+
+
+/* --------------------------------------------------------
+          pulse ring animation
+    -----------------------------------------------------------*/
+
+.pulse___ring {
+    animation: animation___pulse 2s infinite;
+    animation-iteration-count: infinite;
+    color: white;
+}
+
+@keyframes animation___pulse {
+    0% {
+        transform: rotate(90deg);
+        color: white;
+    }
+
+    20% {
+        transform: rotate(180deg);
+        color: #f0f1b7;
+    }
+
+    40% {
+        transform: rotate(270deg);
+        color: #eef085;
+    }
+
+    60% {
+        transform: rotate(360deg);
+        color: #edf066;
+    }
+
+    80% {
+        transform: rotate(450deg);
+        color: #edf03f;
+    }
+
+    100% {
+        transform: rotate(540deg);
+        color: #eaee0c;
+    }
+}
+
+
+/* --------------------------------------------------------
+          Border animation
+    -----------------------------------------------------------*/
+.valid-animation-border {
+    animation: animation-valid--border 3s infinite;
+}
+
+@keyframes animation-valid--border {
+    50% {
+        box-shadow: rgba(240, 46, 170, 0.4) 0px 5px, rgba(240, 46, 170, 0.3) 0px 10px, rgba(240, 46, 170, 0.2) 0px 15px, rgba(240, 46, 170, 0.1) 0px 20px, rgba(240, 46, 170, 0.05) 0px 25px;
+    }
+}
+
+/* --------------------------------------------------------
+          Box shadow animation
+    -----------------------------------------------------------*/
+.box-shadow-straggly {
+    animation: box-shadow-straggly 3s infinite;
+    transition: border-shadow 0.6s linear;
+}
+
+@keyframes box-shadow-straggly {
+    0% {
+        box-shadow: none;
+    }
+
+    50% {
+        box-shadow: rgba(0, 0, 0, 0.4) 0px 30px 90px;
+    }
+}
+
+/* --------------------------------------------------------
+          Shine line animation
+    -----------------------------------------------------------*/
+.shine-line {
+    color: #fff;
+    margin-top: 0.3rem;
+    background: linear-gradient(to right, #fff 0, white 10%, #fff 20%);
+    background-position: 0;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine-line 6s infinite;
+    animation-fill-mode: forwards;
+    white-space: nowrap;
+}
+
+@keyframes shine-line {
+    0% {
+        background-position: 0;
+    }
+
+    60% {
+        background-position: 60%;
+    }
+
+    100% {
+        background-position: 100%;
+    }
+}
+
+/* --------------------------------------------------------
+          Shine small animation
+    -----------------------------------------------------------*/
+.shine-small {
+    position: relative;
+    overflow: hidden;
+}
+
+.shine-small:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    animation: shine-small 2s infinite;
+    width: 300%;
+    height: 100%;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.623) 50%, rgba(128, 186, 232, 0) 99%, rgba(125, 185, 232, 0) 100%);
+    opacity: .2;
+    z-index: 1;
+}
+
+@keyframes shine-small {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* --------------------------------------------------------
+          Shine2 animation
+    -----------------------------------------------------------*/
+.shine2 {
+    -webkit-mask-image: linear-gradient(-75deg, rgba(0, 0, 0, .6) 30%, #000 50%, rgba(0, 0, 0, .6) 70%);
+    -webkit-mask-size: 200%;
+    animation: shine2 2s infinite;
+}
+
+@-webkit-keyframes shine2 {
+    from {
+        -webkit-mask-position: 150%;
+    }
+
+    to {
+        -webkit-mask-position: -50%;
+    }
+}
+
+/* --------------------------------------------------------
+          warning-blink animation
+    -----------------------------------------------------------*/
+@keyframes warning-blink {
+
+    0%,
+    100% {
+        border-color: #ff3c3c;
+        box-shadow: 0 0 10px #ff3c3c;
+    }
+
+    50% {
+        border-color: transparent;
+        box-shadow: 0 0 0 transparent;
+    }
+}
+
+/* --------------------------------------------------------
+          mega shake animation
+    -----------------------------------------------------------*/
+@keyframes mega-shake {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    10% {
+        transform: translate(-4px, 0);
+    }
+
+    20% {
+        transform: translate(4px, 0);
+    }
+
+    30% {
+        transform: translate(-4px, 0);
+    }
+
+    40% {
+        transform: translate(4px, 0);
+    }
+
+    50% {
+        transform: translate(-4px, 0);
+    }
+
+    60% {
+        transform: translate(4px, 0);
+    }
+
+    70% {
+        transform: translate(-4px, 0);
+    }
+
+    80% {
+        transform: translate(4px, 0);
+    }
+
+    90% {
+        transform: translate(-2px, 0);
+    }
+
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+
+/* --------------------------------------------------------
+          warning-blink2 animation
+    -----------------------------------------------------------*/
+@keyframes warning-blink2 {
+
+    0%,
+    100% {
+        border-color: red;
+        box-shadow: 0 0 10px red;
+    }
+
+    50% {
+        border-color: transparent;
+        box-shadow: 0 0 0px transparent;
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-4px);
+    }
+
+    40% {
+        transform: translateX(4px);
+    }
+
+    60% {
+        transform: translateX(-4px);
+    }
+
+    80% {
+        transform: translateX(4px);
+    }
+}

@@ -1,0 +1,238 @@
+<div ng-controller="createModuleTemplateController as $" class="template-page">
+    <!------------------------------------>
+    <!--Sidebar-->
+    <!------------------------------------>
+    <div class="mb-sidebar" b-custom-sidebar="builder">
+        <ul class="sidebar-tabs">
+            <li class="tab-item" ng-class="{'active':$.currentSidebarTab=='toolbox'}" role="presentation"
+                ng-click="$.onSidebarTabClick('toolbox')" ng-if="$.module.ModuleBuilderType !== 1" b-custom-tooltip
+                data-bs-placement="bottom" title="Components Toolbox">
+                <a class="item-link" role="button">
+                    <i class="codicon codicon-extensions"></i>
+                </a>
+            </li>
+            <li class="tab-item" ng-class="{'active':$.currentSidebarTab=='field-settings'}" role="presentation"
+                ng-click="$.onSidebarTabClick('field-settings')" ng-if="$.module.ModuleBuilderType !==1 "
+                b-custom-tooltip data-bs-placement="bottom" title="Current Field Settings">
+                <a class="item-link" role="button">
+                    <i class="codicon codicon-settings-gear"></i>
+                </a>
+            </li>
+            <li class="tab-item" ng-class="{'active':$.currentSidebarTab=='filter-components'}" role="presentation"
+                ng-click="$.onSidebarTabClick('filter-components')" b-custom-tooltip data-bs-placement="bottom"
+                title="Filter Fields">
+                <a class="item-link" role="button">
+                    <i class="codicon codicon-filter"></i>
+                </a>
+            </li>
+            <li class="tab-item" ng-class="{'active':$.currentSidebarTab=='actions'}" role="presentation"
+                ng-click="$.onSidebarTabClick('actions')" b-custom-tooltip data-bs-placement="bottom"
+                title="Current Field | Module Actions">
+                <a class="item-link" role="button">
+                    <i class="codicon codicon-github-action"></i>
+                </a>
+            </li>
+        </ul>
+        <div class="search-box">
+            <input type="text" class="search-input" ng-model="$.searchComponent"
+                placeholder="Search field type by title" ng-disabled="$.currentSidebarTab!=='toolbox'"
+                ng-class="{'opacity-25':$.currentSidebarTab!=='toolbox'}" autocomplete="off" />
+            <i class="codicon"
+                ng-class="{'codicon-collapse-all':!$.collapsedComponentGroups,'codicon-expand-all':$.collapsedComponentGroups}"
+                ng-click="$.collapsedComponentGroups=!$.collapsedComponentGroups"></i>
+        </div>
+        <div class="tab-contents b-scrollbar">
+            <!------------------------------------>
+            <!--Template List Tab-->
+            <!------------------------------------>
+            <div class="tab-content" ng-if="$.currentSidebarTab=='toolbox'">
+                <div class="b-group group-sm mb-2">
+                    <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpTemplate_{{$.module.Id}}">
+                        <h3 class="group-label">
+                            <span class="group-icon">
+                                <i class="codicon codicon-server-process"></i>
+                            </span> Installed Templates
+                        </h3>
+                        <span class="group-collapse">
+                            <i class="codicon codicon-chevron-up"></i>
+                        </span>
+                    </div>
+                    <div id="grpTemplate_{{$.module.Id}}" class="group-content collapse show">
+                        <div class="templates">
+                            <div class="template-item"
+                                ng-repeat="template in $.installedTemplates | orderBy:'ExtensionId'"
+                                ng-class="{'active':template.TemplateName==$.module.Template}"
+                                ng-click="$.onSelectTemplateClick(template)">
+                                <div class="template-score">
+                                    <b-custom-star-rating ng-model="template.Rate" size="small"
+                                        max="5"></b-custom-star-rating>
+                                </div>
+                                <div class="image-wrapper">
+                                    <img ng-if="template.TemplateImage" ng-src="{{template.TemplateImage}}" />
+                                    <i ng-if="!template.TemplateImage" class="codicon codicon-preview"></i>
+                                </div>
+                                <label class="template-name">{{template.TemplateName}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Not Selected Template-->
+    <!------------------------------------>
+    <div class="not-selected-template" ng-if="!$.template">
+        <i class="codicon codicon-preview"></i>
+    </div>
+    <!------------------------------------>
+    <!--Template Wrapper-->
+    <!------------------------------------>
+    <div class="template-wrapper" ng-if="$.template">
+        <div class="header-wrapper">
+            <button type="button" class="b-btn btn-action me-auto btn-prev">
+                <i class="codicon codicon-arrow-left me-0"></i>
+            </button>
+            <div class="action-wrapper">
+                <div class="template-price" ng-if="!$.template.IsFree">
+                    <h5 class="price"><sup>$</sup>{{$.template.Price}}</h5>
+                    <a href="#" class="b-btn btn-text-icon btn-submit text-decoration-none">
+                        <i class="codicon codicon-credit-card"></i>
+                        Buy
+                    </a>
+                </div>
+                <div class="template-price" ng-if="$.template.IsFree">
+                    <h5 class="price">0</h5>
+                    <a href="javascript:void(0)" class="b-btn btn-text-icon btn-green text-decoration-none">
+                        <i class="codicon codicon-smiley"></i>
+                        Free
+                    </a>
+                </div>
+                <div class="template-options">
+                    <label class="template-name">{{$.template.TemplateName}}</label>
+                    <button type="button" class="b-btn btn-text-icon btn-text-icon btn-action"
+                        ng-click="$.onApplyTemplateClick()" ng-disabled="$.running">
+                        <i class="codicon codicon-request-changes"></i>
+                        Apply This Template
+                    </button>
+                </div>
+            </div>
+            <button type="button" class="b-btn btn-text-icon btn-action ms-auto btn-next">
+                <i class="codicon codicon-arrow-right me-0"></i>
+            </button>
+        </div>
+        <div class="body-wrapper">
+            <div class="wrapper">
+                <!------------------------------------>
+                <!--Template Themes-->
+                <!------------------------------------>
+                <div class="template-themes">
+                    <label class="header-label">Themes</label>
+                    <div class="themes">
+                        <div class="theme-box" ng-repeat="theme in $.template.Themes"
+                            ng-class="{'active':theme.ThemeName==$.module.Theme,'is-dark':theme.IsDark}"
+                            ng-click="$.onSelectThemeClick(theme)">
+                            <div class="theme-image-wrapper">
+                                <i class="codicon codicon-activate-breakpoints theme-icon"></i>
+                            </div>
+                            <label class="theme-label">{{theme.ThemeName}}</label>
+                        </div>
+                    </div>
+                </div>
+                <!------------------------------------>
+                <!--Template Preview Images-->
+                <!------------------------------------>
+                <div class="template-previews">
+                    <label class="header-label">Preview Images</label>
+                    <div class="previews">
+                        <div class="preview-box" ng-repeat="preview in $.template.PreviewImages">
+                            <div class="image-wrapper">
+                                <a href="{{preview}}" class="lnk-preview-image"
+                                    title="{{$.template.TemplateName}} Preview Image">
+                                    <img ng-src="{{preview}}" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="template-board">
+                <div class="d-flex flex-column w-100">
+                    <div class="template-layout-designer">
+                        <label class="header-label">Layout Template</label>
+                        <div class="tabs-container layout-edit pb-0 mb-0">
+                            <ul class="nav nav-tabs b-tab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="html-tab-preview{{$.module.Id}}"
+                                        data-bs-toggle="tab" data-bs-target="#html-editor-preview{{$.module.Id}}"
+                                        type="button" role="tab" aria-controls="html-editor-preview{{$.module.Id}}"
+                                        aria-selected="true" data-tab="1">Layout Template</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="css-tab-preview{{$.module.Id}}" data-bs-toggle="tab"
+                                        data-bs-target="#css-editor-preview{{$.module.Id}}" type="button" role="tab"
+                                        aria-controls="css-editor-preview{{$.module.Id}}" aria-selected="false"
+                                        data-tab="3">Custom Css</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content p-0 mb-0">
+                                <div class="tab-pane fade show active" id="html-editor-preview{{$.module.Id}}"
+                                    role="tabpanel" aria-labelledby="html-tab-preview{{$.module.Id}}">
+                                    <div monaco-editor ng-model="$.module.LayoutTemplate" data-language="html"
+                                        data-height="100vh" read-only="true">
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="css-editor-preview{{$.module.Id}}" role="tabpanel"
+                                    aria-labelledby="css-tab-preview{{$.module.Id}}">
+                                    <div monaco-editor ng-model="$.module.LayoutCss" data-language="css"
+                                        data-height="450px">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field-types-wrapper">
+                        <label class="header-label">Custom Template For Field Types</label>
+                        <div class="field-types">
+                            <div class="field-type" ng-repeat="fieldType in $.template.FieldTypes">
+                                <span class="field-type">{{fieldType.FieldType}}</span>
+                                <div class="icon-wrapper">
+                                    <img ng-src="{{fieldType.Icon}}" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-wrapper"></div>
+    </div>
+    <!------------------------------------>
+    <!--Wizard Step Action Buttons-->
+    <!------------------------------------>
+    <div class="d-flex mb-2 mt-auto b-splitter border-top pt-3 mb-4">
+        <div class="justify-content-start">
+            <!-- Previous Button -->
+            <button type="button" class="b-btn btn-danger me-2" ng-click="$.onPreviousStepClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-arrow-left me-0"></i>
+            </button>
+            <!-- Next Button -->
+            <button type="button" class="b-btn btn-blue me-2" ng-click="$.onNextStepClick()" ng-disabled="$.running">
+                <i class="codicon codicon-arrow-right me-0"></i>
+            </button>
+        </div>
+        <div class="d-flex justify-content-end ms-auto">
+            <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onApplyTemplateClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-save" ng-class="{ 'loading-circle mini':$.running=='save-form' }"></i>
+                Save Module Template
+            </button>
+            <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelModuleClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-circle-slash"></i>
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>

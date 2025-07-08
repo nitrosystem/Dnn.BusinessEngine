@@ -1,0 +1,452 @@
+<div class="default-form-template blue-theme">
+    <div data-pane="TopPane" data-pane-title="Top Pane">
+        <div data-field="" [field-display-expression]="" class="'b-field'"
+            {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.Wizard1.Validated" &&=""
+            (field.wizard1.requirederror="" ||="" !field.wizard1.isvalid)}"}}="">
+
+            <div class="wizard-steps {{Field.Wizard1.ThemeCssClass}}">
+                <div class="wz-steps">
+                    <div ng-repeat="step in Field.Wizard1.Settings.Steps" ng-show="step.IsShow" class="wz-step"
+                        ng-class="{'active':Field.Wizard1.Settings.CurrentStep==step.Name,'disabled':!step.IsEnable}"
+                        ng-click="bWizard_onStepClick(Field.Wizard1,step)">
+                        <span class="step-number">
+                            {{$index+1}}
+                        </span> {{step.Title}}
+                    </div>
+                </div>
+                <div class="wizard-panes">
+                    <div id="WizardStep_Step1" data-pane="WizardStep_Step1" data-pane-title="Step1 Pane"
+                        data-parent-id="e873ed86-9519-415d-a9be-85b69a19bf85"
+                        ng-show="Field.Wizard1.Settings.CurrentStep=='Step1'" class=""
+                        ng-class="{'active':Field.Wizard1.Settings.CurrentStep=='Step1','disabled':!Field.Wizard1.Step['Step1'].IsEnable}">
+                        <div data-field="" [field-display-expression]="" class="'b-field'"
+                            {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.WizardTextbox1.Validated" &&=""
+                            (field.wizardtextbox1.requirederror="" ||="" !field.wizardtextbox1.isvalid)}"}}="">
+                            <label class="'b-form label'"></label>
+                            <div class="b-input-group ">
+
+                                <input type="text" ng-model="Field.WizardTextbox1.Value" class="b-input-control"
+                                    placeholder="" autocomplete="off" ng-minlength="??0" ng-maxlength="4000"
+                                    ng-focus="bTextbox_onFocus(Field.WizardTextbox1,$event)"
+                                    ng-blur="bTextbox_onBlur(Field.WizardTextbox1,$event)"
+                                    ng-keydown="bTextbox_onKeydown(Field.WizardTextbox1,$event)"
+                                    ng-keyup="bTextbox_onKeyup(Field.WizardTextbox1,$event)"
+                                    ng-keypress="bTextbox_onKeypress(Field.WizardTextbox1,$event)" ng-disabled="">
+
+                            </div>
+
+
+
+                        </div>
+                        <div data-field="" [field-display-expression]="" class="'b-field'"
+                            {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.WizardTextbox2.Validated" &&=""
+                            (field.wizardtextbox2.requirederror="" ||="" !field.wizardtextbox2.isvalid)}"}}="">
+                            <label class="'b-form label'"></label>
+                            <div class="b-input-group ">
+
+                                <input type="text" ng-model="Field.WizardTextbox2.Value" class="b-input-control"
+                                    placeholder="" autocomplete="off" ng-minlength="??0" ng-maxlength="4000"
+                                    ng-focus="bTextbox_onFocus(Field.WizardTextbox2,$event)"
+                                    ng-blur="bTextbox_onBlur(Field.WizardTextbox2,$event)"
+                                    ng-keydown="bTextbox_onKeydown(Field.WizardTextbox2,$event)"
+                                    ng-keyup="bTextbox_onKeyup(Field.WizardTextbox2,$event)"
+                                    ng-keypress="bTextbox_onKeypress(Field.WizardTextbox2,$event)" ng-disabled="">
+
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                    <div id="WizardStep_Step2" data-pane="WizardStep_Step2" data-pane-title="Step2 Pane"
+                        data-parent-id="e873ed86-9519-415d-a9be-85b69a19bf85"
+                        ng-show="Field.Wizard1.Settings.CurrentStep=='Step2'" class=""
+                        ng-class="{'active':Field.Wizard1.Settings.CurrentStep=='Step2','disabled':!Field.Wizard1.Step['Step2'].IsEnable}">
+                        <div data-field="" [field-display-expression]="" class="'b-field'"
+                            {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.WizardCheckbox1.Validated" &&=""
+                            (field.wizardcheckbox1.requirederror="" ||="" !field.wizardcheckbox1.isvalid)}"}}="">
+                            <label class="'b-form label'"></label>
+                            <div class="b-check-list  ">
+                                <div class="check-item" ng-repeat="option in Field.WizardCheckbox1.DataSource.Items">
+                                    <input type="checkbox"
+                                        id="bCheck485742bf-dba9-4ded-903f-483e6eda66f3_{{option.Value}}"
+                                        ng-value="option.Value" ng-model="option.Selected"
+                                        ng-change="bCheckBoxList_onChange(Field.WizardCheckbox1)">
+                                    <label
+                                        for="bCheck485742bf-dba9-4ded-903f-483e6eda66f3_{{option.Value}}">{{option.Text}}</label>
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                        <div data-field="" [field-display-expression]="" class="'b-field'"
+                            {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.Group1.Validated" &&=""
+                            (field.group1.requirederror="" ||="" !field.group1.isvalid)}"}}="">
+
+                            <div class="" data-pane="Groupfc65211b-8da6-4c23-8447-5e3bceb29b8b"
+                                data-pane-title="Group Pane" data-parent-id="fc65211b-8da6-4c23-8447-5e3bceb29b8b">
+                                <div data-field="" [field-display-expression]="" class="'b-field'"
+                                    {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.GroupTextbox6.Validated"
+                                    &&="" (field.grouptextbox6.requirederror="" ||=""
+                                    !field.grouptextbox6.isvalid)}"}}="">
+                                    <label class="'b-form label'"></label>
+                                    <div class="b-input-group ">
+
+                                        <input type="text" ng-model="Field.GroupTextbox6.Value" class="b-input-control"
+                                            placeholder="" autocomplete="off" ng-minlength="??0" ng-maxlength="4000"
+                                            ng-focus="bTextbox_onFocus(Field.GroupTextbox6,$event)"
+                                            ng-blur="bTextbox_onBlur(Field.GroupTextbox6,$event)"
+                                            ng-keydown="bTextbox_onKeydown(Field.GroupTextbox6,$event)"
+                                            ng-keyup="bTextbox_onKeyup(Field.GroupTextbox6,$event)"
+                                            ng-keypress="bTextbox_onKeypress(Field.GroupTextbox6,$event)"
+                                            ng-disabled="">
+
+                                    </div>
+
+
+
+                                </div>
+                                <div data-field="" [field-display-expression]="" class="'b-field'"
+                                    {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.Group2.Validated" &&=""
+                                    (field.group2.requirederror="" ||="" !field.group2.isvalid)}"}}="">
+
+                                    <div class="" data-pane="Group0012d2f5-ae2f-424d-bf32-c395d6ae0b31"
+                                        data-pane-title="Group Pane"
+                                        data-parent-id="0012d2f5-ae2f-424d-bf32-c395d6ae0b31">
+                                        <div data-field="" [field-display-expression]="" class="'b-field'"
+                                            {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.GroupGroupSwitchButton2.Validated"
+                                            &&="" (field.groupgroupswitchbutton2.requirederror="" ||=""
+                                            !field.groupgroupswitchbutton2.isvalid)}"}}="">
+                                            <label class="'b-form label'"></label>
+                                            <div class="b-switch-button ">
+                                                <label class="b-switch">
+                                                    <input type="checkbox"
+                                                        id="bSwitchButton57b3e705-0b2e-4a36-88e2-40d640d89b99"
+                                                        ng-model="Field.GroupGroupSwitchButton2.Value"
+                                                        ng-change="bSwitchButton_onChange(Field.GroupGroupSwitchButton2)">
+                                                    <span class="slider"></span>
+                                                </label>
+
+                                            </div>
+
+
+
+
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+    <div class="dt-row">
+        <div class="left-pane" data-pane="LeftPane" data-pane-title="Left Pane">
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.FirstName.Validated" &&=""
+                (field.firstname.requirederror="" ||="" !field.firstname.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-input-group ">
+                    <i class="b-input-icon "></i>
+                    <input type="text" ng-model="Field.FirstName.Value" class="b-input-control" placeholder=""
+                        autocomplete="off" ng-minlength="??0" ng-maxlength="4000"
+                        ng-focus="bTextbox_onFocus(Field.FirstName,$event)"
+                        ng-blur="bTextbox_onBlur(Field.FirstName,$event)"
+                        ng-keydown="bTextbox_onKeydown(Field.FirstName,$event)"
+                        ng-keyup="bTextbox_onKeyup(Field.FirstName,$event)"
+                        ng-keypress="bTextbox_onKeypress(Field.FirstName,$event)" ng-disabled="">
+
+                </div>
+                <p ng-show="Field.FirstName.Validated && (Field.FirstName.Value==null || Field.FirstName.Value==undefined || Field.FirstName.Value=='') && Field.FirstName.RequiredError"
+                    class="'b-invlid-message'"></p>
+
+
+            </div>
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.LastName.Validated" &&=""
+                (field.lastname.requirederror="" ||="" !field.lastname.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-input-group ">
+
+                    <input type="text" ng-model="Field.LastName.Value" class="b-input-control" placeholder=""
+                        autocomplete="off" ng-minlength="??0" ng-maxlength="4000"
+                        ng-focus="bTextbox_onFocus(Field.LastName,$event)"
+                        ng-blur="bTextbox_onBlur(Field.LastName,$event)"
+                        ng-keydown="bTextbox_onKeydown(Field.LastName,$event)"
+                        ng-keyup="bTextbox_onKeyup(Field.LastName,$event)"
+                        ng-keypress="bTextbox_onKeypress(Field.LastName,$event)" ng-disabled="">
+
+                </div>
+                <p ng-show="Field.LastName.Validated && (Field.LastName.Value==null || Field.LastName.Value==undefined || Field.LastName.Value=='') && Field.LastName.RequiredError"
+                    class="'b-invlid-message'"></p>
+
+
+            </div>
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.MiddleName.Validated" &&=""
+                (field.middlename.requirederror="" ||="" !field.middlename.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-input-group ">
+
+                    <input type="text" ng-model="Field.MiddleName.Value" class="b-input-control" placeholder=""
+                        autocomplete="off" ng-minlength="??0" ng-maxlength="4000"
+                        ng-focus="bTextbox_onFocus(Field.MiddleName,$event)"
+                        ng-blur="bTextbox_onBlur(Field.MiddleName,$event)"
+                        ng-keydown="bTextbox_onKeydown(Field.MiddleName,$event)"
+                        ng-keyup="bTextbox_onKeyup(Field.MiddleName,$event)"
+                        ng-keypress="bTextbox_onKeypress(Field.MiddleName,$event)" ng-disabled="">
+                    <i class="b-input-icon "></i>
+                </div>
+                <p ng-show="Field.MiddleName.Validated && (Field.MiddleName.Value==null || Field.MiddleName.Value==undefined || Field.MiddleName.Value=='') && Field.MiddleName.RequiredError"
+                    class="'b-invlid-message'"></p>
+
+
+            </div>
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.DropdownList1.Validated" &&=""
+                (field.dropdownlist1.requirederror="" ||="" !field.dropdownlist1.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-dropdown-group ">
+                    <i class="b-dropdown-icon "></i>
+                    <select ng-model="Field.DropdownList1.Value" class="b-dropdown-control" ng-disabled="">
+                        <option value=""></option>
+                        <option ng-repeat="option in Field.DropdownList1.DataSource.Items" ng-value="option."
+                            ng-selected="Field.DropdownList1.Value == option.Value">{{option.Text}}</option>
+                    </select>
+
+                </div>
+
+
+
+            </div>
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.IsLive.Validated" &&=""
+                (field.islive.requirederror="" ||="" !field.islive.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-switch-button ">
+                    <label class="b-switch">
+                        <input type="checkbox" id="bSwitchButtona0063f49-f086-42ef-8e5f-41053f59683f"
+                            ng-model="Field.IsLive.Value" ng-change="bSwitchButton_onChange(Field.IsLive)">
+                        <span class="slider"></span>
+                    </label>
+                    <label for="bSwitchButtona0063f49-f086-42ef-8e5f-41053f59683f"></label>
+                </div>
+
+
+
+
+            </div>
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.UploadFile1.Validated" &&=""
+                (field.uploadfile1.requirederror="" ||="" !field.uploadfile1.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-upload-file ">
+                    <input type="file" class="form-control" ng-multiple="" multiple=""
+                        ngf-select="bUploadFile_onUploadFile(Field.UploadFile1,$files,$file, $newFiles, $duplicateFiles, $invalidFiles, $event)"
+                        ngf-max-files="??1" ngf-max-size="31457280">
+
+                    <table ng-if="Field.UploadFile1.Value"
+                        class="table table-bordered table-condensed table-columns-vmiddle mt-2">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px; padding: 10px;"></th>
+                                <th>Filename</th>
+                                <th>File Type</th>
+                                <th>Size</th>
+                                <th>Is Uploaded</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="file in Field.UploadFile1.Value track by $index"
+                                ng-class="{'bg-danger':file.IsError}">
+                                <td class="text-center">
+                                    <i ng-if="file.IsError" class="zmdi zmdi-close text-danger f-30"></i>
+                                    <i ng-if="file.IsUploaded" class="zmdi zmdi-check text-success f-30"></i>
+                                </td>
+                                <td>
+                                    <a ng-href="{{file.FilePath}}" target="_blank">{{file.FileName}}</a>
+                                </td>
+                                <td>{{file.FileType}}</td>
+                                <td>{{file.FileSize}}</td>
+                                <td>{{file.IsUploaded}}</td>
+                                <td>{{file.Message}}</td>
+                                <td class="text-center">
+                                    <button type="button" class="upload-remove-icon"
+                                        ng-click="bUploadFile_onRemoveFile(Field.UploadFile1,$index)">X</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+
+            </div>
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.Button1.Validated" &&=""
+                (field.button1.requirederror="" ||="" !field.button1.isvalid)}"}}="">
+
+                <button type="button" class="b-btn " ng-click="bButton_onClick(Field.Button1,$event)">
+                    <i class="b-button-icon "></i>
+                    Button
+
+                </button>
+
+
+
+            </div>
+        </div>
+        <div class="right-pane" data-pane="RightPane" data-pane-title="Right Pane">
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.Address.Validated" &&=""
+                (field.address.requirederror="" ||="" !field.address.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-textarea-group ">
+                    <i class="b-textarea-icon "></i>
+                    <textarea ng-model="Field.Address.Value" class="b-textarea-control" placeholder=""
+                        ng-minlength="??0" ng-maxlength="4000" ng-focus="bTextarea_onFocus(Field.Address,$event)"
+                        ng-blur="bTextarea_onBlur(Field.Address,$event)"
+                        ng-keydown="bTextarea_onKeydown(Field.Address,$event)"
+                        ng-keyup="bTextarea_onKeyup(Field.Address,$event)"
+                        ng-keypress="bTextbox_onKeypress(Field.Address,$event)" rows="??2" ng-disabled=""></textarea>
+
+                </div>
+
+
+
+            </div>
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.Gender.Validated" &&=""
+                (field.gender.requirederror="" ||="" !field.gender.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-radio-list  ">
+                    <div class="radio-item" ng-repeat="option in Field.Gender.DataSource.Items">
+                        <input type="radio" id="bRadio5f849762-128c-4ce5-a5f2-bef583fd199b_{{option.Value}}"
+                            name="bRadio_5f849762-128c-4ce5-a5f2-bef583fd199b" ng-model="Field.Gender.Value"
+                            ng-value="option.Value">
+                        <label for="bRadio5f849762-128c-4ce5-a5f2-bef583fd199b_{{option.Value}}">{{option.Text}}</label>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.CheckboxList1.Validated" &&=""
+                (field.checkboxlist1.requirederror="" ||="" !field.checkboxlist1.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-check-list  ">
+                    <div class="check-item" ng-repeat="option in Field.CheckboxList1.DataSource.Items">
+                        <input type="checkbox" id="bCheck49fcfdfc-3a81-47ce-9e5f-786b655f910d_{{option.Value}}"
+                            ng-value="option.Value" ng-model="option.Selected"
+                            ng-change="bCheckBoxList_onChange(Field.CheckboxList1)">
+                        <label for="bCheck49fcfdfc-3a81-47ce-9e5f-786b655f910d_{{option.Value}}">{{option.Text}}</label>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.IsMarried.Validated" &&=""
+                (field.ismarried.requirederror="" ||="" !field.ismarried.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-checkbox ">
+                    <div class="check-item">
+                        <input type="checkbox" id="bCheckbox991f2945-6b92-4c13-9cee-e3be4545f524"
+                            ng-model="Field.IsMarried.Value" ng-change="bCheckbox_onChange(Field.IsMarried)">
+                        <label for="bCheckbox991f2945-6b92-4c13-9cee-e3be4545f524"></label>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div data-field="" [field-display-expression]="" class="'b-field'"
+                {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.UploadImage1.Validated" &&=""
+                (field.uploadimage1.requirederror="" ||="" !field.uploadimage1.isvalid)}"}}="">
+                <label class="'b-form label'"></label>
+                <div class="b-upload-image ">
+                    <input type="file" accept="image/*" ngf-fix-orientation="true"
+                        ngf-select="bUploadImage_onUploadChange(Field.UploadImage1,$file,$invalidFiles)"
+                        ngf-max-size="21457280">
+                    <span class="upload-plus-icon">+</span>
+                    <span class="upload-label-text"></span>
+                    <img class="upload-preview-image" ng-if="!Field.UploadImage1.Value && Field.UploadImage1.preview"
+                        ng-src="{{Field.UploadImage1.preview}}">
+                    <p class="upload-message" ng-if="Field.UploadImage1.isError">{{Field.UploadImage1.errorMessage}}</p>
+                    <div class="upload-progress" ng-hide="Field.UploadImage1.Value"
+                        ng-style="{'width':Field.UploadImage1.uploadedPercent+'%'}"></div>
+                    <div class="upload-image-box" ng-if="Field.UploadImage1.Value">
+                        <img ng-src="{{Field.UploadImage1.Value}}">
+                    </div>
+                    <button type="button" class="upload-remove-icon"
+                        ng-click="bUploadImage_onRemoveImage(Field.UploadImage1)"
+                        ng-show="Field.UploadImage1.Value">X</button>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+    <div class="dt-row">
+        <div class="left-4-pane" data-pane="Left4Pane" data-pane-title="Left 4 Pane"></div>
+        <div class="right-8-pane" data-pane="Right8Pane" data-pane-title="Right 8 Pane"></div>
+    </div>
+    <div class="dt-row">
+        <div class="left-8-pane" data-pane="Left8Pane" data-pane-title="Left 8 Pane"></div>
+        <div class="right-4-pane" data-pane="Right4Pane" data-pane-title="Right 4 Pane"></div>
+    </div>
+    <div data-pane="ContentPane" data-pane-title="Content Pane">
+        <div data-field="" [field-display-expression]="" class="'b-field'"
+            {{if:isvaluable="=true:ng-class=&quot;{'b-invalid':Field.Grid1.Validated" &&=""
+            (field.grid1.requirederror="" ||="" !field.grid1.isvalid)}"}}="">
+
+            <div class="b-grid-responsive">
+                <table class="b-grid-table">
+                    <thead class="g-header">
+                        <tr class="g-header-row">
+                            <th ng-repeat="column in Field.Grid1.Settings.Columns | orderBy:'ViewOrder'"
+                                class="g-header-column {{column.ColumnCss}}" ng-bind-html="column.Title"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="g-body">
+                        <tr ng-repeat="row in Field.Grid1.DataSource.Items" class="g-body-row"
+                            ng-class="{'g-row-even':$even}">
+                            <td ng-repeat="column in Field.Grid1.Settings.Columns | orderBy:'ViewOrder'"
+                                class="g-body-column {{column.ColumnCss}}">
+                                <b-grid-row-item module="moduleController" row="row" column="column"></b-grid-row-item>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr ng-if="Field.Grid1.Settings.EnablePaging">
+                            <th colspan="">
+                                <ul id="bGridPaging23ada334-fec5-417a-9de0-f60b5f430f1e"></ul>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>

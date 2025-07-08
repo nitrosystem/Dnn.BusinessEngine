@@ -1,0 +1,286 @@
+﻿using DotNetNuke.Entities.Portals;
+using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
+using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
+using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Core.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Utilities;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Web;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
+using DotNetNuke.UI.WebControls;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
+using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Common.IO;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.General;
+
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
+{
+    public static class ModuleMapping
+    {
+        #region Module Mapping
+
+        public static IEnumerable<ModuleViewModel> MapModulesViewModel(IEnumerable<ModuleView> modules, IEnumerable<(Guid moduleId, string customHtml, string customJs, string customCss)> customFiles)
+        {
+            var mergedList = customFiles
+                .Join(modules, file => file.moduleId, module => module.Id, (file, module) => (module, file));
+
+            return mergedList.Select(tuple => MapModuleViewModel(tuple.module, tuple.file));
+        }
+
+        public static ModuleViewModel MapModuleViewModel(ModuleView module, (Guid moduleId, string customHtml, string customJs, string customCss) file)
+        {
+            var mapper = new ExpressionMapper<ModuleView, ModuleViewModel>();
+            mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, source =>
+                    TypeCastingUtil<IDictionary<string, object>>.TryJsonCasting(source.Settings.ToString()),
+                    condition => !string.IsNullOrWhiteSpace(condition.Settings));
+            mapper.AddCustomMapping(src => src, dest => dest.CustomHtml, map => file.customHtml);
+            mapper.AddCustomMapping(src => src, dest => dest.CustomJs, map => file.customJs);
+            mapper.AddCustomMapping(src => src, dest => dest.CustomCss, map => file.customCss);
+
+            var result = mapper.Map(module);
+            return result;
+        }
+
+        public static ModuleInfo MapModuleInfo(ModuleViewModel module)
+        {
+            var mapper = new ExpressionMapper<ModuleViewModel, ModuleInfo>();
+            mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, source => JsonConvert.SerializeObject(source.Settings));
+
+            var result = mapper.Map(module);
+            return result;
+        }
+
+        public static ModuleDto MapModuleDto(ModuleView module)
+        {
+            var mapper = new ExpressionMapper<ModuleView, ModuleDto>();
+
+            var result = mapper.Map(module);
+            return result;
+        }
+
+        #endregion
+
+        #region Module Field Type Mapping
+
+        public static IEnumerable<ModuleFieldTypeViewModel> MapModuleFieldTypesViewModel(IEnumerable<ModuleFieldTypeView> fieldTypes, IEnumerable<ModuleFieldTypeTemplateInfo> templates, IEnumerable<ModuleFieldTypeThemeInfo> themes)
+        {
+            var templateDict = templates.GroupBy(t => t.FieldType).
+                        ToDictionary(t => t.Key, t => t.AsEnumerable());
+
+            var themeDict = themes.GroupBy(t => t.FieldType).
+                        ToDictionary(t => t.Key, t => t.AsEnumerable());
+
+            return fieldTypes.Select(fieldtype =>
+              {
+                  var templateItems = templateDict.TryGetValue(fieldtype.FieldType, out var items1) ? items1 : Enumerable.Empty<ModuleFieldTypeTemplateInfo>();
+                  var themeItems = themeDict.TryGetValue(fieldtype.FieldType, out var items2) ? items2 : Enumerable.Empty<ModuleFieldTypeThemeInfo>();
+
+                  return MapModuleFieldTypeViewModel(fieldtype, templateItems, themeItems);
+              });
+        }
+
+        public static ModuleFieldTypeViewModel MapModuleFieldTypeViewModel(ModuleFieldTypeView fieldtype, IEnumerable<ModuleFieldTypeTemplateInfo> templates, IEnumerable<ModuleFieldTypeThemeInfo> themes)
+        {
+            var mapper = new ExpressionMapper<ModuleFieldTypeView, ModuleFieldTypeViewModel>();
+            mapper.AddCustomMapping(src => src.Icon, dest => dest.Icon, source => source.Icon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
+            mapper.AddCustomMapping(src => src.DefaultSettings, dest => dest.DefaultSettings, source => TypeCastingUtil<IDictionary<string, object>>.TryJsonCasting(source.DefaultSettings.ToString()));
+            mapper.AddCustomMapping(src => src, dest => dest.Templates,
+                source => MapModuleFieldTypeTemplatesViewModel(templates),
+                condition => templates != null && templates.Any()
+            );
+            mapper.AddCustomMapping(src => src, dest => dest.Themes,
+                source => MapModuleFieldTypeThemesViewModel(themes),
+                condition => themes != null && themes.Any()
+            );
+
+            var result = mapper.Map(fieldtype);
+            return result;
+        }
+
+        public static IEnumerable<ModuleFieldTypeTemplateViewModel> MapModuleFieldTypeTemplatesViewModel(IEnumerable<ModuleFieldTypeTemplateInfo> templates)
+        {
+            return templates.Select(
+                template => MapModuleFieldTypeTemplateViewModel(template)
+            );
+        }
+
+        public static ModuleFieldTypeTemplateViewModel MapModuleFieldTypeTemplateViewModel(ModuleFieldTypeTemplateInfo template)
+        {
+            var mapper = new ExpressionMapper<ModuleFieldTypeTemplateInfo, ModuleFieldTypeTemplateViewModel>();
+            mapper.AddCustomMapping(src => src.TemplatePath, dest => dest.TemplatePath,
+                source => source.TemplatePath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
+                condition => !string.IsNullOrWhiteSpace(condition.TemplatePath)
+            );
+            mapper.AddCustomMapping(src => src.TemplatePath, dest => dest.TemplatePath,
+                source => source.TemplateImage.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
+                condition => !string.IsNullOrWhiteSpace(condition.TemplatePath)
+            );
+
+            var result = mapper.Map(template);
+            return result;
+        }
+
+        public static IEnumerable<ModuleFieldTypeThemeViewModel> MapModuleFieldTypeThemesViewModel(IEnumerable<ModuleFieldTypeThemeInfo> themes)
+        {
+            return themes.Select(
+                theme => MapModuleFieldTypeThemeViewModel(theme)
+            );
+        }
+
+        public static ModuleFieldTypeThemeViewModel MapModuleFieldTypeThemeViewModel(ModuleFieldTypeThemeInfo theme)
+        {
+            var mapper = new ExpressionMapper<ModuleFieldTypeThemeInfo, ModuleFieldTypeThemeViewModel>();
+            mapper.AddCustomMapping(src => src.ThemeImage, dest => dest.ThemeImage,
+                source => source.ThemeImage.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
+                condition => !string.IsNullOrWhiteSpace(condition.ThemeImage)
+            );
+            mapper.AddCustomMapping(src => src.ThemeCssPath, dest => dest.ThemeCssPath,
+                source => source.ThemeCssPath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
+                condition => !string.IsNullOrWhiteSpace(condition.ThemeCssPath)
+            );
+
+            var result = mapper.Map(theme);
+            return result;
+        }
+
+        #endregion
+
+        #region Module Field Mapping
+
+        public static IEnumerable<ModuleFieldViewModel> MapModuleFieldsViewModel(IEnumerable<ModuleFieldInfo> fields, IEnumerable<ModuleFieldSettingView> settings)
+        {
+            var settingsDict = settings.GroupBy(c => c.FieldId)
+                                     .ToDictionary(g => g.Key, g => g.AsEnumerable());
+
+            return fields.Select(field =>
+            {
+                var items = settingsDict.TryGetValue(field.Id, out var fieldSettings) ? fieldSettings : Enumerable.Empty<ModuleFieldSettingView>();
+                return MapModuleFieldViewModel(field, items);
+            });
+        }
+
+        public static ModuleFieldViewModel MapModuleFieldViewModel(ModuleFieldInfo field, IEnumerable<ModuleFieldSettingView> settings)
+        {
+            var mapper = new ExpressionMapper<ModuleFieldInfo, ModuleFieldViewModel>();
+            mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
+                source => source.AuthorizationViewField.Split(','),
+                condition => !string.IsNullOrEmpty(condition.AuthorizationViewField));
+            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, source => TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(source.ShowConditions));
+            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, source => TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(source.EnableConditions));
+            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, source => TypeCastingUtil<IEnumerable<FieldValueInfo>>.TryJsonCasting(source.FieldValues));
+            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, source => TypeCastingUtil<FieldDataSourceInfo>.TryJsonCasting(source.DataSource));
+            mapper.AddCustomMapping(src => src, dest => dest.Settings, source => MapModuleFieldSettingsToDictionary(settings));
+
+            var result = mapper.Map(field);
+            return result;
+        }
+
+        public static IDictionary<string, object> MapModuleFieldSettingsToDictionary(IEnumerable<ModuleFieldSettingView> settings)
+        {
+            return settings.ToDictionary(
+                x => x.SettingName,
+                x => Globals.ConvertStringToObject(x.SettingValue)
+            );
+        }
+
+        public static ModuleFieldInfo MapModuleFieldInfo(ModuleFieldViewModel field)
+        {
+            var mapper = new ExpressionMapper<ModuleFieldViewModel, ModuleFieldInfo>();
+            mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
+                source => string.Join(",", source.AuthorizationViewField),
+                condition => condition.AuthorizationViewField != null && condition.AuthorizationViewField.Any()
+            );
+            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions,
+                source => JsonConvert.SerializeObject(source.ShowConditions),
+                condition => condition.ShowConditions != null && condition.ShowConditions.Any()
+            );
+            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions,
+                source => JsonConvert.SerializeObject(source.EnableConditions),
+                condition => condition.EnableConditions != null && condition.EnableConditions.Any()
+            );
+            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues,
+               source => JsonConvert.SerializeObject(source.FieldValues),
+               condition => condition.FieldValues != null && condition.FieldValues.Any()
+           );
+            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource,
+               source => JsonConvert.SerializeObject(source.DataSource),
+               condition => condition.DataSource != null
+           );
+
+            var result = mapper.Map(field);
+            return result;
+        }
+
+        public static IEnumerable<BuildModuleFieldDto> MapModuleFieldsDto(IEnumerable<ModuleFieldInfo> fields, IEnumerable<ModuleFieldSettingView> settings)
+        {
+            var settingsDict = settings.GroupBy(c => c.FieldId)
+                                     .ToDictionary(g => g.Key, g => g.AsEnumerable());
+
+            var result = new List<BuildModuleFieldDto>();
+
+            foreach (var field in fields)
+            {
+                var items = settingsDict.TryGetValue(field.Id, out var fieldSettings) ? fieldSettings : Enumerable.Empty<ModuleFieldSettingView>();
+
+                result.Add(MapModuleFieldDto(field, items));
+            }
+
+            return result;
+        }
+
+        public static BuildModuleFieldDto MapModuleFieldDto(ModuleFieldInfo field, IEnumerable<ModuleFieldSettingView> settings)
+        {
+            var dictionarySettings = MapModuleFieldSettingsToDictionary(settings);
+
+            var mapper = new ExpressionMapper<ModuleFieldInfo, BuildModuleFieldDto>();
+            mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
+                source => source.AuthorizationViewField.Split(','),
+                condition => !string.IsNullOrEmpty(condition.AuthorizationViewField));
+            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, source => TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(source.ShowConditions));
+            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, source => TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(source.EnableConditions));
+            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, source => TypeCastingUtil<IEnumerable<FieldValueInfo>>.TryJsonCasting(source.FieldValues));
+            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, source => TypeCastingUtil<FieldDataSourceInfo>.TryJsonCasting(source.DataSource));
+            mapper.AddCustomMapping(src => src, dest => dest.Settings, source => dictionarySettings);
+            mapper.AddCustomMapping(src => src, dest => dest.GlobalSettings,
+                source => DictionaryToObjectConverter.ConvertToObject<ModuleFieldGlobalSettings>(dictionarySettings) ?? new ModuleFieldGlobalSettings());
+
+            var result = mapper.Map(field);
+            return result;
+        }
+
+        #endregion
+
+        #region Module Variable Mapping
+
+        public static IEnumerable<ModuleVariableViewModel> MapModuleVariablesViewModel(IEnumerable<ModuleVariableView> variables, IEnumerable<ViewModelInfo> viewModels)
+        {
+            return variables.Select(variable => MapModuleVariableViewModel(variable, viewModels));
+        }
+
+        public static ModuleVariableViewModel MapModuleVariableViewModel(ModuleVariableView variable, IEnumerable<ViewModelInfo> viewModels)
+        {
+            var mapper = new ExpressionMapper<ModuleVariableView, ModuleVariableViewModel>();
+            mapper.AddCustomMapping(src => src.Scope, dest => dest.Scope, source => (ModuleVariableScope)source.Scope);
+            mapper.AddCustomMapping(src => src.Language, dest => dest.Language, source => (VariableTypeLanguage)source.Language);
+            mapper.AddCustomMapping(src => src.Icon, dest => dest.Icon, source => source.Icon.ReplaceFrequentTokens());
+            mapper.AddCustomMapping(src => src, dest => dest.ViewModel, source => (viewModels ?? Enumerable.Empty<ViewModelInfo>()).FirstOrDefault(v => v.Id == source.ViewModelId));
+
+            var result = mapper.Map(variable);
+            return result;
+        }
+
+        #endregion
+    }
+}

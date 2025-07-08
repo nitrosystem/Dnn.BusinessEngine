@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{57E9A1EA-6603-4CD5-9914-5F79F60923ED}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NitroSystem.Dnn.BusinessEngine.Data</RootNamespace>
+    <AssemblyName>NitroSystem.Dnn.BusinessEngine.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Dapper.2.1.66\lib\net461\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.1\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attributes\AttributeExtensions.cs" />
+    <Compile Include="Attributes\CacheableAttribute.cs" />
+    <Compile Include="Attributes\TableAttribute.cs" />
+    <Compile Include="Attributes\EntityAttribute.cs" />
+    <Compile Include="Attributes\ScopeAttribute.cs" />
+    <Compile Include="Attributes\TableNameAttribute.cs" />
+    <Compile Include="Contracts\CssModel.cs" />
+    <Compile Include="Contracts\ModuleFieldTypeInfo.cs" />
+    <Compile Include="Contracts\IExpressionInfo.cs" />
+    <Compile Include="Contracts\IParamInfo.cs" />
+    <Compile Include="Entities\Tables\ActionConditionInfo.cs" />
+    <Compile Include="Entities\Tables\ActionInfo.cs" />
+    <Compile Include="Entities\Tables\ActionResultInfo.cs" />
+    <Compile Include="Entities\Tables\ExtensionImportExportItemInfo.cs" />
+    <Compile Include="Entities\Tables\ExtensionInstallTemporaryInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleInfo.cs" />
+    <Compile Include="Entities\Tables\ScenarioInfo.cs" />
+    <Compile Include="Entities\Tables\ServiceInfo.cs" />
+    <Compile Include="Entities\Tables\ServiceParamInfo.cs" />
+    <Compile Include="Entities\Tables\VariableTypeInfo.cs" />
+    <Compile Include="Entities\Tables\TemplateLibraryInfo.cs" />
+    <Compile Include="Entities\Tables\TemplateThemeInfo.cs" />
+    <Compile Include="Entities\Tables\TemplateInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleCustomResourceInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleCustomLibraryInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldTypeLibraryInfo.cs" />
+    <Compile Include="Entities\Tables\LibraryInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldTypeThemeInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldTypeTemplateInfo.cs" />
+    <Compile Include="Entities\Tables\LibraryResourceInfo.cs" />
+    <Compile Include="Entities\Tables\ExtensionInfo.cs" />
+    <Compile Include="Entities\Tables\StudioLibraryInfo.cs" />
+    <Compile Include="Entities\Tables\DashboardSkinInfo.cs" />
+    <Compile Include="Entities\Tables\ActionParamInfo.cs" />
+    <Compile Include="Entities\Tables\ServiceTypeInfo.cs" />
+    <Compile Include="Entities\Tables\ActionTypeInfo.cs" />
+    <Compile Include="Entities\Tables\PageResourceInfo.cs" />
+    <Compile Include="Entities\Tables\DefinedListItemInfo.cs" />
+    <Compile Include="Entities\Tables\DefinedListInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldInfo.cs" />
+    <Compile Include="Entities\Tables\DashboardPageModuleInfo.cs" />
+    <Compile Include="Entities\Tables\DashboardPageInfo.cs" />
+    <Compile Include="Entities\Tables\DashboardInfo.cs" />
+    <Compile Include="Entities\Tables\EntityColumnInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleVariableInfo.cs" />
+    <Compile Include="Entities\Tables\GroupInfo.cs" />
+    <Compile Include="Entities\Tables\PaymentInfo.cs" />
+    <Compile Include="Entities\Tables\PaymentMethodInfo.cs" />
+    <Compile Include="Entities\Tables\ProviderInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldTypeInfo.cs" />
+    <Compile Include="Entities\Tables\GlobalSettingsInfo.cs" />
+    <Compile Include="Entities\Tables\EntityInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldSettingInfo.cs" />
+    <Compile Include="Entities\Tables\ViewModelInfo.cs" />
+    <Compile Include="Entities\Tables\ViewModelPropertyInfo.cs" />
+    <Compile Include="Entities\Views\ActionView.cs" />
+    <Compile Include="Entities\Views\BuildModuleView.cs" />
+    <Compile Include="Entities\Views\DashboardPageLiteView.cs" />
+    <Compile Include="Entities\Views\DashboardPageView.cs" />
+    <Compile Include="Entities\Views\DashboardAppearanceView.cs" />
+    <Compile Include="Entities\Views\DbRelationshipView.cs" />
+    <Compile Include="Entities\Views\ExplorerItemView.cs" />
+    <Compile Include="Entities\Views\ModuleActionTypeView.cs" />
+    <Compile Include="Entities\Views\ModuleCustomLibraryResourceView.cs" />
+    <Compile Include="Entities\Views\ModuleFieldSettingView.cs" />
+    <Compile Include="Entities\Views\ModuleCustomLibraryView.cs" />
+    <Compile Include="Entities\Views\ModuleVariableView.cs" />
+    <Compile Include="Entities\Views\DefinedListItemView.cs" />
+    <Compile Include="Entities\Views\ModuleView.cs" />
+    <Compile Include="Entities\Views\ServiceView.cs" />
+    <Compile Include="Entities\Views\ModuleFieldTypeLibraryView.cs" />
+    <Compile Include="Entities\Views\ModuleFieldTypeView.cs" />
+    <Compile Include="Entities\Views\DashboardPageModuleView.cs" />
+    <Compile Include="Entities\Views\ActionTypeView.cs" />
+    <Compile Include="Entities\Views\LibraryView.cs" />
+    <Compile Include="Entities\Views\ServiceTypeView.cs" />
+    <Compile Include="Entities\Views\DashboardView.cs" />
+    <Compile Include="Entities\Views\PageResourceView.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\AllowedStoredProcedures.cs" />
+    <Compile Include="Repository\BaseEntity.cs" />
+    <Compile Include="Repository\IgnoreInsertAttribute.cs" />
+    <Compile Include="Repository\IRepositoryBase.cs" />
+    <Compile Include="Repository\RepositoryBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Common\NitroSystem.Dnn.BusinessEngine.Common.csproj">
+      <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Studio.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
+      <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Cashing\" />
+    <Folder Include="Enums\" />
+    <Folder Include="Repositories\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>IF NOT ($(ConfigurationName)) == (Debug) GOTO END
+cd $(ProjectDir)
+copy /y obj\debug\NitroSystem.Dnn.BusinessEngine.Data.dll  D:\Wokstation\Dnn\dnndev.new\bin
+:END</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
