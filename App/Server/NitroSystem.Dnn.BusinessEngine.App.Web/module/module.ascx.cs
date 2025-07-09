@@ -134,7 +134,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@DnnModuleId", this.ModuleId);
-                    command.Parameters.AddWithValue("@DnnModuleId", this.ModuleId);
 
                     using (var reader = command.ExecuteReader())
                     {

@@ -14,7 +14,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IModuleData, ModuleData>();
+            //services.AddScoped<IModuleData, ModuleData>();
 
             //GlobalConfiguration.Configuration.Filters.Add(new BasicAuthenticationAttribute());
             services.AddScoped<IDbConnection>(sp =>

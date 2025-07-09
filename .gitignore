@@ -358,6 +358,3 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-
-./App/client/business-engine--app/
-

@@ -501,9 +501,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Api
         {
             try
             {
-                int tt = 100;
-                int r = 120;
-
                 var moduleId = Guid.Parse(Request.Headers.GetValues("ModuleId").First());
 
                 string connectionId = Guid.Empty.ToString();// postData.ConnectionId;
