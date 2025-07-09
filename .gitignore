@@ -368,3 +368,6 @@ FodyWeavers.xsd
 /Studio/client/business-engine--studio/
 /App/client/business-engine--app/
 /Studio/client/business-engine--studio/
+
+./App/client/business-engine--app/
+
