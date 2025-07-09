@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Core.Contract;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Dashboard
 {

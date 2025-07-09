@@ -646,9 +646,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             }));
         }
 
-        public async Task<FieldDataSourceResult> GetFieldDataSource(string dataSourceSettings, /*IServiceWorker serviceWorker,*/ bool isServerSide = true)
+        public async Task<Core.Models.FieldDataSourceResult> GetFieldDataSource(string dataSourceSettings, /*IServiceWorker serviceWorker,*/ bool isServerSide = true)
         {
-            var dataSource = JsonConvert.DeserializeObject<FieldDataSourceInfo>(dataSourceSettings);
+            var dataSource = JsonConvert.DeserializeObject<Core.Models.FieldDataSourceInfo>(dataSourceSettings);
 
             var result = await GetFieldDataSourceItems(dataSource, isServerSide);
             result.Type = dataSource.Type;
@@ -658,9 +658,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             return result;
         }
 
-        public async Task<FieldDataSourceResult> GetFieldDataSourceItems(FieldDataSourceInfo dataSource/*, IServiceWorker serviceWorker*/, bool isServerSide)
+        public async Task<Core.Models.FieldDataSourceResult> GetFieldDataSourceItems(Core.Models.FieldDataSourceInfo dataSource/*, IServiceWorker serviceWorker*/, bool isServerSide)
         {
-            FieldDataSourceResult result = new FieldDataSourceResult() { };
+            Core.Models.FieldDataSourceResult result = new Core.Models.FieldDataSourceResult() { };
 
             try
             {
