@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/App/client/business-engine--app/
+/Studio/client/business-engine--studio/
+/Studio/client/business-engine--studio/
