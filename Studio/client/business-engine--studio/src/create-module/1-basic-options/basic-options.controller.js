@@ -28,6 +28,8 @@ export class CreateModuleBasicOptionsController {
         this.notifyService = notificationService;
         this.$deferredBroadcast = $deferredBroadcast;
 
+        var a = 10;
+
         this.$rootScope.createModuleValidatedStep.push(1);
 
         $scope.$on("onCreateModuleValidateStep1", (e, task, args) => {
