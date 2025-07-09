@@ -359,15 +359,5 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-.gitignore
-
-# Fody - auto-generated XML schema
-FodyWeavers.xsd
-/App/client/business-engine--app/
-/Studio/client/business-engine--studio/
-/Studio/client/business-engine--studio/
-/App/client/business-engine--app/
-/Studio/client/business-engine--studio/
-
 ./App/client/business-engine--app/
 

@@ -1,0 +1,150 @@
+.b-engine-module:not(.is-loaded) *[data-hide-in-ssr="true"] {
+  display: none !important;
+}
+
+.b-engine-module *[data-hide-in-list="true"] {
+  display: none !important;
+}
+
+.ignore-ssr {
+  visibility: hidden;
+}
+
+/* --------------------------------------------------------
+        Customize Form Styles
+    -----------------------------------------------------------*/
+
+.customize-toolbox-window {
+  font-size: 17px;
+  background-color: #ffffffee;
+  border: solid .1em #ccc;
+  border-radius: .475em;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  max-width: 50em;
+  z-index: 999999999999;
+}
+
+.customize-toolbox-window .window-header {
+  background: rgb(115, 111, 111);
+  background: linear-gradient(90deg, rgba(115, 111, 111, 1) 0%, rgba(255, 255, 255, 1) 100%);
+  padding: .2em 1em;
+  color: gray;
+  display: flex;
+  align-items: center;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.customize-toolbox-window .window-header .window-title {
+  color: #eee;
+  margin: 0 .8em 0 0;
+  font-size: 1.1em;
+}
+
+.customize-toolbox-window .window-header .tools-bar {
+  display: flex;
+  margin-left: auto;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  align-items: center;
+}
+
+.customize-toolbox-window .window-header .tools-bar i {
+  color: #fff;
+}
+
+.customize-toolbox-window .window-header .tools-bar button {
+  background: rgb(255, 0, 0);
+  background: linear-gradient(90deg, rgba(255, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 100%);
+  border: none;
+  color: #fff;
+  outline: none;
+  box-shadow: none;
+  padding: .4em .5em;
+  line-height: 1;
+}
+
+.customize-toolbox-window .window-body {
+  padding: 1.4em;
+}
+
+.customize-toolbox-window .window-footer {
+  padding: 1.2em;
+  display: flex;
+  justify-content: flex-end;
+  column-gap: .6em;
+}
+
+.customize-toolbox-window hr {
+  margin: 0;
+  border-top: solid .1em #ffd70094;
+  border-bottom: solid .1em #36363659;
+}
+
+.customize-toolbox-window .field-options {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.customize-toolbox-window .field-options .field-item {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.customize-toolbox-window .field-options .field-item .form-label {
+  display: inline-flex;
+  margin-bottom: .2em;
+  color: #333;
+  font-size: .9em;
+}
+
+.customize-toolbox-window .input-control {
+  background-color: #fff;
+  border: solid .1em #9d9d9d;
+  border-radius: .175em;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+  padding: .3em .8em;
+  font-size: .9em;
+}
+
+.customize-toolbox-window .multiple-input {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  column-gap: .3em;
+}
+
+.customize-toolbox-window .multiple-input>input {
+  width: 5em;
+}
+
+.customize-toolbox-window button {
+  background: #049f66f0;
+  border: solid .1em #777;
+  box-shadow: rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px;
+  border-radius: 0.25em;
+  color: #eee;
+  padding: .2em .8em;
+  font-size: .9em;
+}
+
+.customize-toolbox-window button.btn-save {
+  background-color: #4dd14d;
+}
+
+.customize-toolbox-window button.btn-save-as {
+  background: lightseagreen;
+}
+
+.customize-toolbox-window button.btn-cancel {
+  background-color: gray;
+}
+
+.customize-toolbox-window hr {
+  margin: 0;
+  border-top: solid 0.1em #ffd70094;
+  border-bottom: solid .1em #36363659;
+}
