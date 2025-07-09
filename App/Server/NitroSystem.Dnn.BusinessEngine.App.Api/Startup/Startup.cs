@@ -23,9 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
                 connection.Open(); // تضمین می‌کنه که بلافاصله آماده استفاده هست
                 return connection;
             });
-
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
             services.AddSingleton<ICacheService, CacheServiceBase>();
 
             //services.AddScoped<IDashbaordService, DashboardService>();
