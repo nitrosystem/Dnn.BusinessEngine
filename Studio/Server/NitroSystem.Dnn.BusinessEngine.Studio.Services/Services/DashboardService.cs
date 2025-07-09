@@ -22,7 +22,6 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using DotNetNuke.UI.Skins;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Enums;
 using System.Web.UI;
 using System.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;

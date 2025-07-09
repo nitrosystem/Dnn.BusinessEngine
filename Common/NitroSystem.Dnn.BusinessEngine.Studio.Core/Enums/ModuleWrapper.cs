@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.App.Services.Enums
+namespace NitroSystem.Dnn.BusinessEngine.Core.Enums
 {
    public enum ModuleWrapper
     {

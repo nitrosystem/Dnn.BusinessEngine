@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Core.Contract;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard
 {

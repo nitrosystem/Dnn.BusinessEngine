@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.Contract;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto
 {

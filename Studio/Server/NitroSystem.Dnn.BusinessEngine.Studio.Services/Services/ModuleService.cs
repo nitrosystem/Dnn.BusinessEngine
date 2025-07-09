@@ -12,7 +12,6 @@ using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;

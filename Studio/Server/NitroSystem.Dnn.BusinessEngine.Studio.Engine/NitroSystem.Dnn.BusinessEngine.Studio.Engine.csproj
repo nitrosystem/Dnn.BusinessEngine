@@ -82,8 +82,6 @@
     <Compile Include="Dto\BuildModuleResultDto.cs" />
     <Compile Include="DashboardAppearance\DashboardSkinManager.cs" />
     <Compile Include="Dto\PageResourceDto.cs" />
-    <Compile Include="Enums\DashboardPageType.cs" />
-    <Compile Include="Enums\DashboardType.cs" />
     <Compile Include="DashboardAppearance\Models\DashboardSkin.cs" />
     <Compile Include="DashboardAppearance\Models\DashboardTemplate.cs" />
     <Compile Include="DashboardAppearance\Models\DashboardSkinTheme.cs" />
@@ -102,7 +100,6 @@
     <Compile Include="BuildModule\Models\MachineResourceInfo.cs" />
     <Compile Include="BuildModule\Models\ModuleFieldGlobalSettings.cs" />
     <Compile Include="BuildModule\Models\ResourceMergeStrategy.cs" />
-    <Compile Include="Enums\ModuleWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

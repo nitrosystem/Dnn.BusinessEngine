@@ -148,7 +148,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Web
             {
                 connection.Open();
 
-                // خواندن ScenarioID با استفاده از پارامترهای امن
                 using (var command = new SqlCommand("SELECT Id FROM dbo.BusinessEngine_Scenarios WHERE ScenarioName = @ScenarioName", connection))
                 {
                     command.Parameters.AddWithValue("@ScenarioName", this.ScenarioNameParam);
@@ -157,13 +156,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Web
                     this.ScenarioId = scenarioId != DBNull.Value && scenarioId != null ? (Guid)scenarioId : Guid.Empty;
                 }
 
-                // خواندن منابع استودیو از استورپروسیجر
                 using (var command = new SqlCommand("dbo.BusinessEngine_GetStudioResources", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-
-                    // در صورت نیاز به پارامتر ورودی، از این خط استفاده کن:
-                    // command.Parameters.AddWithValue("@SomeParameter", someValue);
 
                     using (var reader = command.ExecuteReader())
                     {

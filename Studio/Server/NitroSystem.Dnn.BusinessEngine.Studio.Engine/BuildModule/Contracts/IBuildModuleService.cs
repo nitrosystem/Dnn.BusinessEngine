@@ -1,7 +1,7 @@
 ﻿using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;

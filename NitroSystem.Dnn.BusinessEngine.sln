@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{DB2CC0
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{D65682D6-7E27-4DF3-972D-56AA80F8F27E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{AAE20347-74A8-4808-AA3C-1353EBABC23E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{AAE20347-74A8-4808-AA3C-1353EBABC23E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Studio.Api", "Studio\Server\NitroSystem.Dnn.BusinessEngine.Studio.Api\NitroSystem.Dnn.BusinessEngine.Studio.Api.csproj", "{F75D86AD-7CEE-484A-B781-508B53411771}"
 EndProject

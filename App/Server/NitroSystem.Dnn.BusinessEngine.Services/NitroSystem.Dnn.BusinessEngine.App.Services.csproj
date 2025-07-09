@@ -97,13 +97,10 @@
     <Compile Include="Dto\Module\ModuleCustomLibraryDto.cs" />
     <Compile Include="Dto\Module\ModuleFieldTypeDto.cs" />
     <Compile Include="Enums\BuildTypeScope.cs" />
-    <Compile Include="Enums\DashboardPageType.cs" />
-    <Compile Include="Enums\DashboardType.cs" />
     <Compile Include="Enums\EntityType.cs" />
     <Compile Include="Enums\ImportExportType.cs" />
     <Compile Include="Enums\LibraryOrResource.cs" />
     <Compile Include="Enums\ModuleVariableScope.cs" />
-    <Compile Include="Enums\ModuleWrapper.cs" />
     <Compile Include="Enums\VariableTypeLanguage.cs" />
     <Compile Include="Services\ModuleService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

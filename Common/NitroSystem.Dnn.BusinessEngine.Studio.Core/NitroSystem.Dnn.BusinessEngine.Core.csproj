@@ -80,6 +80,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ADO.NET\ISqlQueryExecutor.cs" />
+    <Compile Include="ADO.NET\SqlDataReaderExtensions.cs" />
+    <Compile Include="ADO.NET\SqlQueryExecutor.cs" />
     <Compile Include="Attributes\AttributeCache.cs" />
     <Compile Include="BackgroundService\BackgroundService.cs" />
     <Compile Include="Cashing\CacheServiceBase.cs" />
@@ -89,10 +92,13 @@
     <Compile Include="Contract\IField.cs" />
     <Compile Include="Contract\IModule.cs" />
     <Compile Include="Contract\IViewModel.cs" />
+    <Compile Include="Enums\DashboardPageType.cs" />
+    <Compile Include="Enums\DashboardType.cs" />
     <Compile Include="Enums\DtoType.cs" />
     <Compile Include="Enums\FieldDataSourceType.cs" />
     <Compile Include="Enums\ModuleBuilderType.cs" />
     <Compile Include="Enums\ModuleType.cs" />
+    <Compile Include="Enums\ModuleWrapper.cs" />
     <Compile Include="Enums\ServiceResultType.cs" />
     <Compile Include="ExpressionService\ConditionParser\ComparisonNode.cs" />
     <Compile Include="ExpressionService\ConditionParser\ConditionNode.cs" />
@@ -108,6 +114,7 @@
     <Compile Include="Models\FieldDataSourceInfo.cs" />
     <Compile Include="Models\FieldDataSourceResult.cs" />
     <Compile Include="Models\FieldValueInfo.cs" />
+    <Compile Include="Models\PageResourceInfo.cs" />
     <Compile Include="Models\ParamInfo.cs" />
     <Compile Include="Providers\CurrentUserProvider.cs" />
     <Compile Include="Reflection\DictionaryToObjectConverter.cs" />

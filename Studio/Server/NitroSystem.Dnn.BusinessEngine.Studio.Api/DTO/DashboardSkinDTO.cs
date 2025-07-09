@@ -1,5 +1,4 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;

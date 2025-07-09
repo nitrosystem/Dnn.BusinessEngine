@@ -27,7 +27,6 @@ using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
-using NitroSystem.Dnn.BusinessEngine.Core.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;

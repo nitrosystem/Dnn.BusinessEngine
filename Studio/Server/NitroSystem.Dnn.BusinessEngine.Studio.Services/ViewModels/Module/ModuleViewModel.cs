@@ -1,6 +1,5 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Core.Contract;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Enums;
 using System;
 using System.Collections;
 using System.Collections.Generic;

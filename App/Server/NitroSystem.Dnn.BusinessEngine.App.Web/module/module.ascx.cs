@@ -115,8 +115,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                 CtlPageResource.ModuleGuid = this.ModuleGuid;
                 CtlPageResource.ModuleName = this.ModuleName;
                 CtlPageResource.IsModuleInAllTabs = this.IsModuleAllTabs;
-
-                //Task task = CtlPageResource.RegisterPageResources();
+                CtlPageResource.RegisterPageResources();
 
                 var templates = GetTemplates();
                 pnlTemplate.InnerHtml = templates.Template;

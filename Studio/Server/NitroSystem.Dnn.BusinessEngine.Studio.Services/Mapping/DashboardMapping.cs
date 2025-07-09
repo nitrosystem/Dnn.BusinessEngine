@@ -19,7 +19,6 @@ using System.Web.UI;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard.Skin;
 using DotNetNuke.UI.Skins;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.DashboardAppearance.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
