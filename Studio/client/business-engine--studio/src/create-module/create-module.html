@@ -43,7 +43,8 @@
             <div class="pre-loader theme-default" ng-hide="$.hideStepPreloader">
                 <div class="lines"></div>
             </div>
-            <div ng-show="$.step==1" ng-include="$.basicOptionsTemplate"></div>
+            <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(1)>=0" ng-show="$.step==1"
+                ng-include="$.basicOptionsTemplate"></div>
             <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(2)>=0" ng-show="$.step==2"
                 ng-include="$.templateTemplate"></div>
             <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(3)>=0" ng-show="$.step==3"

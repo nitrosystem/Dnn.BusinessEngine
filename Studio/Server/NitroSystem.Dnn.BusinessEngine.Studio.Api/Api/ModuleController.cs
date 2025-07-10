@@ -283,8 +283,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     Libraries = libraries,
-                    ModuleCustomLibraries = moduleCustomLibraries.OrderBy(l => l.LoadOrder),
-                    ModuleCustomResources = moduleCustomResources.OrderBy(l => l.LoadOrder)
+                    ModuleCustomLibraries = moduleCustomLibraries,
+                    ModuleCustomResources = moduleCustomResources
                 });
             }
             catch (Exception ex)

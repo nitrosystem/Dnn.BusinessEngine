@@ -29,10 +29,10 @@ export class CreateModuleLibrariesController {
             stop: (e, ui) => {
                 const target = $(e.target).data('type');
                 const isSorted = target == 0
-                    ? (this.customLibraries.length > 1 ? true : false)
-                    : (this.customResources.length > 1 ? true : false);
+                    ? (this.moduleCustomLibraries.length > 1 ? true : false)
+                    : (this.moduleCustomResources.length > 1 ? true : false);
                 if (isSorted) {
-                    var items = target == 0 ? this.customLibraries : this.customResources
+                    var items = target == 0 ? this.moduleCustomLibraries : this.moduleCustomResources
 
                     let list = [];
                     for (let index = 0; index < items.length; index++) {
@@ -71,8 +71,8 @@ export class CreateModuleLibrariesController {
 
         this.apiService.get("Module", "GetModuleCustomLibraries", { moduleId: this.moduleId, }).then((data) => {
             this.libraries = data.Libraries;
-            this.customLibraries = data.ModuleLibraries ?? [];
-            this.customResources = data.ModuleResources ?? [];
+            this.moduleCustomLibraries = data.ModuleCustomLibraries ?? [];
+            this.moduleCustomResources = data.ModuleCustomResources ?? [];
 
             this.library = {};
 
@@ -161,7 +161,7 @@ export class CreateModuleLibrariesController {
             this.notifyService.success("Library updated has been successfully");
 
             this.library.Id = data;
-            this.customLibraries.push(this.library);
+            this.moduleCustomLibraries.push(this.library);
 
             this.disposeWorkingMode();
 
@@ -193,7 +193,7 @@ export class CreateModuleLibrariesController {
             this.notifyService.success("Library updated has been successfully");
 
             this.resource.Id = data;
-            this.customResources.push(this.resource);
+            this.moduleCustomResources.push(this.resource);
 
             this.disposeWorkingMode();
 
@@ -270,7 +270,7 @@ export class CreateModuleLibrariesController {
                 this.apiService.post("Module", "DeleteModuleCustomLibrary", { Id: id }).then((data) => {
                     this.notifyService.success("Library deleted has been successfully");
 
-                    this.customLibraries.splice($index, 1);
+                    this.moduleCustomLibraries.splice($index, 1);
 
                     delete this.awaitAction;
                     delete this.running;
@@ -320,7 +320,7 @@ export class CreateModuleLibrariesController {
                 this.apiService.post("Module", "DeleteModuleCustomResource", { Id: id }).then((data) => {
                     this.notifyService.success("Resource deleted has been successfully");
 
-                    this.customResources.splice($index, 1);
+                    this.moduleCustomResources.splice($index, 1);
 
                     delete this.awaitAction;
                     delete this.running;

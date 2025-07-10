@@ -497,7 +497,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<IEnumerable<ModuleCustomLibraryViewModel>> GetModuleCustomLibrariesAsync(Guid moduleId)
         {
-            var task1 = _repository.GetByScopeAsync<ModuleCustomLibraryView>(moduleId);
+            var task1 = _repository.GetByScopeAsync<ModuleCustomLibraryView>(moduleId, "LoadOrder");
             var task2 = _repository.GetByScopeAsync<ModuleCustomLibraryResourceView>(moduleId);
 
             await Task.WhenAll(task1, task2);
@@ -507,7 +507,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<IEnumerable<ModuleCustomResourceViewModel>> GetModuleCustomResourcesAsync(Guid moduleId)
         {
-            var resources = await _repository.GetByScopeAsync<ModuleCustomResourceInfo>(moduleId);
+            var resources = await _repository.GetByScopeAsync<ModuleCustomResourceInfo>(moduleId, "LoadOrder");
 
             return BaseMapping<ModuleCustomResourceInfo, ModuleCustomResourceViewModel>.MapViewModels(resources);
         }

@@ -57,9 +57,9 @@
                         <i class="codicon codicon-chevron-up"></i>
                     </span>
                 </div>
-                <div id="grpCustomLibraries" class="libraries collapse show" ng-model="$.customLibraries"
+                <div id="grpCustomLibraries" class="libraries collapse show" ng-model="$.moduleCustomLibraries"
                     ui-sortable="$.sortableOptions" data-type="0">
-                    <div class="library-item" ng-repeat="library in $.customLibraries">
+                    <div class="library-item" ng-repeat="library in $.moduleCustomLibraries">
                         <div class="content-wrapper">
                             <div class="expand-resources">
                                 <i class="codicon codicon-chevron-right collapsed" role="button"
@@ -135,9 +135,9 @@
                         <i class="codicon codicon-chevron-up"></i>
                     </span>
                 </div>
-                <div id="grpCustomResources" class="resources collapse show" ng-model="$.customResources"
+                <div id="grpCustomResources" class="resources collapse show" ng-model="$.moduleCustomResources"
                     ui-sortable="$.sortableOptions" data-type="1">
-                    <div class="resource-item" ng-repeat="resource in $.customResources">
+                    <div class="resource-item" ng-repeat="resource in $.moduleCustomResources">
                         <div class="content-wrapper">
                             <span class="address-type">{{resource.AddressType}}</span>
                             <div class="image-wrapper">
