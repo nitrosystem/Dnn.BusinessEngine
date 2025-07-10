@@ -344,7 +344,7 @@ export class ModuleHtmlEditorController {
             this.module.LayoutTemplateBackup = _.clone(this.module.LayoutTemplate);
             this.module.LayoutCssBackup = _.clone(this.module.LayoutCss);
 
-            if (this.module.Wrapper === 1 ) {
+            if (this.module.Wrapper === 1) {
                 _.filter(this.$rootScope.explorerItems, (item) => {
                     return (
                         item.ItemId == this.module.Id &&
@@ -385,7 +385,7 @@ export class ModuleHtmlEditorController {
                     this.renderDesignForm();
                 });
             }
-            else if (this.module.ModuleBuilderType ===1 && !this.module.CustomJs)
+            else if (this.module.ModuleBuilderType === 1 && !this.module.CustomJs)
                 this.module.CustomJs = `function ${this.globalService.capitalizeFirstLetter(this.module.ModuleName.replace(/-/g, ''))}Controller(moduleController,$scope) /* Please don't rename function name */ \n{\n\tthis.onPageLoad = function()\n\t{\n\t\tmoduleController.callActionsByEvent('module','OnPageLoad').then((data) => {\t\n\t\t\t//...\n\t\t});\n\t}\n}`;
 
             this.onFocusModule();
@@ -410,8 +410,6 @@ export class ModuleHtmlEditorController {
         });
 
         this.onSidebarTabClick('toolbox');
-
-        this.setForm();
     }
 
     onFocusModule() {
@@ -427,62 +425,6 @@ export class ModuleHtmlEditorController {
 
     onCloseWindow() {
         this.$scope.$emit('onCloseModule');
-    }
-
-    setForm() {
-        this.form = this.validationService.init({
-            FieldName: {
-                id: "txtFieldName",
-                required: true,
-            },
-            FieldText: {
-                rule: (value) => {
-                    if (this.currentField && !this.currentField.Settings.IsHideFieldText && !value) return false;
-
-                    return true;
-                },
-                id: "txtFieldText",
-                required: true,
-            },
-            FieldType: {
-                id: "drpFieldType",
-                required: true,
-            },
-            Template: {
-                rule: (value) => {
-                    if (!value && this.currentField && this.currentField.InheritTemplate)
-                        return true;
-                    else if (value)
-                        return true;
-                },
-                required: true,
-            },
-            Theme: {
-                rule: (value) => {
-                    if (!value && this.currentField && this.currentField.FieldTypeObject.Themes && this.currentField.FieldTypeObject.Themes.length)
-                        return false;
-                    else
-                        return true;
-                },
-                required: true,
-            },
-        },
-            true,
-            this.$scope,
-            "$.currentField"
-        );
-
-        this.moduleSkinForm = this.validationService.init({
-            Skin: {
-                id: "inpModuleSkin",
-                required: true,
-            }
-
-        },
-            true,
-            this.$scope,
-            "$.module"
-        );
     }
 
     parseFieldTypes(fieldTypes) {
@@ -533,7 +475,7 @@ export class ModuleHtmlEditorController {
         const renderTemplateFunc = (type, isFastBuilding) => {
             const $defer = this.$q.defer();
 
-            if (type ===1 ) {
+            if (type === 1) {
                 $defer.resolve();
             } else if (type == 'FormDesigner') {
                 this.moduleBuilderService.renderModuleTemplate(this.module, this.fields, this.$scope, isFastBuilding).then((moduleTemplate) => {
@@ -935,10 +877,6 @@ export class ModuleHtmlEditorController {
             Skin: this.module.Skin,
             Template: this.module.Template,
             Theme: this.module.Theme,
-            EnableFieldsDefaultTemplate: this.module.EnableFieldsDefaultTemplate,
-            EnableFieldsDefaultTheme: this.module.EnableFieldsDefaultTheme,
-            FieldsDefaultTemplate: this.module.FieldsDefaultTemplate,
-            FieldsDefaultTheme: this.module.FieldsDefaultTheme,
             LayoutTemplate: this.module.LayoutTemplate,
             LayoutCss: this.module.LayoutCss
         }).then((data) => {
@@ -1168,15 +1106,11 @@ export class ModuleHtmlEditorController {
             IsValuable: fieldType.IsValuable,
             IsSelective: fieldType.IsSelective,
             IsJsonValue: fieldType.IsJsonValue,
-            InheritTemplate: this.module.EnableFieldsDefaultTemplate,
-            InheritTheme: this.module.EnableFieldsDefaultTheme,
             DataSource: {},
             Settings: defaultSettings,
         };
 
         this.beforeFieldId = beforeFieldId;
-
-        this.checkInheritTemplateAndTheme(this.currentField);
 
         this.workingMode = "field-edit";
         this.$scope.$emit("onShowRightWidget", { controller: this });
@@ -1236,121 +1170,8 @@ export class ModuleHtmlEditorController {
         }
     }
 
-    saveCurrentField() {
-        const $defer = this.$q.defer();
-
-        delete this.currentField.Value;
-
-        this.checkInheritTemplateAndTheme(this.currentField);
-
-        this.running = "save-field";
-        this.awaitAction = {
-            title: "Saving Field",
-            subtitle: "Just a moment for saving the field..."
-        };
-
-        this.apiService.post("Module", "SaveModuleField", this.currentField).then((field) => {
-            this.notifyService.success(this.currentField.FieldName + " Field updated has been successfully");
-
-            delete this.awaitAction;
-            delete this.running;
-
-            this.currentField.isEdited = false;
-
-            $defer.resolve(field);
-
-            this.disposeWorkingMode();
-        }, (error) => {
-            this.awaitAction.isError = true;
-            this.awaitAction.subtitle = error.statusText;
-            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-            this.notifyService.error(error.data.Message);
-
-            delete this.running;
-        });
-
-        return $defer.promise;
-    }
-
-    checkInheritTemplateAndTheme(field) {
-        let fieldType = field.FieldTypeObject;
-
-        if (field.InheritTemplate) {
-            if (_.filter(fieldType.Templates, (t) => { return t.TemplateName == this.module.FieldsDefaultTemplate }).length == 0) {
-                this.showProblemForInheritTemplate = true;
-                delete field.Template;
-
-                this.$timeout(() => {
-                    field.InheritTemplate = false
-                }, 600)
-
-            } else field.Template = this.module.FieldsDefaultTemplate;
-        } else {
-            _.filter(field.FieldTypeObject.Templates || [], (t) => { return t.TemplateName == field.Template; }).map((t) => {
-                field.IsSkinTemplate = t.IsSkinTemplate;
-            });
-        }
-
-        if (field.InheritTheme) {
-            if (_.filter(fieldType.Themes, (t) => { return (t.TemplateName && t.TemplateName == field.Template && t.ThemeName == this.module.FieldsDefaultTheme) || (!t.TemplateName && t.ThemeName == this.module.FieldsDefaultTheme) }).length == 0) {
-                this.showProblemForInheritTheme = true;
-                delete field.Theme;
-                delete field.ThemeCssClass;
-
-                this.$timeout(() => {
-                    field.InheritTheme = false
-                }, 600)
-            } else field.Theme = this.module.FieldsDefaultTheme;
-        } else {
-            _.filter(field.FieldTypeObject.Themes || [], (t) => { return (t.TemplateName && t.TemplateName == field.Template && t.ThemeName == field.Theme) || (!t.TemplateName && t.ThemeName == field.Theme); }).map((t) => {
-                field.IsSkinTheme = t.IsSkinTemplate;
-                field.ThemeCssClass = t.ThemeCssClass;
-            });
-        }
-    }
-
     onCancelFieldClick() {
         this.disposeWorkingMode();
-    }
-
-    onDeleteFieldClick($event) {
-        if (confirm("Are you sure delete this field!?")) {
-            var fieldId = this.currentField.FieldId;
-
-            this.running = "delete-field";
-            this.awaitAction = {
-                title: "Deletin Field",
-                subtitle: "Just a moment for removing the field...",
-            };
-
-            this.apiService.post("Module", "DeleteModuleField", { Id: fieldId }).then((data) => {
-                this.notifyService.success("Field deleted has been successfully");
-
-                _.filter(this.fields, (field) => { return field.FieldId == fieldId; }).map((field) => {
-                    this.fields.splice(this.fields.indexOf(field), 1);
-
-                    this.buildModule(true);
-
-                    $("#board" + this.module.Id).find('*[b-field="' + field.FieldId + '"]').remove();
-
-                    delete this.field[field.FieldName];
-                    delete this.awaitAction;
-                    delete this.running;
-                });
-
-                this.removeCurrentField(true);
-            }, (error) => {
-                this.awaitAction.isError = true;
-                this.awaitAction.subtitle = error.statusText;
-                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-                this.notifyService.error(error.data.Message);
-
-                delete this.running;
-            }
-            );
-        }
     }
 
     getPaneElementByPaneName(paneName) {
@@ -1795,22 +1616,7 @@ export class ModuleHtmlEditorController {
     onRemoveActionsFilterClick() {
         delete this.fieldActionsFilter;
     }
-
-    onShowFieldTemplateClick() {
-        this.checkInheritTemplateAndTheme(this.currentField);
-        this.currentFieldBackup = _.cloneDeep(this.currentField);
-
-        this.workingMode = "field-template";
-        this.$scope.$emit("onShowRightWidget", { controller: this });
-    }
-
-    onCancelFieldTemplateClick() {
-        this.currentField = _.cloneDeep(this.currentFieldBackup);
-        this.field[this.currentField.FieldName] = this.currentField;
-
-        this.disposeWorkingMode();
-    }
-
+   
     /*------------------------------------*/
     /* Custom Resources Methods  */
     /*------------------------------------*/

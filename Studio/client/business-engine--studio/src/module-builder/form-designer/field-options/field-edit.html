@@ -76,27 +76,7 @@
             </span>
         </div>
         <div id="grpFieldTemplates" class="group-content collapse show">
-            <div class="b-field" ng-if="$.module.EnableFieldsDefaultTemplate">
-                <div class="form-label">Inherit Template From Module Settings</div>
-                <label class="b-switch">
-                    <input type="checkbox" ng-model="$.currentField.InheritTemplate"
-                        ng-change="$.checkInheritTemplateAndTheme($.currentField)">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="b-notify notify-info mb-4" ng-if="$.showProblemForInheritTemplate">
-                <i class="codicon codicon-info b-icon-2"></i>
-                <div class="text">
-                    <h4 class="label">Problem!</h4>
-                    <span class="subtext">
-                        Can not set the current field template from the module settings.
-                        <br />
-                        No template with the same name as <b>{{$.module.FieldsDefaultTemplate}}</b> were found in the
-                        field templates list.
-                    </span>
-                </div>
-            </div>
-            <ul class="field-templates" ng-if="!$.currentField.InheritTemplate">
+            <ul class="field-templates">
                 <li class="template-item" ng-repeat="template in $.currentField.FieldTypeObject.Templates"
                     ng-class="{'active':template.TemplateName==$.currentField.Template}">
                     <button type="button" class="item-button" ng-click="$.onSelectFieldTemplate(template)">
@@ -127,27 +107,7 @@
             </span>
         </div>
         <div id="grpFieldThemes" class="group-content collapse show">
-            <div class="b-field" ng-if="$.module.EnableFieldsDefaultTheme">
-                <div class="form-label">Inherit Template From Module Settings</div>
-                <label class="b-switch">
-                    <input type="checkbox" ng-model="$.currentField.InheritTheme"
-                        ng-change="$.checkInheritTemplateAndTheme($.currentField)">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="b-notify notify-info mb-4" ng-if="$.showProblemForInheritTheme">
-                <i class="codicon codicon-info b-icon-2"></i>
-                <div class="text">
-                    <h4 class="label">Problem!</h4>
-                    <span class="subtext">
-                        Can not set the current field theme from the module settings.
-                        <br />
-                        No theme with the same name as <b>{{$.module.FieldsDefaultTheme}}</b> were found in the field
-                        themes list.
-                    </span>
-                </div>
-            </div>
-            <ul class="field-templates" ng-if="!$.currentField.InheritTheme">
+            <ul class="field-templates">
                 <li class="template-item" ng-repeat="theme in $.currentField.FieldTypeObject.Themes"
                     ng-if="!theme.TemplateName||theme.TemplateName==$.currentField.Template"
                     ng-class="{'active':theme.ThemeName==$.currentField.Theme}">

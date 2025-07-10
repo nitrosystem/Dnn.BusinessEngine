@@ -38,7 +38,8 @@
             </div>
         </div>
         <div ng-show="$.currentField.FieldType!==$.currentField.FieldTypeBackup"
-            class="b-notify notify-info notify-sm mb-2"b-adjective-class="$.currentField.FieldTypeBackup" adjective-class="shine-small" adjective-delay="1000">
+            class="b-notify notify-info notify-sm mb-2" b-adjective-class="$.currentField.FieldTypeBackup"
+            adjective-class="shine-small" adjective-delay="1000">
             <i class="codicon codicon-info b-icon-2"></i>
             <div class="text">
                 <h6 class="label text-uppercase">Important Note!</h6>
@@ -280,11 +281,9 @@
                     <label class="form-label">Field Template & Theme</label>
                     <div class="b-input field-settings-more-item" role="button" ng-click="$.onShowFieldTemplateClick()">
                         <i class="codicon codicon-preview"></i>
-                        <span ng-if="$.currentField.InheritTemplate">Inherit Template</span>
-                        <span ng-if="$.currentField.InheritTheme">Inherit Theme</span>
-                        <span ng-if="!$.currentField.InheritTemplate">{{$.currentField.Template}}</span>
-                        <span ng-if="!$.currentField.InheritTemplate && !$.currentField.InheritTheme">&nbsp|&nbsp</span>
-                        <span ng-if="!$.currentField.InheritTheme">{{$.currentField.Theme}}</span>
+                        <span>{{$.currentField.Template}}</span>
+                        <span ng-if="$.currentField.Template && $.currentField.Theme">&nbsp|&nbsp</span>
+                        <span>{{$.currentField.Theme}}</span>
                         <label>...</label>
                     </div>
                 </div>

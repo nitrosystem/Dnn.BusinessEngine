@@ -17,8 +17,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field
         public Guid ModuleId { get; set; }
         public Guid? ParentId { get; set; }
         public string PaneName { get; set; }
-        public bool InheritTemplate { get; set; }
-        public bool InheritTheme { get; set; }
         public string Template { get; set; }
         public string Theme { get; set; }
         public string ThemeCssClass { get; set; }

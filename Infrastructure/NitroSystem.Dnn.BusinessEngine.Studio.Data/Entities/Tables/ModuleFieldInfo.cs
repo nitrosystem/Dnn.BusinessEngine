@@ -18,8 +18,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
         public Guid ModuleId { get; set; }
         public Guid? ParentId { get; set; }
         public string PaneName { get; set; }
-        public bool InheritTemplate { get; set; }
-        public bool InheritTheme { get; set; }
         public bool IsSkinTemplate { get; set; }
         public bool IsSkinTheme { get; set; }
         public string Template { get; set; }

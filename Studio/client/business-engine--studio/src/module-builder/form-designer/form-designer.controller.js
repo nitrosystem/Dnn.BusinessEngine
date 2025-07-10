@@ -337,12 +337,6 @@ export class ModuleFormDesignerController {
                 required: true,
             },
             Template: {
-                rule: (value) => {
-                    if (!value && this.currentField && this.currentField.InheritTemplate)
-                        return true;
-                    else if (value)
-                        return true;
-                },
                 required: true,
             },
             Theme: {
@@ -763,16 +757,12 @@ export class ModuleFormDesignerController {
             IsValuable: fieldType.IsValuable,
             IsSelective: fieldType.IsSelective,
             IsJsonValue: fieldType.IsJsonValue,
-            InheritTemplate: this.module.EnableFieldsDefaultTemplate,
-            InheritTheme: this.module.EnableFieldsDefaultTheme,
             DataSource: {},
             Settings: defaultSettings,
         };
 
         this.ignoreWatchCurrentField = true;
         this.beforeField = beforeField;
-
-        this.checkInheritTemplateAndTheme(this.currentField);
 
         this.workingMode = "field-edit";
         this.$scope.$emit("onShowRightWidget", { controller: this });
@@ -846,7 +836,6 @@ export class ModuleFormDesignerController {
             var field = angular.copy(targetField);
             delete field.Value;
 
-            this.checkInheritTemplateAndTheme(field);
             let guids = [...document.querySelectorAll(`.pane-body[data-pane="${field.PaneName}"] [b-field]`)].map(el => el.getAttribute('b-field'));
 
             if (isNewField && !this.beforeField) field.ViewOrder = guids.length;
@@ -907,43 +896,6 @@ export class ModuleFormDesignerController {
         this.$timeout(() => {
             this.$scope.$broadcast("onEditField");
         }, 500);
-    }
-
-    checkInheritTemplateAndTheme(field) {
-        let fieldType = field.FieldTypeObject;
-
-        if (field.InheritTemplate) {
-            if (_.filter(fieldType.Templates, (t) => { return t.TemplateName == this.module.FieldsDefaultTemplate }).length == 0) {
-                this.showProblemForInheritTemplate = true;
-                delete field.Template;
-
-                this.$timeout(() => {
-                    field.InheritTemplate = false
-                }, 600)
-
-            } else field.Template = this.module.FieldsDefaultTemplate;
-        } else {
-            _.filter(field.FieldTypeObject.Templates || [], (t) => { return t.TemplateName == field.Template; }).map((t) => {
-                field.IsSkinTemplate = t.IsSkinTemplate;
-            });
-        }
-
-        if (field.InheritTheme) {
-            if (_.filter(fieldType.Themes, (t) => { return (t.TemplateName && t.TemplateName == field.Template && t.ThemeName == this.module.FieldsDefaultTheme) || (!t.TemplateName && t.ThemeName == this.module.FieldsDefaultTheme) }).length == 0) {
-                this.showProblemForInheritTheme = true;
-                delete field.Theme;
-                delete field.ThemeCssClass;
-
-                this.$timeout(() => {
-                    field.InheritTheme = false
-                }, 600)
-            } else field.Theme = this.module.FieldsDefaultTheme;
-        } else {
-            _.filter(field.FieldTypeObject.Themes || [], (t) => { return (t.TemplateName && t.TemplateName == field.Template && t.ThemeName == field.Theme) || (!t.TemplateName && t.ThemeName == field.Theme); }).map((t) => {
-                field.IsSkinTheme = t.IsSkinTemplate;
-                field.ThemeCssClass = t.ThemeCssClass;
-            });
-        }
     }
 
     onCloseWindowClick() {
@@ -1425,8 +1377,6 @@ export class ModuleFormDesignerController {
     }
 
     onShowFieldTemplateClick() {
-        this.checkInheritTemplateAndTheme(this.currentField);
-
         this.workingMode = "field-template";
         this.$scope.$emit("onShowRightWidget", { controller: this });
     }

@@ -16,7 +16,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
     {
         public Guid Id { get; set; }
         public string FieldType { get; set; }
-        public string Parent { get; set; }
         public string TemplateName { get; set; }
         public string TemplateImage { get; set; }
         public string TemplatePath { get; set; }
