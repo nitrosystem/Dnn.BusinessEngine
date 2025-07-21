@@ -1,11 +1,7 @@
-﻿using DotNetNuke.Entities.Controllers;
-using DotNetNuke.Entities.Host;
-using DotNetNuke.Web.Api;
+﻿using DotNetNuke.Web.Api;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.DTO;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Common;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Core.WebSocketServer;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
@@ -19,43 +15,40 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using System.Web.UI;
 using System.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using DotNetNuke.Security.Roles;
-using DotNetNuke.Common.Utilities;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
     [DnnAuthorize(StaticRoles = "Administrators")]
     public class ModuleController : DnnApiController
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ICacheService _cacheService;
         private readonly IGlobalService _globalService;
-        private readonly IDashbaordService _dashboardService;
+        private readonly IServiceFactory _serviceFactory;
+        private readonly IViewModelService _viewModelService;
         private readonly IModuleService _moduleService;
         private readonly IActionService _actionService;
         private readonly ITemplateService _templateService;
 
         public ModuleController(
-            IUnitOfWork unitOfWork,
-            ICacheService cacheService,
             IGlobalService globalService,
-            IDashbaordService dashboardService,
+            IServiceFactory serviceFactory,
+            IViewModelService viewModelService,
             IModuleService moduleService,
             IActionService actionService,
             ITemplateService templateService
         )
         {
-            _unitOfWork = unitOfWork;
-            _cacheService = cacheService;
             _globalService = globalService;
-            _dashboardService = dashboardService;
+            _serviceFactory = serviceFactory;
+            _viewModelService = viewModelService;
             _moduleService = moduleService;
             _actionService = actionService;
             _templateService = templateService;
@@ -63,14 +56,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         #region Create Module
 
-        //#region Modules & Fields
-
         #region 1-Basic Options
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetModuleBasicOptions()
+        public HttpResponseMessage GetModuleBasicOptions()
         {
-            return await GetModuleBasicOptions(Guid.Empty);
+            return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         [HttpGet]
@@ -78,26 +69,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+                var module = await this._moduleService.GetModuleViewModelAsync(moduleId, this.PortalSettings);
 
-                var module = moduleId == Guid.Empty
-                    ? null
-                    : await this._moduleService.GetModuleViewModelAsync(moduleId, this.PortalSettings);
-
-                var scenarios = this._globalService.GetScenariosViewModelAsync();
-
-                IEnumerable<string> roles = null;
-                roles = RoleController.Instance.GetRoles(PortalSettings.PortalId).Cast<RoleInfo>().Select(r => r.RoleName);
-                var allUsers = new List<string>();
-                allUsers.Add("All Users");
-                roles = allUsers.Concat(roles);
-
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    Module = module,
-                    Scenarios = scenarios,
-                    Roles = roles,
-                });
+                return Request.CreateResponse(HttpStatusCode.OK, module);
             }
             catch (Exception ex)
             {
@@ -127,11 +101,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                _unitOfWork.BeginTransaction();
+                //_unitOfWork.BeginTransaction();
 
                 var moduleId = await _moduleService.SaveModuleAsync(module, module.Id == Guid.Empty);
 
-                _unitOfWork.Commit();
+                //_unitOfWork.Commit();
 
                 return Request.CreateResponse(HttpStatusCode.OK, moduleId);
             }
@@ -177,11 +151,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 module.LayoutTemplate = postData.LayoutTemplate;
                 module.LayoutCss = postData.LayoutCss;
 
-                _unitOfWork.BeginTransaction();
+                //_unitOfWork.BeginTransaction();
 
                 await _moduleService.SaveModuleAsync(module, false);
 
-                _unitOfWork.Commit();
+                //_unitOfWork.Commit();
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -190,7 +164,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             }
             catch (Exception ex)
             {
-                _unitOfWork.Rollback();
+                //_unitOfWork.Rollback();
 
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -206,11 +180,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-                var viewModelService = new ViewModelService(_unitOfWork, _cacheService);
 
                 var variableTypes = await _moduleService.GetVariableTypesViewModelAsync();
                 var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
-                var viewModels = await viewModelService.GetViewModelsAsync(scenarioId, 1, 1000, "", "Title");
+                var viewModels = await _viewModelService.GetViewModelsAsync(scenarioId, 1, 1000, "", "Title");
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -251,17 +224,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                _unitOfWork.BeginTransaction();
+                //_unitOfWork.BeginTransaction();
 
                 var isDeleted = await _moduleService.DeleteModuleVariablesAsync(postData.Id);
 
-                _unitOfWork.Commit();
+                //_unitOfWork.Commit();
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
             catch (Exception ex)
             {
-                _unitOfWork.Rollback();
+                //_unitOfWork.Rollback();
 
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -343,30 +316,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         }
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetDashboardLibraries(Guid moduleId)
-        {
-            try
-            {
-                var task1 = _globalService.GetLibrariesLiteDtoAsync();
-                var task2 = _dashboardService.GetDashboardLibraries(moduleId);
-                var task3 = _dashboardService.GetDashboardResources(moduleId);
-
-                await Task.WhenAll(task1, task2, task3);
-
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    Libraries = (await task1).OrderBy(l => l.LibraryName),
-                    DashboardLibraries = (await task2).OrderBy(l => l.LoadOrder),
-                    DashboardResources = (await task3).OrderBy(l => l.LoadOrder)
-                });
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-
-        [HttpGet]
         public async Task<HttpResponseMessage> GetLibraryResources(Guid libraryId)
         {
             try
@@ -387,7 +336,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                library.Id = await _dashboardService.SaveCustomLibrary(library);
+                library.Id = await _moduleService.SaveModuleCustomLibraryAsync(library);
 
                 return Request.CreateResponse(HttpStatusCode.OK, library.Id);
             }
@@ -403,7 +352,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                resource.Id = await _dashboardService.SaveCustomResource(resource);
+                resource.Id = await _moduleService.SaveModuleCustomResourceAsync(resource);
 
                 return Request.CreateResponse(HttpStatusCode.OK, resource.Id);
             }
@@ -412,18 +361,29 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
+
         #endregion
 
         #region 5-Module Builder
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetModuleBuilderType(Guid moduleId)
+        public async Task<HttpResponseMessage> GetModuleBuilder(Guid moduleId)
         {
             try
             {
-                var moduleBuilderType = await _moduleService.GetModuleBuilderType(moduleId);
+                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                return Request.CreateResponse(HttpStatusCode.OK, moduleBuilderType);
+                var module = await _moduleService.GetModuleViewModelAsync(moduleId, PortalSettings);
+                var fieldTypes = await _moduleService.GetFieldTypesViewModelAsync();
+                var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
+                var variables = _moduleService.GetModuleVariablesViewModelAsync(moduleId);
+
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    Module = module,
+                    FieldTypes = fieldTypes,
+                    Fields = fields
+                });
             }
             catch (Exception ex)
             {
@@ -432,37 +392,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         }
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetModuleBuilder(Guid moduleId, Guid? dashboardModuleId = null)
+        public async Task<HttpResponseMessage> GetModuleField(Guid fieldId)
         {
             try
             {
-                var ws = new WebSocketServer();
-                await ws.ConnectAsync();
-                await ws.SendMessageToClientAsync(10, "Starting to Get Module...");
+                var field = await _moduleService.GetFieldViewModelAsync(fieldId);
 
-                await ws.SendMessageToClientAsync("Get module scenario...", 5);
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
-                await ws.SendMessageToClientAsync("Get module data...", 15);
-                var module = await _moduleService.GetModuleViewModelAsync(moduleId, PortalSettings);
-
-                await ws.SendMessageToClientAsync("Get field types...", 45);
-                var fieldTypes = await _moduleService.GetFieldTypesViewModelAsync();
-
-                await ws.SendMessageToClientAsync("Get module fields data...", 65);
-                var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
-
-                await ws.SendMessageToClientAsync("Get module variables...", 70);
-                var variables = _moduleService.GetModuleVariablesViewModelAsync(moduleId);
-
-                await ws.CloseAsync();
-
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    Module = module,
-                    FieldTypes = fieldTypes,
-                    Fields = fields
-                });
+                return Request.CreateResponse(HttpStatusCode.OK, field);
             }
             catch (Exception ex)
             {
@@ -485,44 +421,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public HttpResponseMessage SaveModule([FromBody] ModuleViewModel module, [FromUri] bool includeAllOptions = true)
-        //{
-        //    try
-        //    {
-        //        var objModuleInfo = ModuleRepository.Instance.GetModule(module.Id) ?? new ModuleInfo();
-        //        ReflectionExtensions.CopyProperties(module, objModuleInfo);
-        //        objModuleInfo.PortalId = PortalSettings.PortalId;
-        //        objModuleInfo.LayoutTemplate = module.ModuleBuilderType == "HtmlEditor" ? string.Empty : (includeAllOptions ? module.LayoutTemplate : objModuleInfo.LayoutTemplate);
-        //        objModuleInfo.LayoutCss = module.ModuleBuilderType == "HtmlEditor" ? string.Empty : (includeAllOptions ? module.LayoutCss : objModuleInfo.LayoutCss);
-        //        objModuleInfo.LastModifiedOnDate = DateTime.Now;
-        //        objModuleInfo.LastModifiedByUserId = this.UserInfo.UserId;
-        //        objModuleInfo.Settings = module.Settings != null && module.Settings.Count > 0 ? JsonConvert.SerializeObject(module.Settings) : null;
-
-        //        if (objModuleInfo.ModuleId == Guid.Empty)
-        //        {
-        //            objModuleInfo.CreatedOnDate = DateTime.Now;
-        //            objModuleInfo.CreatedByUserId = this.UserInfo.UserId;
-
-        //            objModuleInfo.ModuleId = module.Id = ModuleRepository.Instance.AddModule(objModuleInfo);
-        //        }
-        //        else
-        //        {
-        //            ModuleRepository.Instance.UpdateModule(objModuleInfo);
-        //        }
-
-        //        DataCache.ClearCache("BEModule_" + objModuleInfo.ModuleId);
-        //        DataCache.ClearCache("BEModuleFieldsView_" + objModuleInfo.ModuleId);
-
-        //        return Request.CreateResponse(HttpStatusCode.OK, objModuleInfo.ModuleId);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -562,15 +460,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                _unitOfWork.BeginTransaction();
+                //_unitOfWork.BeginTransaction();
 
-                postData.Field.Id = await _moduleService.SaveModuleFieldAsync(postData.Field, postData.Field.Id == Guid.Empty);
+                postData.Field.Id = await _moduleService.SaveFieldAsync(postData.Field, postData.Field.Id == Guid.Empty);
 
                 if (postData.ReorderFields && postData.PaneFieldIds != null && postData.PaneFieldIds.Any())
                 {
                     if (postData.FieldViewOrder.HasValue) postData.PaneFieldIds.Insert(postData.FieldViewOrder.Value, postData.Field.Id);
 
-                    await _moduleService.SortModuleFieldsAsync(new SortPaneFieldsDto()
+                    await _moduleService.SortFieldsAsync(new SortPaneFieldsDto()
                     {
                         ModuleId = postData.Field.ModuleId,
                         PaneName = postData.Field.PaneName,
@@ -578,13 +476,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     });
                 }
 
-                _unitOfWork.Commit();
+                //_unitOfWork.Commit();
 
                 return Request.CreateResponse(HttpStatusCode.OK, postData.Field.Id);
             }
             catch (Exception ex)
             {
-                _unitOfWork.Rollback();
+                //_unitOfWork.Rollback();
 
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -596,24 +494,24 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                _unitOfWork.BeginTransaction();
+                //_unitOfWork.BeginTransaction();
 
-                await _moduleService.UpdateModuleFieldPaneAsync(postData);
+                await _moduleService.UpdateFieldPaneAsync(postData);
 
-                await _moduleService.SortModuleFieldsAsync(new SortPaneFieldsDto()
+                await _moduleService.SortFieldsAsync(new SortPaneFieldsDto()
                 {
                     ModuleId = postData.ModuleId,
                     PaneName = postData.PaneName,
                     PaneFieldIds = postData.PaneFieldIds
                 });
 
-                _unitOfWork.Commit();
+                //_unitOfWork.Commit();
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
-                _unitOfWork.Rollback();
+                //_unitOfWork.Rollback();
 
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -625,7 +523,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                await _moduleService.SortModuleFieldsAsync(postData);
+                await _moduleService.SortFieldsAsync(postData);
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
@@ -641,17 +539,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                _unitOfWork.BeginTransaction();
+                //_unitOfWork.BeginTransaction();
 
-                var isDeleted = await _moduleService.DeleteModuleFieldAsync(postData.Id);
+                var isDeleted = await _moduleService.DeleteFieldAsync(postData.Id);
 
-                _unitOfWork.Commit();
+                //_unitOfWork.Commit();
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
             catch (Exception ex)
             {
-                _unitOfWork.Rollback();
+                //_unitOfWork.Rollback();
 
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
@@ -687,252 +585,118 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             }
         }
 
-        //[HttpGet]
-        //public HttpResponseMessage GetFieldActions(Guid parentId)
-        //{
-        //    try
-        //    {
-        //        var actions = ActionMapping.GetFieldActionsViewModel(parentId);
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetAction(Guid moduleId)
+        {
+            return await GetAction(moduleId, Guid.Empty);
+        }
 
-        //        var moduleId = ModuleFieldRepository.Instance.GetModuleId(parentId);
-        //        var module = ModuleRepository.Instance.GetModule(moduleId);
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid actionId, string fieldType = null)
+        {
+            try
+            {
+                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-        //        return Request.CreateResponse(HttpStatusCode.OK, new { Actions = actions, Module = module });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
+                var actionTypes = await _actionService.GetActionTypesViewModelAsync();
+                var actions = await _actionService.GetActionsLiteDtoAsync(moduleId);
+                var services = await _serviceFactory.GetServicesViewModelAsync(scenarioId, "ServiceName");
+                var viewModels = await _viewModelService.GetViewModelsAsync(scenarioId, "ViewModelName");
+                var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
+                var fields = await _moduleService.GetFieldsViewModelAsync(moduleId, "FieldName");
 
-        //[HttpGet]
-        //public HttpResponseMessage GetAction(bool isFieldActions, Guid parentId, Guid? id = null)
-        //{
-        //    try
-        //    {
-        //        var moduleId = !isFieldActions ? parentId : ModuleFieldRepository.Instance.GetModuleId(parentId);
-        //        var module = ModuleRepository.Instance.GetModule(moduleId);
+                var events = GetDefaultCustomEvents(fieldType);
+                if (!string.IsNullOrEmpty(fieldType))
+                    events = events.Concat(await _moduleService.GetFieldTypesGetCustomEventsAsync(fieldType));
 
-        //        var scenarioId = ModuleRepository.Instance.GetModuleScenarioId(moduleId);
+                var action = actionId != Guid.Empty
+                    ? await _actionService.GetActionViewModelAsync(actionId)
+                    : null;
 
-        //        var actions = isFieldActions
-        //            ? ActionMapping.GetFieldActionsViewModel(parentId)
-        //            : ActionMapping.GetActionsViewModel(moduleId);
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    ActionTypes = actionTypes,
+                    Actions = actions,
+                    Services = services,
+                    ViewModels = viewModels,
+                    Variables = variables,
+                    Fields = fields,
+                    Events = events,
+                    Action = action,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
-        //        var action = id == null ? null : ActionMapping.GetActionViewModel(id.Value);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> SaveAction(ActionViewModel action)
+        {
+            try
+            {
+                //_unitOfWork.BeginTransaction();
 
-        //        var allActions = ActionRepository.Instance.GetModuleActions(moduleId);
+                action.Id = await _actionService.SaveActionAsync(action, action.Id == Guid.Empty);
 
-        //        var fields = ModuleFieldMappings.GetFieldsViewModel(moduleId, null);
+                //_unitOfWork.Commit();
 
-        //        var customEvents = new List<FieldTypeCustomEventInfo>();
-        //        if (isFieldActions)
-        //        {
-        //            var fieldType = ModuleFieldRepository.Instance.GetFieldType(parentId);
-        //            var fieldEventTypes = TypeCastingUtil<IEnumerable<FieldTypeCustomEventInfo>>.TryJsonCasting(ModuleFieldTypeRepository.Instance.GetCustomEvents(fieldType));
-        //            if (fieldEventTypes != null) customEvents.AddRange(fieldEventTypes);
-        //        }
+                return Request.CreateResponse(HttpStatusCode.OK, action.Id);
+            }
+            catch (Exception ex)
+            {
+                //_unitOfWork.Rollback();
 
-        //        var variables = ModuleVariableRepository.Instance.GetVariables(moduleId);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
-        //        var viewModels = ViewModelMapping.GetViewModelsViewModel(scenarioId);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> DeleteAction(GuidDTO postData)
+        {
+            try
+            {
+                bool result = false;
 
-        //        var paymentMethods = PaymentMethodMapping.GetPaymentMethodsViewModel(scenarioId);
+                //_unitOfWork.BeginTransaction();
 
-        //        var paymentGateways = ProviderRepository.Instance.GetProviders("PaymentGateway");
+                await _actionService.DeleteActionAsync(postData.Id);
 
-        //        var actionTypes = ActionMapping.GetActionTypesViewModel();
+                //_unitOfWork.Commit();
 
-        //        return Request.CreateResponse(HttpStatusCode.OK, new
-        //        {
-        //            Module = module,
-        //            Actions = actions,
-        //            Action = action,
-        //            AllActions = allActions,
-        //            ActionTypes = actionTypes,
-        //            Fields = fields,
-        //            CustomEvents = customEvents,
-        //            ViewModels = viewModels,
-        //            Variables = variables,
-        //            PaymentMethods = paymentMethods,
-        //            PaymentGateways = paymentGateways,
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
+                result = true;
 
-        ////[HttpGet]
-        ////public HttpResponseMessage GetAction(Guid parentId, Guid id)
-        ////{
-        ////    try
-        ////    {
-        ////        ActionViewModel action = ActionMapping.GetActionViewModel(id);
+                return Request.CreateResponse(HttpStatusCode.OK, result);
+            }
+            catch (Exception ex)
+            {
+                //_unitOfWork.Rollback();
 
-        ////        var moduleId = action != null & action.FieldId != null ? action.ModuleId : parentId;
-        ////        var module = ModuleRepository.Instance.GetModule(moduleId);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
-        ////        var scenarioId = ModuleRepository.Instance.GetModuleScenarioId(moduleId);
-
-        ////        var actions = action != null & action.FieldId != null ? ActionMapping.GetFieldActionsViewModel(action.FieldId.Value) : ActionMapping.GetActionsViewModel(parentId);
-
-        ////        var allActions = ActionRepository.Instance.GetModuleActions(moduleId);
-
-        ////        var fields = ModuleFieldMappings.GetFieldsViewModel(moduleId, null);
-
-        ////        var variables = ModuleVariableRepository.Instance.GetVariables(moduleId);
-
-        ////        var services = ServiceMapping.GetServicesViewModel(scenarioId);
-
-        ////        var viewModels = ViewModelMapping.GetViewModelsViewModel(scenarioId);
-
-        ////        var paymentMethods = PaymentMethodMapping.GetPaymentMethodsViewModel(scenarioId);
-
-        ////        var paymentGateways = ProviderRepository.Instance.GetProviders("PaymentGateway");
-
-        ////        var actionTypes = ActionMapping.GetActionTypesViewModel();
-
-        ////        var customEvents = new List<FieldTypeCustomEventInfo>();
-        ////        if (action != null & action.FieldId != null)
-        ////        {
-        ////            var fieldType = ModuleFieldRepository.Instance.GetFieldType(action.FieldId.Value);
-        ////            var fieldEventTypes = TypeCastingUtil<IEnumerable<FieldTypeCustomEventInfo>>.TryJsonCasting(ModuleFieldTypeRepository.Instance.GetCustomEvents(fieldType));
-        ////            if (fieldEventTypes != null) customEvents.AddRange(fieldEventTypes);
-        ////        }
-
-        ////        return Request.CreateResponse(HttpStatusCode.OK, new
-        ////        {
-        ////            Module = module,
-        ////            Action = action,
-        ////            Actions = actions,
-        ////            AllActions = allActions,
-        ////            ActionTypes = actionTypes,
-        ////            Fields = fields,
-        ////            CustomEvents = customEvents,
-        ////            Services = services,
-        ////            ViewModels = viewModels,
-        ////            Variables = variables,
-        ////            PaymentMethods = paymentMethods,
-        ////            PaymentGateways = paymentGateways,
-        ////        });
-        ////    }
-        ////    catch (Exception ex)
-        ////    {
-        ////        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        ////    }
-        ////}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public HttpResponseMessage SaveAction(ActionViewModel action)
-        //{
-        //    try
-        //    {
-        //        var objActionInfo = new ActionInfo()
-        //        {
-        //            ActionId = action.ActionId,
-        //            ParentId = action.Event == "OnActionCompleted" ? action.ParentId : null,
-        //            ModuleId = action.ModuleId,
-        //            FieldId = action.FieldId,
-        //            ServiceId = action.ServiceId,
-        //            ActionName = action.ActionName,
-        //            ActionType = action.ActionType,
-        //            Event = action.Event,
-        //            IsServerSide = action.IsServerSide,
-        //            ParentResultStatus = (byte?)action.ParentResultStatus,
-        //            HasPreScript = action.HasPreScript,
-        //            HasPostScript = action.HasPostScript,
-        //            DisableConditionForPreScript = action.DisableConditionForPreScript,
-        //            CheckConditionsInClientSide = action.CheckConditionsInClientSide,
-        //            PreScript = action.PreScript,
-        //            PostScript = action.PostScript,
-        //            Settings = action.Settings != null && action.Settings.Count > 0 ? JsonConvert.SerializeObject(action.Settings) : null,
-        //            Description = action.Description,
-        //            ViewOrder = action.ViewOrder,
-        //        };
-
-        //        objActionInfo.LastModifiedOnDate = action.LastModifiedOnDate = DateTime.Now;
-        //        objActionInfo.LastModifiedByUserId = action.LastModifiedByUserId = this.UserInfo.UserId;
-
-        //        if (action.ActionId == Guid.Empty)
-        //        {
-        //            objActionInfo.CreatedOnDate = DateTime.Now;
-        //            objActionInfo.CreatedByUserId = this.UserInfo.UserId;
-
-        //            action.ActionId = ActionRepository.Instance.AddAction(objActionInfo);
-        //        }
-        //        else
-        //        {
-        //            objActionInfo.CreatedOnDate = action.CreatedOnDate == DateTime.MinValue ? DateTime.Now : action.CreatedOnDate;
-        //            objActionInfo.CreatedByUserId = action.CreatedByUserId;
-
-        //            ActionRepository.Instance.UpdateAction(objActionInfo);
-        //        }
-
-        //        ActionParamRepository.Instance.DeleteParams(action.ActionId);
-
-        //        foreach (var objActionParamInfo in action.Params ?? Enumerable.Empty<ActionParamInfo>())
-        //        {
-        //            objActionParamInfo.ActionId = action.ActionId;
-
-        //            ActionParamRepository.Instance.AddParam(objActionParamInfo);
-        //        }
-
-        //        ActionResultRepository.Instance.DeleteResults(action.ActionId);
-
-        //        foreach (var item in action.Results ?? Enumerable.Empty<ActionResultViewModel>())
-        //        {
-        //            var objActionResultInfo = new ActionResultInfo()
-        //            {
-        //                ResultId = item.ResultId,
-        //                ActionId = action.ActionId,
-        //                LeftExpression = item.LeftExpression,
-        //                EvalType = item.EvalType,
-        //                RightExpression = item.RightExpression,
-        //                ExpressionParsingType = item.ExpressionParsingType,
-        //                GroupName = item.GroupName,
-        //                Conditions = Newtonsoft.Json.JsonConvert.SerializeObject(item.Conditions)
-        //            };
-
-        //            ActionResultRepository.Instance.AddResult(objActionResultInfo);
-        //        }
-
-        //        ActionConditionRepository.Instance.DeleteConditions(action.ActionId);
-
-        //        foreach (var objActionConditionInfo in action.Conditions ?? Enumerable.Empty<ActionConditionInfo>())
-        //        {
-        //            objActionConditionInfo.ActionId = action.ActionId;
-
-        //            ActionConditionRepository.Instance.AddCondition(objActionConditionInfo);
-        //        }
-
-        //        return Request.CreateResponse(HttpStatusCode.OK, action);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public HttpResponseMessage DeleteAction(GuidDTO postData)
-        //{
-        //    try
-        //    {
-        //        ActionRepository.Instance.DeleteAction(postData.Id);
-
-        //        return Request.CreateResponse(HttpStatusCode.OK, new { Success = true });
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
+        private IEnumerable<ModuleFieldTypeCustomEventListItem> GetDefaultCustomEvents(string fieldType)
+        {
+            return !string.IsNullOrEmpty(fieldType)
+                ? new[]
+                {
+                    new ModuleFieldTypeCustomEventListItem { Text = "On Action Completed", Value = "OnActionCompleted" },
+                    new ModuleFieldTypeCustomEventListItem { Text = "On Field Value Change", Value = "OnFieldValueChange" },
+                    new ModuleFieldTypeCustomEventListItem { Text = "On Field Custom Event", Value = "OnCustomEvent" },
+                }
+                : new[]
+                {
+                    new ModuleFieldTypeCustomEventListItem { Text = "On Page Init", Value = "OnPageInit" },
+                    new ModuleFieldTypeCustomEventListItem { Text = "On Page Load", Value = "OnPageLoad" },
+                    new ModuleFieldTypeCustomEventListItem { Text = "On Action Completed", Value = "OnActionCompleted" },
+                    new ModuleFieldTypeCustomEventListItem { Text = "On Payment Completed", Value = "OnPaymentCompleted" },
+                    new ModuleFieldTypeCustomEventListItem { Text = "On Custom Event", Value = "OnCustomEvent" },
+                };
+        }
 
         #endregion
 
@@ -987,304 +751,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
         //    }
         //}
-
-        #endregion
-
-        //#region 7-Preview & Publish
-        //#endregion
-
-        //#endregion
-
-        #endregion
-
-        #region Create Dashboard
-
-        #region 1-Basic Options
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetDashboardBasicOptions(Guid moduleId)
-        {
-            try
-            {
-                var dashboard = await _dashboardService.GetDashboardDtoAsync(moduleId);
-
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    Dashboard = dashboard
-                });
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveDashboardBasicInfo(DashboardDto dashboard)
-        {
-            try
-            {
-                _unitOfWork.BeginTransaction();
-
-                var result = await _dashboardService.SaveDashboardBasicInfoAsync(dashboard);
-
-                _unitOfWork.Commit();
-
-                return Request.CreateResponse(HttpStatusCode.OK,
-                    new { DashboardId = result.Item1, ModuleId = result.Item2 });
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        #endregion
-
-        #region 2-Dashboard Pages
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetDashboardPages(Guid moduleId)
-        {
-            try
-            {
-                var pages = await _dashboardService.GetDashboardPagesViewModelAsync(moduleId);
-
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    Pages = pages,
-                });
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetDashboardPage(Guid dashboardModuleId)
-        {
-            return await GetDashboardPage(dashboardModuleId, Guid.Empty);
-        }
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetDashboardPage(Guid dashboardModuleId, Guid pageId)
-        {
-            try
-            {
-                var task1 = _dashboardService.GetDashboardIdAsync(dashboardModuleId);
-                var task2 = _dashboardService.GetDashboardPageDtoAsync(pageId);
-                var task3 = _dashboardService.GetDashboardPagesLiteDtoAsync(dashboardModuleId);
-
-                await Task.WhenAll(task1, task2, task3);
-
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    DashboardId = await task1,
-                    Page = await task2,
-                    Pages = await task3
-                });
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveDashboardPage(DashboardPageDto page)
-        {
-            try
-            {
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-                page.ScenarioId = scenarioId;
-
-                _unitOfWork.BeginTransaction();
-
-                var result = await _dashboardService.SaveDashboardPageAsync(page);
-
-                _unitOfWork.Commit();
-
-                return Request.CreateResponse(HttpStatusCode.OK, result);
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public HttpResponseMessage SortDashboardPages(DashboardPageSortDTO postData)
-        //{
-        //    try
-        //    {
-        //        if (postData.MovedPage != null)
-        //        {
-        //            var objDashboardPageInfo = DashboardPageRepository.Instance.GetPage(postData.MovedPage.PageId);
-        //            objDashboardPageInfo.ParentId = postData.MovedPage.ParentId;
-        //            objDashboardPageInfo.ViewOrder = postData.MovedPage.ViewOrder;
-        //            DashboardPageRepository.Instance.UpdatePage(objDashboardPageInfo);
-        //        }
-
-        //        int index = 0;
-        //        foreach (var pageId in postData.SortedPageIds ?? Enumerable.Empty<Guid>())
-        //        {
-        //            var objDashboardPageInfo = DashboardPageRepository.Instance.GetPage(pageId);
-        //            objDashboardPageInfo.ViewOrder = index++;
-        //            DashboardPageRepository.Instance.UpdatePage(objDashboardPageInfo);
-        //        }
-
-        //        return Request.CreateResponse(HttpStatusCode.OK);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public HttpResponseMessage DeleteDashboardPage(DashboardPageViewModel page)
-        //{
-        //    try
-        //    {
-        //        DashboardPageRepository.Instance.DeletePage(page.PageId);
-
-        //        var pages = DashboardMapping.GetDashboardPagesViewModel(page.DashboardId, Guid.Empty);
-
-        //        return Request.CreateResponse(HttpStatusCode.OK, pages);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public HttpResponseMessage DeleteDashboardPageModule(GuidDTO postData)
-        //{
-        //    try
-        //    {
-        //        DashboardPageModuleRepository.Instance.DeleteModuleByModuleId(postData.Id);
-        //        ModuleRepository.Instance.DeleteModule(postData.Id);
-
-        //        return Request.CreateResponse(HttpStatusCode.OK);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
-
-        #endregion
-
-        #region 3-Dashboard Appearance
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetDashboardAppearance(Guid moduleId)
-        {
-            try
-            {
-                var results = await _dashboardService.GetDashboardAppearanceAsync(moduleId, HttpContext.Current);
-
-                var dashboard = results.Item1;
-                var skins = results.Item2;
-                var templates = results.Item3;
-
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    Skins = skins,
-                    Dashboard = dashboard,
-                    Templates = templates
-                });
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetDashboardTemplates(DashboardType dashboardType, string skinName, string skinPath)
-        {
-            try
-            {
-                var templates = await _dashboardService.GetDashboardTemplatesDtoAsync(dashboardType, skinName, skinPath, HttpContext.Current);
-
-                return Request.CreateResponse(HttpStatusCode.OK, templates);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveDashboardAppearance(DashboardAppearanceDto dashboard)
-        {
-            try
-            {
-                _unitOfWork.BeginTransaction();
-
-                await _dashboardService.SaveDashboardAppearanceAsync(dashboard, HttpContext.Current);
-
-                _unitOfWork.Commit();
-
-                return Request.CreateResponse(HttpStatusCode.OK);
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetModuleTemplates(Guid dashboardModuleId, ModuleType moduleType)
-        {
-            try
-            {
-                var templates = await _dashboardService.GetModuleTemplates(dashboardModuleId, moduleType, HttpContext.Current);
-
-                return Request.CreateResponse(HttpStatusCode.OK, templates);
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        #endregion
-
-        #region 4-Dashboard Modules
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetDashboardModules(Guid moduleId)
-        {
-            try
-            {
-                var modules = await _dashboardService.GetDashboardPagesModule(moduleId);
-
-                return Request.CreateResponse(HttpStatusCode.OK, modules);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
 
         #endregion
 

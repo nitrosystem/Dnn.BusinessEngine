@@ -29,8 +29,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
 
         public string ModuleName { get; set; }
 
-        public ModuleBuilderType ModuleBuilderType { get; set; }
-
         public int ModuleVersion { get; set; }
 
         public string SiteRoot
@@ -142,7 +140,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                             this.ScenarioName = reader["ScenarioName"] as string;
                             this.ModuleGuid = reader["Id"] as Guid?;
                             this.ModuleName = reader["ModuleName"] as string;
-                            this.ModuleBuilderType = (ModuleBuilderType)reader["ModuleBuilderType"];
                             this.ModuleVersion = (int)reader["ModuleVersion"];
                         }
                     }
@@ -158,19 +155,10 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             string template = string.Empty;
 
             string modulePath = (this.ModulePortalId == this.PortalId ? this.PortalSettings.HomeSystemDirectory : new PortalSettings(this.ModulePortalId).HomeSystemDirectory) + @"business-engine/";
-            if (this.ModuleBuilderType == ModuleBuilderType.FormDesigner)
-            {
-                string moduleTemplateUrl = string.Format("{0}/{1}/{2}/module--{2}.html", modulePath, this.ScenarioName, this.ModuleName);
-                template = FileUtil.GetFileContent(MapPath(moduleTemplateUrl));
-            }
+            string moduleTemplateUrl = string.Format("{0}/{1}/{2}/module--{2}.html", modulePath, this.ScenarioName, this.ModuleName);
+            template = FileUtil.GetFileContent(MapPath(moduleTemplateUrl));
 
             return (Preloader, template);
-
-            //if (this.ModuleBuilderType == ModuleBuilderType.HtmlEditor)
-            //{
-            //    moduleTemplateJsUrl = string.Format("{0}/{1}/{2}/custom.js?ver={3}-{4}", modulePath, module.ScenarioName, module.ModuleName, Host.CrmVersion, module.Version);
-            //    moduleTemplateCssUrl = string.Format("{0}/{1}/{2}/custom.css?ver={3}-{4}", modulePath, module.ScenarioName, module.ModuleName, Host.CrmVersion, module.Version);
-            //}
         }
 
         #region IActionable

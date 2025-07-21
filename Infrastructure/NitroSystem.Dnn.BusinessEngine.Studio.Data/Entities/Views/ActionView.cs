@@ -4,14 +4,13 @@ using System.Linq;
 using System.Web;
 using System.Web.Caching;
 
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
 {
     [Table("BusinessEngineView_Actions")]
-    [Cacheable("BE_Actions_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Actions_View_", CacheItemPriority.Default, 20)]
     [Scope("ModuleId")]
     public class ActionView : IEntity
     {
@@ -20,15 +19,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
         public Guid? ParentId { get; set; }
         public Guid? FieldId { get; set; }
         public Guid? ServiceId { get; set; }
-        public Guid? PaymentMethodId { get; set; }
-        public Guid? GroupId { get; set; }
         public string ActionName { get; set; }
         public string ActionType { get; set; }
         public string ActionTypeIcon { get; set; }
         public string ActionTypeTitle { get; set; }
         public string Event { get; set; }
         public byte? ParentResultStatus { get; set; }
-        public byte? PaymentResultStatus { get; set; }
         public bool IsServerSide { get; set; }
         public bool RunChildsInServerSide { get; set; }
         public bool HasPreScript { get; set; }

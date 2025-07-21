@@ -30,6 +30,7 @@ export class CreateModuleCreateActionController {
 
         this.stepsCallback = { 4: this.initActionBuilder };
         this.actionBuilder = {};
+        this.events = [];
 
         $scope.serverSideFilter = (item) => {
             return !item.Scope || item.Scope == (this.action.IsServerSide ? 2 : 1);
@@ -54,13 +55,13 @@ export class CreateModuleCreateActionController {
     }
 
     onPageLoad() {
-        const id = this.globalService.getParameterByName("id");
-
-        this.stepsValid = 1;
-        this.events = [];
+        const moduleId = this.globalService.getParameterByName("module");
+        const fieldType = this.globalService.getParameterByName("type");
+        const actionId = this.globalService.getParameterByName("id");
 
         var step = this.globalService.getParameterByName("st");
-        this.step = step && id ? parseInt(step) : 1;
+        this.step = step && actionId ? parseInt(step) : 1;
+        this.stepsValid = 1;
 
         this.running = "get-action";
         this.awaitAction = {
@@ -68,50 +69,29 @@ export class CreateModuleCreateActionController {
             subtitle: "Just a moment for loading action...",
         };
 
-        const parentId = this.globalService.getParameterByName("parent");
-        const isFieldActions = this.globalService.getParameterByName("type") == "field";
-
-        this.apiService.get("Studio", "GetAction", { isFieldActions, parentId, id }).then((data) => {
-            this.module = data.Module;
-            this.fields = data.Fields;
+        this.apiService.get("Module", "GetAction", {
+            moduleId: moduleId,
+            actionId: actionId,
+            fieldType: fieldType,
+        }).then((data) => {
+            //this.module = data.Module;
+            this.actionTypes = data.ActionTypes;
+            this.actions = data.Actions;
             this.services = data.Services;
             this.viewModels = data.ViewModels;
             this.variables = data.Variables;
-            this.paymentMethods = data.PaymentMethods;
-            this.paymentGateways = data.PaymentGateways;
-            this.actions = data.Actions;
-            this.moduleActions = data.AllActions;
+            this.fields = data.Fields;
+            this.events = data.Events;
             this.action = data.Action;
-
-            data.ActionTypes.forEach(at => {
-                at.Icon = (at.Icon || '').replace('[EXTPATH]', GlobalSettings.modulePath + "extensions");
-            });
-            this.actionTypes = data.ActionTypes;
-
-            this.events.push(...data.CustomEvents);
-            if (isFieldActions) {
-                this.events.push(...[
-                    { Text: "On Action Completed", Value: "OnActionCompleted" },
-                    { Text: "On Field Value Change", Value: "OnFieldValueChange" },
-                    { Text: "On Field Custom Event", Value: "OnCustomEvent" },
-                ]);
-            } else {
-                this.events.push(...[
-                    { Text: "On Page Init", Value: "OnPageInit" },
-                    { Text: "On Page Load", Value: "OnPageLoad" },
-                    { Text: "On Action Completed", Value: "OnActionCompleted" },
-                    { Text: "On Payment Completed", Value: "OnPaymentCompleted" },
-                    { Text: "On Custom Event", Value: "OnCustomEvent" },
-                ]);
-            }
 
             if (!this.action) {
                 this.isNewAction = true;
                 this.action = {
-                    ModuleId: this.module.Id,
-                    FieldId: isFieldActions ? parentId : null,
+                    ModuleId: moduleId,
+                    FieldId: this.globalService.getParameterByName("field"),
                     Options: {},
                 };
+
                 this.step = 1;
             } else {
                 if (!step) this.step = 4;
@@ -127,7 +107,7 @@ export class CreateModuleCreateActionController {
                 this.gotoStep(this.step);
 
                 this.$scope.$emit("onUpdateCurrentTab", {
-                    id: this.action.ActionId,
+                    id: this.action.Id,
                     title: this.action.ActionName,
                 });
             }
@@ -137,10 +117,6 @@ export class CreateModuleCreateActionController {
 
             delete this.running;
             delete this.awaitAction;
-
-            this.$timeout(() => {
-                this.hideStepPreloader = true;
-            }, 100);
         }, (error) => {
             this.awaitAction.isError = true;
             this.awaitAction.subtitle = error.statusText;
@@ -149,8 +125,7 @@ export class CreateModuleCreateActionController {
             this.notifyService.error(error.data.Message);
 
             delete this.running;
-        }
-        );
+        });
     }
 
     onFocusModule() {
@@ -170,7 +145,7 @@ export class CreateModuleCreateActionController {
             },
             ActionName: {
                 id: "txtActionName" +
-                    (this.action.ActionId ? this.action.ActionId : ""),
+                    (this.action.Id ? this.action.Id : ""),
                 rule: (value) => {
                     if (this.step > 1 && !value) return false;
 
@@ -179,7 +154,7 @@ export class CreateModuleCreateActionController {
                 required: true,
             },
             Event: {
-                id: "drpEvent" + (this.action.ActionId ? this.action.ActionId : ""),
+                id: "drpEvent" + (this.action.Id ? this.action.Id : ""),
                 rule: (value) => {
                     if (this.step > 1 && !value) return false;
 
@@ -188,7 +163,7 @@ export class CreateModuleCreateActionController {
                 required: true,
             },
             ParentId: {
-                id: "drpParentId" + (this.action.ActionId ? this.action.ActionId : ""),
+                id: "drpParentId" + (this.action.Id ? this.action.Id : ""),
                 rule: (value) => {
                     if (this.step > 1 && this.action.Event == "OnActionCompleted" && !value)
                         return false;
@@ -198,7 +173,7 @@ export class CreateModuleCreateActionController {
                 required: true,
             },
             ParentResultStatus: {
-                id: "drpParentResultStatus" + (this.action.ActionId ? this.action.ActionId : ""),
+                id: "drpParentResultStatus" + (this.action.Id ? this.action.Id : ""),
                 rule: (value) => {
                     if (this.step > 1 && this.action.Event == "OnActionCompleted" && (value == undefined || value == null))
                         return false;
@@ -208,7 +183,7 @@ export class CreateModuleCreateActionController {
                 required: true,
             },
             PaymentMethodId: {
-                id: "drpPaymentMethodId" + (this.action.ActionId ? this.action.ActionId : ""),
+                id: "drpPaymentMethodId" + (this.action.Id ? this.action.Id : ""),
                 rule: (value) => {
                     if (this.step > 1 && this.action.Event == "OnPaymentCompleted" && !value)
                         return false;
@@ -218,7 +193,7 @@ export class CreateModuleCreateActionController {
                 required: true,
             },
             PaymentResultStatus: {
-                id: "drpPaymentResultStatus" + (this.action.ActionId ? this.action.ActionId : ""),
+                id: "drpPaymentResultStatus" + (this.action.Id ? this.action.Id : ""),
                 rule: (value) => {
                     if (this.step > 1 && this.action.Event == "OnPaymentCompleted" && (value == undefined || value == null))
                         return false;
@@ -254,11 +229,8 @@ export class CreateModuleCreateActionController {
 
         if (this.step == step) {
             if (typeof this.stepsCallback[step] == "function") {
-                this.hideStepPreloader = false;
-
                 const $this = this;
                 this.stepsCallback[step].apply(this).then(() => {
-                    $this.hideStepPreloader = true;
                 });
             }
 
@@ -332,10 +304,10 @@ export class CreateModuleCreateActionController {
     initActionBuilder() {
         const defer = this.$q.defer();
 
-        const actionComponent = `<${this.actionType.ActionComponent} controller="$" action="$.action" scenarios="$.scenarios" services="$.services" actions="$.actions" module-actions="$.moduleActions" variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields" ${this.actionType.ComponentSubParams}></${this.actionType.ActionComponent}>`;
+        const actionComponent = `<${this.actionType.ActionComponent} controller="$" action="$.action" services="$.services" actions="$.actions" module-actions="$.moduleActions" variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields" ${this.actionType.ComponentSubParams}></${this.actionType.ActionComponent}>`;
 
         this.$timeout(() => {
-            $("#pnlActionBuilder" + (this.action.ActionId ? this.action.ActionId : "")).html(this.$compile(actionComponent)(this.$scope));
+            $("#pnlActionBuilder" + (this.action.Id ? this.action.Id : "")).html(this.$compile(actionComponent)(this.$scope));
         });
 
         this.isActionLoaded = true;
@@ -360,8 +332,8 @@ export class CreateModuleCreateActionController {
 
                         this.currentTabKey = this.$rootScope.currentTab.key;
 
-                        this.apiService.post("Studio", "SaveAction", this.action).then((data) => {
-                            this.action = data;
+                        this.apiService.post("Module", "SaveAction", this.action).then((data) => {
+                            this.action.Id = data;
 
                             this.$deferredBroadcast(this.$scope, "onSaveAction", { isNewAction: this.isNewAction, }).then(() => {
                                 this.notifyService.success(
@@ -369,7 +341,7 @@ export class CreateModuleCreateActionController {
                                 );
 
                                 this.$scope.$emit("onUpdateCurrentTab", {
-                                    id: this.action.ActionId,
+                                    id: this.action.Id,
                                     title: this.action.ActionName,
                                     key: this.currentTabKey,
                                 });
@@ -377,7 +349,7 @@ export class CreateModuleCreateActionController {
                                 delete this.awaitAction;
                                 delete this.running;
                             }, (error) => {
-                                if (this.isNewAction) delete this.action.ActionId;
+                                if (this.isNewAction) delete this.action.Id;
 
                                 this.awaitAction.isError = true;
                                 this.awaitAction.subtitle = error.statusText;
@@ -432,7 +404,7 @@ export class CreateModuleCreateActionController {
                     subtitle: "Just a moment for removing action...",
                 };
 
-                this.apiService.post("Studio", "DeleteAction", { Id: this.action.ActionId }).then(
+                this.apiService.post("Module", "DeleteAction", { Id: this.action.Id }).then(
                     (data) => {
                         this.notifyService.success("Action deleted has been successfully");
 

@@ -1,0 +1,29 @@
+.b-upload-image {
+    background-color: var(--T--form-white-background-color);
+    border-color: var(--T--form-light-background-color);
+    border-radius: var(--T--form-input-border-radius);
+    padding: var(--T--form-input-padding-top) var(--T--form-input-padding-right) var(--T--form-input-padding-bottom) var(--T--form-input-padding-left);
+    row-gap: var(--T--form-input-column-gap);
+}
+
+.b-upload-image .upload-plus-icon {
+    color: var(--T--form-highlight-background-color);
+}
+
+.b-upload-image .upload-label-text {
+    color: var(--T--form-light-background-color);
+}
+
+.b-upload-image .upload-progress {
+    background-color: var(--T--form-highlight-background-color);
+}
+
+.b-upload-image .upload-message {
+    background-color: var(--T--form-red-light-background-color);
+    color: var(--T--form-red-highlight-background-color);
+}
+
+.b-upload-image .upload-remove-icon {
+    background-color: var(--T--form-red-background-color);
+    color: var(--T--form-white-background-color);
+}

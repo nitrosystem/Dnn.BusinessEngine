@@ -18,12 +18,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums
         OnlyOneModule = 0,
 
         /// <summary>
-        /// Build the specified module as well as all of its child modules.
-        /// Useful when the module has dependencies or sub-modules.
-        /// </summary>
-        ModuleAndChildren = 1,
-
-        /// <summary>
         /// Build all modules that belong to the same scenario.
         /// Ideal for full scenario-wide deployments.
         /// </summary>

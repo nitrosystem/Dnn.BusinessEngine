@@ -4,14 +4,14 @@ using System.Linq;
 using System.Web;
 using System.Web.Caching;
 
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
 {
     [Table("BusinessEngine_ModuleFieldSettings")]
     [Cacheable("BE_ModuleFieldSettings_", CacheItemPriority.Default, 20)]
-    [Scope("FieldID")]
+    [Scope("FieldId")]
     public class ModuleFieldSettingInfo : IEntity
     {
         public Guid Id { get; set; }

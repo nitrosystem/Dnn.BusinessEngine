@@ -12,7 +12,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto
         public Guid Id { get; set; }
         public Guid? ParentId { get; set; }
         public string ModuleType { get; set; }
-        public string ModuleBuilderType { get; set; }
         public string ModuleName { get; set; }
         public string LayoutTemplate { get; set; }
         public string LayoutCss { get; set; }

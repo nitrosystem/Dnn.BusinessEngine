@@ -719,3 +719,13 @@ li.extension-type.skin-extensions>i {
   margin-right: 0.5rem;
   font-size: 1.8rem;
 }
+
+.loading-frame {
+  background-color: #25262838;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+}

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository
+namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 {
     public static class AllowedStoredProcedures
     {

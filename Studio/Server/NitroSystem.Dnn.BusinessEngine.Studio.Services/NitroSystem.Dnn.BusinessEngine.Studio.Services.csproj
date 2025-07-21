@@ -75,17 +75,13 @@
     <Compile Include="Contracts\BuildModuleRequest.cs" />
     <Compile Include="Contracts\IActionService.cs" />
     <Compile Include="Contracts\IDefinedListService.cs" />
+    <Compile Include="Contracts\IEntityService.cs" />
+    <Compile Include="Contracts\IServiceFactory.cs" />
     <Compile Include="Contracts\ITemplateService.cs" />
-    <Compile Include="Contracts\IDashbaordService.cs" />
     <Compile Include="Contracts\IGlobalService.cs" />
     <Compile Include="Contracts\IModuleService.cs" />
-    <Compile Include="Dto\Dashboard\DashboardAppearanceDto.cs" />
-    <Compile Include="Dto\Dashboard\DashboardDto.cs" />
-    <Compile Include="Dto\Dashboard\DashboardPageDto.cs" />
-    <Compile Include="Dto\Dashboard\DashboardPageLiteDto.cs" />
-    <Compile Include="Dto\Dashboard\DashboardPageModuleDto.cs" />
-    <Compile Include="Dto\Dashboard\DashboardTemplateDto.cs" />
-    <Compile Include="Dto\Dashboard\DashboardSkinDto.cs" />
+    <Compile Include="Contracts\IViewModelService.cs" />
+    <Compile Include="Dto\Global\ActionLiteDto.cs" />
     <Compile Include="Dto\Module\ModuleFieldLiteDto.cs" />
     <Compile Include="Dto\Module\SortModuleCustomLibrariesDto.cs" />
     <Compile Include="Dto\Module\ModuleLayoutTemplateDto.cs" />
@@ -95,6 +91,7 @@
     <Compile Include="Dto\Module\ModuleCustomResourceDto.cs" />
     <Compile Include="Dto\Module\ModuleCustomLibraryDto.cs" />
     <Compile Include="Dto\Module\ModuleFieldTypeDto.cs" />
+    <Compile Include="Dto\ServiceTypeDto.cs" />
     <Compile Include="Enums\BuildTypeScope.cs" />
     <Compile Include="Enums\EntityType.cs" />
     <Compile Include="Enums\ImportExportType.cs" />
@@ -102,11 +99,10 @@
     <Compile Include="Enums\ModuleVariableScope.cs" />
     <Compile Include="Enums\VariableTypeLanguage.cs" />
     <Compile Include="Mapping\ResourceMapping.cs" />
-    <Compile Include="Mapping\DashboardMapping.cs" />
     <Compile Include="Mapping\ActionMapping.cs" />
+    <Compile Include="Models\ModuleFieldTypeCustomEventListItem.cs" />
     <Compile Include="Services\DefinedListService.cs" />
     <Compile Include="Services\TemplateService.cs" />
-    <Compile Include="Services\DashboardService.cs" />
     <Compile Include="Services\ActionService.cs" />
     <Compile Include="Services\ModuleService.cs" />
     <Compile Include="Services\EntityService.cs" />
@@ -122,16 +118,6 @@
     <Compile Include="ViewModels\Action\ActionResultViewModel.cs" />
     <Compile Include="ViewModels\Action\ActionTypeViewModel.cs" />
     <Compile Include="ViewModels\Action\ActionViewModel.cs" />
-    <Compile Include="ViewModels\Dashboard\DashboardPageModuleViewModel.cs" />
-    <Compile Include="ViewModels\Dashboard\DashboardPageViewModel.cs" />
-    <Compile Include="ViewModels\Dashboard\DashboardViewModel.cs" />
-    <Compile Include="ViewModels\Dashboard\Skin\DashboardSkinLibraryViewModel.cs" />
-    <Compile Include="ViewModels\Dashboard\Skin\DashboardTemplateViewModel.cs" />
-    <Compile Include="ViewModels\Dashboard\Skin\DashboardThemeViewModel.cs" />
-    <Compile Include="ViewModels\Dashboard\Skin\FieldTypeTemplateViewModel.cs" />
-    <Compile Include="ViewModels\Dashboard\Skin\FieldTypeThemeViewModel.cs" />
-    <Compile Include="ViewModels\Dashboard\Skin\FieldTypeViewModel.cs" />
-    <Compile Include="ViewModels\Dashboard\Skin\ModuleTemplateViewModel.cs" />
     <Compile Include="ViewModels\Global\DefinedListItemViewModel.cs" />
     <Compile Include="ViewModels\Global\DefinedListViewModel.cs" />
     <Compile Include="ViewModels\Entity\EntityColumnViewModel.cs" />
@@ -161,9 +147,7 @@
     <Compile Include="ViewModels\Module\VariableTypeViewModel.cs" />
     <Compile Include="ViewModels\ViewModel\ViewModelViewModel.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />

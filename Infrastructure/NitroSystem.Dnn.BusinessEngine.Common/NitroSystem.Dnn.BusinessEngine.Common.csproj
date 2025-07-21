@@ -104,10 +104,8 @@
     <Compile Include="WebApi\CustomMultipartFormDataStreamProviderChangeFileName.cs" />
     <Compile Include="WebApi\CustomMultipartFormDataStreamProvider.cs" />
     <Compile Include="IO\DirectoryExtensions.cs" />
-    <Compile Include="Models\TableRelationshipColumnInfo.cs" />
     <Compile Include="Models\SpParamInfo.cs" />
     <Compile Include="Models\SqlResultInfo.cs" />
-    <Compile Include="Models\TableRelationshipInfo.cs" />
     <Compile Include="IO\PdfUtil.cs" />
     <Compile Include="Db\DbUtil.cs" />
     <Compile Include="Reflection\DynamicCodeUtil.cs" />

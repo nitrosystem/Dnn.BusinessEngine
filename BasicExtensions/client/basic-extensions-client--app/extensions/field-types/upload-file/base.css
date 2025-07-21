@@ -1,0 +1,8 @@
+.b-upload-file {
+    border-color: var(--default-form-light-background-color);
+}
+
+.b-upload-file .upload-remove-icon {
+    background-color: var(--T--form-red-background-color);
+    color: var(--T--form-white-background-color);
+}

@@ -1,5 +1,5 @@
 ﻿using System;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity
 {

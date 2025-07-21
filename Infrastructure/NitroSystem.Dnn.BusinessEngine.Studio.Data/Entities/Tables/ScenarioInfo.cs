@@ -5,10 +5,8 @@ using System.Web;
 using System.Web.Caching;
 using Dapper;
 
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
 {

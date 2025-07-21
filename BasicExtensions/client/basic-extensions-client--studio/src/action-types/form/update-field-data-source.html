@@ -1,0 +1,39 @@
+<div class="b-field">
+    <label class="form-label">Field</label>
+    <div class="b-input-group">
+        <select id="drpField" ng-model="$.action.Settings.FieldID" class="b-input form-select" ng-options="field.FieldID as field.FieldName for field in $.fields" ng-change="$.updateFieldChange()" chosen inherit-select-classes="true" placeholder-text-single="'Select field'"
+            required>
+        </select>
+        <span><i class="codicon codicon-plus"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Page Index</label>
+    <div monaco-editor ng-model="$.action.Settings.PageIndex" data-language="bProperties" data-one-line="true"></div>
+</div>
+<div class="b-field">
+    <label class="form-label">Page Size</label>
+    <div monaco-editor ng-model="$.action.Settings.PageSize" data-language="bProperties" data-one-line="true"></div>
+</div>
+<div class="b-table theme-gray">
+    <div class="table-header">
+        <div class="header-label">
+            <h4 class="header-title">Service Params</h4>
+            <span class="header-subtitle">Parameters of the selected service</span>
+        </div>
+    </div>
+    <div class="table-body">
+        <div class="d-flex columns-name">
+            <div class="col-6">Param Name</div>
+            <div class="col-6">Param Value</div>
+        </div>
+        <div class="d-flex table-row" ng-repeat="param in $.action.Params | orderBy : 'ViewOrder'" ng-style="{'order':($index+1)}">
+            <div class="col-6 my-auto">
+                {{param.ParamName}}
+            </div>
+            <div class="col-6 my-auto">
+                {{param.ParamValue}}
+            </div>
+        </div>
+    </div>
+</div>

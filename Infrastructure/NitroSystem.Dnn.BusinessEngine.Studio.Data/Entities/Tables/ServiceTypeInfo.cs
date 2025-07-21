@@ -1,6 +1,6 @@
 ﻿
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -18,15 +18,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
         public Guid Id { get; set; }
         public Guid ExtensionId { get; set; }
         public Guid GroupId { get; set; }
+        public string ServiceDomain { get; set; }
         public string ServiceType { get; set; }
-        public string ServiceSubtype { get; set; }
         public string Title { get; set; }
         public string ServiceComponent { get; set; }
         public string BusinessControllerClass { get; set; }
+        public string StudioControllerClass { get; set; }
         public bool HasResult { get; set; }
         public string ResultType { get; set; }
-        public bool SubmitApi { get; set; }
-        public string DefaultDatabaseObjectType { get; set; }
         public string Icon { get; set; }
         public bool IsEnabled { get; set; }
         public string Description { get; set; }

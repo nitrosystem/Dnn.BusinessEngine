@@ -19,7 +19,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
@@ -36,18 +36,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             var mergedList = customFiles
                 .Join(modules, file => file.moduleId, module => module.Id, (file, module) => (module, file));
 
-            return mergedList.Select(tuple => MapModuleViewModel(tuple.module, tuple.file));
+            return mergedList.Select(tuple => MapModuleViewModel(tuple.module));
         }
 
-        public static ModuleViewModel MapModuleViewModel(ModuleView module, (Guid moduleId, string customHtml, string customJs, string customCss) file)
+        public static ModuleViewModel MapModuleViewModel(ModuleView module)
         {
             var mapper = new ExpressionMapper<ModuleView, ModuleViewModel>();
             mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, source =>
                     TypeCastingUtil<IDictionary<string, object>>.TryJsonCasting(source.Settings.ToString()),
                     condition => !string.IsNullOrWhiteSpace(condition.Settings));
-            mapper.AddCustomMapping(src => src, dest => dest.CustomHtml, map => file.customHtml);
-            mapper.AddCustomMapping(src => src, dest => dest.CustomJs, map => file.customJs);
-            mapper.AddCustomMapping(src => src, dest => dest.CustomCss, map => file.customCss);
 
             var result = mapper.Map(module);
             return result;

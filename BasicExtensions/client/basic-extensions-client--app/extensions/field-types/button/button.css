@@ -1,0 +1,51 @@
+.b-btn {
+    --T--button-padding: .6em 1.2em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    column-gap: .7em;
+    transition: all .2s linear;
+}
+
+.b-btn.b-btn-default {
+    --T--button-background-color: #fff;
+    --T--button-border: solid .1em #ccc;
+    --T--button-box-shadow: rgba(235, 235, 235, 0.35) 0px -50px 36px -28px inset;
+    --T--button-color: #333;
+}
+
+.b-btn.b-btn-default:hover {
+    --T--button-hover-background-color: #fff;
+    --T--button-hover-border: solid .1em #eee;
+    --T--button-hover-box-shadow: rgba(0, 0, 0, 0.199) 0px 2px 4px 0px inset;
+    --T--button-hover-color: #222;
+}
+
+.b-btn.b-btn-default:active {
+    --T--button-active-background-color: #fff;
+    --T--button-active-border: solid .1em #fff;
+    --T--button-active-box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+    --T--button-active-color: #222;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+.b-btn.b-btn-submit {
+    --T--button-background-color: #5CB338;
+    --T--button-border: solid .1em #ccc;
+    --T--button-box-shadow: rgba(235, 235, 235, 0.35) 0px -50px 36px -28px inset;
+    --T--button-color: #fff;
+}
+
+.b-btn.b-btn-submit:hover {
+    --T--button-hover-background-color: #4d9e2b;
+    --T--button-hover-border: solid .1em #eee;
+    --T--button-hover-box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 4px 0px inset;
+    --T--button-hover-color: #eee;
+}
+
+.b-btn.b-btn-submit:active {
+    --T--button-active-background-color: #4d9e2b;
+    --T--button-active-border: solid .1em #fff;
+    --T--button-active-box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+    --T--button-active-color: #fff;
+}

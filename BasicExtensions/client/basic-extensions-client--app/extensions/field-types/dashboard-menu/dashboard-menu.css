@@ -1,0 +1,121 @@
+.dashboard-sidebar-menu.dsm {
+  height: calc(100vh - 8.1rem);
+  overflow: auto;
+  --scrollbarBG: rgb(37, 37, 38);
+  --thumbBG: #59595a;
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+
+.dashboard-sidebar-menu.dsm::-webkit-scrollbar {
+  width: 0.4rem;
+}
+
+.dashboard-sidebar-menu.dsm::-webkit-scrollbar-track {
+  background: var(--scrollbarBG);
+}
+
+.dashboard-sidebar-menu.dsm::-webkit-scrollbar-thumb {
+  background-color: var(--thumbBG);
+  border-radius: 6px;
+}
+
+.dsm .menu-nav {
+  margin: 0;
+  padding: 0;
+}
+
+.dsm .menu-nav > .menu-item {
+  list-style: none;
+}
+
+.dsm .menu-nav .menu-item > a {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  padding: 0.5rem 1rem;
+  transition: all 0.5s;
+  align-items: center;
+  position: relative;
+  text-decoration: none;
+}
+
+.dsm .menu-nav .menu-item .menu-label {
+  color: #aca6a6;
+  font-size: 0.9rem;
+}
+
+.dsm .menu-nav .menu-item .menu-icon {
+  display: inline-flex;
+}
+
+.dsm .menu-nav .menu-item .menu-icon > i {
+  margin-left: 0.9rem;
+  display: inline-flex;
+  color: #d1d5d8;
+  font-size: 1.2rem;
+}
+
+.dsm .menu-nav .menu-item .menu-text {
+  color: #ddd;
+  display: inline-flex;
+  transition: all 0.5s;
+  line-height: 1.5;
+  margin-top: 0.2rem;
+}
+
+.dsm .menu-nav .menu-section {
+  padding: 0 1rem;
+  margin-bottom: 0.1rem !important;
+  margin-top: 0.9rem;
+  text-align: right;
+}
+
+.dsm .menu-nav .menu-section:first-child {
+  margin: 0;
+}
+
+.dsm .menu-nav .menu-item.menu-has-submenu > a:after {
+  content: "";
+  position: absolute;
+  left: 1.5rem;
+  top: 48%;
+  border-width: 1px 0 0 1px;
+  border-style: solid;
+  border-color: #eee;
+  width: 0.5rem;
+  height: 0.5rem;
+  transform: rotate(-45deg) translateY(-50%);
+  transition: all 0.5s;
+}
+
+.dsm .menu-nav .menu-item.menu-has-submenu.mm-active > a:after {
+  left: 1rem;
+  top: 38%;
+  transform: rotate(-135deg) translateY(50%);
+}
+
+.dsm .menu-nav .menu-item.menu-has-submenu ul {
+  margin: 0;
+  padding: 0;
+}
+
+.dsm .menu-nav .menu-item.menu-has-submenu ul li a {
+  padding: 0.2rem 2.8rem 0.2rem 0;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.dsm .menu-nav > .menu-item > a:hover > .menu-text {
+  transform: translateX(-10px);
+}
+
+.dsm .menu-nav .menu-item > a:hover,
+.dsm .menu-nav .menu-item.active > a {
+  background-color: #12111161;
+}
+
+.dsm .menu-nav .menu-item > a:hover .menu-text,
+.dsm .menu-nav .menu-item.active > a .menu-text {
+  color: #fff;
+}

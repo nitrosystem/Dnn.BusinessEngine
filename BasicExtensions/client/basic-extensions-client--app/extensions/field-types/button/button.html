@@ -1,0 +1,5 @@
+﻿<button type="[[Settings.ButtonType??button]]" class="b-btn [[ThemeCssClass]]" ng-click="bButton_onClick([FIELD],$event)">
+    [[IF:GlobalSettings.WithIcon==true&&GlobalSettings.IconPosition==Left:<i class="b-button-icon [[Settings.FontIcon]]"></i> ]]
+    [[Settings.ButtonText??Button]]
+    [[IF:GlobalSettings.WithIcon==true&&GlobalSettings.IconPosition==Right:<i class="b-input-icon [[Settings.FontIcon]]"></i> ]]
+</button>

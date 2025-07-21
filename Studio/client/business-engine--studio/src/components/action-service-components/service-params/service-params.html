@@ -1,0 +1,57 @@
+<table class="table table-bordered table-dark table-columns-vmiddle">
+    <thead>
+        <tr>
+            <th>Param Name</th>
+            <th ng-hide="$.hideParamType">Param Type</th>
+            <th ng-hide="$.hideDefaultValue">Default Value</th>
+            <th>View Order</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="param in $.service.Params | orderBy : 'ViewOrder'">
+            <td>
+                <input type="text" ng-model="param.ParamName" class="b-input form-control" />
+            </td>
+            <td ng-hide="$.hideParamType">
+                <input type="text" ng-model="param.ParamType"  class="b-input form-control" />
+            </td>
+            <td ng-hide="$.hideDefaultValue">
+                <input type="text" ng-model="param.DefaultValue"  class="b-input form-control" />
+            </td>
+            <td>
+                <input type="number" ng-model="param.ViewOrder" class="b-input form-control" />
+            </td>
+            <td style="width:50px;">
+                <button class="b-btn btn-action btn-sm" ng-click="$.service.Params.splice($index,1)">
+                    <i class="codicon codicon-trash me-0"></i>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3">
+                <button type="button" class="b-btn btn-sm" ng-click="$.onAddServiceParamClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-plus me-0"></i>
+                </button>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+<div ng-if="!$.service.Params.length&&1==2" class="b-notify notify-note mb-4">
+    <i class="codicon codicon-info b-icon-2"></i>
+    <div class="text">
+        <h4 class="label">No service params.</h4>
+        <span class="subtext">
+            Click
+            <button type="button" class="b-btn btn-sm ms-2 me-2" ng-click="$.onAddServiceParamClick()"
+                ng-disabled="$.running">
+                Add
+                Param
+            </button> for creating service param(s).
+            entity.
+        </span>
+    </div>
+</div>

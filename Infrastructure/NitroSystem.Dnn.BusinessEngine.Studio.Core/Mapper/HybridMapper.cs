@@ -194,5 +194,35 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Mapper
             var lambda = Expression.Lambda<Func<TSource, TDestination>>(body, sourceParam);
             return lambda.Compile();
         }
+
+        public static TDestination MapSimpleWithDefaults<TSource, TDestination>(
+            TSource source,
+            Dictionary<string, object> defaultValues = null
+        ) where TDestination : new()
+        {
+            var destination = new TDestination();
+            var sourceProps = typeof(TSource).GetProperties();
+            var destProps = typeof(TDestination).GetProperties();
+
+            foreach (var destProp in destProps)
+            {
+                var sourceProp = sourceProps.FirstOrDefault(p =>
+                    p.Name == destProp.Name &&
+                    p.PropertyType == destProp.PropertyType);
+
+                if (sourceProp != null && sourceProp.CanRead && destProp.CanWrite)
+                {
+                    var value = sourceProp.GetValue(source);
+                    destProp.SetValue(destination, value);
+                }
+                else if (defaultValues != null && defaultValues.ContainsKey(destProp.Name))
+                {
+                    destProp.SetValue(destination, defaultValues[destProp.Name]);
+                }
+            }
+
+            return destination;
+        }
+
     }
 }

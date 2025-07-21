@@ -1,0 +1,22 @@
+﻿<div class="b-field">
+    <label class="form-label">Allow Upload Multiple File</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" ng-model="$.currentField.Settings.AllowUploadMultipleFile">
+        <span class="slider"></span>
+    </label>
+</div>
+<div class="b-field" ng-if="$.currentField.Settings.AllowUploadMultipleFile">
+    <label class="form-label">Max File Count</label>
+    <input type="text" ng-model="$.currentField.Settings.MaxFileCount" class="b-input form-control" placeholder="Max File Count" />
+</div>
+<div class="b-field">
+    <label class="form-label">Max File Length(KB)</label>
+    <input type="text" ng-model="$.currentField.Settings.MaxFileLength" class="b-input form-control" placeholder="Max File Length" />
+</div>
+<div class="b-field">
+    <label class="form-label">Upload By</label>
+    <select ng-model="$.currentField.Settings.UploadBy" class="b-input form-control" chosen inherit-select-classes="true" required>
+        <option value="angular">Angular</option>
+        <option value="jquery">jquery</option>
+    </select>
+</div>

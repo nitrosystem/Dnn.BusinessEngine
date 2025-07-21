@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNetNuke.Common.Utilities;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using Newtonsoft.Json.Linq;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Cashing
@@ -14,18 +14,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Cashing
 
         public async Task<T> GetOrCreate<T>(string cacheKey, Func<Task<T>> factory, int? cacheTimeout = 20)
         {
-            var value = DataCache.GetCache<T>(cacheKey);
+            var value = string.IsNullOrEmpty(cacheKey) ? default : DataCache.GetCache<T>(cacheKey);
             if (value != null)
                 return value;
             else
             {
                 value = await factory();
 
-                DataCache.SetCache(cacheKey, value, TimeSpan.FromHours(cacheTimeout ?? 20));
-
-                lock (_cacheKeys)
+                if (!string.IsNullOrEmpty(cacheKey))
                 {
-                    _cacheKeys.Add(cacheKey);
+                    DataCache.SetCache(cacheKey, value, TimeSpan.FromHours(cacheTimeout ?? 20));
+
+                    lock (_cacheKeys)
+                    {
+                        _cacheKeys.Add(cacheKey);
+                    }
                 }
             }
 
@@ -39,11 +42,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Cashing
 
         public void Set<T>(string cacheKey, T value, int? cacheTimeout = 20)
         {
-            DataCache.SetCache(cacheKey, value, TimeSpan.FromHours(cacheTimeout ?? 20));
-
-            lock (_cacheKeys)
+            if (!string.IsNullOrEmpty(cacheKey))
             {
-                _cacheKeys.Add(cacheKey);
+                DataCache.SetCache(cacheKey, value, TimeSpan.FromHours(cacheTimeout ?? 20));
+
+                lock (_cacheKeys)
+                {
+                    _cacheKeys.Add(cacheKey);
+                }
             }
         }
 

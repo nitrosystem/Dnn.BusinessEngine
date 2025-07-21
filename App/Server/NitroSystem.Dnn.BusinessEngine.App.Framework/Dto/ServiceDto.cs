@@ -12,8 +12,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Dto
     {
         public Guid ServiceID { get; set; }
         public string ServiceName { get; set; }
+        public string ServiceDomain { get; set; }
         public string ServiceType { get; set; }
-        public string ServiceSubtype { get; set; }
         public bool HasResult { get; set; }
         public ServiceResultType ResultType { get; set; }
         //public IEnumerable<ServiceParamInfo> Params { get; set; }

@@ -1,7 +1,8 @@
 ﻿using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ExpressionService.ConditionParser;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
@@ -19,6 +20,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
     public class BuildModuleLayout : IBuildModuleLayout
     {
+        private readonly IServiceLocator _serviceLocator;
+
+        public BuildModuleLayout( IServiceLocator serviceLocator)
+        {
+            _serviceLocator = serviceLocator;
+        }
+
         #region Members
 
         private IDictionary<(string fieldType, string template), string> _fieldTypes;
@@ -29,7 +37,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
         private readonly string _fieldLayout =
-            @"<div data-field=""[[FieldName]]"" [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field]]"" [[IF:IsValuable==true:ng-class=""{'b-invalid':[FIELD].Validated && ([FIELD].RequiredError || ![FIELD].IsValid)}""]]>
+            @"<div data-field=""[[FieldName]]"" [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field-item]]"" [[IF:IsValuable==true:ng-class=""{'b-invalid':[FIELD].Validated && ([FIELD].RequiredError || ![FIELD].IsValid)}""]]>
                 [[IF:FieldText!=null:<label class=""[[Settings.FieldTextCssClass??b-form-label]]"">[[FieldText]]</label>]]
                 [FIELD-COMPONENT]
                 [[IF:IsValuable==true && IsRequired==true:<p ng-show=""[FIELD].Validated && ([FIELD].Value==null || [FIELD].Value==undefined || [FIELD].Value=='') && [FIELD].RequiredError"" 
@@ -111,7 +119,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             var fieldKey = (field.FieldType, field.Template);
             _fieldTypes.TryGetValue(fieldKey, out var fieldTemplate);
 
-            if (string.IsNullOrEmpty(fieldTemplate))
+            var contentValue = field.Settings.GetValueOrDefault("Content");
+            if (contentValue != null)
+            {
+                return contentValue as string;
+            }
+            else if (string.IsNullOrEmpty(fieldTemplate))
                 return string.Empty;
 
             try
@@ -224,7 +237,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         {
             if (string.IsNullOrEmpty(businessControllerClass)) return null;
 
-            return ServiceLocator<IField>.CreateInstance(businessControllerClass);
+            return _serviceLocator.CreateInstance<IField>(businessControllerClass);
         }
 
         #endregion

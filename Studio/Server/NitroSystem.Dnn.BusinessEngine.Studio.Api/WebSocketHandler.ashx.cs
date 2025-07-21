@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Web;
 using System.Web.WebSockets;
-using NitroSystem.Dnn.BusinessEngine.Core.WebSocketServer;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {

@@ -48,7 +48,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Common.IO
             }
         }
 
-
         public static async Task WriteFileContentAsync(string filePath, string content, bool isCreateDirectory = true, bool isDeleteOldFile = true)
         {
             if (isDeleteOldFile && File.Exists(filePath))

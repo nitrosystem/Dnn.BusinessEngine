@@ -116,7 +116,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                     int dnnPageId = type == 1 ? this.DnnTabId : -1;
                     Guid? moduleId = type == 2 ? this.ModuleGuid : null;
 
-                    var sqlReader = new SqlQueryExecutor();
+                    var sqlReader = new Core.ADO_NET.SqlQueryExecutor();
                     var resources = sqlReader.ExecuteQuery<PageResourceInfo>(
                         "BusinessEngine_GetPageResources",
                         System.Data.CommandType.StoredProcedure,

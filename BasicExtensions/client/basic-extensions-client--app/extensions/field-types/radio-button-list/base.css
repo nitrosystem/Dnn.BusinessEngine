@@ -1,0 +1,15 @@
+.b-radio-list .radio-item label:before {
+    background-color: var(--T--form-background-color);
+}
+
+.b-radio-list .radio-item label:after {
+    border: 0.1em solid var(--T--form-light-background-color);
+}
+
+.b-radio-list .radio-item:hover label:after {
+    border-color: var(--T--form-highlight-background-color);
+}
+
+.b-radio-list .radio-item [type="radio"]:checked~label:after {
+    border: solid .1em var(--T--form-highlight-background-color);
+}

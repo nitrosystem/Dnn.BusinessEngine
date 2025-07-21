@@ -1,0 +1,121 @@
+.nitro-I-form-standard-light {
+    --font-size: 16px;
+    --form-font-weight: 400;
+    --form-bg-color: #ffffff;
+    --form-color: #333333;
+    --form-border-color: #EBEDF3;
+    --form-border-width: 1em;
+    --form-border-style: solid;
+    --form-border-radius: .425em;
+    --form-box-show: 0 0 2em 0 rgba(82, 63, 105, 0.05);
+    --header-box-show: 0 0 2em 0 rgba(82, 63, 105, 0.05);
+    --body-box-show: 0 0 2em 0 rgba(82, 63, 105, 0.05);
+    --widget-padding: 1em;
+    --n-row-gap: .5em;
+    --header-margin-bottom: 1em;
+    --body-margin-bottom: 1em;
+    --data-pane-margin-bottom: 1em;
+    ----header-min-height: 3.375em;
+}
+
+.nitro-I-form-standard-light.small {
+    font-size: 13px;
+}
+
+.nitro-I-form-standard-light.large {
+    font-size: 19px;
+}
+
+.nitro-I-form-Template {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    word-wrap: break-word;
+    flex-wrap: nowrap;
+    background-color: var(--form-bg-color);
+    box-shadow: var(--form-box-show);
+    border: var(--form-border-style) var(--form-border-width) var(--form-border-color);
+    border-radius: var(--form-border-radius);
+    color: var(--form-color);
+    font-size: 1em;
+}
+
+.nitro-I-form-Template .n-row {
+    display: flex;
+    flex-direction: row;
+    row-gap: var(--n-row-gap);
+}
+
+.nitro-I-form-Template *[data-pane] {
+    margin-bottom: var(----data-pane-margin-bottom);
+}
+
+.nitro-I-form-Template .header-widget {
+    box-shadow: var(--header-box-show);
+    padding: var(--widget-padding);
+    min-height: var(--header-min-height);
+    margin-bottom: var(--header-margin-bottom);
+    flex: 1 0 auto;
+}
+
+.nitro-I-form-Template .header-widget>.n-row {
+    justify-content: space-between;
+}
+
+.nitro-I-form-Template .body-widget {
+    box-shadow: var(--form-box-show);
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    padding: var(--widget-padding);
+    margin-bottom: var(--body-margin-bottom);
+}
+
+.nitro-I-form-Template .footer-widget {
+    padding: var(--widget-padding);
+    flex: 1 0 auto;
+}
+
+.nitro-I-form-Template .n-row .pane-3 {
+    flex: 1 0 24.875%;
+    width: 24.875%;
+}
+
+.nitro-I-form-Template .n-row .pane-4 {
+    flex: 1 0 33.16666666666667%;
+    width: 33.16666666666667%;
+}
+
+.nitro-I-form-Template .n-row .pane-5 {
+    flex: 1 0 41.45833333333%;
+    width: 41.45833333333%;
+}
+
+.nitro-I-form-Template .n-row .pane-6 {
+    flex: 1 0 49.75%;
+    width: 49.75%;
+}
+
+.nitro-I-form-Template .n-row .pane-7 {
+    flex: 1 0 58.0416666666666667%;
+    width: 58.0416666666666667%;
+}
+
+.nitro-I-form-Template .n-row .pane-8 {
+    flex: 1 0 66.333333333333333%;
+    width: 66.333333333333333%;
+}
+
+.nitro-I-form-Template .n-row .pane-9 {
+    flex: 1 0 74.625%;
+    width: 74.625%;
+}
+
+/*---------------------------------------------------*/
+/* Dark Theme */
+/*---------------------------------------------------*/
+.nitro-I-form-Template.n--dark {
+    background-color: #353333;
+    border: 1px solid #3b3b3b;
+    color: #eee !important;
+}

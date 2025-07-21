@@ -4,9 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Caching;
 
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
 {
@@ -22,7 +21,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
         public string EntityName { get; set; }
         public string TableName { get; set; }
         public bool IsReadonly { get; set; }
-        public bool IsMultipleColumnsForPK { get; set; }
         public string Settings { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }

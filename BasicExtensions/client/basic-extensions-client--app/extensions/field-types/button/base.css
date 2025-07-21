@@ -1,0 +1,34 @@
+.b-btn {
+    background: var(--T--button-background);
+    background-color: var(--T--button-background-color);
+    border: var(--T--button-border);
+    box-shadow: var(--T--button-box-shadow);
+    padding: var(--T--button-padding);
+    color: var(--T--button-color);
+    /* Inherit From Form */
+    border-radius: var(--T--form-input-border-radius);
+    font-size: var(--T--form-input-font-size);
+    line-height: var(--T--form-input-line-height);
+}
+
+.b-btn:hover {
+    background: var(--T--button-hover-background);
+    background-color: var(--T--button-hover-background-color);
+    border: var(--T--button-hover-border);
+    box-shadow: var(--T--button-hover-box-shadow);
+    color: var(--T--button-hover-color);
+}
+
+.b-btn:active {
+    background: var(--T--button-active-background);
+    background-color: var(--T--button-active-background-color);
+    border: var(--T--button-active-border);
+    box-shadow: var(--T--button-active-box-shadow);
+    color: var(--T--button-active-color);
+}
+
+.b-btn .button-icon {
+    color: var(--T--button-icon-color);
+    /* Inherit From Form */
+    font-size: var(--T--form-input-icon-font-size);
+}

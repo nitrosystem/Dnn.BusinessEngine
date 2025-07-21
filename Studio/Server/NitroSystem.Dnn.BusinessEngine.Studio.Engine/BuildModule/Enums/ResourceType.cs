@@ -15,11 +15,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums
         App = 4,
         ModuleCustomLibrary = 5,
         ModuleCustomResource = 6,
-        ModuleActionScript = 7,
-        FieldTypeScript = 8,
-        FieldDirectiveScript = 9,
-        FieldTypeTemplate = 10,
-        FieldTypeTemplateSkinTemplate = 11,
-        FieldTypeTheme = 12
+        ModuleCss = 7,
+        ModuleActionScript = 8,
+        FieldTypeScript = 9,
+        FieldDirectiveScript = 10,
+        FieldTypeTemplate = 11,
+        FieldTypeTemplateSkinTemplate = 12,
+        FieldTypeTheme = 13
     }
 }

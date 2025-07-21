@@ -12,7 +12,7 @@ import { config as appConfig } from "./angular-configs/app.config";
 import { GlobalService } from "./services/global.service";
 import { ApiService } from "./services/api.service";
 import { ValidationService } from "./services/validation.service";
-import { ModuleDesignerService } from "./module-builder/services/module-designer.service";
+import { ModuleDesignerService } from "./create-module/5-module-builder/services/module-designer.service.js";
 
 //Factories
 import { NotificationService } from "./services/notification.service";
@@ -43,9 +43,9 @@ import { MonacoEditor } from "./angular-directives/monaco-editor.directive";
 import SidebarExplorerComponent from "./components/studio-components/sidebar-explorer/sidebar-explorer.component";
 import ContentWidgetComponent from "./components/studio-components/content-widget/content-widget.component";
 import RightWidgetComponent from "./components/studio-components/right-widget/right-widget.component";
-import BlueBarComponent from "./components/studio-components/blue-bar/blue-bar.component.js";
 import FieldValidationComponent from "./components/studio-components/field-validation/field-validation.js";
 import ServiceParamListComponent from "./components/action-service-components/service-param-list/service-param-list.component";
+import ServiceParamsComponent from "./components/action-service-components/service-params/service-params.component.js";
 import ActionParamListComponent from "./components/action-service-components/action-param-list/action-param-list.component";
 import ConditionListComponent from "./components/action-service-components/condition-list/condition-list.component";
 import PropertyListComponent from "./components/action-service-components/property-list/property-list.component";
@@ -56,14 +56,12 @@ import SelectiveComponent from "./components/selective-component/selective.compo
 //Controllers
 import { StudioController } from "./studio.controller";
 import { CreateScenarioController } from "./scenario-management/scenarios/create-scenario.controller";
-import { PageResourcesController } from "./page-resources/page-resources.controller";
-import { ExtensionsController } from "./packages-extensions/extensions.controller.js";
 import { EntitiesController } from "./scenario-management/entities/entities.controller";
 import { CreateEntityController } from "./scenario-management/entities/create-entity.controller";
 import { ViewModelsController } from "./scenario-management/view-models/view-models.controller";
 import { CreateViewModelController } from "./scenario-management/view-models/create-view-model.controller";
-import { ServicesController } from "./scenario-management/scenario-services/services.controller";
-import { CreateServiceController } from "./scenario-management/scenario-services/create-service.controller";
+import { ServicesController } from "./scenario-management/services/services.controller";
+import { CreateServiceController } from "./scenario-management/services/create-service.controller";
 
 //create module
 import { CreateModuleController } from "./create-module/create-module.controller.js";
@@ -71,31 +69,14 @@ import { CreateModuleBasicOptionsController } from "./create-module/1-basic-opti
 import { CreateModuleTemplateController } from "./create-module/2-template/template.controller";
 import { CreateModuleVariablesController } from "./create-module/3-variables/variables.controller";
 import { CreateModuleLibrariesController } from "./create-module/4-libraries/libraries.controller";
+import { CreateModuleModuleBuilderController } from "./create-module/5-module-builder/module-builder.controller.js";
 import { CreateModuleCreateActionController } from "./create-module/6-actions/create-action.controller.js";
 import { CreateModuleActionsController } from "./create-module/6-actions/actions.controller.js";
-import { CreateModulePublishController } from "./create-module/7-publish/publish.controller";
-
-//create dashboard
-import { CreateDashboardController } from "./create-dashboard/create-dashboard.controller";
-import { CreateDashboardBasicOptionsController } from "./create-dashboard/1-basic-options/basic-options.controller";
-import { CreateDashboardPagesController } from "./create-dashboard/2-pages/pages.controllers";
-import { CreateDashboardPageController } from "./create-dashboard/2-pages/create-page.controller.js";
-import { CreateDashboardSkinController } from "./create-dashboard/3-appearance/skin.controller.js";
-import { CreateDashboardLibrariesController } from "./create-dashboard/4-libraries/libraries.controller.js";
-import { CreateDashboardModulesController } from "./create-dashboard/5-modules/modules.controller.js";
-
-//module builder
-import { ModuleBuilderController } from "./module-builder/module-builder.controller.js";
-import { ModuleFormDesignerController } from "./module-builder/form-designer/form-designer.controller.js";
-import { ModuleHtmlEditorController } from "./module-builder/html-editor/html-editor.controller";
 
 import { ProviderSettingsController } from "./providers/provider-settings.controllers";
-import { LibrariesController } from "./resources-libraries/libraries.controller.js";
-import { DefinedListsController } from "./scenario-management/defined-lists/defined-lists.controller";
 
 //providers
 import { DeferredBroadcast, DeferredEmit, DeferredEvent, } from "./angular-providers/deferred-events.provider";
-import { WebSocketService } from "./services/websocket.service.js";
 
 const app = angular
     .module("BusinessEngineStudioApp", [require("angular-sanitize"), "angular.filter", "localytics.directives", "ngDragDrop", "ngFileUpload", "ui.sortable"])
@@ -105,7 +86,6 @@ const app = angular
     .provider("$deferredBroadcast", DeferredBroadcast)
 
     .service("globalService", GlobalService)
-    .service("webSocketService", WebSocketService)
     .service("apiService", ApiService)
     .service("validationService", ValidationService)
     .service("moduleDesignerService", ModuleDesignerService)
@@ -134,10 +114,10 @@ const app = angular
     .component("bSidebarExplorer", SidebarExplorerComponent)
     .component("bContentWidget", ContentWidgetComponent)
     .component("bRightWidget", RightWidgetComponent)
-    .component("blueBar", BlueBarComponent)
     
     .component("bFieldValidation", FieldValidationComponent)
     .component("bServiceParamList", ServiceParamListComponent)
+    .component("bServiceParams", ServiceParamsComponent)
     .component("bActionParamList", ActionParamListComponent)
     .component("bConditionList", ConditionListComponent)
     .component("bPropertyList", PropertyListComponent)
@@ -147,9 +127,6 @@ const app = angular
 
     .controller("studioController", StudioController)
     .controller("createScenarioController", CreateScenarioController)
-    .controller("pageResourcesController", PageResourcesController)
-    .controller("librariesController", LibrariesController)
-    .controller("extensionsController", ExtensionsController)
     .controller("entitiesController", EntitiesController)
     .controller("createEntityController", CreateEntityController)
     .controller("viewModelsController", ViewModelsController)
@@ -157,30 +134,16 @@ const app = angular
     .controller("servicesController", ServicesController)
     .controller("createServiceController", CreateServiceController)
 
-    .controller("createDashboardController", CreateDashboardController)
-    .controller("createDashboardBasicOptionsController", CreateDashboardBasicOptionsController)
-    .controller("createDashboardPagesController", CreateDashboardPagesController)
-    .controller("createDashboardPageController", CreateDashboardPageController)
-    .controller("createDashboardSkinController", CreateDashboardSkinController)
-    .controller("createDashboardLibrariesController", CreateDashboardLibrariesController)
-    .controller("createDashboardModulesController", CreateDashboardModulesController)
-
     .controller("createModuleController", CreateModuleController)
     .controller("createModuleBasicOptionsController", CreateModuleBasicOptionsController)
     .controller("createModuleTemplateController", CreateModuleTemplateController)
     .controller("createModuleVariablesController", CreateModuleVariablesController)
+    .controller("createModuleLibrariesController", CreateModuleLibrariesController)
+    .controller("createModuleModuleBuilderController", CreateModuleModuleBuilderController)
     .controller("createModuleActionsController", CreateModuleActionsController)
     .controller("createModuleCreateActionController", CreateModuleCreateActionController)
-    .controller("createModuleLibrariesController", CreateModuleLibrariesController)
-    .controller("createModulePublishController", CreateModulePublishController)
 
     .controller("providerSettingsController", ProviderSettingsController)
-    .controller("definedListsController", DefinedListsController)
-
-    .controller("moduleBuilderController", ModuleBuilderController)
-    .controller("formDesignerController", ModuleFormDesignerController)
-    .controller("moduleHtmlEditorController", ModuleHtmlEditorController);
-
 
 window["app"] = app;
 

@@ -18,10 +18,10 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +33,9 @@ using System.Web;
 using System.Web.UI;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
+using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -43,11 +46,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         private readonly IRepositoryBase _repository;
         private readonly IBuildModuleService _buildModuleService;
 
-        public ModuleService(IUnitOfWork unitOfWork, ICacheService cacheService, IBuildModuleService buildModuleService)
+        public ModuleService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository, IBuildModuleService buildModuleService)
         {
             _unitOfWork = unitOfWork;
             _cacheService = cacheService;
-            _repository = new RepositoryBase(_unitOfWork, _cacheService);
+            _repository = repository;
             _buildModuleService = buildModuleService;
         }
 
@@ -57,55 +60,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         {
             var module = await _repository.GetAsync<ModuleView>(id);
 
-            async Task<(Guid moduleId, string customHtml, string customJs, string customCss)> GetCustomFiles()
-            {
-                if ((ModuleBuilderType)module.ModuleBuilderType == ModuleBuilderType.HtmlEditor)
-                {
-                    var basePath = $"{portalSettings.HomeSystemDirectoryMapPath}/BusinessEngine/{module.ScenarioName}/{module.ModuleName}";
-                    return (
-                        module.Id,
-                        await FileUtil.GetFileContentAsync($"{basePath}/custom.html"),
-                        await FileUtil.GetFileContentAsync($"{basePath}/custom.js"),
-                        await FileUtil.GetFileContentAsync($"{basePath}/custom.css")
-                    );
-                }
-                else return (module.Id, null, null, null);
-            }
-
-            return ModuleMapping.MapModuleViewModel(module, await GetCustomFiles());
+            return ModuleMapping.MapModuleViewModel(module);
         }
 
         public async Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId, PortalSettings portalSettings)
         {
             var modules = await _repository.GetByScopeAsync<ModuleView>(scenarioId);
 
-            var toupleList = await Task.WhenAll(modules.Select(async module =>
-            {
-                async Task<(Guid moduleId, string customHtml, string customJs, string customCss)> GetCustomFiles()
-                {
-                    if ((ModuleBuilderType)module.ModuleBuilderType == ModuleBuilderType.HtmlEditor)
-                    {
-                        var basePath = $"{portalSettings.HomeSystemDirectoryMapPath}/BusinessEngine/{module.ScenarioName}/{module.ModuleName}";
-                        return (
-                            module.Id,
-                            await FileUtil.GetFileContentAsync($"{basePath}/custom.html"),
-                            await FileUtil.GetFileContentAsync($"{basePath}/custom.js"),
-                            await FileUtil.GetFileContentAsync($"{basePath}/custom.css")
-                        );
-                    }
-                    return (module.Id, null, null, null);
-                }
-
-                return await GetCustomFiles();
-            }));
-
             return null;
             //return ModuleMapping.GetModulesViewModel(modules, toupleList);
-        }
-
-        public async Task<ModuleBuilderType> GetModuleBuilderType(Guid moduleId)
-        {
-            return await _repository.GetColumnValueAsync<ModuleInfo, ModuleBuilderType>(moduleId, "ModuleBuilderType");
         }
 
         public async Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew)
@@ -127,11 +90,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         {
             if (postData.Scope == BuildScope.OnlyOneModule && !postData.ModuleId.HasValue)
                 throw new ArgumentNullException(nameof(postData.ModuleId));
-
-            if (postData.Scope == BuildScope.ModuleAndChildren && (!postData.ModuleId.HasValue || !postData.ParentId.HasValue))
-                throw new ArgumentNullException("Both moduleId and parentId are required.");
-
-            if (postData.Scope == BuildScope.AllScenarioModules && !postData.ScenarioId.HasValue)
+            else if (postData.Scope == BuildScope.AllScenarioModules && !postData.ScenarioId.HasValue)
                 throw new ArgumentNullException(nameof(postData.ScenarioId));
 
             var modules = await _repository.ExecuteStoredProcedureAsListAsync<BuildModuleView>("BusinessEngine_GetBuildModulesByScope",
@@ -139,33 +98,27 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 {
                     postData.Scope,
                     postData.ModuleId,
-                    postData.ParentId,
                     postData.ScenarioId
                 });
 
-            foreach (var module in modules?
-                .Where(m => (postData.Scope == BuildScope.OnlyOneModule && m.ParentId != null) || m.ParentId == null))
+            foreach (var module in modules)
             {
-                var moduleIds = modules.Select(m => m.Id).ToArray();
-                var parentId = module.ParentId == null ? module.Id : module.ParentId.Value;
-
                 var spResourceReaderTask = _repository.ExecuteStoredProcedureAsDataReaderAsync("BusinessEngine_GetBuildModulesAllResources",
                 new
                 {
-                    ParentId = parentId,
-                    ModuleIds = string.Join(",", moduleIds)
+                    ModuleId = module.Id
                 });
 
                 var spFieldsTask = _repository.ExecuteStoredProcedureMultiGridResultAsync("BusinessEngine_GetBuildModulesFieldsAndSettings",
                     new
                     {
-                        ModuleIds = string.Join(",", moduleIds)
+                        ModuleId = module.Id
                     },
                     grid => grid.Read<ModuleFieldInfo>(),
                     grid => grid.Read<ModuleFieldSettingView>()
                 );
 
-                var spPageIdTask = _repository.ExecuteStoredProcedureScalerAsync<int?>("BusinessEngine_GetTabIdByDnnModuleId",
+                var spPageIdTask = _repository.ExecuteStoredProcedureScalerAsync<int>("BusinessEngine_GetTabIdByDnnModuleId",
                     new
                     {
                         module.DnnModuleId
@@ -181,26 +134,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
                 var moduleToBuild = new BuildModuleDto();
                 module.CopyProperties(moduleToBuild);
-
-                var modulesToBuild = new List<BuildModuleDto>();
-                modulesToBuild.Add(moduleToBuild);
-
-                if (postData.Scope == BuildScope.ModuleAndChildren || postData.Scope == BuildScope.AllScenarioModules)
-                {
-                    foreach (var item in modules.Where(m => m.ParentId == module.Id))
-                    {
-                        var dto = new BuildModuleDto();
-                        item.CopyProperties(dto);
-                        modulesToBuild.Add(dto);
-                    }
-                }
-
-                (DashboardType DashboardType, string Skin, string SkinPath) dashboard = (DashboardType.None, null, null);
-                if (module.ModuleType == "Dashboard")
-                {
-                    var dashboardView = await _repository.GetByColumnAsync<DashboardView>("ModuleId", parentId);
-                    dashboard = ((DashboardType)dashboardView.DashboardType, dashboardView.SkinName, dashboardView.SkinPath);
-                }
 
                 var fieldsToBuild = ModuleMapping.MapModuleFieldsDto(fields, fieldsSettings);
 
@@ -230,7 +163,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                     var pageResources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("DnnPageId", pageId);
                     var pageResourcesDto = ResourceMapping.MapPageResourcesDto(pageResources);
 
-                    var finalResources = await _buildModuleService.ExecuteBuildAsync(pageId, dashboard, modulesToBuild, fieldsToBuild, resourcesToBuild, pageResourcesDto, portalSettings, context);
+                    var finalResources = await _buildModuleService.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
                     var mappedResources = ResourceMapping.MapPageResourcesInfo(finalResources);
                     await _repository.BulkInsertAsync<PageResourceInfo>(mappedResources);
                 }
@@ -239,32 +172,32 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             }
         }
 
-        public async Task<string> GetModuleActionScriptsAsync(IEnumerable<ModuleActionTypeView> actionTypes, HttpContext context)
-        {
-            var scripts = new StringBuilder();
+        //public async Task<string> GetModuleActionScriptsAsync(IEnumerable<ModuleActionTypeView> actionTypes, HttpContext context)
+        //{
+        //    var scripts = new StringBuilder();
 
-            foreach (var actionType in actionTypes)
-            {
-                string cacheKey = $"BE_ModuleActionTypes_Views_{actionType.ActionType}";
+        //    foreach (var actionType in actionTypes)
+        //    {
+        //        string cacheKey = $"BE_ModuleActionTypes_Views_{actionType.ActionType}";
 
-                scripts.AppendLine("//Start Action Type : " + actionType.ActionType);
+        //        scripts.AppendLine("//Start Action Type : " + actionType.ActionType);
 
-                var result = _cacheService.Get<string>(cacheKey);
-                if (string.IsNullOrEmpty(result))
-                {
-                    string actionJsMapPath = context.Server.MapPath($"~{actionType.ActionJsPath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions")}");
-                    result = await FileUtil.GetFileContentAsync(actionJsMapPath);
+        //        var result = _cacheService.Get<string>(cacheKey);
+        //        if (string.IsNullOrEmpty(result))
+        //        {
+        //            string actionJsMapPath = context.Server.MapPath($"~{actionType.ActionJsPath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions")}");
+        //            result = await FileUtil.GetFileContentAsync(actionJsMapPath);
 
-                    scripts.AppendLine(result);
+        //            scripts.AppendLine(result);
 
-                    _cacheService.Set<string>(cacheKey, result);
-                }
+        //            _cacheService.Set<string>(cacheKey, result);
+        //        }
 
-                scripts.AppendLine("//End Action Type : " + actionType.ActionType);
-            }
+        //        scripts.AppendLine("//End Action Type : " + actionType.ActionType);
+        //    }
 
-            return scripts.ToString();
-        }
+        //    return scripts.ToString();
+        //}
 
         public async Task<bool> UpdateModuleLayoutTemplateAsync(ModuleLayoutTemplateDto data)
         {
@@ -302,12 +235,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         public async Task<IEnumerable<ModuleFieldTypeViewModel>> GetFieldTypesViewModelAsync()
         {
             var task1 = _repository.GetAllAsync<ModuleFieldTypeView>("ViewOrder");
-            var task2 = _repository.GetAllAsync<ModuleFieldTypeTemplateInfo>();
-            var task3 = _repository.GetAllAsync<ModuleFieldTypeThemeInfo>();
+            var task2 = _repository.GetAllAsync<ModuleFieldTypeTemplateInfo>("ViewOrder");
+            var task3 = _repository.GetAllAsync<ModuleFieldTypeThemeInfo>("ViewOrder");
 
             await Task.WhenAll(task1, task2, task3);
 
             return ModuleMapping.MapModuleFieldTypesViewModel(await task1, await task2, await task3);
+        }
+
+        public async Task<IEnumerable<ModuleFieldTypeCustomEventListItem>> GetFieldTypesGetCustomEventsAsync(string fieldType)
+        {
+            var customEvents = await _repository.GetColumnValueAsync<ModuleFieldTypeInfo, string>("CustomEvents", "FieldType", fieldType);
+
+            return !string.IsNullOrEmpty(fieldType)
+                ? TypeCastingUtil<IEnumerable<ModuleFieldTypeCustomEventListItem>>.TryJsonCasting(customEvents)
+                : Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
         }
 
         private async Task<string> GetFieldTypeGeneratePanesBusinessControllerClass(string fieldType)
@@ -355,9 +297,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         #region Module Field Services
 
-        public async Task<IEnumerable<ModuleFieldViewModel>> GetFieldsViewModelAsync(Guid moduleId)
+        public async Task<IEnumerable<ModuleFieldViewModel>> GetFieldsViewModelAsync(Guid moduleId, string sortBy = "ViewOrder")
         {
-            var task1 = _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId, "ViewOrder");
+            var task1 = _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId, sortBy);
             var task2 = _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("ModuleId", moduleId);
 
             await Task.WhenAll(task1, task2);
@@ -365,7 +307,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return ModuleMapping.MapModuleFieldsViewModel(await task1, await task2);
         }
 
-        public async Task<Guid> SaveModuleFieldAsync(ModuleFieldViewModel field, bool isNew)
+        public async Task<ModuleFieldViewModel> GetFieldViewModelAsync(Guid fieldId)
+        {
+            var task1 = _repository.GetAsync<ModuleFieldInfo>(fieldId);
+            var task2 = _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("FieldId", fieldId);
+
+            await Task.WhenAll(task1, task2);
+
+            return ModuleMapping.MapModuleFieldViewModel(await task1, await task2);
+        }
+
+        public async Task<Guid> SaveFieldAsync(ModuleFieldViewModel field, bool isNew)
         {
             var objModuleFieldInfo = ModuleMapping.MapModuleFieldInfo(field);
 
@@ -403,12 +355,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return objModuleFieldInfo.Id;
         }
 
-        public async Task<bool> UpdateModuleFieldPaneAsync(SortPaneFieldsDto data)
+        public async Task<bool> UpdateFieldPaneAsync(SortPaneFieldsDto data)
         {
             return await _repository.UpdateColumnAsync<ModuleFieldInfo>("PaneName", data.PaneName, data.FieldId);
         }
 
-        public async Task SortModuleFieldsAsync(SortPaneFieldsDto data)
+        public async Task SortFieldsAsync(SortPaneFieldsDto data)
         {
             await _repository.ExecuteStoredProcedureAsync("BusinessEngine_SortModuleFields",
             new
@@ -422,7 +374,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             _cacheService.RemoveByPrefix(cacheKey);
         }
 
-        public async Task<bool> DeleteModuleFieldAsync(Guid id)
+        public async Task<bool> DeleteFieldAsync(Guid id)
         {
             var task1 = _repository.DeleteByScopeAsync<ModuleFieldSettingInfo>(id);
             var task2 = _repository.DeleteAsync<ModuleFieldInfo>(id);
@@ -502,7 +454,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
             await Task.WhenAll(task1, task2);
 
-            return DashboardMapping.MapCustomLibrariesViewModel(await task1, await task2);
+            return null;
+            //return DashboardMapping.MapCustomLibrariesViewModel(await task1, await task2);
         }
 
         public async Task<IEnumerable<ModuleCustomResourceViewModel>> GetModuleCustomResourcesAsync(Guid moduleId)

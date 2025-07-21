@@ -2,10 +2,8 @@ import basicOptionsTemplate from "./1-basic-options/basic-options.html";
 import templateTemplate from "./2-template/template.html";
 import variablesTemplate from "./3-variables/variables.html";
 import librariesTemplate from "./4-libraries/libraries.html";
-import builderTemplate from "./5-builder/builder.html";
+import moduleBuilderTemplate from "./5-module-builder/module-builder.html";
 import actionsTemplate from "./6-actions/actions.html";
-
-import moduleBuilderTemplate from "./../module-builder/module-builder.html";
 
 export class CreateModuleController {
     constructor($scope, $rootScope, $timeout, $deferredBroadcast, studioService, globalService) {
@@ -20,11 +18,9 @@ export class CreateModuleController {
         this.basicOptionsTemplate = basicOptionsTemplate;
         this.templateTemplate = templateTemplate;
         this.variablesTemplate = variablesTemplate;
-        this.builderTemplate = builderTemplate;
-        this.actionsTemplate = actionsTemplate;
         this.librariesTemplate = librariesTemplate;
-
         this.moduleBuilderTemplate = moduleBuilderTemplate;
+        this.actionsTemplate = actionsTemplate;
 
         $scope.$on('onCreateModuleChangeStep', (e, args) => {
             this.onStepClick(args.step);
@@ -64,11 +60,8 @@ export class CreateModuleController {
 
     onStepClick(step) {
         if (step > (this.step ?? 1)) {
-            this.hideStepPreloader = false;
-
             this.$deferredBroadcast(this.$scope, 'onCreateModuleValidateStep' + (this.step || step)).then((isValid) => {
                 if (isValid) {
-                    this.hideStepPreloader = false;
                     this.step = step;
                     this.$rootScope.createModuleValidatedStep.push(step);
 

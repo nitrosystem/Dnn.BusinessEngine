@@ -1,0 +1,25 @@
+<div class="d-flex">
+    <div class="col-7 border-end b-splitter pe-3">
+        <div class="b-field">
+            <label class="form-label">Placeholder</label>
+            <input type="text" ng-model="$.field.Settings.Placeholder" class="b-input form-control" />
+        </div>
+        <div class="b-field">
+            <label class="form-label">Dropdown Css Class</label>
+            <input type="text" ng-model="$.field.Settings.DropdownCssClass" class="b-input form-control" />
+        </div>
+    </div>
+    <div class="col ps-3">
+        <div class="b-field">
+            <label class="form-label">Show None/All</label>
+            <label class="b-switch d-block">
+                <input type="checkbox" hidden="hidden" ng-model="$.field.Settings.ShowAll" />
+                <div class="slider"></div>
+            </label>
+        </div>
+        <div class="b-field" ng-if="$.field.Settings.ShowAll">
+            <label class="form-label">All Text</label>
+            <input type="text" ng-model="$.field.Settings.AllText" class="b-input form-control" placeholder="All or none text" />
+        </div>
+    </div>
+</div>

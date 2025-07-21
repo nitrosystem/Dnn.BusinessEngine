@@ -180,7 +180,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Utilities
 
             var connection = new SqlConnection(connectionString);
 
-            Dapper.SqlMapper.Execute(connection, query);
+            SqlMapper.Execute(connection, query);
         }
 
         public static void ExecuteSp(string spName, IDictionary<string, object> spParams)
@@ -271,9 +271,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Utilities
             var connection = new SqlConnection(connectionString);
 
             if (type == 0)
-                return Dapper.SqlMapper.Query<string>(connection, "SELECT name FROM sys.objects Where type = N'U' order by name");
+                return SqlMapper.Query<string>(connection, "SELECT name FROM sys.objects Where type = N'U' order by name");
             else if (type == 1)
-                return Dapper.SqlMapper.Query<string>(connection, "SELECT name FROM sys.objects Where type = N'V' order by name");
+                return SqlMapper.Query<string>(connection, "SELECT name FROM sys.objects Where type = N'V' order by name");
             else
                 return null;
         }
@@ -326,7 +326,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Utilities
 	                            WHERE
 		                            c.object_id = OBJECT_ID('{0}') and c.name not in (Select ColumnName From PrimaryColumn) order by number";
 
-            return Dapper.SqlMapper.Query<TableColumnInfo>(connection, string.Format(query, objectName));
+            return SqlMapper.Query<TableColumnInfo>(connection, string.Format(query, objectName));
         }
 
         public static IEnumerable<SpParamInfo> GetSpParams(string schema, string spName, string connectionString = null)
@@ -391,7 +391,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Utilities
             {
                 try
                 {
-                    Dapper.SqlMapper.Execute(connection, query);
+                    SqlMapper.Execute(connection, query);
                 }
                 catch (Exception ex)
                 {
@@ -399,58 +399,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Utilities
                     result.ResultMessage = ex.Message;
                 }
             }
-
-            return result;
-        }
-
-        public static IEnumerable<TableRelationshipInfo> GetTableRelationships(string owner, string tableName)
-        {
-            using (SqlConnection connection = new SqlConnection(DataProvider.Instance().ConnectionString))
-            {
-                var param = new DynamicParameters();
-                param.Add("@Owner", owner);
-                param.Add("@TableName", tableName);
-                var result = SqlMapper.Query<TableRelationshipInfo>(connection, "dbo.BusinessEngine_GetRelationshipDetails", param,
-                    commandType: CommandType.StoredProcedure);
-
-                return result;
-            }
-        }
-
-        public static SqlResultInfo AddRelationship(TableRelationshipInfo relationship)
-        {
-            string query = @"
-                IF (OBJECT_ID('dbo.{0}', 'F') IS NOT NULL)
-                BEGIN
-                    ALTER TABLE dbo.{1} DROP CONSTRAINT {0}
-                END
-
-                ALTER TABLE dbo.{1} ADD CONSTRAINT
-	                {0} FOREIGN KEY
-	                (
-	                {2}
-	                ) REFERENCES dbo.{3}
-	                (
-	                {4}
-	                ) {5}
-	                 {6}
-            ";
-
-            query += relationship.EnforceForReplication ? "" : "\n NOT FOR REPLICATION";
-            query += relationship.EnforceForeignKeyConstraint ? "" : "\n ALTER TABLE dbo.{1} NOCHECK CONSTRAINT {0}";
-
-            relationship.DELETESpecification = string.IsNullOrEmpty(relationship.DELETESpecification) ? "" : "ON DELETE " + (relationship.DELETESpecification ?? "").Replace("NO_ACTION", "NO ACTION");
-            relationship.UPDATESpecification = string.IsNullOrEmpty(relationship.UPDATESpecification) ? "" : "ON UPDATE " + (relationship.UPDATESpecification ?? "").Replace("NO_ACTION", "NO ACTION");
-
-            relationship.DELETESpecification = (relationship.DELETESpecification ?? "").Replace("SET_NULL", "SET NULL");
-            relationship.UPDATESpecification = (relationship.UPDATESpecification ?? "").Replace("SET_NULL", "SET NULL");
-
-            relationship.DELETESpecification = (relationship.DELETESpecification ?? "").Replace("SET_DEFAULT", "SET DEFAULT");
-            relationship.UPDATESpecification = (relationship.UPDATESpecification ?? "").Replace("SET_DEFAULT", "SET DEFAULT");
-
-            query = string.Format(query, relationship.RelationshipName, relationship.ChildEntityTableName, string.Join(",", relationship.Columns.Select(c => c.PrimaryKey)), relationship.ParentEntityTableName, string.Join(",", relationship.Columns.Select(c => c.ForeignKey)), relationship.UPDATESpecification, relationship.DELETESpecification);
-
-            var result = ExecuteScalarSqlTransaction(query);
 
             return result;
         }
@@ -567,45 +515,44 @@ namespace NitroSystem.Dnn.BusinessEngine.Utilities
             return Script;
         }
 
-        //public static Queue<string> GetOrderedTables(IEnumerable<DbRelationshipView> relationships)
-        //{
-        //    Dictionary<string, List<string>> graph = new Dictionary<string, List<string>>();
-        //    HashSet<string> allTables = new HashSet<string>();
+        public static string GetSpScript(string spName)
+        {
+            var connection = new SqlConnection(DataProvider.Instance().ConnectionString);
 
-        //    foreach (var rel in relationships)
-        //    {
-        //        if (!graph.ContainsKey(rel.ParentTable))
-        //            graph[rel.ParentTable] = new List<string>();
+            var result = SqlMapper.QuerySingle<string>(connection, string.Format("SELECT [Definition] FROM sys.sql_modules WHERE objectproperty(OBJECT_ID, 'IsProcedure') = 1 AND OBJECT_NAME(OBJECT_ID) = '{0}'", spName));
 
-        //        graph[rel.ParentTable].Add(rel.ChildTable);
-        //        allTables.Add(rel.ParentTable);
-        //        allTables.Add(rel.ChildTable);
-        //    }
+            return result;
+        }
 
-        //    HashSet<string> visited = new HashSet<string>();
-        //    Stack<string> sortedStack = new Stack<string>();
+        public static string NormalizeProcedureName(string input)
+        {
+            // حذف براکت‌ها و فاصله‌های اضافی
+            var cleaned = input.Replace("[", "").Replace("]", "").Trim();
 
-        //    void TopologicalSort(string table)
-        //    {
-        //        if (visited.Contains(table))
-        //            return;
+            // اسپلیت بر اساس نقطه
+            var parts = cleaned.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
 
-        //        visited.Add(table);
+            string schema;
+            string proc;
 
-        //        if (graph.ContainsKey(table))
-        //        {
-        //            foreach (var child in graph[table])
-        //                TopologicalSort(child);
-        //        }
+            if (parts.Length == 2)
+            {
+                schema = parts[0];
+                proc = parts[1];
+            }
+            else if (parts.Length == 1)
+            {
+                schema = "dbo"; // پیش‌فرض
+                proc = parts[0];
+            }
+            else
+            {
+                // ورودی خیلی بدفرمت بود
+                schema = "dbo";
+                proc = "Unknown";
+            }
 
-        //        sortedStack.Push(table);
-        //    }
-
-        //    foreach (var table in allTables)
-        //        if (!visited.Contains(table))
-        //            TopologicalSort(table);
-
-        //    return new Queue<string>(sortedStack);
-        //}
+            return $"{schema}.{proc}";
+        }
     }
 }

@@ -4,8 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Caching;
 
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
 {
@@ -16,12 +16,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
     {
         public Guid Id { get; set; }
         public Guid ScenarioId { get; set; }
-        public Guid? ParentId { get; set; }
         public int PortalId { get; set; }
         public int? DnnModuleId { get; set; }
-        public int ModuleType { get; set; }
-        public int ModuleBuilderType { get; set; }
         public int Wrapper { get; set; }
+        public int ModuleType { get; set; }
         public string ModuleName { get; set; }
         public string ModuleTitle { get; set; }
         public string Template { get; set; }
@@ -29,7 +27,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
         public string PreloadingTemplate { get; set; }
         public string LayoutTemplate { get; set; }
         public string LayoutCss { get; set; }
-        public bool IsSSR { get; set; }
         public string Settings { get; set; }
         public int Version { get; set; }
         public string Description { get; set; }

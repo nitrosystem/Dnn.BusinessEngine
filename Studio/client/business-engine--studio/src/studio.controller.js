@@ -1,25 +1,19 @@
 import { GlobalSettings } from "./angular-configs/global.settings";
 import { activityBarItems } from "./angular-configs/activity-bar.config";
 
-
 import createScenarioTemplate from "./scenario-management/scenarios/create-scenario.html";
 import entitiesTemplate from "./scenario-management/entities/entities.html";
 import createEntityTemplate from "./scenario-management/entities/create-entity.html";
 import viewModelsTemplate from "./scenario-management/view-models/view-models.html";
 import createViewModelTemplate from "./scenario-management/view-models/create-view-model.html";
-import servicesTemplate from "./scenario-management/scenario-services/services.html";
-import createServiceTemplate from "./scenario-management/scenario-services/create-service.html";
-import createDashboardTemplate from "./create-dashboard/create-dashboard.html";
+import servicesTemplate from "./scenario-management/services/services.html";
+import createServiceTemplate from "./scenario-management/services/create-service.html";
 import createModuleTemplate from "./create-module/create-module.html";
 import createActionTemplate from "./create-module/6-actions/create-action.html";
-import definedListsTemplate from "./scenario-management/defined-lists/defined-lists.html";
 import providerSettingsTemplate from "./providers/provider-settings.html";
-import extensionsTemplate from "./packages-extensions/extensions.html";
-import pageResourcesTemplate from "./page-resources/page-resources.html";
-import librariesTemplate from "./resources-libraries/libraries.html";
 
 export class StudioController {
-    constructor($scope, $rootScope, $timeout, $q, $compile, globalService, webSocketService, apiService, eventService, notificationService) {
+    constructor($scope, $rootScope, $timeout, $q, $compile, globalService, apiService, eventService, notificationService) {
         this.$scope = $scope;
         this.$rootScope = $rootScope;
         this.$timeout = $timeout;
@@ -29,7 +23,6 @@ export class StudioController {
         this.apiService = apiService;
         this.eventService = eventService;
         this.notifyService = notificationService;
-        this.webSocketService = webSocketService;
 
         $scope.$on("onGotoPage", (e, args) => {
             const subParamsUrl = args.subParams ? this.globalService.getUrlQueryFromObject(args.subParams) : "";
@@ -49,7 +42,7 @@ export class StudioController {
         });
 
         $scope.$on("onUpdateCurrentTab", (e, args) => {
-            if (args && args.id == this.$rootScope.currentTab.id)
+            if (args && this.$rootScope.currentTab && (args.id ?? '').toLowerCase() == (this.$rootScope.currentTab.id ?? '').toLowerCase())
                 this.updateCurrentTab(args.id, args.title);
             else if (args && args.key == this.$rootScope.currentTab.key)
                 this.updateCurrentTab(args.id, args.title, args.newKey);
@@ -359,10 +352,6 @@ export class StudioController {
             if (
                 param == "module" ||
                 param == "field" ||
-                param == "dashboard" ||
-                param == "page" ||
-                param == "parent" ||
-                param == "page-parent" ||
                 param == "type" ||
                 param == "mode" ||
                 param == "key" ||
@@ -417,16 +406,6 @@ export class StudioController {
                 result.icon = "table";
                 result.content = createServiceTemplate;
                 break;
-            case "create-dashboard":
-                result.title = "New Dashboard";
-                result.icon = "layout-sidebar-left";
-                result.content = createDashboardTemplate;
-                break;
-            case "create-dashboard-page":
-                result.title = "Edit Page";
-                result.icon = "copy";
-                result.content = createDashboardPageTemplate;
-                break;
             case "create-module":
                 result.title = "Create Module";
                 result.content = createModuleTemplate;
@@ -441,26 +420,6 @@ export class StudioController {
                 result.title = "Provider Settings";
                 result.content = providerSettingsTemplate;
                 result.icon = "window";
-                break;
-            case "defined-lists":
-                result.title = "Defined Lists";
-                result.content = definedListsTemplate;
-                result.icon = "list-ordered";
-                break;
-            case "extensions":
-                result.title = "Extensions";
-                result.icon = "extensions";
-                result.content = extensionsTemplate;
-                break;
-            case "page-resources":
-                result.title = "Page Resources";
-                result.icon = "multiple-windows";
-                result.content = pageResourcesTemplate;
-                break;
-            case "libraries":
-                result.title = "Libraries";
-                result.icon = "library";
-                result.content = librariesTemplate;
                 break;
         }
 

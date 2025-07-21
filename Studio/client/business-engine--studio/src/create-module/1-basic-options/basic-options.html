@@ -12,52 +12,21 @@
                     <div class="b-input-group">
                         <select id="drpScenarioId" ng-model="$.module.ScenarioId" class="b-input form-select"
                             ng-options="scenario.Id as scenario.ScenarioTitle for scenario in $.$rootScope.scenarios"
-                            ng-disabled="$.running" chosen inherit-select-classes="true"
-                            placeholder-text-single="'Select module scenario'" required>
+                            chosen inherit-select-classes="true" placeholder-text-single="'Select module scenario'"
+                            ng-disabled="true" required>
                         </select>
                         <span><i class="codicon codicon-activate-breakpoints"></i></span>
                     </div>
                 </div>
                 <div class="b-field">
                     <label class="form-label">Module Type</label>
-                    <select id="drpModuleType" ng-model="$.module.ModuleType" class="b-input form-select" ng-disabled="$.running" chosen
-                        inherit-select-classes="true" placeholder-text-single="'Select module type'" required>
+                    <select id="drpModuleType" ng-model="$.module.ModuleType" class="b-input form-select"
+                        ng-disabled="$.running" chosen inherit-select-classes="true"
+                        placeholder-text-single="'Select module type'" required>
                         <option ng-value="1">Form</option>
                         <option ng-value="2">List</option>
                         <option ng-value="3">Details</option>
                     </select>
-                </div>
-                <div class="b-field">
-                    <label class="form-label">Module Builder Type</label>
-                    <div class="b-input-group mb-2">
-                        <select id="drpModuleBuilderType" ng-model="$.module.ModuleBuilderType"
-                            class="b-input form-select" ng-disabled="$.running" chosen inherit-select-classes="true"
-                            placeholder-text-single=" 'Select module builder type'" required>
-                            <option ng-value="0">Form Designer</option>
-                            <option ng-value="1">Html Editor</option>
-                        </select>
-                        <span><i class="codicon codicon-code"></i></span>
-                    </div>
-                    <div class="b-notify notify-small notify-note">
-                        <i class="codicon codicon-symbol-snippet b-icon-2"></i>
-                        <p class="text text-justify mb-0">
-                            This item is very effective according to the type of module construction.
-                            By choosing the first option, you design your form fields through an advanced form builder.
-                            And in the second case, you have to create your own form and module through coding.
-                        </p>
-                    </div>
-                </div>
-                <div class="b-field" ng-if="$.module.ModuleBuilderType===1">
-                    <label class="form-label">Files(html,js,css)</label>
-                    <div class="b-small-nowrap b-input form-control">
-                        /Portals/[Portal-System]/BusinessEngine/[ScenarioName]/[ModuleName]/custom.html
-                    </div>
-                    <div class="b-small-nowrap b-input form-control">
-                        /Portals/[Portal-System]/BusinessEngine/[ScenarioName]/[ModuleName]/custom.js
-                    </div>
-                    <div class="b-small-nowrap b-input form-control">
-                        /Portals/[Portal-System]/BusinessEngine/[ScenarioName]/[ModuleName]/custom.css
-                    </div>
                 </div>
             </div>
             <!------------------------------------>
@@ -85,7 +54,7 @@
                         </div>
                         <div class="col-3 ms-3">
                             <button type="button" class="b-btn btn-text-icon btn-green-lite h-100 ps-4 pe-4"
-                                ng-click="$.validateModuleName()" ng-disabled="!$.module.ModuleName">
+                                ng-click="$.validateModuleName()" ng-disabled="$.module.Id || !$.module.ModuleName">
                                 <i class=" codicon codicon-go-to-search"></i>
                                 Validate Name
                             </button>

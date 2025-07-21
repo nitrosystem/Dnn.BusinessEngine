@@ -1,6 +1,6 @@
 ﻿using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
 using System;
 using System.Collections.Generic;
@@ -14,6 +14,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts
     public interface IBuildModuleService
     {
         Task<PrebuildResultDto> PrepareBuild(BuildModuleDto module, IRepositoryBase repository, PortalSettings portalSettings);
-        Task<IEnumerable<PageResourceDto>> ExecuteBuildAsync(int? pageId, (DashboardType DashboardType, string Skin, string SkinPath) dashboard, IEnumerable<BuildModuleDto> modulesToBuild, IEnumerable<BuildModuleFieldDto> fieldsToBuild, IEnumerable<BuildModuleResourceDto> resourcesToBuild, IEnumerable<PageResourceDto> oldReesources, PortalSettings portalSettings, HttpContext context);
+        Task<IEnumerable<PageResourceDto>> ExecuteBuildAsync(BuildModuleDto module, IEnumerable<BuildModuleFieldDto> fields, IEnumerable<BuildModuleResourceDto> resources, int pageId, PortalSettings portalSettings, HttpContext context);
     }
 }

@@ -1,3 +1,4 @@
+import { GlobalSettings } from "../../../angular-configs/global.settings";
 import template from "./sidebar-explorer.component.html";
 
 class SidebarExplorerController {
@@ -74,7 +75,7 @@ class SidebarExplorerController {
     processGroups() {
         _.each(this.$rootScope.groups, (group) => {
             group.Items = [];
-            group.Items.push(...(_.filter(this.$rootScope.explorerItems, (e) => { return e.Type == group.ObjectType && e.GroupId == group.GroupId; })));
+            group.Items.push(...(_.filter(this.$rootScope.explorerItems, (e) => { return e.Type == group.ObjectType && e.GroupId == group.Id; })));
         });
     }
 
@@ -84,77 +85,27 @@ class SidebarExplorerController {
         this.entities = _.filter(items, function (i) {
             return i.Type == "Entity";
         });
-        this.entities = _.orderBy(this.entities, ["Title"], ["asc"]);
 
         this.viewModels = _.filter(items, function (i) {
             return i.Type == "ViewModel";
         });
-        this.viewModels = _.orderBy(this.viewModels, ["Title"], ["asc"]);
 
         this.services = _.filter(items, function (i) {
             return i.Type == "Service";
         });
-        this.services = _.orderBy(this.services, ["Title"], ["asc"]);
 
         this.providers = _.filter(items, function (i) {
             return i.Type == "Provider";
         });
-        //this.paymentMethods = _.orderBy(this.paymentMethods, ["Title"], ["asc"]);
-
-        this.paymentMethods = _.filter(items, function (i) {
-            return i.Type == "PaymentMethod";
-        });
-        this.paymentMethods = _.orderBy(this.paymentMethods, ["Title"], ["asc"]);
-
-        this.dashboards = _.filter(items, function (i) {
-            return i.Type == "Dashboard";
-        });
-        _.map(this.dashboards, (d) => {
-            const allPages = _.filter(items, (i) => {
-                return i.Type == "DashboardPage";
-            });
-            const pageModules = _.filter(items, (i) => {
-                return (
-                    i.DashboardPageParentId &&
-                    (i.Type == "FormModule" || i.Type == "ListModule")
-                );
-            });
-            this.dashboards = _.orderBy(this.dashboards, ["Title"], ["asc"]);
-
-            d.Pages = [];
-            this.setDashboardPages(d.ParentId, null, d.Pages, allPages, pageModules, 1);
-        });
 
         this.modules = _.filter(items, function (i) {
-            return (i.Type == "FormModule" || i.Type == "ListModule" || i.Type == "DetailsModule") && !i.ParentId;
+            return i.Type == "Module";
         });
         this.modules = _.orderBy(this.modules, ["Title"], ["asc"]);
 
         this.processGroups();
 
         this.newModule = this.globalService.getParameterByName('m') == 'create-module' && !isNaN(this.globalService.getParameterByName('id'));
-        this.newDashboard = this.globalService.getParameterByName('m') == 'create-dashboard' && !isNaN(this.globalService.getParameterByName('id'));
-    }
-
-    setDashboardPages(dashboardId, parentId, pages, items, pageModules, level) {
-        _.filter(items, (p) => {
-            return p.ParentId == dashboardId && p.DashboardPageParentId == parentId;
-        }).map((p) => {
-            p.level = level;
-            pages.push(p);
-
-            p.Pages = [];
-            this.setDashboardPages(
-                dashboardId,
-                p.ItemId,
-                p.Pages,
-                items,
-                pageModules,
-                level++
-            );
-
-            _.filter(pageModules, (m) => { return m.DashboardPageParentId == p.ItemId; }).map((m) => (p.Module = m));
-        });
     }
 
     onItemClick($event, moduleType, parentId, itemId, title, subParams) {
@@ -213,7 +164,10 @@ class SidebarExplorerController {
     }
 
     onAddGroupClick() {
-        this.group = { ScenarioId: this.$rootScope.scenario.ScenarioId, GroupType: 'SidebarExplorer' };
+        this.group = {
+            ScenarioId: GlobalSettings.scenarioId,
+            GroupType: 'SidebarExplorer'
+        };
         window["wnEditGroup"].show();
     }
 
@@ -233,12 +187,12 @@ class SidebarExplorerController {
             };
 
             this.apiService.post("Studio", "SaveGroup", this.group).then((data) => {
-                const isNew = !this.group.GroupId;
+                const isNew = !this.group.Id;
                 if (isNew) {
-                    this.group.GroupId = data;
+                    this.group.Id = data;
                     this.$rootScope.groups.push(this.group);
                 } else {
-                    _.filter(this.$rootScope.groups, (g) => { return g.GroupId == this.group.GroupId }).map((group) => {
+                    _.filter(this.$rootScope.groups, (g) => { return g.Id == this.group.Id }).map((group) => {
                         this.$rootScope.groups[this.$rootScope.groups.indexOf(group)] = this.group;
                     });
                 }
@@ -248,7 +202,7 @@ class SidebarExplorerController {
                 $(`#exp${this.group.ObjectType}Items`).addClass('show');
 
                 setTimeout(() => {
-                    var $ul = $(`#expGroupItems_${this.group.GroupId}`);
+                    var $ul = $(`#expGroupItems_${this.group.Id}`);
                     $ul.addClass('show');
 
                     $('#bExplorer').animate({ scrollTop: $ul.offset().top - 50 }, 2000);
@@ -302,12 +256,12 @@ class SidebarExplorerController {
             if (!group) {
                 item.GroupId = null;
             } else {
-                item.GroupId = group.GroupId;
+                item.GroupId = group.Id;
 
                 group.Items = group.Items || [];
                 group.Items.push(item);
 
-                $(`#expGroupItems_${group.GroupId}`).addClass('show');
+                $(`#expGroupItems_${group.Id}`).addClass('show');
             }
 
             this.running = "update-item-group";
@@ -338,7 +292,7 @@ class SidebarExplorerController {
                     title: "Removing Group",
                     subtitle: "Just a moment for removing group...",
                 };
-                this.apiService.post("Studio", "DeleteGroup", { Id: group.GroupId }).then((data) => {
+                this.apiService.post("Studio", "DeleteGroup", { Id: group.Id }).then((data) => {
                     this.$rootScope.groups.splice(this.$rootScope.groups.indexOf(group), 1);
 
                     this.notifyService.success("group deleted has been successfully");

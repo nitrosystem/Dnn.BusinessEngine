@@ -4,8 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Caching;
 
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
 {
@@ -20,7 +20,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
         public int PortalId { get; set; }
         public int? DnnModuleId { get; set; }
         public int ModuleType { get; set; }
-        public int ModuleBuilderType { get; set; }
         public int Wrapper { get; set; }
         public string ScenarioName { get; set; }
         public string ModuleName { get; set; }

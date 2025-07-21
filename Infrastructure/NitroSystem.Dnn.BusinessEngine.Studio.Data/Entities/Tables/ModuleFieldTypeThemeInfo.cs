@@ -4,8 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Caching;
 
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
 {
@@ -21,7 +21,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
         public string ThemeImage { get; set; }
         public string ThemeCssPath { get; set; }
         public string ThemeCssClass { get; set; }
-        public bool IsDark { get; set; }
         public string Description { get; set; }
         public int ViewOrder { get; set; }
     }

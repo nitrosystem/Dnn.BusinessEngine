@@ -1,5 +1,6 @@
 <div ng-if="$.$rootScope.scenario" id="bExplorer" class="b-sidebar-explorer"
     ng-class="{'is-awaiting':$.running == 'refresh-sidebar-explorer-items'}">
+    <div ng-if="$.running == 'refresh-sidebar-explorer-items'" class="loading-frame"></div>
     <!------------------------------------>
     <!--Explorer Header-->
     <!------------------------------------>
@@ -192,40 +193,6 @@
                 </ul>
             </li>
             <!------------------------------------>
-            <!--Dashboards-->
-            <!------------------------------------>
-            <li class="exp-item exp-has-childs exp-dashboards" ng-if="$.newDashboard || $.dashboards.length">
-                <a class="exp-label" data-bs-toggle="collapse" data-bs-target="#expDashboardItems"
-                    ng-class="{'collapsed':!$.isExpanded('dashboards')}">
-                    <i class="codicon codicon-chevron-down exp-arrow-icon"></i>
-                    <i class="codicon codicon-layout-sidebar-left"></i> Dashboards
-                </a>
-                <span class="hover-wrapper">
-                    <i class="codicon codicon-collapse-all" data-bs-toggle="collapse"
-                        data-bs-target="#expDashboardItems"></i>
-                </span>
-                <ul class="exp-sub-items collapse" id="expDashboardItems"
-                    ng-class="{'show': $.isExpanded('dashboards')}">
-                    <!------------------------------------>
-                    <!--New Dashboard-->
-                    <!------------------------------------>
-                    <li class="exp-item" ng-if="$.newDashboard && !$.$rootScope.explorerCurrentItem">
-                        <a class="exp-label" ng-class="{'active':$.newDashboard}">
-                            <i class="codicon codicon-empty-window"></i> Create New Dashboard
-                        </a>
-                    </li>
-                    <!------------------------------------>
-                    <!--Exists Dashboard-->
-                    <!------------------------------------>
-                    <li class="exp-item" ng-repeat="item in $.dashboards | fuzzyBy: 'Title': $.searchItem">
-                        <a class="exp-label" ng-class="{'active':$.$rootScope.explorerCurrentItem==item.ItemId}"
-                            ng-click="$.onItemClick($event,'create-dashboard',null,item.ItemId,item.Title)">
-                            <i class="codicon codicon-window"></i> {{item.Title}}
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <!------------------------------------>
             <!--Modules-->
             <!------------------------------------>
             <li class="exp-item exp-has-childs exp-modules" ng-if="$.modules.length"
@@ -304,82 +271,6 @@
                     </li>
                 </ul>
             </li>
-            <!------------------------------------>
-            <!--Defined List -->
-            <!------------------------------------>
-            <li class="exp-item exp-has-childs exp-defined-lists" ng-if="1==1||$.definedLists.length"
-                ng-class="{'collapsed':!$.isExpanded('defined-lists')}">
-                <a class="exp-label collapsed" data-bs-toggle="collapse" data-bs-target="#expDefinedListItems">
-                    <i class="codicon codicon-chevron-down exp-arrow-icon"></i>
-                    <i class="codicon codicon-list-ordered"></i> Defined Lists
-                </a>
-                <span class="hover-wrapper">
-                    <i class="codicon codicon-collapse-all" data-bs-toggle="collapse"
-                        data-bs-target="#expDefinedListItems"></i>
-                </span>
-                <ul class="exp-sub-items collapse" id="expDefinedListItems"
-                    ng-class="{'show':$.searchItem || $.isExpanded('defined-lists')}">
-                    <li class="exp-item">
-                        <a class="exp-label" ng-click="$.onItemClick($event,'defined-lists')"
-                            ng-class="{'active':$.$rootScope.explorerCurrentItem=='defined-lists'}">
-                            <i class="codicon codicon-list-ordered"></i> Defined Lists
-                        </a>
-                    </li>
-                    <li class="exp-item">
-                        <a class="exp-label" ng-click="$.onItemClick($event,'create-defined-list')"
-                            ng-class="{'active':$.$rootScope.explorerCurrentItem=='create-defined-list'}">
-                            <i class="codicon codicon-expand-all"></i> New Defined List
-                        </a>
-                    </li>
-                    <li class="exp-item" ng-repeat="item in $.definedLists | fuzzyBy: 'Title': $.searchItem">
-                        <a class="exp-label collapsed" data-bs-toggle="collapse"
-                            data-bs-target="#expDefinedListItem{{$index}}">
-                            <i class="codicon codicon-chevron-down exp-arrow-icon"></i>
-                            <i class="codicon codicon-window"></i> {{item.Title}}
-                        </a>
-                        <ul class="exp-sub-items collapse" id="expDefinedListItem{{$index}}"
-                            ng-class="{'show':$.isExpanded(item.ItemId)}">
-                            <li class="exp-item" id="defined-list-settings-{{item.ItemId}}">
-                                <a class="exp-label"
-                                    ng-click="$.onItemClick($event,'defined-list-settings',null,item.ItemId,item.Title)"
-                                    ng-class="{'active':$.$rootScope.explorerCurrentItem=='defined-list-settings-'+item.ItemId}">
-                                    <i class="codicon codicon-layout-menubar"></i> Defined List Settings
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-            <!------------------------------------>
-            <!--Other-->
-            <!------------------------------------>
-            <li class="exp-item exp-has-childs exp-engineers">
-                <a class="exp-label collapsed" data-bs-toggle="collapse" data-bs-target="#expMoreItems">
-                    <i class="codicon codicon-chevron-down exp-arrow-icon"></i>
-                    <i class="codicon codicon-chrome-restore"></i> Others
-                </a>
-                <span class="hover-wrapper">
-                    <i class="codicon codicon-collapse-all" data-bs-toggle="collapse"
-                        data-bs-target="#expMoreItems"></i>
-                </span>
-                <ul class="exp-sub-items collapse" id="expMoreItems">
-                    <li class="exp-item">
-                        <a class="exp-label">
-                            <i class="codicon codicon-credit-card"></i> Payment Methods
-                        </a>
-                    </li>
-                    <li class="exp-item">
-                        <a class="exp-label">
-                            <i class="codicon codicon-type-hierarchy"></i> Workflows
-                        </a>
-                    </li>
-                    <li class="exp-item">
-                        <a class="exp-label">
-                            <i class="codicon codicon-organization"></i> Engineers
-                        </a>
-                    </li>
-                </ul>
-            </li>
         </ul>
     </div>
 </div>
@@ -401,7 +292,7 @@
                     <label class="form-label">Group Type</label>
                     <div class="b-input-group">
                         <select id="drpGroupType" ng-model="$.group.ObjectType" class="b-input form-select"
-                            ng-disabled="$.group.GroupId || $.running" chosen inherit-select-classes="true"
+                            ng-disabled="$.group.Id || $.running" chosen inherit-select-classes="true"
                             placeholder-text-single="'Select group type'" required>
                             <option value="Entity">Entity</option>
                             <option value="ViewModel">View Model</option>
@@ -457,13 +348,13 @@
             <i class="codicon codicon-edit"></i>
         </a>
     </div>
-    <a class="exp-label" data-bs-toggle="collapse" data-bs-target="#expGroupItems_{{group.GroupId}}" ng-class="{'collapsed':!$.isExpandedGroup(group)}" data-drop="true" jqyoui-droppable="{onOver:'$.onItemDragOver()',onOut:'$.onItemDragOut()',onDrop:'$.onItemDrop(group)'}"
+    <a class="exp-label" data-bs-toggle="collapse" data-bs-target="#expGroupItems_{{group.Id}}" ng-class="{'collapsed':!$.isExpandedGroup(group)}" data-drop="true" jqyoui-droppable="{onOver:'$.onItemDragOver()',onOut:'$.onItemDragOut()',onDrop:'$.onItemDrop(group)'}"
         title="{{group.Description}}" data-type="{{group.ObjectType}}">
         <i class="codicon codicon-chevron-down exp-arrow-icon"></i>
         <i class="codicon codicon-folder"></i> {{group.GroupName}}
     </a>
-    <ul class="exp-sub-items collapse" id="expGroupItems_{{group.GroupId}}" ng-class="{'show':$.searchItem || $.isExpandedGroup(group)}">
-        <li class="exp-item" id="{{item.ItemId}}" ng-repeat="item in group.Items | fuzzyBy: 'Title': $.searchItem | orderBy:'Title'" ng-if="item.GroupId">
+    <ul class="exp-sub-items collapse" id="expGroupItems_{{group.Id}}" ng-class="{'show':$.searchItem || $.isExpandedGroup(group)}">
+        <li class="exp-item" id="{{item.ItemId}}" ng-repeat="item in group.Items | fuzzyBy: 'Title': $.searchItem | orderBy:'ViewOrder'" ng-if="item.GroupId">
             <a class="exp-label" ng-click="$.onItemClick($event,group.ObjectType,null,item.ItemId,item.Title)" ng-class="{'active':$.$rootScope.explorerCurrentItem==item.ItemId}" jqyoui-draggable="{animate:true,onDrag:'$.onDrag()',onStop:'$.onStopDrag($index)'}"
                 jqyoui-options="{revert: 'invalid'}" data-drag="true" data-item="{{item.ItemId}}" data-type="{{group.ObjectType}}">
                 <i class="codicon codicon-table"></i> {{item.Title}}

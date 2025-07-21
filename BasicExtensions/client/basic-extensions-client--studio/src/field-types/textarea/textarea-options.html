@@ -1,0 +1,37 @@
+<div class="d-flex">
+    <div class="col-7 border-end b-splitter pe-3">
+        <div class="b-field">
+            <label class="form-label">Rows</label>
+            <input type="number" ng-model="$.field.Settings.Rows" class="b-input form-control" placeholder="Textarea rows count" />
+        </div>
+        <div class="b-field">
+            <label class="form-label">Max Length</label>
+            <input type="number" ng-model="$.field.Settings.MaxLength" class="b-input form-control" placeholder="Field max length" />
+        </div>
+        <div class="b-field" ng-if="field.Settings.MaxLength">
+            <label class="form-label">Show Max Length</label>
+            <label class="b-switch d-block">
+                <input type="checkbox" hidden="hidden" ng-model="$.field.Settings.ShowMaxLength" />
+                <div class="slider"></div>
+            </label>
+        </div>
+        <div class="b-field">
+            <label class="form-label">Max Length Message</label>
+            <input type="text" ng-model="$.field.Settings.MaxLengthMessage" class="b-input form-control" placeholder="Max length message" />
+        </div>
+    </div>
+    <div class="col ps-3">
+        <div class="b-field">
+            <label class="form-label">Input Css Class</label>
+            <input type="text" ng-model="$.field.Settings.InputCssClass" class="b-input form-control" placeholder="Input css class" />
+        </div>
+        <div class="b-field">
+            <label class="form-label">Icon Position</label>
+            <input type="text" ng-model="$.field.Settings.IconPosition" class="b-input form-control" />
+        </div>
+        <div class="b-field">
+            <label class="form-label">Font Icon</label>
+            <input type="text" ng-model="$.field.Settings.FontIcon" class="b-input form-control" />
+        </div>
+    </div>
+</div>

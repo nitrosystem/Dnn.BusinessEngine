@@ -1,0 +1,25 @@
+﻿<div ng-if="loadedDashboard" class="dashboard-sidebar-menu dsm" ignore-ssr>
+    <ul class="menu-nav" metis-menu>
+        <li ng-repeat="page in pages | filter:{ IsVisible:true }" class="menu-item" ng-class="{'menu-section':page.Settings.MenuSection,'active':page.PageID==currentPageID,'menu-has-submenu':page.Pages.length}" data-page="{{page.PageName}}" ng-include="'nodes_renderer.html'"></li>
+    </ul>
+</div>
+<script type="text/ng-template" id="nodes_renderer.html">
+    <a ng-if="page.Settings.MenuSection" href="">
+        <span class="menu-label">{{page.Title}}</span>
+    </a>
+    <a ng-if="page.Pages.length" href="" class="dropdown-toggle">
+        <span class="menu-icon" ng-if="page.Settings.Icon"><i class="{{page.Settings.Icon}}"></i></span>
+        <span class="menu-text">{{page.Title}}</span>
+    </a>
+    <a ng-if="(!page.PageType || page.PageType==2) && !page.Settings.MenuSection && !page.Pages.length" ng-click="onMenuClick(page.PageID)" class="menu-link">
+        <span class="menu-icon" ng-if="page.Settings.Icon"><i class="{{page.Settings.Icon}}"></i></span>
+        <span class="menu-text">{{page.Title}}</span>
+    </a>
+    <a ng-if="page.PageType==1 && !page.Settings.MenuSection && !page.Pages.length" href="{{page.Url}}" class="menu-link">
+        <span class="menu-icon" ng-if="page.Settings.Icon"><i class="{{page.Settings.Icon}}"></i></span>
+        <span class="menu-text">{{page.Title}}</span>
+    </a>
+    <ul class="menu-subnav" ng-if="page.Pages.length">
+        <li ng-repeat="page in page.Pages | filter:{ IsVisible:true }" class="menu-item" ng-class="{'menu-section':page.Settings.MenuSection,'active':page.PageID==currentPageID,'menu-has-submenu':page.Pages.length}" data-page="{{page.PageName}}" ng-include="'nodes_renderer.html'"></li>
+    </ul>
+</script>

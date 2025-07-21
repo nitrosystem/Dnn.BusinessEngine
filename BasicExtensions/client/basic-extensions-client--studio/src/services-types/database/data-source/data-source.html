@@ -1,0 +1,659 @@
+﻿<div class="create-data-source">
+    <div class="row">
+        <!------------------------------------>
+        <!--Service Info-->
+        <!------------------------------------>
+        <div class="col-6">
+            <div class="b-group">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpDatabase">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Database
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpDatabase" class="group-content collapse show">
+                    <div class="b-field">
+                        <label class="form-label">Stored Procedure Name</label>
+                        <div class="b-input-group">
+                            <div class="b-input form-control d-flex">
+                                <div class="col-4">
+                                    <input type="text" ng-model="$.dataSourceService.Settings.StoredProcedurePrefixName"
+                                        class="b-input-nobg" placeholder="Prefix name"
+                                        ng-change="$.dataSourceService.Settings.StoredProcedureNameModified=true" />
+                                </div>
+                                <div class="col-8">
+                                    <input type="text" id="txtSpPostfix"
+                                        ng-model="$.dataSourceService.Settings.StoredProcedurePostfixName"
+                                        ng-change="$.dataSourceService.Settings.StoredProcedureNameModified=true"
+                                        class="b-input-nobg" placeholder="Example GetProducts" autocomplete="off"
+                                        required />
+                                </div>
+                            </div>
+                            <span><i class="codicon codicon-table"></i></span>
+                        </div>
+                    </div>
+                    <div class="b-notify notify-small notify-note mb-2">
+                        <i class="codicon codicon-feedback b-icon-2"></i>
+                        <p class="text text-justify mb-0">
+                            <b>Very important note:</b>
+                            Be careful in choosing the name of the module because it is not possible to change the
+                            name
+                            of the module after saving the module.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!--Base Query-->
+        <!------------------------------------>
+        <div class="col-6">
+            <div class="b-group">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpBaseQuery">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Base Query
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpBaseQuery" class="group-content">
+                    <div class="b-field">
+                        <div class="row">
+                            <div monaco-editor ng-model="$.dataSourceService.BaseQuery" data-language="sql"
+                                data-height="150px" required>
+                            </div>
+                            <button type="button" class="b-btn mt-3" ng-click="$.onResetBaseQueryClick()">
+                                Reset Query
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex">
+        <!------------------------------------>
+        <!-- Map To View Model-->
+        <!------------------------------------>
+        <div class="col-8 b-splitter border-end pe-2">
+            <div class="b-group">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpMapToViewModel">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Map To View Model
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpMapToViewModel" class="group-content collapse show">
+                    <div class="b-table theme-gray">
+                        <div class="table-header">
+                            <div class="header-label">
+                                <h4 class="header-title">View Model</h4>
+                                <span class="header-subtitle">This service must mapped to a view model</span>
+                            </div>
+                            <div class="header-tools">
+                                <div class="col-11">
+                                    <select id="drpViewModelId" ng-model="$.dataSourceService.ViewModelId"
+                                        class="b-input form-select b-btn btn-action text-start"
+                                        ng-options="vm.Id as vm.ViewModelName for vm in $.viewModels"
+                                        ng-change="$.onSelectedViewModelChange()" chosen inherit-select-classes="true"
+                                        placeholder-text-single="'Select view model'" required>
+                                    </select>
+                                </div>
+                                <div class="col-1">
+                                    <i role="button" class="codicon codicon-refresh text-light ms-2 mt-2"
+                                        ng-click="$.onRefreshViewModelClick()"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-body" ng-if="$.dataSourceService.Entities.length">
+                            <div class="grid columns-name">
+                                <div class="g-col-1"></div>
+                                <div class="g-col-3">Property Name</div>
+                                <div class="g-col-3">Value Type</div>
+                                <div class="g-col-5">Value</div>
+                            </div>
+                            <div class="grid table-row" ng-repeat="prop in $.dataSourceService.ViewModelProperties">
+                                <div class="g-col-1">
+                                    <label class="b-checkbox">
+                                        <input type="checkbox" ng-model="prop.IsSelected" />
+                                        <i class="checkbox-icon"></i>
+                                    </label>
+                                </div>
+                                <div class="g-col-3">
+                                    {{prop.PropertyName}}
+                                </div>
+                                <div class="g-col-3">
+                                    <select ng-model="prop.ValueType" class="b-input form-select ps-2 pe-3"
+                                        ng-disabled="!prop.IsSelected">
+                                        <option value="" disabled>Value Type</option>
+                                        <option value="DataSource">Data Source</option>
+                                        <option value="Custom">Custom</option>
+                                    </select>
+                                </div>
+                                <div class="g-col-5" ng-if="prop.ValueType=='DataSource'">
+                                    <div class="d-flex">
+                                        <div class="col-4 p-0">
+                                            <select ng-model="prop.EntityAliasName"
+                                                class="b-input form-select ps-2 pe-3"
+                                                ng-options="entity.AliasName as entity.AliasName for entity in $.dataSourceService.Entities"
+                                                ng-change="$.onSelectedEntityAliasChange(prop)"
+                                                ng-disabled="!prop.IsSelected">
+                                                <option value="" disabled>Entity</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-8 p-0" ng-if="prop.Columns.length">
+                                            <select ng-model="prop.ColumnName" class="b-input form-select ps-2 pe-3"
+                                                ng-options="column.ColumnName as column.ColumnName for column in prop.Columns"
+                                                chosen inherit-select-classes="true" placeholder-text-single="'Column'"
+                                                ng-disabled="!prop.IsSelected">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="g-col-5" ng-if="prop.ValueType=='Custom'">
+                                    <input type="text" ng-model="prop.Value" class="b-input form-control"
+                                        placeholder="Property Value" ng-disabled="!prop.IsSelected" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-footer">
+                            <div ng-if="!$.dataSourceService.ViewModelId" class="b-notify notify-note mb-4">
+                                <i class="codicon codicon-info b-icon-2"></i>
+                                <div class="text">
+                                    <h4 class="label">No view model selected.</h4>
+                                    <span class="subtext">
+                                        Data source service must mapped to a view model.
+                                    </span>
+                                </div>
+                            </div>
+                            <div ng-if="$.dataSourceService.ViewModelId && !$.dataSourceService.Entities.length"
+                                class="b-notify notify-note position-relative mb-4">
+                                <i class="codicon codicon-arrow-small-right position-absolute top-0 end-0"></i>
+                                <i class="codicon codicon-info b-icon-2"></i>
+                                <div class="text">
+                                    <h4 class="label">No Entities selected.</h4>
+                                    <span class="subtext">
+                                        Before set view model properties select one or more entity.
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="b-invalid">{{$.form.error.ViewModelProperties}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col ps-2">
+            <!------------------------------------>
+            <!-- Select Entities-->
+            <!------------------------------------>
+            <div class="b-group">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpSelectEntities">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Select Entities
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpSelectEntities" class="group-content selected-entities-diagram collapse show">
+                    <button type="button" class="b-btn btn-action btn-full mb-4" ng-click="$.onAddEntityClick()">
+                        <i class="codicon codicon-plus"></i>
+                        Add Entity
+                    </button>
+                    <!------------------------------------>
+                    <!-- Entity List -->
+                    <!------------------------------------>
+                    <div ng-repeat="entity in $.dataSourceService.Entities" class="entity-item">
+                        <div class="header" data-bs-toggle="collapse" data-bs-target="#pnlEntityColumns{{$index}}"
+                            role="button" ng-click="$.onEntityExpandClick(entity)">
+                            <div class="title">
+                                <label class="entity-name">{{entity.EntityName}} as {{entity.AliasName}}</label>
+                                <span class="entity-alias">({{entity.TableName}})</span>
+                            </div>
+                            <ul class="tools">
+                                <li>
+                                    <a b-custom-tooltip data-bs-placement="left" title="Refresh">
+                                        <i class="codicon codicon-refresh"></i>
+                                    </a>
+                                </li>
+                                <li class="me-0">
+                                    <a b-custom-tooltip data-bs-placement="left" title="Close"
+                                        ng-click="$.onDeleteEntityClick(entity,$index)">
+                                        <i class="codicon codicon-close"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="pnlEntityColumns{{$index}}" class="columns collapse">
+                            <div class="b-list-group">
+                                <ul class="list">
+                                    <li class="list-item" ng-repeat="column in entity.Columns">
+                                        <a class="item-label">
+                                            <i ng-if="!column.IsSelected"
+                                                class="codicon codicon-chrome-maximize fs-4 text-start"></i>
+                                            <i ng-if="column.IsSelected"
+                                                class="codicon codicon-check fs-4 text-start"></i>
+                                            {{column.ColumnName}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!------------------------------------>
+                        <!-- Entity Join Relationship -->
+                        <!------------------------------------>
+                        <div ng-if="$.dataSourceService.Entities.length>1" class="entity-join-relationships"
+                            role="button">
+                            <i ng-if="entity.EnableJoin" class="codicon codicon-diff-added add-join" role="button"
+                                ng-click="$.onAddJoinRelationshipClick(entity)"></i> Join Relationships
+                            <label class="b-switch switch-sm position-absolute top-0 end-0 me-2 mt-2">
+                                <input type="checkbox" ng-model="entity.EnableJoin">
+                                <span class="slider"></span>
+                            </label>
+                            <div ng-if="entity.EnableJoin" ng-repeat="relationship in entity.JoinRelationships"
+                                class="mb-2">
+                                <hr />
+                                <div class="d-flex mb-1">
+                                    <div class="col-4 p-0">
+                                        <p class="b-input form-select mb-0">{{entity.AliasName}}</p>
+                                    </div>
+                                    <div class="col-4 p-0">
+                                        <select id="drpJoinType" ng-model="relationship.JoinType"
+                                            class="b-input form-select" required>
+                                            <option disabled value="">Join</option>
+                                            <option value="INNER JOIN">Inner Join</option>
+                                            <option value="LEFT JOIN">Left Join</option>
+                                            <option value="RIGHT JOIN">Right Join</option>
+                                            <option value="OUTER JOIN">Outer Join</option>
+                                            <option value="LEFT JOIN EXCLUDING INNER JOIN">Left Join Excluding
+                                                Inner Join
+                                            </option>
+                                            <option value="RIGHT JOIN EXCLUDING INNER JOIN">Right Join Excluding
+                                                Inner Join
+                                            </option>
+                                            <option value="OUTER JOIN EXCLUDING INNER JOIN">Outer Join Excluding
+                                                Inner Join
+                                            </option>
+                                            <option value="CROSS JOIN">Cross Join</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4 p-0">
+                                        <select id="drpRightEntityAliasName"
+                                            ng-model="relationship.RightEntityAliasName" class="b-input form-select"
+                                            ng-options="entity.AliasName as entity.AliasName for entity in $.dataSourceService.Entities"
+                                            ng-change="$.onJoinRelationshipEntityChange(relationship)" required>
+                                            <option disabled value="">Right</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="b-input-group">
+                                    <input type="text" id="txtJoinConditions" ng-model="relationship.JoinConditions"
+                                        class="b-input form-control" placeholder="Example : u.UserId = r.UserId" />
+                                    <span><i>on</i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="!$.dataSourceService.Entities.length" class="b-notify notify-note mb-4">
+                        <i class="codicon codicon-info b-icon-2"></i>
+                        <div class="text">
+                            <h4 class="label">No selected entities.</h4>
+                            <span class="subtext">
+                                Click
+                                <button type="button" class="b-btn btn-sm ms-2 me-2" ng-click="$.onAddEntityClick()">
+                                    Add Entity
+                                </button>
+                                to add a entity!.
+                            </span>
+                        </div>
+                    </div>
+                    <p class="b-invalid">{{$.form.error.Entities}}</p>
+                </div>
+            </div>
+            <!------------------------------------>
+            <!-- Join Relationships-->
+            <!------------------------------------>
+            <div class="b-group">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpJoinRelationships">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Join Relationships
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpJoinRelationships" class="group-content selected-entities-diagram collapse show">
+                    <button type="button" class="b-btn btn-action btn-full mb-4"
+                        ng-click="$.onAddJoinRelationshipClick2()">
+                        <i class="codicon codicon-plus"></i>
+                        Add Join Relationship
+                    </button>
+                    <div ng-repeat="relationship in $.dataSourceService.JoinRelationships" class="mb-2">
+                        <div class="d-flex mb-1">
+                            <div class="col-4 p-0">
+                                <select ng-model="relationship.LeftEntityAliasName" class="b-input form-select"
+                                    ng-options="entity.AliasName as entity.AliasName for entity in $.dataSourceService.Entities"
+                                    ng-change="$.onJoinRelationshipEntityChange(relationship,1)" required>
+                                    <option disabled value="">Left</option>
+                                </select>
+                            </div>
+                            <div class="col-4 p-0">
+                                <select ng-model="relationship.JoinType" class="b-input form-select" required>
+                                    <option disabled value="">Join</option>
+                                    <option value="INNER JOIN">Inner Join</option>
+                                    <option value="LEFT JOIN">Left Join</option>
+                                    <option value="RIGHT JOIN">Right Join</option>
+                                    <option value="OUTER JOIN">Outer Join</option>
+                                    <option value="LEFT JOIN EXCLUDING INNER JOIN">Left Join Excluding
+                                        Inner Join
+                                    </option>
+                                    <option value="RIGHT JOIN EXCLUDING INNER JOIN">Right Join Excluding
+                                        Inner Join
+                                    </option>
+                                    <option value="OUTER JOIN EXCLUDING INNER JOIN">Outer Join Excluding
+                                        Inner Join
+                                    </option>
+                                    <option value="CROSS JOIN">Cross Join</option>
+                                </select>
+                            </div>
+                            <div class="col-4 p-0">
+                                <select ng-model="relationship.RightEntityAliasName" class="b-input form-select"
+                                    ng-options="entity.AliasName as entity.AliasName for entity in $.dataSourceService.Entities"
+                                    ng-change="$.onJoinRelationshipEntityChange(relationship,2)" required>
+                                    <option disabled value="">Right</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="b-input-group">
+                            <input type="text" id="txtJoinConditions" ng-model="relationship.JoinConditions"
+                                class="b-input form-control" placeholder="Example : u.UserId = r.UserId" />
+                            <span><i>on</i></span>
+                        </div>
+                        <button type="button" class="b-btn btn-action btn-sm"
+                            ng-click="$.dataSourceService.JoinRelationships.splice($index,1)">
+                            <i class="codicon codicon-trash"></i>
+                        </button>
+                        <hr />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-if="$.dataSourceService.Entities.length">
+        <!------------------------------------>
+        <!-- Filters-->
+        <!------------------------------------>
+        <div class="b-group">
+            <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpFilters">
+                <h3 class="group-label">
+                    <span class="group-icon">
+                        <i class="codicon codicon-server-process"></i>
+                    </span> Filters
+                    <span ng-show="dataSourceService.Filters.length">({{dataSourceService.Filters.length}})</span>
+                </h3>
+                <span class="group-collapse">
+                    <i class="codicon codicon-chevron-up"></i>
+                </span>
+            </div>
+            <div id="grpFilters" class="group-content collapse">
+                <table class="table table-bordered table-dark table-columns-vmiddle">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Expression</th>
+                            <th>Condition Group</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="filter in $.dataSourceService.Filters">
+                            <td class="w-150">
+                                <select ng-model="filter.Type" class="b-input form-select">
+                                    <option disabled value="">Type</option>
+                                    <option ng-value="0" disabled>Standard</option>
+                                    <option ng-value="1">Custom</option>
+                                </select>
+                            </td>
+                            <td ng-if="filter.Type==0"></td>
+                            <td ng-if="filter.Type==1">
+                                <input type="text" ng-model="filter.CustomQuery" class="b-input form-control"
+                                    placeholder="Custom Query" required />
+                            </td>
+                            <td class="w-200">
+                                <input type="text" ng-model="filter.ConditionGroupName" class="b-input form-control"
+                                    placeholder="Custom Query" required />
+                            </td>
+                            <td>
+                                <button type="button" class="b-btn btn-cancel"
+                                    ng-click="$.dataSourceService.Filters.splice($index,1)">
+                                    <i class="codicon codicon-trash me-0"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="20">
+                                <button type="button" class="b-btn" ng-click="$.onAddFilterClick()">
+                                    <i class="codicon codicon-plus me-0"></i>
+                                </button>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!-- Sorting-->
+        <!------------------------------------>
+        <div class="b-group">
+            <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpSortItems">
+                <h3 class="group-label">
+                    <span class="group-icon">
+                        <i class="codicon codicon-server-process"></i>
+                    </span> Sorting
+                </h3>
+                <span class="group-collapse">
+                    <i class="codicon codicon-chevron-up"></i>
+                </span>
+            </div>
+            <div id="grpSortItems" class="group-content collapse">
+                <table class="table table-bordered table-dark table-columns-vmiddle">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Column Name</th>
+                            <th>Sort Type</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="sortItem in $.dataSourceService.SortItems">
+                            <td class="w-150">
+                                <select ng-model="sortItem.Type" class="b-input form-select">
+                                    <option disabled value="">Type</option>
+                                    <option ng-value="0">Standard</option>
+                                    <option ng-value="1">Custom</option>
+                                </select>
+                            </td>
+                            <td ng-if="sortItem.Type==0">
+                                <div class="d-flex">
+                                    <div class="col-4 p-0">
+                                        <select ng-model="sortItem.EntityAliasName"
+                                            class="b-input form-select ps-2 pe-3"
+                                            ng-options="entity.AliasName as entity.AliasName for entity in $.dataSourceService.Entities"
+                                            ng-change="$.onSortItemSelectedEntityAliasChange(sortItem)">
+                                            <option value="" disabled>Entity</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-8 p-0" ng-if="sortItem.Columns.length">
+                                        <select ng-model="sortItem.ColumnName" class="b-input form-select ps-2 pe-3"
+                                            ng-options="column.ColumnName as column.ColumnName for column in sortItem.Columns"
+                                            chosen inherit-select-classes="true" placeholder-text-single="'Column'">
+                                        </select>
+                                    </div>
+                                </div>
+                            </td>
+                            <td ng-if="sortItem.Type==1">
+                                <input type="text" ng-model="sortItem.CustomColumn" class="b-input form-control"
+                                    placeholder="Column Name" required />
+                            </td>
+                            <td ng-if="sortItem.Type==0">
+                                <select ng-model="sortItem.SortType" class="b-input form-select" chosen
+                                    inherit-select-classes="true" placeholder-text-single="'Select sort type'">
+                                    <option disabled value=""></option>
+                                    <option value="Asc">Asc</option>
+                                    <option value="Desc">Desc</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button type="button" class="b-btn btn-cancel"
+                                    ng-click="$.dataSourceService.SortItems.splice($index,1)">
+                                    <i class="codicon codicon-trash me-0"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="20">
+                                <button type="button" class="b-btn" ng-click="$.onAddSortItemClick()">
+                                    <i class="codicon codicon-plus me-0"></i>
+                                </button>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <p class="b-invalid">{{$.form.error.SortItems}}</p>
+        <!------------------------------------>
+        <!-- Paging-->
+        <!------------------------------------>
+        <div ng-if="$.service.ResultType == 'List'" class="b-group">
+            <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpPaging">
+                <h3 class="group-label">
+                    <span class="group-icon">
+                        <i class="codicon codicon-server-process"></i>
+                    </span> Paging
+                </h3>
+                <span class="group-collapse">
+                    <i class="codicon codicon-chevron-up"></i>
+                </span>
+            </div>
+            <div id="grpPaging" class="group-content collapse">
+                <div class="b-field">
+                    <label class="b-checkbox">
+                        <input type="checkbox" ng-model="$.dataSourceService.EnablePaging"
+                            ng-change="$.onEnablePagingChange()" />
+                        <i class="checkbox-icon"></i>
+                        Enable Paging
+                    </label>
+                </div>
+                <div ng-if="$.dataSourceService.EnablePaging">
+                    <div class="b-field">
+                        <label class="form-label">Page Index Param</label>
+                        <select ng-model="$.dataSourceService.PageIndexParam" class="b-input form-control"
+                            ng-options="param.ParamName as param.ParamName for param in $.service.Params">
+                            <option value="">Page Index Param</option>
+                        </select>
+                    </div>
+                    <div class="b-field">
+                        <label class="form-label">Page Size Param</label>
+                        <select ng-model="$.dataSourceService.PageSizeParam" class="b-input form-control"
+                            ng-options="param.ParamName as param.ParamName for param in $.service.Params">
+                            <option value="">Page Size Param</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!--Service Params-->
+        <!------------------------------------>
+        <div class="b-group">
+            <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpServiceParams">
+                <h3 class="group-label">
+                    <span class="group-icon">
+                        <i class="codicon codicon-server-process"></i>
+                    </span> Service Params
+                </h3>
+                <span class="group-collapse">
+                    <i class="codicon codicon-chevron-up"></i>
+                </span>
+            </div>
+            <div id="grpServiceParams" class="group-content collapse show">
+                <b-service-params data-service="$.serviceController.service"></b-service-params>
+            </div>
+        </div>
+    </div>
+</div>
+<!------------------------------------>
+<!-- Select Entity Modal-->
+<!------------------------------------>
+<div id="wnSelectEntity" b-custom-modal class="modal fade b-modal-dark" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Add Entity
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" ng-class="{'was-validated':$.selectedEntityForm.validated}">
+                <div class="b-field mb-1">
+                    <div class="b-input-group">
+                        <input type="text" ng-model="$.searchEntities" class="b-input form-control"
+                            b-custom-focus="focusSearchEntity" placeholder="Search by entity name" />
+                        <span><i class="codicon codicon-search"></i></span>
+                    </div>
+                </div>
+                <div class="b-field mb-2">
+                    <div class="b-list-group">
+                        <ul class="list">
+                            <li class="list-item"
+                                ng-repeat="entity in $.entities | filter:{'EntityName':$.searchEntities}">
+                                <a class="item-label" ng-class="{'active':entity.IsSelected}"
+                                    ng-click="$.onEntityItemClick(entity)">{{entity.EntityName}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <div class="b-input-group">
+                        <input type="text" id="txtselectedEntityAliasName" ng-model="$.selectedEntity.AliasName"
+                            class="b-input form-control" b-custom-focus="focusEntityAliasName"
+                            placeholder="Enter entity alias name" required />
+                        <span><i class="codicon codicon-bell"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="b-btn btn-submit me-2" ng-click="$.onSelectEntityClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-plus"></i>
+                    Add Entity
+                </button>
+                <button type="button" class="b-btn btn-cancel" data-bs-dismiss="modal">
+                    <i class="codicon codicon-circle-slash"></i>
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

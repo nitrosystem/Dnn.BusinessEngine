@@ -1,4 +1,5 @@
-<div ng-controller="createModuleCreateActionController as $" class="create-action" ng-class="{'was-validated':$.form.validated}">
+<div ng-controller="createModuleCreateActionController as $" class="create-action"
+    ng-class="{'was-validated':$.form.validated}">
     <b-content-widget data-title="Create Action" data-icon="table" data-module-type="create-action"
         data-subtitle="Add or edit scenario action" data-await-action="$.awaitAction" data-module="$"
         data-reload-method="onPageLoad" data-close-method="onCloseWindow">
@@ -28,10 +29,6 @@
                 </div>
             </div>
             <div class="step-content">
-                <!--Wizard Loading-->
-                <div class="pre-loader theme-default" ng-hide="$.hideStepPreloader">
-                    <div class="lines"></div>
-                </div>
                 <!------------------------------------>
                 <!--Wizard Step 1 (Select Action Subtype)-->
                 <!------------------------------------>
@@ -58,7 +55,7 @@
                         <div class="b-group mb-5" ng-if="value"
                             ng-repeat="(key,value) in $.actionTypes | filter: $.$scope.serverSideFilter | groupBy:'GroupName'">
                             <div class="group-header" data-bs-toggle="collapse"
-                                data-bs-target="#grpActionType{{$.action.ActionId}}_{{$index}}">
+                                data-bs-target="#grpActionType{{$.action.Id}}_{{$index}}">
                                 <h3 class="group-label">
                                     <span class="group-icon">
                                         <i class="codicon codicon-server-process"></i>
@@ -68,7 +65,7 @@
                                     <i class="codicon codicon-chevron-up"></i>
                                 </span>
                             </div>
-                            <div id="grpActionType{{$.action.ActionId}}_{{$index}}" class="group-content collapse show">
+                            <div id="grpActionType{{$.action.Id}}_{{$index}}" class="group-content collapse show">
                                 <div class="row">
                                     <!--Select Action Subtype-->
                                     <div class="col"
@@ -96,7 +93,7 @@
                         <div class="b-field">
                             <label class="form-label">Action Name</label>
                             <div class="b-input-group">
-                                <input type="text" id="txtActionName{{$.action.ActionId}}" class="b-input form-control"
+                                <input type="text" id="txtActionName{{$.action.Id}}" class="b-input form-control"
                                     ng-model="$.action.ActionName" placeholder="Enter action name" autocomplete="off"
                                     required />
                                 <span><i class="codicon codicon-gear"></i></span>
@@ -133,7 +130,7 @@
                         <div class="b-field">
                             <label class="form-label">Event</label>
                             <div class="b-input-group">
-                                <select id="drpEvent{{$.action.ActionId}}" ng-model="$.action.Event"
+                                <select id="drpEvent{{$.action.Id}}" ng-model="$.action.Event"
                                     class="b-input form-select"
                                     ng-options="event.Value as event.Text for event in $.events"
                                     ng-change="onEventChange()" chosen inherit-select-classes="true"
@@ -146,9 +143,9 @@
                         <!--Parent Action-->
                         <div class="b-field" ng-if="$.action.Event == 'OnActionCompleted'">
                             <label class="form-label">Action</label>
-                            <div id="drpParentId{{$.action.ActionId}}" class="b-input-group">
+                            <div id="drpParentId{{$.action.Id}}" class="b-input-group">
                                 <select ng-model="$.action.ParentId" class="b-input form-select"
-                                    ng-options="ac.ActionId as ac.ActionName for ac in $.actions" chosen
+                                    ng-options="ac.Id as ac.ActionName for ac in $.actions" chosen
                                     inherit-select-classes="true" placeholder-text-single="'Select an action'" required>
                                     <option disabled></option>
                                 </select>
@@ -159,10 +156,9 @@
                         <div class="b-field" ng-if="$.action.Event == 'OnActionCompleted'">
                             <label class="form-label">Result Mode</label>
                             <div class="b-input-group">
-                                <select id="drpParentResultStatus{{$.action.ActionId}}"
-                                    ng-model="$.action.ParentResultStatus" class="b-input form-select" chosen
-                                    inherit-select-classes="true" placeholder-text-single="'Select action result mode'"
-                                    required>
+                                <select id="drpParentResultStatus{{$.action.Id}}" ng-model="$.action.ParentResultStatus"
+                                    class="b-input form-select" chosen inherit-select-classes="true"
+                                    placeholder-text-single="'Select action result mode'" required>
                                     <option disabled></option>
                                     <option ng-value="0">All Mode</option>
                                     <option ng-value="1">On Completed Success</option>
@@ -175,7 +171,7 @@
                         <div class="b-field" ng-if="$.action.Event == 'OnPaymentCompleted'">
                             <label class="form-label">Payment Method Name</label>
                             <div class="b-input-group">
-                                <select id="drpPaymentMethodId{{$.action.ActionId}}" ng-model="$.action.PaymentMethodId"
+                                <select id="drpPaymentMethodId{{$.action.Id}}" ng-model="$.action.PaymentMethodId"
                                     class="b-input form-select"
                                     ng-options="payment.PaymentMethodId as payment.PaymentName for payment in $.paymentMethods"
                                     chosen inherit-select-classes="true"
@@ -189,7 +185,7 @@
                         <div class="b-field" ng-if="$.action.Event == 'OnPaymentCompleted'">
                             <label class="form-label">Result Mode</label>
                             <div class="b-input-group">
-                                <select id="drpPaymentResultStatus{{$.action.ActionId}}"
+                                <select id="drpPaymentResultStatus{{$.action.Id}}"
                                     ng-model="$.action.PaymentResultStatus" class="b-input form-select" chosen
                                     inherit-select-classes="true" placeholder-text-single="'Select payment result mode'"
                                     required>
@@ -252,7 +248,7 @@
                 <!--Wizard Step 4 (Action Builder)-->
                 <!------------------------------------>
                 <div ng-show="$.step==4">
-                    <div id="pnlActionBuilder{{$.action.ActionId}}" class="action-builder"> </div>
+                    <div id="pnlActionBuilder{{$.action.Id}}" class="action-builder"> </div>
                 </div>
                 <!------------------------------------>
                 <!--Wizard Step 5 (Post Script)-->
@@ -271,7 +267,7 @@
                 <div ng-if="$.step==6">
                     <div class="b-group mb-4">
                         <div class="group-header" data-bs-toggle="collapse"
-                            data-bs-target="#grpActionResults{{$.action.ActionId}}">
+                            data-bs-target="#grpActionResults{{$.action.Id}}">
                             <h3 class="group-label">
                                 <span class="group-icon">
                                     <i class="codicon codicon-server-process"></i>
@@ -281,7 +277,7 @@
                                 <i class="codicon codicon-chevron-up"></i>
                             </span>
                         </div>
-                        <div id="grpActionResults{{$.action.ActionId}}" class="group-content collapse show">
+                        <div id="grpActionResults{{$.action.Id}}" class="group-content collapse show">
                             <b-property-list ng-model="$.action.Results"
                                 data-datasource="['fields','form','variables','actionParams']"
                                 data-variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields"
@@ -290,7 +286,7 @@
                     </div>
                     <div class="b-group">
                         <div class="group-header" data-bs-toggle="collapse"
-                            data-bs-target="#grpActionConditions{{$.action.ActionId}}">
+                            data-bs-target="#grpActionConditions{{$.action.Id}}">
                             <h3 class="group-label">
                                 <span class="group-icon">
                                     <i class="codicon codicon-server-process"></i>
@@ -300,7 +296,7 @@
                                 <i class="codicon codicon-chevron-up"></i>
                             </span>
                         </div>
-                        <div id="grpActionConditions{{$.action.ActionId}}" class="group-content collapse show">
+                        <div id="grpActionConditions{{$.action.Id}}" class="group-content collapse show">
                             <b-condition-list ng-model="$.action.Conditions"
                                 data-datasource="['fields','form','variables','actionParams']"
                                 data-variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields"
@@ -309,7 +305,7 @@
                     </div>
                     <div class="b-group mb-4">
                         <div class="group-header" data-bs-toggle="collapse"
-                            data-bs-target="#grpActionParams{{$.action.ActionId}}">
+                            data-bs-target="#grpActionParams{{$.action.Id}}">
                             <h3 class="group-label">
                                 <span class="group-icon">
                                     <i class="codicon codicon-server-process"></i>
@@ -319,25 +315,26 @@
                                 <i class="codicon codicon-chevron-up"></i>
                             </span>
                         </div>
-                        <div id="grpActionParams{{$.action.ActionId}}" class="group-content collapse show">
-                            <b-action-param-list params="$.action.Params" data-action-id="$.action.ActionId"
+                        <div id="grpActionParams{{$.action.Id}}" class="group-content collapse show">
+                            <b-action-param-list params="$.action.Params" data-action-id="$.action.Id"
                                 data-actions="$.actions" data-datasource="['fields','form','variables','actionParams']"
                                 data-variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields"
                                 data-action-params="$.action.Params"></b-action-param-list>
                         </div>
                     </div>
-
                 </div>
-                <hr class="mb-4" />
-                <div class="mb-1 d-flex">
-                    <div class="me-auto" ng-if="$.action.ActionId">
-                        <button type="button" class="b-btn btn-text-icon btn-danger" ng-click="$.onDeleteActionClick()"
-                            ng-disabled="$.running">
+                <!------------------------------------>
+                <!--Wizard Step Action Buttons-->
+                <!------------------------------------>
+                <div class="d-flex mb-2 mt-auto b-splitter border-top pt-3 mb-4">
+                    <div class="justify-content-start">
+                        <button type="button" ng-if="$.action.Id" class="b-btn btn-text-icon btn-danger"
+                            ng-click="$.onDeleteActionClick()" ng-disabled="$.running">
                             <i class="codicon codicon-trash"></i>
                             Remove Action
                         </button>
                     </div>
-                    <div class="ms-auto">
+                    <div class="d-flex justify-content-end ms-auto">
                         <button type="button" class="b-btn btn-text-icon btn-action me-2" ng-if="$.step>1"
                             ng-click="$.onPrevStepClick()" ng-disabled="$.running">
                             <i class="codicon codicon-arrow-left"></i>
@@ -363,5 +360,6 @@
                 </div>
             </div>
         </div>
-    </b-content-widget>
+</div>
+</b-content-widget>
 </div>

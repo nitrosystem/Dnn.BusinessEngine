@@ -10,7 +10,6 @@ using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using System;
 using System.Collections.Generic;
@@ -21,32 +20,37 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.WebSocketServer;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System.Globalization;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
-    public class EntityService
+    public class EntityService : IEntityService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
 
-        public EntityService(IUnitOfWork unitOfWork, ICacheService cacheService)
+        public EntityService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
         {
             _unitOfWork = unitOfWork;
             _cacheService = cacheService;
-            _repository = new RepositoryBase(_unitOfWork, _cacheService);
+            _repository = repository;
         }
 
         public async Task<EntityViewModel> GetEntityViewModelAsync(Guid id)
         {
             var entityTask = _repository.GetAsync<EntityInfo>(id);
-            var entityColumnsTask = _repository.GetByScopeAsync<EntityColumnInfo>(id);
+            var entityColumnsTask = _repository.ExecuteStoredProcedureAsListAsync<EntityColumnInfo>("BusinessEngine_GetEntityColumns",
+                new
+                {
+                    EntityId = id
+                });
 
             await Task.WhenAll(entityTask, entityColumnsTask);
 
@@ -83,50 +87,48 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return (EntityMapping.MapEntitiesViewModel(entities, entityColumns), totalCount);
         }
 
-        public async Task<Guid> SaveEntity(EntityViewModel entity, bool isNew, HttpContext context, WebSocketServer ws)
+        public async Task<Guid> SaveEntity(EntityViewModel entity, bool isNew, HttpContext context)
         {
             var queries = new StringBuilder();
 
-            await ws.SendMessageToClientAsync(10, "Mapping EntityViewModel to EntityInfo...");
             var objEntityInfo = EntityMapping.MapEntityInfo(entity);
 
             string oldTableName = string.Empty;
 
             if (isNew)
             {
-                await ws.SendMessageToClientAsync(20, "Adding Entity in database table...");
                 objEntityInfo.Id = await _repository.AddAsync<EntityInfo>(objEntityInfo);
-                await ws.SendMessageToClientAsync(30, "Entity added to database successfully. Done!");
             }
             else
             {
-                oldTableName = await _repository.GetColumnValueAsync<EntityInfo, string>(objEntityInfo.Id, objEntityInfo.TableName);
-                await ws.SendMessageToClientAsync(30, "Get old Entity table name from database...");
+                oldTableName = await _repository.GetColumnValueAsync<EntityInfo, string>(objEntityInfo.Id, "TableName");
 
-                await ws.SendMessageToClientAsync(35, "Updating Entity in database table...");
                 var isUpdated = await _repository.UpdateAsync<EntityInfo>(objEntityInfo);
                 if (!isUpdated) ErrorService.ThrowUpdateFailedException(objEntityInfo);
-                await ws.SendMessageToClientAsync(40, "Entity updated to database successfully. Done!");
             }
+
+            string query = string.Empty;
 
             if (!entity.IsReadonly)
             {
                 if (!string.IsNullOrEmpty(oldTableName) && oldTableName != entity.TableName) queries.AppendLine($"exec sp_rename '{oldTableName}', '{entity.TableName}'");
 
-                var primaryColumn = entity.Columns.First();
-                string query = FileUtil.GetFileContent(context.Server.MapPath("~/DesktopModules/BusinessEngine/data/sql-templates/create-entity.sql"));
-                query = query.Replace("{TableName}", entity.TableName);
-                query = query.Replace("{PrimaryColumnName}", primaryColumn.ColumnName);
-                query = query.Replace("{PrimaryColumnType}", primaryColumn.ColumnType);
-                query = query.Replace("{PrimaryIsIdentity}", primaryColumn.IsIdentity ? "IDENTITY (1, 1)" : "");
-                queries.AppendLine(query);
+                if (isNew)
+                {
+                    var primaryColumn = entity.Columns.First();
+                    query = FileUtil.GetFileContent(context.Server.MapPath("~/DesktopModules/BusinessEngine/data/sql-templates/create-entity.sql"));
+                    query = query.Replace("{TableName}", entity.TableName);
+                    query = query.Replace("{PrimaryColumnName}", primaryColumn.ColumnName);
+                    query = query.Replace("{PrimaryColumnType}", primaryColumn.ColumnType);
+                    query = query.Replace("{PrimaryIsIdentity}", primaryColumn.IsIdentity ? "IDENTITY (1, 1)" : "");
+                    queries.AppendLine(query);
+                }
 
                 IEnumerable<EntityColumnInfo> oldColumns = Enumerable.Empty<EntityColumnInfo>();
 
                 if (!isNew)
                 {
                     oldColumns = await _repository.GetByScopeAsync<EntityColumnInfo>(objEntityInfo.Id);
-                    await ws.SendMessageToClientAsync(50, "Get old EntityColumns from database.");
 
                     // the Columns that must be delete
                     foreach (EntityColumnInfo column in oldColumns.Where(c => !entity.Columns.Select(cc => cc.Id).Contains(c.Id)))
@@ -135,7 +137,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                         queries.AppendLine(query);
 
                         await _repository.DeleteAsync<EntityColumnInfo>(column.Id);
-                        await ws.SendMessageToClientAsync(55, $"{column.ColumnName} Column deleted from database.");
                     }
                 }
 
@@ -144,7 +145,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 {
                     column.EntityId = objEntityInfo.Id;
 
-                    await ws.SendMessageToClientAsync(60, $"Mapping {column.ColumnName} Column to EntityColumnViewModel...");
                     var objEntityColumnInfo = BaseMapping<EntityColumnInfo, EntityColumnViewModel>.MapEntity(column);
 
                     if (isNew && column.IsPrimary)
@@ -200,65 +200,44 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                         queries.AppendLine($@"ALTER TABLE dbo.{entity.TableName} ADD CONSTRAINT DF_{entity.TableName}_{column.ColumnName} DEFAULT {column.DefaultValue} FOR {column.ColumnName}");
                     }
 
-                    if (isNew)
+                    if (isNewColumn)
                     {
                         await _repository.AddAsync<EntityColumnInfo>(objEntityColumnInfo);
-                        await ws.SendMessageToClientAsync(70, $"{column.ColumnName} column added to database successfully. Done!");
                     }
                     else
                     {
                         await _repository.UpdateAsync(objEntityColumnInfo);
-                        await ws.SendMessageToClientAsync(70, $"{column.ColumnName} column updated to database successfully. Done!");
                     }
                 }
 
-                foreach (var relationship in entity.Relationships ?? Enumerable.Empty<TableRelationshipInfo>())
+                if (queries.Length > 0)
                 {
-                    query = @"
-                        IF (OBJECT_ID('dbo.{0}', 'F') IS NOT NULL)
-                        BEGIN
-                            ALTER TABLE dbo.{1} DROP CONSTRAINT {0}
-                        END
-
-                        ALTER TABLE dbo.{1} ADD CONSTRAINT
-	                        {0} FOREIGN KEY
-	                        (
-	                        {2}
-	                        ) REFERENCES dbo.{3}
-	                        (
-	                        {4}
-	                        ) {5}
-	                         {6}";
-
-                    relationship.ChildEntityTableName = entity.TableName;
-
-
-                    query += relationship.EnforceForReplication ? "" : "\n NOT FOR REPLICATION";
-                    query += relationship.EnforceForeignKeyConstraint ? "" : "\n ALTER TABLE dbo.{1} NOCHECK CONSTRAINT {0}";
-                    queries.AppendLine(query);
-
-                    //Add Relationsheeps
-
-                    relationship.DELETESpecification = string.IsNullOrEmpty(relationship.DELETESpecification) ? "" : "ON DELETE " + (relationship.DELETESpecification ?? "").Replace("NO_ACTION", "NO ACTION");
-                    relationship.UPDATESpecification = string.IsNullOrEmpty(relationship.UPDATESpecification) ? "" : "ON UPDATE " + (relationship.UPDATESpecification ?? "").Replace("NO_ACTION", "NO ACTION");
-
-                    relationship.DELETESpecification = (relationship.DELETESpecification ?? "").Replace("SET_NULL", "SET NULL");
-                    relationship.UPDATESpecification = (relationship.UPDATESpecification ?? "").Replace("SET_NULL", "SET NULL");
-
-                    relationship.DELETESpecification = (relationship.DELETESpecification ?? "").Replace("SET_DEFAULT", "SET DEFAULT");
-                    relationship.UPDATESpecification = (relationship.UPDATESpecification ?? "").Replace("SET_DEFAULT", "SET DEFAULT");
-
-                    query = string.Format(query, relationship.RelationshipName, relationship.ChildEntityTableName, string.Join(",", relationship.Columns.Select(c => c.PrimaryKey)), relationship.ParentEntityTableName, string.Join(",", relationship.Columns.Select(c => c.ForeignKey)), relationship.UPDATESpecification, relationship.DELETESpecification);
-                    queries.AppendLine(query);
+                    string token = TokenGenerator.GenerateToken(entity.TableName);
+                    await _repository.ExecuteQueryByToken(token, entity.TableName, queries.ToString());
                 }
-
-                await ws.SendMessageToClientAsync(90, $"Executing entity queries on database...");
-                string token = TokenGenerator.GenerateToken(entity.TableName);
-                await _repository.ExecuteQueryByToken(token, entity.TableName, queries.ToString());
-                await ws.SendMessageToClientAsync(100, $"Executed entity queries on database. Done!");
             }
 
             return objEntityInfo.Id;
+        }
+
+        public async Task<bool> UpdateGroupColumn(Guid entityId, Guid? groupId)
+        {
+            _unitOfWork.BeginTransaction();
+
+            try
+            {
+                await _repository.UpdateColumnAsync<EntityInfo>("GroupId", groupId, entityId);
+
+                _unitOfWork.Commit();
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+
+                throw ex;
+            }
+
+            return true;
         }
 
         public async Task<bool> DeleteEntityAsync(Guid id)

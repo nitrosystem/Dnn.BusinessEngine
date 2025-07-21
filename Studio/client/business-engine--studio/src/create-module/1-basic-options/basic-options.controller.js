@@ -50,11 +50,8 @@ export class CreateModuleBasicOptionsController {
         };
 
         this.apiService.get("Module", "GetModuleBasicOptions", { moduleId: isNaN(id) ? id : null }).then((data) => {
-            this.scenarios = data.Scenarios;
-            this.roles = data.Roles;
-            this.module = data.Module;
+            this.module = data;
             this.oldModule = angular.copy(this.module);
-            this.viewModels = data.ViewModels;
 
             if (this.module) {
                 this.$scope.$emit('onFillBasicModuleOptions', { module: this.module });
@@ -67,10 +64,6 @@ export class CreateModuleBasicOptionsController {
 
             delete this.running;
             delete this.awaitAction;
-
-            this.$timeout(() => {
-                this.hideStepPreloader = true;
-            }, 100);
         });
 
         this.setForm();
@@ -92,10 +85,6 @@ export class CreateModuleBasicOptionsController {
             },
             ModuleTitle: {
                 id: "txtModuleTitle",
-                required: true,
-            },
-            ModuleBuilderType: {
-                id: "drpModuleBuilderType",
                 required: true,
             }
         },

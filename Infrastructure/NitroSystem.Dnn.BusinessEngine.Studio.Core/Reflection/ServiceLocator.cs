@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,28 +8,31 @@ using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection
 {
-    public static class ServiceLocator<T> where T : class
+    public class ServiceLocator : IServiceLocator
     {
-        private static T _instance;
+        // Thread-safe type cache
+        private static readonly ConcurrentDictionary<string, Type> _typeCache = new();
 
-        public static void Init(string typeName, params object[] constructor)
+        public T CreateInstance<T>(string typeName, params object[] parameters) where T : class
         {
-            try
+            // تلاش برای دریافت نوع از کش، در غیر این صورت اضافه کن
+            var type = _typeCache.GetOrAdd(typeName, key =>
             {
-                _instance = Activator.CreateInstance(Type.GetType(typeName), constructor) as T;
-            }
-            catch (Exception ex)
-            {
+                var resolvedType = Type.GetType(key);
 
-                throw;
-            }
-        }
+                if (resolvedType == null)
+                    throw new TypeLoadException($"Type not found: {key}");
 
-        public static T CreateInstance(string typeName, params object[] constructor)
-        {
-            if (_instance == null || typeName.IndexOf(_instance.GetType().FullName) == -1) Init(typeName, constructor);
+                return resolvedType;
+            });
 
-            return _instance;
+            // بررسی انتساب‌پذیری به نوع T
+            if (!typeof(T).IsAssignableFrom(type))
+                throw new InvalidCastException($"Type {typeName} is not assignable to {typeof(T).FullName}");
+
+            // ایجاد نمونه جدید (هر بار instance تازه ولی نوع cached شده)
+            return Activator.CreateInstance(type, parameters) as T
+                   ?? throw new Exception($"Instance creation failed for type: {type.FullName}");
         }
     }
 }

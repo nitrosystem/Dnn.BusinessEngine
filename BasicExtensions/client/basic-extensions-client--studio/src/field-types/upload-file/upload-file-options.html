@@ -1,0 +1,21 @@
+<div class="d-flex">
+    <div class="col-7 border-end b-splitter pe-3">
+        <div class="b-field">
+            <label class="form-label">Allow Upload Multiple File</label>
+            <label class="b-switch d-block">
+                <input type="checkbox" ng-model="$.field.Settings.AllowUploadMultipleFile">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="b-field" ng-if="$.field.Settings.AllowUploadMultipleFile">
+            <label class="form-label">Max File Count</label>
+            <input type="text" ng-model="$.field.Settings.MaxFileCount" class="b-input form-control" placeholder="Max File Count" />
+        </div>
+    </div>
+    <div class="col ps-3">
+        <div class="b-field">
+            <label class="form-label">Max File Length(KB)</label>
+            <input type="text" ng-model="$.field.Settings.MaxFileLength" class="b-input form-control" placeholder="Max File Length" />
+        </div>
+    </div>
+</div>

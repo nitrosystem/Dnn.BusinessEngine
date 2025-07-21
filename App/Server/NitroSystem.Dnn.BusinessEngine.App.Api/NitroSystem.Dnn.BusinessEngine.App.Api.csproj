@@ -102,7 +102,6 @@
     <Compile Include="Enums\ModuleCustomResourcesType.cs" />
     <Compile Include="DTO\CheckModuleNameDTO.cs" />
     <Compile Include="Models\FieldDataSourceResult.cs" />
-    <Compile Include="Models\FieldTypeCustomEventInfo.cs" />
     <Compile Include="Models\FieldValueInfo.cs" />
     <Compile Include="Models\UploadFileInfo.cs" />
     <Compile Include="Models\UploadImageInfo.cs" />
@@ -122,6 +121,10 @@
     <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Studio.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
       <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Studio.Data\NitroSystem.Dnn.BusinessEngine.Data.csproj">
+      <Project>{57e9a1ea-6603-4cd5-9914-5f79f60923ed}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.App.Framework\NitroSystem.Dnn.BusinessEngine.App.Framework.csproj">
       <Project>{8ef8ff3b-e365-415e-ab70-72aebb897a40}</Project>

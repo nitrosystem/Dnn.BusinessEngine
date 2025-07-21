@@ -1,0 +1,40 @@
+﻿<div class="b-field">
+    <label class="form-label">Placeholder</label>
+    <input type="text" ng-model="$.currentField.Settings.Placeholder" class="b-input form-control" autocomplete="off" />
+</div>
+<div class="b-field">
+    <label class="form-label">With Icon</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.WithIcon" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div ng-if="$.currentField.Settings.WithIcon">
+    <div class="b-field">
+        <label class="form-label">Icon Position</label>
+        <div class="b-radio-list-inline">
+            <div class="radio-item">
+                <input type="radio" id="leftPosition" name="positionRadio" value="Left"
+                    ng-model="$.currentField.Settings.IconPosition">
+                <label for="leftPosition">Left</label>
+            </div>
+            <div class="radio-item">
+                <input type="radio" id="rightPosition" name="positionRadio" value="Right"
+                    ng-model="$.currentField.Settings.IconPosition">
+                <label for="rightPosition">Right</label>
+            </div>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Font Icon</label>
+        <input type="text" ng-model="$.currentField.Settings.FontIcon" class="b-input form-control" />
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Value Field</label>
+    <input type="text" ng-model="$.currentField.DataSource.ValueField" class="b-input form-control" />
+</div>
+<div class="b-field">
+    <label class="form-label">Text Field</label>
+    <input type="text" ng-model="$.currentField.DataSource.TextField" class="b-input form-control" />
+</div>

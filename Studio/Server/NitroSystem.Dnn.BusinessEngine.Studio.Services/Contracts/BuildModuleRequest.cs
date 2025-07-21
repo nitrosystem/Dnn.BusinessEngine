@@ -11,7 +11,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
     {
         public BuildScope Scope { get; set; }
         public Guid? ModuleId { get; set; }
-        public Guid? ParentId { get; set; }
         public Guid? ScenarioId { get; set; }
     }
 

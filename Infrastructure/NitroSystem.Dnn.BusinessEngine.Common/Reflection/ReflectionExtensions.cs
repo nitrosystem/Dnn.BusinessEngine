@@ -59,5 +59,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Common.Reflection
                 targetProperty.SetValue(destination, srcProp.GetValue(source, null), null);
             }
         }
+
+        public static TValue GetValueOrDefault<TKey, TValue>(
+            this IDictionary<TKey, TValue> dict, TKey key)
+        {
+            return dict != null && dict.TryGetValue(key, out var value) ? value : default;
+        }
     }
 }

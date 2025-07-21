@@ -1,0 +1,67 @@
+.b-breadcrumb {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.b-breadcrumb .bb-current-page-icon {
+  font-size: 1.4rem;
+  margin-left: 0.9rem;
+  display: flex;
+}
+
+.b-breadcrumb .bb-current-page-title {
+  display: flex;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-left: 1.1rem;
+  border-left: solid 0.1rem #eae6e6;
+  padding-left: 1rem;
+}
+
+.b-breadcrumb .bb-parents-path {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.b-breadcrumb .bb-parents-path .bb-home-item {
+  font-size: 1rem;
+  display: flex;
+  margin-left: 0.5rem;
+  align-self: flex-start;
+  margin-top: 0.15rem;
+}
+
+.b-breadcrumb .bb-parents-path .bb-home-item > i {
+  display: flex;
+}
+
+.b-breadcrumb .bb-parents-path .bb-item {
+  display: flex;
+  margin-left: 0.3rem;
+  align-items: center;
+}
+
+.b-breadcrumb .bb-parents-path .bb-item > i {
+  display: flex;
+  font-size: 0.7rem;
+}
+
+.b-breadcrumb .bb-parents-path .bb-link {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin-left: 0.3rem;
+  color: gray;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.b-breadcrumb .bb-parents-path .bb-item:last-child i {
+  display: none;
+  margin: 0;
+}

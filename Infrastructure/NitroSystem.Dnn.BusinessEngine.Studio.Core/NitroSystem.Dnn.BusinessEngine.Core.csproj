@@ -38,6 +38,9 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Dapper.2.1.66\lib\net461\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="DotNetNuke, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\DotNetNuke.dll</HintPath>
     </Reference>
@@ -52,6 +55,9 @@
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.1\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
@@ -72,6 +78,12 @@
     <Reference Include="System.Reflection.Metadata, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reflection.Metadata.8.0.0\lib\net462\System.Reflection.Metadata.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -84,19 +96,27 @@
     <Compile Include="ADO.NET\SqlDataReaderExtensions.cs" />
     <Compile Include="ADO.NET\SqlQueryExecutor.cs" />
     <Compile Include="Attributes\AttributeCache.cs" />
+    <Compile Include="Attributes\AttributeExtensions.cs" />
+    <Compile Include="Attributes\CacheableAttribute.cs" />
+    <Compile Include="Attributes\EntityAttribute.cs" />
+    <Compile Include="Attributes\ScopeAttribute.cs" />
+    <Compile Include="Attributes\TableAttribute.cs" />
+    <Compile Include="Attributes\TableNameAttribute.cs" />
     <Compile Include="BackgroundService\BackgroundService.cs" />
     <Compile Include="Cashing\CacheServiceBase.cs" />
     <Compile Include="Cashing\ICacheService.cs" />
-    <Compile Include="Contract\IDto.cs" />
-    <Compile Include="Contract\IEntity.cs" />
-    <Compile Include="Contract\IField.cs" />
-    <Compile Include="Contract\IModule.cs" />
-    <Compile Include="Contract\IViewModel.cs" />
-    <Compile Include="Enums\DashboardPageType.cs" />
-    <Compile Include="Enums\DashboardType.cs" />
+    <Compile Include="Contracts\IDto.cs" />
+    <Compile Include="Contracts\IEntity.cs" />
+    <Compile Include="Contracts\IExecuteSqlCommand.cs" />
+    <Compile Include="Contracts\IField.cs" />
+    <Compile Include="Contracts\IModule.cs" />
+    <Compile Include="Contracts\IRepositoryBase.cs" />
+    <Compile Include="Contracts\IExtensionServiceFactory.cs" />
+    <Compile Include="Contracts\IExtensionServiceViewModel.cs" />
+    <Compile Include="Contracts\IServiceLocator.cs" />
+    <Compile Include="Contracts\IViewModel.cs" />
     <Compile Include="Enums\DtoType.cs" />
     <Compile Include="Enums\FieldDataSourceType.cs" />
-    <Compile Include="Enums\ModuleBuilderType.cs" />
     <Compile Include="Enums\ModuleType.cs" />
     <Compile Include="Enums\ModuleWrapper.cs" />
     <Compile Include="Enums\ServiceResultType.cs" />
@@ -116,6 +136,7 @@
     <Compile Include="Models\FieldValueInfo.cs" />
     <Compile Include="Models\PageResourceInfo.cs" />
     <Compile Include="Models\ParamInfo.cs" />
+    <Compile Include="Models\ServiceExtensionDependencyInfo.cs" />
     <Compile Include="Providers\CurrentUserProvider.cs" />
     <Compile Include="Reflection\DictionaryToObjectConverter.cs" />
     <Compile Include="Reflection\DynamicMethodExecutor.cs" />
@@ -123,9 +144,9 @@
     <Compile Include="Reflection\ServiceLocator.cs" />
     <Compile Include="App_Start\DnnFeatureController.cs" />
     <Compile Include="Common\ProgressMonitoring.cs" />
-    <Compile Include="Contract\IExpressionService.cs" />
-    <Compile Include="Contract\IModuleData.cs" />
-    <Compile Include="Contract\TokenBase.cs" />
+    <Compile Include="Contracts\IExpressionService.cs" />
+    <Compile Include="Contracts\IModuleData.cs" />
+    <Compile Include="Contracts\TokenBase.cs" />
     <Compile Include="DTO\ModuleVariableDto.cs" />
     <Compile Include="Enums\Scope.cs" />
     <Compile Include="Enums\VariableScope.cs" />
@@ -144,10 +165,10 @@
     <Compile Include="Models\PaymentInfo.cs" />
     <Compile Include="Models\PaymentResultInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Startup\Startup.cs" />
     <Compile Include="UnitOfWork\IUnitOfWork.cs" />
     <Compile Include="UnitOfWork\PagingInfo.cs" />
     <Compile Include="UnitOfWork\UnitOfWork.cs" />
-    <Compile Include="WebSocketServer\WebSocketServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DefinedList\" />

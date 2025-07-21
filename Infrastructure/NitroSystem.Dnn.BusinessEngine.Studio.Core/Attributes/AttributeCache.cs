@@ -25,7 +25,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Attributes
             var attributes = Attribute.GetCustomAttributes(typeof(T), typeof(TAttribute));
             if (attributes.Length > 0)
             {
-                return (TAttribute)attributes[0]; // یا انتخاب دیگری که مورد نیاز است
+                return (TAttribute)attributes[0];
             }
 
             return null;

@@ -1,0 +1,24 @@
+﻿<div class="b-field">
+    <label class="form-label">Enable Paging</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.EnablePaging" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div ng-if="$.currentField.Settings.EnablePaging">
+    <div class="b-field">
+        <label class="form-label">Page Index</label>
+        <input type="number" ng-model="$.currentField.Settings.PageIndex" class="b-input b-input form-control" />
+    </div>
+    <div class="b-field">
+        <label class="form-label">Page Size</label>
+        <input type="number" ng-model="$.currentField.Settings.PageSize" class="b-input b-input form-control" />
+    </div>
+    <div class="b-field">
+        <label class="form-label">Save Current Page In Storage</label>
+        <label class="b-switch d-block">
+            <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.SaveCurrentPageInStorage" />
+            <div class="slider"></div>
+        </label>
+    </div>
+</div>

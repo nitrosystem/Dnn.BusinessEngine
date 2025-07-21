@@ -1,0 +1,58 @@
+﻿.b-grid-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.b-grid-table {
+    width: 100%;
+    background: none;
+    border: none;
+    box-shadow: none;
+    outline: none;
+}
+
+.b-grid-table .grid-paging {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.b-grid-table .grid-paging>li {
+    list-style: none;
+    margin-right: .2em;
+    display: block;
+}
+
+.b-grid-table .grid-paging>li:last-child>a {
+    border-right: none;
+}
+
+.b-grid-table .grid-paging .grid-paging-link-item {
+    padding: .4em 1em .4em 1em;
+    border-right: solid .1em #adadadd1;
+    display: block;
+}
+
+.b-grid-table .grid-paging .grid-paging-active-item .grid-paging-link-item {
+    font-weight: 600;
+}
+
+.b-grid-table .grid-image-wrapper {
+    object-fit: cover;
+    width: 4em;
+    height: 3em;
+    overflow: hidden;
+    text-align: center;
+}
+
+.b-grid-table .grid-image-wrapper>img {
+    width: 100%;
+    height: 100%;
+}
+
+.b-grid-table .grid-image-icon {
+    font-size: 4em;
+}

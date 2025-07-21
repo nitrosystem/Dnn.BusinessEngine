@@ -9,9 +9,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums
     public enum OperationType
     {
         // Merge files in a category and generate a single output file to be included in the page.
-        MergeResourceFiles = 0,
-
+        MergeResourceFiles,
         // Add the resource reference to the module without copying or modifying it.
-        AddResourcePathToModuleResources = 1
+        AddResourcePathToModuleResources
     }
 }

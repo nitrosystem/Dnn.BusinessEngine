@@ -12,30 +12,36 @@ namespace NitroSystem.Dnn.BusinessEngine.Common.TypeCasting
     {
         public static T TryJsonCasting(string json)
         {
-            if (string.IsNullOrWhiteSpace(json)) { return null; }
+            if (string.IsNullOrWhiteSpace(json))
+                return null;
+
             json = json.Trim();
-            if ((json.StartsWith("{") && json.EndsWith("}")) || //For object
-                (json.StartsWith("[") && json.EndsWith("]")) || //For array
-                json == "null")  //For null
+
+            bool isJson = json.StartsWith("{") && json.EndsWith("}") ||
+                          json.StartsWith("[") && json.EndsWith("]") ||
+                          json == "null";
+
+            if (isJson)
             {
                 try
                 {
-                    var result = JsonConvert.DeserializeObject<T>(json);
-                    return result;
+                    return JsonConvert.DeserializeObject<T>(json);
                 }
-                catch (JsonReaderException jex)
-                {
-                    return null;
-                }
-                catch (Exception ex)
+                catch
                 {
                     return null;
                 }
             }
-            else
+
+            try
             {
-                return (T)Convert.ChangeType(json, typeof(T));
+                return Convert.ChangeType(json, typeof(T)) as T;
+            }
+            catch
+            {
+                return null;
             }
         }
     }
+
 }

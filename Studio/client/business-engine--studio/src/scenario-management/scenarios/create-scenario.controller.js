@@ -11,7 +11,6 @@ export class CreateScenarioController {
         apiService,
         validationService,
         notificationService,
-        moduleBuilderService,
         $deferredBroadcast
     ) {
         "ngInject";
@@ -25,7 +24,6 @@ export class CreateScenarioController {
         this.apiService = apiService;
         this.validationService = validationService;
         this.notifyService = notificationService;
-        this.moduleBuilderService = moduleBuilderService;
         this.$deferredBroadcast = $deferredBroadcast;
 
         this.onPageLoad();

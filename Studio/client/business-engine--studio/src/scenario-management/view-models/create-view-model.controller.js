@@ -21,6 +21,7 @@ export class CreateViewModelController {
         this.validationService = validationService;
         this.notifyService = notificationService;
 
+        this.groups = _.filter(this.$rootScope.groups, (g) => { return g.ObjectType == 'ViewModel' });
         this.propertyTypes = [{
             Value: "string",
             Text: "String",
@@ -151,76 +152,40 @@ export class CreateViewModelController {
 
     onPageLoad() {
         const id = this.globalService.getParameterByName("id");
-        const mode = this.globalService.getParameterByName("mode");
-        if (mode == 'entity-view-model' && id) {
-            this.running = "create-viewModel-from-entity";
-            this.awaitAction = {
-                title: "Creating view model from the entity",
-                subtitle: "Just a moment for creating view model...",
-            };
 
-            this.apiService.get("Studio", "GetViewModelsFromEntity", { entityId: id }).then((data) => {
-                this.scenarios = data.Scenarios;
-                this.groups = data.Groups;
-                this.viewModels = data.ViewModels;
-                this.viewModel = data;
+        this.running = "get-viewModel";
+        this.awaitAction = {
+            title: "Loading ViewModel",
+            subtitle: "Just a moment for loading view model...",
+        };
 
-                delete this.awaitAction;
-                delete this.running;
-            },
-                (error) => {
-                    this.awaitAction.isError = true;
-                    this.awaitAction.subtitle = error.statusText;
-                    this.awaitAction.desc =
-                        this.globalService.getErrorHtmlFormat(error);
+        this.apiService.get("Studio", "GetViewModel", { viewModelId: id || null }).then((data) => {
+            this.viewModels = data.ViewModels;
+            this.viewModel = data.ViewModel;
+            if (!this.viewModel) {
+                this.viewModel = {
+                    ScenarioId: GlobalSettings.scenarioId,
+                };
+            } else {
+                this.$scope.$emit("onUpdateCurrentTab", {
+                    id: this.viewModel.Id,
+                    title: this.viewModel.ViewModelName,
+                });
+            }
 
-                    this.notifyService.error(error.data.Message);
+            this.onFocusModule();
 
-                    delete this.running;
-                }
-            );
-        } else {
-            this.running = "get-viewModel";
-            this.awaitAction = {
-                title: "Loading ViewModel",
-                subtitle: "Just a moment for loading view model...",
-            };
+            delete this.running;
+            delete this.awaitAction;
+        }, (error) => {
+            this.awaitAction.isError = true;
+            this.awaitAction.subtitle = error.statusText;
+            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
 
-            this.apiService.get("Studio", "GetViewModel", { viewModelId: id || null }).then((data) => {
-                this.scenarios = data.Scenarios;
-                this.groups = data.Groups;
-                this.viewModels = data.ViewModels;
-                this.viewModel = data.ViewModel;
+            this.notifyService.error(error.data.Message);
 
-                if (!this.viewModel) {
-                    this.viewModel = {
-                        ScenarioId: GlobalSettings.scenarioId,
-                    };
-
-                    if (data.ViewModel) this.onScenarioChange();
-                } else {
-                    this.$scope.$emit("onUpdateCurrentTab", {
-                        id: this.viewModel.Id,
-                        title: this.viewModel.ViewModelName,
-                    });
-                }
-
-                this.onFocusModule();
-
-                delete this.running;
-                delete this.awaitAction;
-            },
-                (error) => {
-                    this.awaitAction.isError = true;
-                    this.awaitAction.subtitle = error.statusText;
-                    this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-                    this.notifyService.error(error.data.Message);
-
-                    delete this.running;
-                }
-            );
-        }
+            delete this.running;
+        });
 
         this.setForm();
     }
@@ -279,14 +244,6 @@ export class CreateViewModelController {
                 id: "drpPropertyTypeID",
             },
         });
-    }
-
-    onScenarioChange() {
-        this.apiService
-            .get("Studio", "GetViewModels", { scenarioId: this.viewModel.ScenarioId })
-            .then((data) => {
-                this.viewModels = data.ViewModels;
-            });
     }
 
     /*------------------------------------
@@ -397,24 +354,23 @@ export class CreateViewModelController {
 
                 delete this.awaitAction;
                 delete this.running;
-            },
-                (error) => {
-                    this.awaitAction.isError = true;
-                    this.awaitAction.subtitle = error.statusText;
-                    this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+            }, (error) => {
+                this.awaitAction.isError = true;
+                this.awaitAction.subtitle = error.statusText;
+                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
 
-                    if (error.data.HResult == "-2146232060")
-                        this.notifyService.error(
-                            `ViewModel name must be unique.${this.viewModel.ViewModelName} is already in the scenario viewModels`
-                        );
-                    else if (error.data.HResult == "-2146233088")
-                        this.notifyService.error(
-                            `Table name must be unique.${this.viewModel.TableName} is already in the database`
-                        );
-                    else this.notifyService.error(error.data.Message);
+                if (error.data.HResult == "-2146232060")
+                    this.notifyService.error(
+                        `ViewModel name must be unique.${this.viewModel.ViewModelName} is already in the scenario viewModels`
+                    );
+                else if (error.data.HResult == "-2146233088")
+                    this.notifyService.error(
+                        `Table name must be unique.${this.viewModel.TableName} is already in the database`
+                    );
+                else this.notifyService.error(error.data.Message);
 
-                    delete this.running;
-                }
+                delete this.running;
+            }
             );
         }
     }
@@ -465,5 +421,4 @@ export class CreateViewModelController {
     onCloseWindow() {
         this.$scope.$emit('onCloseModule');
     }
-
 }

@@ -4,13 +4,13 @@ using System.Linq;
 using System.Web;
 using System.Web.Caching;
 
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
 {
     [Table("BusinessEngineView_ModuleCustomLibraries")]
-    [Cacheable("BE_ModuleCustomLibraries_Views_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_ModuleCustomLibraries_View_", CacheItemPriority.Default, 20)]
     [Scope("ModuleId")]
     public class ModuleCustomLibraryView : IEntity
     {

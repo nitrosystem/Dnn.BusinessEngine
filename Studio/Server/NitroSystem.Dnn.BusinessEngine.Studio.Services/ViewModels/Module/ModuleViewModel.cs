@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using System;
 using System.Collections;
@@ -15,9 +15,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public Guid? ParentId { get; set; }
         public int PortalId { get; set; }
         public int? DnnModuleId { get; set; }
-        public bool IsSSR { get; set; }
         public ModuleType ModuleType { get; set; }
-        public ModuleBuilderType ModuleBuilderType { get; set; }
         public ModuleWrapper Wrapper { get; set; }
         public string ModuleName { get; set; }
         public string ModuleTitle { get; set; }
@@ -33,8 +31,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public int Version { get; set; }
         public int ViewOrder { get; set; }
         public IDictionary<string, object> Settings { get; set; }
-        public string CustomHtml { get; set; }
-        public string CustomJs { get; set; }
-        public string CustomCss { get; set; }
     }
 }

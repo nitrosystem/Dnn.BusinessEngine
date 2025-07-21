@@ -1,0 +1,10 @@
+<div class="b-textarea-group [[ThemeCssClass]]">
+    [[IF:GlobalSettings.WithIcon==true&&Settings.IconPosition==Left:<i class="b-textarea-icon [[Settings.FontIcon]]"></i> ]]
+    <textarea ng-model="[FIELD].Value" class="b-textarea-control" placeholder="[[Settings.Placeholder]]"
+        ng-minlength="[[Settings.MinLength??0]]" ng-maxlength="[[Settings.MaxLength??4000]]"
+        ng-focus="bTextarea_onFocus([FIELD],$event)" ng-blur="bTextarea_onBlur([FIELD],$event)"
+        ng-keydown="bTextarea_onKeydown([FIELD],$event)" ng-keyup="bTextarea_onKeyup([FIELD],$event)"
+        ng-keypress="bTextbox_onKeypress([FIELD],$event)" rows="[[Settings.Rows??2]]"
+        ng-disabled="[[!IsEnabled]]"></textarea>
+    [[IF:GlobalSettings.WithIcon==true&&Settings.IconPosition==Right:<i class="b-textarea-icon [[Settings.FontIcon]]"></i> ]]
+</div>

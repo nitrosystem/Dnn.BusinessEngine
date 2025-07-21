@@ -8,8 +8,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.DTO
 {
     public class ExplorerItemDTO
     {
+        public string ItemType { get; set; }
         public Guid ItemId { get; set; }
         public Guid? GroupId { get; set; }
-        public string ItemType { get; set; }
     }
 }

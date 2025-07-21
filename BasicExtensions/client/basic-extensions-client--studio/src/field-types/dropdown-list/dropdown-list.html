@@ -1,0 +1,6 @@
+﻿<div data-bs-theme="dark">
+    <select ng-model="$.field.TempValue" class="form-select">
+        <option ng-if="!$.field.Settings.ShowAll" value="" ng-selected="true">{{$.field.Settings.Placeholder}}</option>
+        <option ng-if="$.field.Settings.ShowAll " value="-1" ng-selected="true">{{$.field.Settings.AllText}}</option>
+    </select>
+</div>

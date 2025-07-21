@@ -18,7 +18,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models
         public string CacheKey { get; set; }
 
         // Full path to the actual resource file.
-        public string FilePath { get; set; }
+        public string ResourcePath { get; set; }
 
         // If false, any error in this file stops further processing.
         public bool ContinueOnError { get; set; }

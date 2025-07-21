@@ -1,0 +1,59 @@
+﻿.b-grid-responsive {
+    border: solid .1em var(--T--form-light-background-color);
+    border-radius: var(--T--form-input-border-radius);
+}
+
+.b-grid-table .g-header .g-header-row {
+    background-color: var(--T--form-highlight-background-color);
+    border-bottom: solid .1em var(--T--form-light-background-color);
+}
+
+.b-grid-table .g-header .g-header-column {
+    color: var(--T--form-highlight-color);
+    font-size: var(--T--form-input-font-size);
+    line-height: var(--T--form-input-line-height);
+    padding: var(--T--form-input-padding-top) var(--T--form-input-padding-right) var(--T--form-input-padding-bottom) var(--T--form-input-padding-left);
+}
+
+.b-grid-table .g-body .g-body-row {
+    border-bottom: solid .1em var(--T--form-light-background-color);
+}
+
+.b-grid-table .g-body .g-body-row.g-row-even {
+    background-color: var(--T--form-white-light-background-color);
+}
+
+.b-grid-table .g-body .g-body-column {
+    color: var(--T--form-input-color);
+    font-size: var(--T--form-input-font-size);
+    font-weight: var(--T--form-input-font-weight);
+    line-height: var(--T--form-input-line-height);
+    padding: var(--T--form-input-padding-top) var(--T--form-input-padding-right) var(--T--form-input-padding-bottom) var(--T--form-input-padding-left);
+}
+
+.b-grid-table .grid-paging {
+    background-color: var(--T--form-highlight-background-color);
+}
+
+.b-grid-table .grid-paging .grid-paging-link-item {
+    border-right: var(--T--table-paging-item-border-right);
+    color: var(--T--form-highlight-color);
+    font-size: var(--T--form-input-font-size);
+    font-weight: var(--T--form-input-font-weight);
+    padding: var(--T--table-paging-item-padding);
+}
+
+.b-grid-table .grid-paging .grid-paging-active-item .grid-paging-link-item {
+    background-color: var(--T--form-white-background-color);
+    color: var(--T--form-white-color);
+}
+
+.b-grid-table .grid-paging .grid-paging-disabled-item .grid-paging-link-item {
+    background-color: var(--T--form-disabled-background-color);
+    color: var(--T--form-disabled-color);
+}
+
+.b-grid-table .grid-image-wrapper {
+    background-color: var(--T--form-light-background-color);
+    border-radius: var(--T--form-input-border-radius);
+}

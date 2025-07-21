@@ -5,7 +5,7 @@
     border-radius: .5rem;
     box-sizing: border-box;
     position: absolute;
-    top: -1.3em;
+    top: -2.15em;
     opacity: .1;
     font-size: 14px;
     appearance: button;
@@ -17,6 +17,7 @@
     text-decoration: none;
     transition: all .1s cubic-bezier(.4, 0, .2, 1);
     -webkit-user-select: none;
+    z-index: 9999;
 }
 
     .--b-module-builder:hover {

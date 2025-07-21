@@ -16,7 +16,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto
         public string ScenarioName { get; set; }
         public string Wrapper { get; set; }
         public string ModuleType { get; set; }
-        public string ModuleBuilderType { get; set; }
         public string ModuleName { get; set; }
         public string ParentModuleName { get; set; }
         public string Template { get; set; }

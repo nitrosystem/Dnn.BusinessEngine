@@ -16,13 +16,6 @@
                     data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="bottom"
                     title="Error Details" data-bs-html="true" data-bs-content="{{$.awaitAction.desc}}"></i>
             </div>
-            <div ng-if="$.awaitAction.showProgress">
-                <div class="progress mt-2 mb-1" role="progressbar" aria-label="{{$.awaitAction.subtitle}}"
-                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                    <div id="{{$.progressId}}" ng-style="{'width':+$.awaitAction.progress+'%'}"
-                        class="progress-bar bg-success progress-bar-striped progress-bar-animated"></div>
-                </div>
-            </div>
         </div>
         <div class="col">
             <ul class="widget-tools" ng-if="!$.hideToolbar">

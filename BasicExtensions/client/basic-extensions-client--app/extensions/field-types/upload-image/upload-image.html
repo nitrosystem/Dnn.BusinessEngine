@@ -1,0 +1,14 @@
+﻿<div class="b-upload-image [[ThemeCssClass]]">
+    <input type="file" accept="image/*" ngf-fix-orientation="true"
+        ngf-select="bUploadImage_onUploadChange([FIELD],$file,$invalidFiles)"
+        ngf-max-size="[[Settings.MaxFileLength??21457280]]" />
+    <span class="upload-plus-icon">+</span>
+    <span class="upload-label-text">[[Settings.UploadLabel]]</span>
+    <img class="upload-preview-image" ng-if="![FIELD].Value && [FIELD].preview" ng-src="{{[FIELD].preview}}" />
+    <p class="upload-message" ng-if="[FIELD].isError">{{[FIELD].errorMessage}}</p>
+    <div class="upload-progress" ng-hide="[FIELD].Value" ng-style="{'width':[FIELD].uploadedPercent+'%'}"></div>
+    <div class="upload-image-box" ng-if="[FIELD].Value">
+        <img ng-src="{{[FIELD].Value}}" />
+    </div>
+    <button type="button" class="upload-remove-icon"  ng-click="bUploadImage_onRemoveImage([FIELD])" ng-show="[FIELD].Value">X</button>
+</div>

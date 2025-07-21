@@ -1,6 +1,6 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Common.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
 using System;
 using System.Collections;
@@ -23,7 +23,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public EntityType EntityType { get; set; }
         public string TableName { get; set; }
         public bool IsReadonly { get; set; }
-        public bool IsMultipleColumnsForPK { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }
@@ -32,6 +31,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public int ViewOrder { get; set; }
         public IDictionary<string, object> Settings { get; set; }
         public IEnumerable<EntityColumnViewModel> Columns { get; set; }
-        public IEnumerable<TableRelationshipInfo> Relationships { get; set; }
     }
 }

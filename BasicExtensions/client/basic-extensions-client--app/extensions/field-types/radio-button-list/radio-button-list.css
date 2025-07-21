@@ -1,0 +1,56 @@
+.b-radio-list {
+    display: flex;
+}
+
+.b-radio-list.radio-perline-list {
+    flex-direction: column;
+    row-gap: .2em;
+}
+
+.b-radio-list.radio-inline-list .radio-item {
+    margin-right: 1.3em;
+}
+
+.b-radio-list .radio-item [type="radio"] {
+    display: none;
+}
+
+.b-radio-list .radio-item label {
+    display: block;
+    cursor: pointer;
+    font-size: 0.85em;
+    padding-left: 1.6em;
+    white-space: nowrap;
+    position: relative;
+    transition: 0.4s ease-in-out 0s;
+}
+
+.b-radio-list .radio-item label:after {
+    content: "";
+    border-radius: 50%;
+    height: 1.2em;
+    width: 1.2em;
+    position: absolute;
+    left: 0;
+    top: .3em;
+}
+
+.b-radio-list .radio-item label:before {
+    content: "";
+    border-radius: 50%;
+    height: 1.2em;
+    width: 1.2em;
+    position: absolute;
+    left: 0;
+    top: .3em;
+    transform: scale(5);
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.4s ease-in-out 0s;
+}
+
+.b-radio-list .radio-item [type="radio"]:checked~label::before {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}

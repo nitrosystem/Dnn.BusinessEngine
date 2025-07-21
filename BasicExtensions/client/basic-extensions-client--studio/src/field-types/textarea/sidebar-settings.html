@@ -1,0 +1,59 @@
+﻿<div class="b-field">
+    <label class="form-label">Rows</label>
+    <input type="number" ng-model="$.currentField.Settings.Rows" class="b-input form-control"
+        placeholder="Textarea rows count" />
+</div>
+<div class="b-field">
+    <label class="form-label">Placeholder</label>
+    <input type="text" ng-model="$.currentField.Settings.Placeholder" class="b-input form-control" />
+</div>
+<div class="b-field">
+    <label class="form-label">With Icon</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.WithIcon" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div ng-if="$.currentField.Settings.WithIcon">
+    <div class="b-field">
+        <label class="form-label">Icon Position</label>
+        <div class="b-radio-list-inline">
+            <div class="radio-item">
+                <input type="radio" id="leftPosition" name="positionRadio" value="Left"
+                    ng-model="$.currentField.Settings.IconPosition">
+                <label for="leftPosition">Left</label>
+            </div>
+            <div class="radio-item">
+                <input type="radio" id="rightPosition" name="positionRadio" value="Right"
+                    ng-model="$.currentField.Settings.IconPosition">
+                <label for="rightPosition">Right</label>
+            </div>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Font Icon</label>
+        <input type="text" ng-model="$.currentField.Settings.FontIcon" class="b-input form-control" />
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Min Length</label>
+    <input type="number" ng-model="$.currentField.Settings.MinLength" class="b-input form-control"
+        placeholder="Field min length" />
+</div>
+<div class="b-field">
+    <label class="form-label">Max Length</label>
+    <input type="number" ng-model="$.currentField.Settings.MaxLength" class="b-input form-control"
+        placeholder="Field max length" />
+</div>
+<div class="b-field" ng-if="currentField.Settings.MaxLength">
+    <label class="form-label">Show Max Length</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.ShowMaxLength" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div class="b-field" ng-if="currentField.Settings.ShowMaxLengths">
+    <label class="form-label">Max Length Label</label>
+    <input type="text" ng-model="$.currentField.Settings.MaxLengthLabel" class="b-input form-control"
+        placeholder="Max length label text" />
+</div>

@@ -16,20 +16,27 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard.Skin;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto.Module;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto.Global;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 {
     public interface IActionService
     {
+        Task<IEnumerable<ActionTypeViewModel>> GetActionTypesViewModelAsync(string sortBy = "ViewOrder");
+
+        Task<IEnumerable<ActionLiteDto>> GetActionsLiteDtoAsync(Guid moduleId, string sortBy = "ViewOrder");
+
         Task<(IEnumerable<ActionViewModel> Items, int TotalCount)> GetActionsViewModelAsync(Guid moduleId, Guid? fieldId, int pageIndex, int pageSize, string searchText, string actionType, string sortBy);
 
         Task<ActionViewModel> GetActionViewModelAsync(Guid actionId);
 
         Task<IEnumerable<ModuleFieldLiteDto>> GetFieldsHaveActionsAsync(Guid moduleId);
+
+        Task<Guid> SaveActionAsync(ActionViewModel action, bool isNew);
+
+        Task<bool> DeleteActionAsync(Guid id);
     }
 }

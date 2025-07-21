@@ -33,14 +33,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Api
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cacheService;
-        //private readonly IDashbaordService _dashboardService;
         private readonly IModuleService _moduleService;
         private readonly IActionService _actionService;
 
         public ModuleController(
             IUnitOfWork unitOfWork,
             ICacheService cacheService,
-            //IDashbaordService dashboardService,
             IModuleService moduleService
             //IActionService actionService
         )
@@ -516,9 +514,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Api
 
                 //await this._actionWorker.CallActions(moduleId, null, "OnPageInit"); // call "OnPageInit" event actions. Not important server side
 
-                var fields = module.ModuleBuilderType == Core.Enums.ModuleBuilderType.FormDesigner
-                    ? await _moduleService.GetFieldsViewModelAsync(moduleId)
-                    : null;
+                var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
 
                 //this._moduleData.SetFieldItem(field.FieldName, lightField);
 
@@ -543,7 +539,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Api
                 {
                     Fields = fields,
                     //Actions = actions,
-                    ModuleBuilderType = module.ModuleBuilderType,
                     ModuleTemplateUrl = moduleTemplateUrl,
                     ModuleTemplateJsUrl = moduleTemplateJsUrl,
                     ModuleTemplateCssUrl = moduleTemplateCssUrl,

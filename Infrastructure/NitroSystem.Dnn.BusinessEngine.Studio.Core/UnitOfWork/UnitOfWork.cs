@@ -11,6 +11,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
+        private readonly Guid Idd = Guid.NewGuid();
         private readonly IDbConnection _connection;
         private IDbTransaction _transaction;
         private bool _disposed = false;

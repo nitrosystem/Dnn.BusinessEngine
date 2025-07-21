@@ -1,0 +1,16 @@
+.b-dropdown-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0;
+    position: relative;
+}
+
+.b-dropdown-group>.b-dropdown-control {
+    background: none;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    display: inline-flex;
+    flex-grow: 1;
+}

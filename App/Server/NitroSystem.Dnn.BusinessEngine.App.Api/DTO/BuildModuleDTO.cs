@@ -12,7 +12,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.DTO
     {
         public Guid ModuleID { get; set; }
         public Guid? ParentID { get; set; }
-        public string ModuleBuilderType { get; set; }
         public string PreloadingTemplate { get; set; }
         public string ModuleTemplate { get; set; }
         public string CustomHtml { get; set; }

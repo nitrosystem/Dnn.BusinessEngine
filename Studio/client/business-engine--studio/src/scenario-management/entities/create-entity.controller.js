@@ -11,7 +11,6 @@ export class CreateEntityController {
         apiService,
         validationService,
         notificationService,
-        webSocketService
     ) {
         "ngInject";
 
@@ -23,28 +22,8 @@ export class CreateEntityController {
         this.validationService = validationService;
         this.notifyService = notificationService;
         this.studioService = studioService;
-        this.webSocketService = webSocketService;
 
-        webSocketService.connect(); 
-
-        var unregister = webSocketService.register(CreateEntityController, (data) => {
-            $scope.$apply(() => {
-                this.notifyService.info(data.status);
-
-                this.awaitAction = {
-                    title: "Loading Entity",
-                    showProgress: true,
-                    subtitle: data.status,
-                    progress: data.progress
-                };
-
-                if (data.progress == 100) delete this.awaitAction;
-            });
-        });
-
-        $scope.$on('$destroy', () => {
-            unregister();
-        });
+        this.groups = _.filter(this.$rootScope.groups, (g) => { return g.ObjectType == 'Entity' });
 
         this.$scope.$watch("$.entity.EntityName", (newVal, oldVal) => {
             if (newVal != oldVal && !this.entity.Settings.DatabaseObjectNameModified)
@@ -67,36 +46,7 @@ export class CreateEntityController {
         };
 
         this.apiService.get("Studio", "GetEntity", { entityId: id || null }).then((data) => {
-            this.scenarios = data.Scenarios;
-            this.databases = data.Databases;
-            this.entity = data.Entity;
-            this.groups = data.Groups;
-
-            if (data.Relationships && data.Relationships.length) {
-                this.entity.Relationships = [];
-                var groups = _.groupBy(data.Relationships, 'RelationshipName');
-                for (var key in groups) {
-                    var relationship = groups[key][0];
-                    var item = {
-                        RelationshipName: relationship.RelationshipName,
-                        OldRelationshipName: relationship.RelationshipName,
-                        ParentEntityTableName: relationship.ParentEntityTableName,
-                        ChildEntityTableName: relationship.ChildEntityTableName,
-                        EnforceForReplication: relationship.EnforceForReplication,
-                        EnforceForeignKeyConstraint: relationship.EnforceForeignKeyConstraint,
-                        DELETESpecification: relationship.DELETESpecification,
-                        UPDATESpecification: relationship.UPDATESpecification,
-                        Columns: _.filter(data.Relationships, (r) => { return r.RelationshipName == relationship.RelationshipName })
-                    };
-
-                    _.filter(this.entities, (e) => { return e.TableName == relationship.ParentEntityTableName }).map((entity) => {
-                        item.ParentEntityColumns = entity.Columns;
-                    });
-
-                    this.entity.Relationships.push(item);
-                }
-            }
-
+            this.entity = data;
             if (!this.entity) {
                 this.entity = {
                     ScenarioId: GlobalSettings.scenarioId,
@@ -108,11 +58,8 @@ export class CreateEntityController {
                         IsPrimary: true,
                         IsIdentity: true,
                         ViewOrder: 0,
-                    }],
-                    Relationships: []
+                    }]
                 };
-
-                this.onScenarioChange();
             } else {
                 if (this.entity.IsReadonly) this.getDatabaseObjects();
 
@@ -233,17 +180,6 @@ export class CreateEntityController {
         });
     }
 
-    onScenarioChange() {
-        _.filter(this.scenarios, (s) => {
-            return s.Id == this.entity.ScenarioId;
-        }).map((s) => {
-            if (!this.entity.Settings.DatabaseObjectPrefixName ||
-                confirm("Do you want to change db table name prefix?")
-            )
-                this.entity.Settings.DatabaseObjectPrefixName = s.DatabaseObjectPrefix;
-        });
-    }
-
     onEntityIsReadOnlyChange() {
         if (!this.dataBaseObjects) {
             this.getDatabaseObjects();
@@ -309,41 +245,6 @@ export class CreateEntityController {
                     delete this.running;
                 }
             );
-    }
-
-    onAddRelationshipClick() {
-        this.running = "get-entities-for-relationsheeps";
-        this.awaitAction = {
-            title: "Loading Entities View Model",
-            subtitle: "Just a moment for loading entities view model...",
-        };
-
-        this.apiService.get("Studio", 'GetEntitiesForRelationsheeps', this.awaitAction).then(() => {
-            this.entities = data;
-
-            this.entity.Relationships = this.entity.Relationships || [];
-            this.entity.Relationships.push({ EnforceForReplication: true, EnforceForeignKeyConstraint: true, Columns: [{}] });
-
-            delete this.running;
-            delete this.awaitAction;
-        });
-    }
-
-    onParentEntityChange(relationship) {
-        _.filter(this.entities, (e) => { return e.TableName == relationship.ParentEntityTableName; }).map((entity) => {
-            relationship.ParentEntity = {
-                EntityId: entity.Id,
-                TableName: entity.TableName,
-            };
-
-            relationship.ParentEntityColumns = entity.Columns;
-            relationship.ForeignEntity = {
-                EntityId: this.entity.Id,
-                TableName: this.entity.TableName,
-            };
-
-            relationship.RelationshipName = 'FK_' + entity.TableName + '_' + (this.entity.TableName || '');
-        });
     }
 
     onSyncColumns() {
@@ -453,23 +354,6 @@ export class CreateEntityController {
 
             columns.map((c) => (c.ViewOrder = this.entity.Columns.indexOf(c) + 1));
         }
-
-        // var swapedColumns = _.filter(columns, (c) => {
-        //   return c.ColumnId, c.ViewOrder != columns.indexOf(c) + 1;
-        // }).map((i) => _.pick(i, "ColumnId", "ViewOrder"));
-
-        // this.running = "swap-columns";
-
-        // this.awaitAction = {
-        //   title: "Swaping Columns",
-        //   subtitle: "Just a moment for swap entity columns...",
-        // };
-
-        // this.apiService
-        //   .post("Studio", "SwapEntityColumns", swapedColumns)
-        //   .then(() => {
-        //     delete this.running;
-        //   });
     }
 
     onSaveColumnClick() {
@@ -509,17 +393,15 @@ export class CreateEntityController {
     }
 
     onColumnPrimaryKeyChange() {
-        if (!this.entity.IsMultipleColumnsForPK) {
-            var isPrimary = this.column.IsPrimary;
+        var isPrimary = this.column.IsPrimary;
 
-            _.filter(this.entity.Columns, (c) => {
-                return c.IsPrimary;
-            }).map((c) => {
-                c.IsPrimary = false;
-            });
+        _.filter(this.entity.Columns, (c) => {
+            return c.IsPrimary;
+        }).map((c) => {
+            c.IsPrimary = false;
+        });
 
-            this.column.IsPrimary = isPrimary;
-        }
+        this.column.IsPrimary = isPrimary;
     }
 
     onSaveColumnPropertiesClick() {
@@ -556,8 +438,6 @@ export class CreateEntityController {
         this.form.validated = true;
         this.form.validator(this.entity);
 
-        const relationships = this.entity.Relationships;
-
         if (this.form.valid) {
             this.running = "save-entity";
             this.awaitAction = {
@@ -568,10 +448,7 @@ export class CreateEntityController {
             this.currentTabKey = this.$rootScope.currentTab.key;
 
             this.apiService.post("Studio", "SaveEntity", this.entity).then((data) => {
-                this.isNewEntity = !!!this.entity.Id;
-
                 this.entity = data;
-                this.entity.Relationships = relationships;
 
                 this.notifyService.success("Entity updated has been successfully");
 
@@ -582,9 +459,6 @@ export class CreateEntityController {
                 });
 
                 this.$rootScope.refreshSidebarExplorerItems();
-
-                var groups = _.groupBy(this.entity.Relationships || [], 'RelationshipName');
-                for (var key in groups) groups[key][0].OldRelationshipName = groups[key][0].RelationshipName;
 
                 delete this.awaitAction;
                 delete this.running;
@@ -655,19 +529,4 @@ export class CreateEntityController {
     onCloseWindow() {
         this.$scope.$emit('onCloseModule');
     }
-
-    /*------------------------------------*/
-    /* Create View Model  */
-    /*------------------------------------*/
-
-    onSaveViewModelClick() {
-        this.$scope.$emit("onGotoPage", {
-            page: "create-view-model",
-            id: this.entity.Id,
-            subParams: {
-                mode: 'entity-view-model',
-            }
-        });
-    }
-
 }

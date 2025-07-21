@@ -24,25 +24,15 @@
             <div class="wz-step" ng-click="$.onStepClick(5,$event)"
                 ng-class="{'disabled1':$.running || $.stepsValid<5,'active':$.step==5}">
                 <span class="module-builder"></span>
-                <label ng-if="!$.module.ModuleBuilderType">Module Builder</label>
-                <label ng-if="$.module.ModuleBuilderType===1">Html Editor</label>
+                Module Builder
             </div>
             <div class="wz-step" ng-click="$.onStepClick(6,$event)"
                 ng-class="{'disabled1':$.running || $.stepsValid<6,'active':$.step==6}">
                 <span class="actions"></span>
                 Actions
             </div>
-            <div class="wz-step" ng-click="$.onStepClick(7,$event)"
-                ng-class="{'disabled1':$.running || $.stepsValid<7,'active':$.step==7}">
-                <span class="publish"></span>
-                Publish
-            </div>
         </div>
         <div class="step-content">
-            <!--Wizard Loading-->
-            <div class="pre-loader theme-default" ng-hide="$.hideStepPreloader">
-                <div class="lines"></div>
-            </div>
             <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(1)>=0" ng-show="$.step==1"
                 ng-include="$.basicOptionsTemplate"></div>
             <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(2)>=0" ng-show="$.step==2"

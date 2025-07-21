@@ -35,11 +35,6 @@
                         <i class="codicon codicon-settings-gear"></i>
                     </a>
                 </li>
-                <!-- <li class="action-item">
-                    <a class="action-label" role="button" b-custom-tooltip data-bs-placement="right" title="Accounts">
-                        <i class="codicon codicon-account"></i>
-                    </a>
-                </li> -->
                 <li class="action-item">
                     <a class="action-label" href="/Default.aspx?tabid={{$.returnUrl}}" role="button" b-custom-tooltip
                         data-bs-placement="right" title="Return to the dnn page you came">
@@ -56,14 +51,12 @@
     <!------------------------------------>
     <!--Begin Side Bar-->
     <!------------------------------------>
-    <div class="sidebar" b-custom-resizeable>
+    <div class="sidebar">
         <!------------------------------------>
         <!-- Sidebar Explorer Widget-->
         <!------------------------------------>
-        <b-sidebar-explorer
-            ng-if="$.$rootScope.currentActivityBar=='explorer' && $.$rootScope.explorerItems"></b-sidebar-explorer>
-        <div ng-if="$.$rootScope.currentActivityBar=='extensions'"></div>
-        <div ng-if="$.$rootScope.currentActivityBar=='libraries'"></div>
+        <b-sidebar-explorer ng-if="$.$rootScope.currentActivityBar=='explorer' && $.$rootScope.explorerItems">
+        </b-sidebar-explorer>
     </div>
     <!------------------------------------>
     <!--End Side Bar-->

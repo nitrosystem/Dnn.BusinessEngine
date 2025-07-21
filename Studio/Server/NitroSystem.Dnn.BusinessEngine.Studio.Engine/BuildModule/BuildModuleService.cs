@@ -1,14 +1,9 @@
 ﻿using DotNetNuke.Data;
 using DotNetNuke.Entities.Portals;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
-using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Core.ExpressionService.ConditionParser;
-using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
@@ -24,6 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
@@ -38,8 +34,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         public BuildModuleService(
             IBuildModuleLayout buildModuleLayout,
             IResourceMachine resourceMachine,
-            IModuleBuildLockService lockService
-        )
+            IModuleBuildLockService lockService)
         {
             _buildModuleLayout = buildModuleLayout;
             _resourceMachine = resourceMachine;
@@ -48,23 +43,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             _machineResources = new List<MachineResourceInfo>();
         }
 
-        public async Task<PrebuildResultDto> PrepareBuild(BuildModuleDto moduleToBuild, IRepositoryBase repository, PortalSettings portalSettings)
+        public async Task<PrebuildResultDto> PrepareBuild(BuildModuleDto module, IRepositoryBase repository, PortalSettings portalSettings)
         {
             var result = new PrebuildResultDto();
 
-            var lockAcquired = await _lockService.TryLockAsync(moduleToBuild.Id, 1000); // Wait up to 3 seconds.
-
+            var lockAcquired = await _lockService.TryLockAsync(module.Id, 1000); // Wait up to 1 second.
             if (!lockAcquired)
             {
                 throw new InvalidOperationException("This module is currently being build. Please try again in a few moments..");
             }
 
-            await repository.DeleteByScopeAsync<PageResourceInfo>(moduleToBuild.Id);
+            await repository.DeleteByScopeAsync<PageResourceInfo>(module.Id);
 
             try
             {
-                result.TemplateDirectoryPath = $@"{moduleToBuild.BuildPath}\"
-                                .Replace("[BUILDPATH]", portalSettings.HomeSystemDirectoryMapPath + @"business-engine\");
+                result.TemplateDirectoryPath = $@"{module.BuildPath}\"
+                        .Replace("[BUILDPATH]", portalSettings.HomeSystemDirectoryMapPath + @"business-engine\");
 
                 var deleteResult = FileUtil.DeleteDirectory(result.TemplateDirectoryPath);
 
@@ -73,55 +67,52 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             }
             finally
             {
-                _lockService.ReleaseLock(moduleToBuild.Id);
+                _lockService.ReleaseLock(module.Id);
             }
 
             return result;
         }
 
-        public async Task<IEnumerable<PageResourceDto>> ExecuteBuildAsync(int? pageId, (DashboardType DashboardType, string Skin, string SkinPath) dashboard, IEnumerable<BuildModuleDto> modulesToBuild, IEnumerable<BuildModuleFieldDto> fieldsToBuild, IEnumerable<BuildModuleResourceDto> resourcesToBuild, IEnumerable<PageResourceDto> oldReesources, PortalSettings portalSettings, HttpContext context)
+        public async Task<IEnumerable<PageResourceDto>> ExecuteBuildAsync(
+                BuildModuleDto module,
+                IEnumerable<BuildModuleFieldDto> fields,
+                IEnumerable<BuildModuleResourceDto> resources,
+                int pageId,
+                PortalSettings portalSettings,
+                HttpContext context)
         {
             var result = new List<MachineResourceInfo>();
 
-            var dict = resourcesToBuild.GroupBy(r => r.ModuleId)
+            var dict = resources.GroupBy(r => r.ModuleId)
                                               .ToDictionary(r => r.Key, r => r.AsEnumerable());
             foreach (var moduleId in dict.Keys)
             {
                 dict.TryGetValue(moduleId, out var items);
 
-                var moduleToBuild = modulesToBuild.FirstOrDefault(m => m.Id == moduleId);
                 var resourceType = items.GroupBy(r => r.ActionType)
                                         .ToDictionary(
                                             r => r.Key,
                                             r => r.AsEnumerable()
                                         );
 
-                ProcessGetResources(moduleToBuild, resourceType[ActionType.GetResourcePath]);
+                ProcessGetResources(module, resourceType[ActionType.GetResourcePath]);
 
-                ProcessLoadResources(moduleToBuild, resourceType[ActionType.LoadResourceContent], modulesToBuild, fieldsToBuild, portalSettings);
+                ProcessLoadResources(module, resourceType[ActionType.LoadResourceContent], fields, portalSettings);
             }
 
             var moduleResources = await _resourceMachine.RunAsync(_machineResources, context);
 
-            //BundleMinifier.BundleAndMinify(
-            //    new List<string>
-            //    {
-            //        "wwwroot/js/lib1.js",
-            //        "wwwroot/js/lib2.js",
-            //        "wwwroot/js/app.js"
-            //    },
-            //    "wwwroot/js/bundle.min.js"
-            //);
-
-            return CleanPageResources.Clean(
-                 pageId.HasValue ? pageId.Value : 0,
-                 dashboard.DashboardType == DashboardType.StandalonePanel,
-                 moduleResources,
-                 oldReesources
-             );
+            return moduleResources.Select(r =>
+                                      HybridMapper.MapSimpleWithDefaults<ModuleResourceInfo, PageResourceDto>(
+                                          r,
+                                          new Dictionary<string, object> {
+                                        { "DnnPageId", pageId },
+                                        { "IsActive", true }
+                                          }
+                                      ));
         }
 
-        private void ProcessGetResources(BuildModuleDto moduleToBuild, IEnumerable<BuildModuleResourceDto> resources)
+        private void ProcessGetResources(BuildModuleDto module, IEnumerable<BuildModuleResourceDto> resources)
         {
             var dict = resources.GroupBy(r => r.ResourceType)
                    .ToDictionary(
@@ -138,13 +129,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                     _machineResources.Add(
                         new MachineResourceInfo()
                         {
-                            ModuleId = moduleToBuild.Id,
+                            ModuleId = module.Id,
                             ActionType = ActionType.GetResourcePath,
                             AddToResources = true,
                             ResourceFiles = items.Select(rf =>
                                  new MachineResourceFileInfo()
                                  {
-                                     FilePath = rf.ResourcePath,
+                                     ResourcePath = rf.ResourcePath,
                                      EntryType = rf.EntryType,
                                      Additional = rf.Additional,
                                      ContinueOnError = true
@@ -160,94 +151,104 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         }
 
         private void ProcessLoadResources(
-                BuildModuleDto moduleToBuild,
-                IEnumerable<BuildModuleResourceDto> resourcesToBuild,
-                IEnumerable<BuildModuleDto> modulesToBuild,
-                IEnumerable<BuildModuleFieldDto> fieldsToBuild,
-                PortalSettings portalSettings
-            )
+            BuildModuleDto module,
+            IEnumerable<BuildModuleResourceDto> resources,
+            IEnumerable<BuildModuleFieldDto> fields,
+            PortalSettings portalSettings)
         {
-            var lookup = resourcesToBuild.ToLookup(r => r.ResourceType == ResourceType.FieldTypeTemplate);
-            var fieldTypeTemplates = lookup[true];
-            if (fieldTypeTemplates != null && fieldTypeTemplates.Any())
-            {
-                _machineResources.Add(
-                    new MachineResourceInfo()
-                    {
-                        ModuleId = moduleToBuild.Id,
-                        ActionType = ActionType.LoadResourceContent,
-                        ResourceFiles = fieldTypeTemplates.Select(
-                            r => new MachineResourceFileInfo()
-                            {
-                                FilePath = r.ResourcePath,
-                                EntryType = r.EntryType,
-                                Additional = r.Additional,
-                                CacheKey = r.CacheKey,
-                                ContinueOnError = true
-                            }).ToList(),
-                        OperationType = OperationType.MergeResourceFiles,
-                        MergeStrategy = new ResourceMergeStrategy()
-                        {
-                            MergedCallback = args =>
-                            {
-                                var fieldTypes = args[0] as IDictionary<(string entryType, string entryAdditional), string>;
-                                return _buildModuleLayout.BuildLayout(moduleToBuild.LayoutTemplate, fieldTypes, fieldsToBuild);
-                            },
-                            MergedOutputFilePath = $@"{moduleToBuild.BuildPath}\module--{moduleToBuild.ModuleName}.html"
-                                .Replace("[BUILDPATH]", portalSettings.HomeSystemDirectoryMapPath + @"business-engine\")
-                        },
-                    }
-                );
-            }
+            var dict = resources
+                .GroupBy(r => r.ResourceType)
+                .ToDictionary(r => r.Key, r => r.AsEnumerable());
 
-            var dict = lookup[false].GroupBy(r => r.ResourceType)
-                   .ToDictionary(
-                       r => r.Key,
-                       r => r.AsEnumerable()
-                   );
-
-            foreach (ResourceType resourceType in Enum.GetValues(typeof(ResourceType)))
+            foreach (var item in dict)
             {
-                if (dict.TryGetValue(resourceType, out var items))
+                var items = dict[item.Key];
+                if (items != null && items.Any())
                 {
-                    var firstItem = items.First();
                     _machineResources.Add(
-                        new MachineResourceInfo()
-                        {
-                            ModuleId = moduleToBuild.Id,
-                            ActionType = ActionType.LoadResourceContent,
-                            AddToResources = true,
-                            ResourceFiles = items.Select(
-                            r => new MachineResourceFileInfo()
-                            {
-                                FilePath = r.ResourcePath,
-                                EntryType = r.EntryType,
-                                Additional = r.Additional,
-                                CacheKey = r.CacheKey,
-                                ContinueOnError = true
-
-                            }).ToList(),
-                            Condition = firstItem.Condition,
-                            OperationType = OperationType.MergeResourceFiles,
-                            MergeStrategy = new ResourceMergeStrategy()
-                            {
-                                MergedOutputFilePath = $@"{moduleToBuild.BuildPath}\{GetModuleFilename(resourceType)}"
-                                .Replace("[BUILDPATH]", portalSettings.HomeSystemDirectoryMapPath + @"business-engine\"),
-                                MergedResourcePath = $@"{moduleToBuild.BuildPath}/{GetModuleFilename(resourceType)}"
-                                .Replace("[BUILDPATH]", portalSettings.HomeSystemDirectory + @"business-engine/").Replace(@"\", "/")
-                            },
-                            ContinueOnError = true,
-                            Order = _machineResources.Count + 1
-                        }
-                    );
+                           new MachineResourceInfo()
+                           {
+                               ModuleId = module.Id,
+                               ActionType = ActionType.LoadResourceContent,
+                               AddToResources = true,
+                               ResourceFiles = items.Select(resource =>
+                                   HybridMapper.MapSimpleWithDefaults<BuildModuleResourceDto, MachineResourceFileInfo>(
+                                       resource,
+                                       new Dictionary<string, object> {
+                                        { "ContinueOnError", true }
+                                       }
+                                   )).ToList(),
+                               Condition = items.First().Condition,
+                               OperationType = OperationType.MergeResourceFiles,
+                               MergeStrategy = ProccessMergeStrategy(item.Key, module, items, fields, portalSettings),
+                               ContinueOnError = true,
+                               Order = _machineResources.Count + 1
+                           }
+                       );
                 }
             }
         }
 
-        private object GetModuleFilename(ResourceType resourceType)
+        private ResourceMergeStrategy ProccessMergeStrategy(
+            ResourceType resourceType,
+            BuildModuleDto module,
+            IEnumerable<BuildModuleResourceDto> resources,
+            IEnumerable<BuildModuleFieldDto> fields,
+            PortalSettings portalSettings)
+        {
+            ResourceMergeStrategy strategy = null;
+
+            switch (resourceType)
+            {
+                case ResourceType.ModuleCss:
+                    strategy = new ResourceMergeStrategy()
+                    {
+                        MergedCallback = args =>
+                        {
+                            return module.LayoutCss;
+                        },
+                        IgnoreLoadingResourceFiles = true,
+                        MergedOutputFilePath = $@"{module.BuildPath}\{GetModuleFilename(resourceType, module.ModuleName)}"
+                       .Replace("[BUILDPATH]", portalSettings.HomeSystemDirectoryMapPath + @"business-engine\"),
+                        MergedResourcePath = $@"{module.BuildPath}/{GetModuleFilename(resourceType, module.ModuleName)}"
+                               .Replace("[BUILDPATH]", portalSettings.HomeSystemDirectory + @"business-engine/").Replace(@"\", "/")
+                    };
+
+                    break;
+                case ResourceType.FieldTypeTemplate:
+                    strategy = new ResourceMergeStrategy()
+                    {
+                        MergedCallback = args =>
+                        {
+                            var fieldTypes = args[0] as IDictionary<(string entryType, string entryAdditional), string>;
+                            return _buildModuleLayout.BuildLayout(module.LayoutTemplate, fieldTypes, fields);
+                        },
+                        MergedOutputFilePath = $@"{module.BuildPath}\module--{module.ModuleName}.html"
+                               .Replace("[BUILDPATH]", portalSettings.HomeSystemDirectoryMapPath + @"business-engine\")
+                    };
+
+                    break;
+                default:
+                    strategy = new ResourceMergeStrategy()
+                    {
+                        MergedOutputFilePath = $@"{module.BuildPath}\{GetModuleFilename(resourceType, module.ModuleName)}"
+                       .Replace("[BUILDPATH]", portalSettings.HomeSystemDirectoryMapPath + @"business-engine\"),
+                        MergedResourcePath = $@"{module.BuildPath}/{GetModuleFilename(resourceType, module.ModuleName)}"
+                               .Replace("[BUILDPATH]", portalSettings.HomeSystemDirectory + @"business-engine/").Replace(@"\", "/")
+                    };
+
+                    break;
+            }
+
+            return strategy;
+        }
+
+        private object GetModuleFilename(ResourceType resourceType, string moduleName)
         {
             switch (resourceType)
             {
+                case ResourceType.ModuleCss:
+                    return $"modules--{moduleName}.css";
                 case ResourceType.ModuleActionScript:
                     return "modules--action.js";
                 case ResourceType.FieldTypeScript:

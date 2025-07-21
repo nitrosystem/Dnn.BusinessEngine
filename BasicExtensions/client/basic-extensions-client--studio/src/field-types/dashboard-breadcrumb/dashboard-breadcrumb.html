@@ -1,0 +1,29 @@
+<div class="b-field">
+    <button type="button" class="b-btn btn-action" ng-click="$.onSetTemplateClick()">
+        <i class="codicon codicon-plus"></i>
+        Set Breadcrumb Template
+    </button>
+</div>
+
+<!------------------------------------>
+<!-- Message Box Edit Widget-->
+<!------------------------------------>
+<b-right-widget ng-if="$.workingMode=='edit-template'" data-title="Edit Template" data-icon="notebook-template"
+    data-subtitle="Breadcrumb html Template" data-await-action="$.awaitAction">
+    <div class="b-field">
+        <label class="form-label">Breadcrumb Template</label>
+        <div monaco-editor ng-model="$.field.Settings.BreadcrumbTemplate" data-language="html" data-height="250px"
+            required>
+        </div>
+    </div>
+    <hr class="mb-4" />
+    <div class="mb-1 d-flex justify-content-end mt-auto">
+        <button type="button" class="b-btn btn-submit me-2" ng-click="$.onSaveTemplateClick()">
+            Save
+        </button>
+        <button type="button" class="b-btn btn-cancel" ng-click="$.onCancelEditTemplateClick()">
+            <i class="codicon codicon-circle-slash"></i>
+            Cancel
+        </button>
+    </div>
+</b-right-widget>

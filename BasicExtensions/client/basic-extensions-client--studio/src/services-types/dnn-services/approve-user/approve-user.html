@@ -1,0 +1,35 @@
+﻿<div class="send-sms-service">
+    <div class="b-field">
+        <label class="form-label">Username</label>
+        <div class="b-input-group">
+            <input type="text" class="b-input form-control" ng-model="$.service.Settings.Username" autocomplete="off" />
+            <span><i class="codicon codicon-gear"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">User ID</label>
+        <div class="b-input-group">
+            <input type="text" class="b-input form-control" ng-model="$.service.Settings.UserID" autocomplete="off" />
+            <span><i class="codicon codicon-gear"></i></span>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Service Params-->
+    <!------------------------------------>
+    <div class="b-group">
+        <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpServiceParams">
+            <h3 class="group-label">
+                <span class="group-icon">
+                    <i class="codicon codicon-server-process"></i>
+                </span> Service Params
+            </h3>
+            <span class="group-collapse">
+                <i class="codicon codicon-chevron-up"></i>
+            </span>
+        </div>
+        <div id="grpServiceParams" class="group-content collapse show">
+            <b-service-params data-service="$.service" data-hide-param-type="true"
+                data-hide-default-value="true"></b-service-params>
+        </div>
+    </div>
+</div>

@@ -1,12 +1,11 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +13,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Security.Roles;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
@@ -32,11 +30,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         private static Dictionary<Guid, ScenarioViewModel> _cachedScenarios;
         private static Dictionary<string, ScenarioViewModel> _cachedNameScenarios;
 
-        public GlobalService(IUnitOfWork unitOfWork, ICacheService cacheService)
+        public GlobalService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
         {
             _unitOfWork = unitOfWork;
             _cacheService = cacheService;
-            _repository = new RepositoryBase(_unitOfWork, _cacheService);
+            _repository = repository;
         }
 
         #region General Service
@@ -158,7 +156,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<IEnumerable<ExplorerItemViewModel>> GetExplorerItemsViewModelAsync(Guid scenarioId)
         {
-            var items = await _repository.GetByScopeAsync<ExplorerItemView>(scenarioId);
+            var items = await _repository.GetByScopeAsync<ExplorerItemView>(scenarioId,"ViewOrder");
 
             return BaseMapping<ExplorerItemView, ExplorerItemViewModel>.MapViewModels(items);
         }

@@ -1,0 +1,7 @@
+﻿<div class="b-radio-list [[Settings.RadioListDisplayType]] [[ThemeCssClass]]">
+    <div class="radio-item" ng-repeat="option in [FIELD].DataSource.Items">
+        <input type="radio" id="bRadio[FIELDID]_{{option.[[Settings.DataSource.TextField??Value]]}}" name="bRadio_[FIELDID]" ng-model="[FIELD].Value" 
+            ng-value="option.[[Settings.DataSource.ValueField??Value]]">
+        <label for="bRadio[FIELDID]_{{option.[[Settings.DataSource.TextField??Value]]}}">{{option.[[Settings.DataSource.TextField??Text]]}}</label>
+    </div>
+</div>

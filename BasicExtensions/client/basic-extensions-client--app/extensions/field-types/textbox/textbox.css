@@ -1,0 +1,16 @@
+.b-input-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0;
+    position: relative;
+}
+
+.b-input-group>.b-input-control {
+    background: none;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    display: inline-flex;
+    flex-grow: 1;
+}

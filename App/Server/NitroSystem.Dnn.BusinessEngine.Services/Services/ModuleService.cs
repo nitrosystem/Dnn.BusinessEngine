@@ -28,8 +28,8 @@ using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 {
@@ -39,11 +39,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
 
-        public ModuleService(IUnitOfWork unitOfWork, ICacheService cacheService)
+        public ModuleService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
         {
             _unitOfWork = unitOfWork;
             _cacheService = cacheService;
-            _repository = new RepositoryBase(_unitOfWork, _cacheService);
+            _repository = repository;
         }
 
         //#region Module Services

@@ -13,10 +13,10 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +29,7 @@ using System.Runtime.Remoting.Messaging;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using DotNetNuke.Collections;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
@@ -40,11 +40,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
 
-        public DefinedListService(IUnitOfWork unitOfWork, ICacheService cacheService)
+        public DefinedListService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
         {
             _unitOfWork = unitOfWork;
             _cacheService = cacheService;
-            _repository = new RepositoryBase(_unitOfWork, _cacheService);
+            _repository = repository;
         }
 
         #region DefinedList Services

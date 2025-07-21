@@ -1,7 +1,7 @@
 ﻿using DotNetNuke.Collections;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
+using DotNetNuke.Common.Utilities;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
 {
@@ -61,34 +62,59 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
             {
                 var paramList = paramsDict.TryGetValue(action.Id, out var cols1) ? cols1 : Enumerable.Empty<ActionParamInfo>();
                 var conditionList = conditionsDict.TryGetValue(action.Id, out var cols2) ? cols2 : Enumerable.Empty<ActionConditionInfo>();
-                return MapActionViewModel(action, paramList, conditionList);
+                return MapActionViewModel(action, null, conditionList, paramList);
             });
         }
 
-        public static ActionViewModel MapActionViewModel(ActionView action, IEnumerable<ActionParamInfo> actionParams, IEnumerable<ActionConditionInfo> conditions)
+        public static ActionViewModel MapActionViewModel(ActionView action, IEnumerable<ActionResultInfo> actionResults, IEnumerable<ActionConditionInfo> conditions, IEnumerable<ActionParamInfo> actionParams)
         {
             var mapper = new ExpressionMapper<ActionView, ActionViewModel>();
             mapper.AddCustomMapping(src => src, dest => dest.ActionTypeIcon, source => source.ActionTypeIcon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
             mapper.AddCustomMapping(src => src, dest => dest.Params, source => actionParams);
             mapper.AddCustomMapping(src => src, dest => dest.Conditions, source => conditions);
-            mapper.AddCustomMapping(src => src, dest => dest.Results, source => GetActionResultsViewModel(source.Id));
+            mapper.AddCustomMapping(src => src, dest => dest.Results, source => GetActionResultsViewModel(actionResults));
             mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings,
-                    source => TypeCastingUtil<IDictionary<string, object>>.TryJsonCasting(source.Settings),
-                    condition => !string.IsNullOrEmpty(condition.Settings));
+                source => TypeCastingUtil<IDictionary<string, object>>.TryJsonCasting(source.Settings),
+                condition => !string.IsNullOrEmpty(condition.Settings));
 
             var result = mapper.Map(action);
             return result;
         }
 
-        public static IEnumerable<ActionResultViewModel> GetActionResultsViewModel(Guid actionId)
+        public static IEnumerable<ActionResultViewModel> GetActionResultsViewModel(IEnumerable<ActionResultInfo> actionResults)
         {
-            return null;
+            return (actionResults ?? Enumerable.Empty<ActionResultInfo>()).Select(result =>
+            {
+                var mapper = new ExpressionMapper<ActionResultInfo, ActionResultViewModel>();
+                mapper.AddCustomMapping(src => src.Conditions, dest => dest.Conditions,
+                        source => TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(source.Conditions),
+                        condition => !string.IsNullOrEmpty(condition.Conditions));
+                return mapper.Map(result);
+            });
         }
 
-        public static ActionView MapActionInfo(ActionViewModel service)
+        public static (
+            ActionInfo Action,
+            IEnumerable<ActionResultInfo> Results,
+            IEnumerable<ActionConditionInfo> Conditions,
+            IEnumerable<ActionParamInfo> Params)
+            MapActionInfoWithChilds(ActionViewModel action)
         {
-            var mapper = new ExpressionMapper<ActionViewModel, ActionView>();
-            return mapper.Map(service);
+            var actionMapper = new ExpressionMapper<ActionViewModel, ActionInfo>();
+            actionMapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, source => JsonConvert.SerializeObject(source.Settings));
+            var objActionInfo = actionMapper.Map(action);
+
+            var actionResults = (action.Results ?? Enumerable.Empty<ActionResultViewModel>()).Select(result =>
+                {
+                    var actionResultMapper = new ExpressionMapper<ActionResultViewModel, ActionResultInfo>();
+                    actionResultMapper.AddCustomMapping(src => src.Conditions, dest => dest.Conditions, source => JsonConvert.SerializeObject(source.Conditions));
+                    return actionResultMapper.Map(result);
+                });
+
+            var actionParams = action.Params ?? Enumerable.Empty<ActionParamInfo>();
+            var actionConditions = action.Conditions ?? Enumerable.Empty<ActionConditionInfo>();
+
+            return (objActionInfo, actionResults, actionConditions, actionParams);
         }
 
         #endregion

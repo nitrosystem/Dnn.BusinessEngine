@@ -7,6 +7,13 @@ using System.Data.SqlClient;
 using System.Data;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Services;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using System.Web.Routing;
+using System.Net.WebSockets;
+using System;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Data.Repository;
+
 
 namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
 {
@@ -24,7 +31,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
                 return connection;
             });
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddSingleton<ICacheService, CacheServiceBase>();
+            services.AddScoped<IRepositoryBase, RepositoryBase>();
+            services.AddSingleton<IExecuteSqlCommand, ExecuteSqlCommand>();
 
             //services.AddScoped<IDashbaordService, DashboardService>();
             services.AddScoped<IModuleService, ModuleService>();

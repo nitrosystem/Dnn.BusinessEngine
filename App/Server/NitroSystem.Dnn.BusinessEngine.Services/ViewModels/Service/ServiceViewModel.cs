@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
@@ -18,8 +18,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels
         public Guid? GroupId { get; set; }
         public Guid? ViewModelId { get; set; }
         public string ServiceName { get; set; }
+        public string ServiceDomain { get; set; }
         public string ServiceType { get; set; }
-        public string ServiceSubtype { get; set; }
         public bool IsEnabled { get; set; }
         public bool HasResult { get; set; }
         public ServiceResultType ResultType { get; set; }

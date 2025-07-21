@@ -65,19 +65,19 @@ export class ProviderSettingsController {
 
     setForm() {
         this.providerForm = this.validationService.init({
-                Title: {
-                    id: "txtProviderTitle",
-                    required: true,
-                },
-                ProviderComponent: {
-                    id: "txtProviderComponent",
-                    required: true,
-                },
-                BusinessControllerClass: {
-                    id: "txtBusinessControllerClass",
-                    required: true,
-                },
+            Title: {
+                id: "txtProviderTitle",
+                required: true,
             },
+            ProviderComponent: {
+                id: "txtProviderComponent",
+                required: true,
+            },
+            BusinessControllerClass: {
+                id: "txtBusinessControllerClass",
+                required: true,
+            },
+        },
             true,
             this.$scope,
             "$.provider"
@@ -90,11 +90,7 @@ export class ProviderSettingsController {
         this.step = step;
 
         if (typeof this.stepsCallback[step] == "function") {
-            this.hideStepPreloader = false;
-
-            const $this = this;
             this.stepsCallback[step].apply(this).then(() => {
-                $this.hideStepPreloader = true;
             });
         }
 
@@ -130,19 +126,19 @@ export class ProviderSettingsController {
             this.currentTabKey = this.$rootScope.currentTab.key;
 
             this.apiService.post("Studio", "SaveProvider", this.provider).then((data) => {
-                    this.notifyService.success(
-                        "Action updated has been successfully"
-                    );
+                this.notifyService.success(
+                    "Action updated has been successfully"
+                );
 
-                    this.$scope.$emit("onUpdateCurrentTab", {
-                        id: this.provider.ProviderId,
-                        title: this.provider.ProviderName,
-                        key: this.currentTabKey,
-                    });
+                this.$scope.$emit("onUpdateCurrentTab", {
+                    id: this.provider.ProviderId,
+                    title: this.provider.ProviderName,
+                    key: this.currentTabKey,
+                });
 
-                    delete this.awaitAction;
-                    delete this.running;
-                },
+                delete this.awaitAction;
+                delete this.running;
+            },
                 (error) => {
                     if (this.isNewAction) delete this.provider.ProviderId;
 

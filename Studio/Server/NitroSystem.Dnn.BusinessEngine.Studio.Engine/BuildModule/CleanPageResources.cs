@@ -12,24 +12,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
     {
         public static IEnumerable<PageResourceDto> Clean(
             int? pageId,
-            bool isStandaloneDashboard,
             List<ModuleResourceInfo> resources,
             IEnumerable<PageResourceDto> pageResources)
         {
-            if (isStandaloneDashboard)
-            {
-                return resources.Select(r => new PageResourceDto
-                {
-                    ModuleId = r.ModuleId,
-                    DnnPageId = null,
-                    IsCustomResource = false,
-                    ResourceType = r.ResourceType,
-                    ResourcePath = r.ResourcePath,
-                    IsActive = true,
-                    LoadOrder = r.LoadOrder
-                });
-            }
-
             var existingResourcesSet = new HashSet<string>(
                 pageResources
                     .Where(r => !r.IsCustomResource) 

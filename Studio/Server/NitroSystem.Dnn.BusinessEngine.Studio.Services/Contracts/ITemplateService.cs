@@ -16,8 +16,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard.Skin;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts

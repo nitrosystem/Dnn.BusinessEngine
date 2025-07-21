@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 {
@@ -26,8 +27,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
         Task<ModuleViewModel> GetModuleViewModelAsync(Guid id, PortalSettings portalSettings);
 
         Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId, PortalSettings portalSettings);
-
-        Task<ModuleBuilderType> GetModuleBuilderType(Guid moduleId);
 
         Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew);
 
@@ -57,19 +56,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task<IEnumerable<ModuleFieldTypeViewModel>> GetFieldTypesViewModelAsync();
 
+        Task<IEnumerable<ModuleFieldTypeCustomEventListItem>> GetFieldTypesGetCustomEventsAsync(string fieldType);
+
         #endregion
 
         #region Module Field Services
 
-        Task<IEnumerable<ModuleFieldViewModel>> GetFieldsViewModelAsync(Guid moduleID);
+        Task<IEnumerable<ModuleFieldViewModel>> GetFieldsViewModelAsync(Guid moduleID, string sortBy = "ViewOrder");
 
-        Task<Guid> SaveModuleFieldAsync(ModuleFieldViewModel field, bool isNew);
+        Task<ModuleFieldViewModel> GetFieldViewModelAsync(Guid fieldId);
 
-        Task<bool> UpdateModuleFieldPaneAsync(SortPaneFieldsDto data);
+        Task<Guid> SaveFieldAsync(ModuleFieldViewModel field, bool isNew);
 
-        Task SortModuleFieldsAsync(SortPaneFieldsDto data);
+        Task<bool> UpdateFieldPaneAsync(SortPaneFieldsDto data);
 
-        Task<bool> DeleteModuleFieldAsync(Guid id);
+        Task SortFieldsAsync(SortPaneFieldsDto data);
+
+        Task<bool> DeleteFieldAsync(Guid id);
 
         Task<bool> UpdateModuleLayoutTemplateAsync(ModuleLayoutTemplateDto data);
 

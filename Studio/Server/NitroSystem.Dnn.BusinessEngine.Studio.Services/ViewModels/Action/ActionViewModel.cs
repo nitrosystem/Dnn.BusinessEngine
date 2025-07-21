@@ -16,10 +16,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public Guid ModuleId { get; set; }
         public Guid? FieldId { get; set; }
         public Guid? ServiceId { get; set; }
-        public Guid? PaymentMethodId { get; set; }
         public string ActionName { get; set; }
         public string ActionType { get; set; }
         public string Event { get; set; }
+        public byte? ParentResultStatus { get; set; }
         public bool IsServerSide { get; set; }
         public bool RunChildsInServerSide { get; set; }
         public bool HasPreScript { get; set; }
@@ -36,9 +36,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
         public IDictionary<string, object> Settings { get; set; }
-        public IEnumerable<ActionParamInfo> Params { get; set; }
-        public IEnumerable<ActionConditionInfo> Conditions { get; set; }
         public IEnumerable<ActionResultViewModel> Results { get; set; }
+        public IEnumerable<ActionConditionInfo> Conditions { get; set; }
+        public IEnumerable<ActionParamInfo> Params { get; set; }
         public string FieldName { get; set; }
         public string CreatedByUserDisplayName { get; set; }
         public string LastModifiedByUserDisplayName { get; set; }

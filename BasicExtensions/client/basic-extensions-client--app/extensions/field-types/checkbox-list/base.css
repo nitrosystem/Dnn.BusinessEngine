@@ -1,0 +1,15 @@
+.b-check-list .check-item label:before {
+    background-color: var(--T--form-background-color);
+}
+
+.b-check-list .check-item label:after {
+    border: 0.1em solid var(--T--form-light-background-color);
+}
+
+.b-check-list .check-item:hover label:after {
+    border-color: var(--T--form-highlight-background-color);
+}
+
+.b-check-list .check-item [type="checkbox"]:checked~label:after {
+    border: solid .1em var(--T--form-highlight-background-color);
+}

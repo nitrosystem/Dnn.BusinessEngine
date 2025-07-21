@@ -1,0 +1,10 @@
+<div class="b-field">
+    <label class="form-label d-block">Reset Action Params</label>
+    <label class="b-switch">
+        <input type="checkbox" ng-model="$.action.Settings.ResetActionParams">
+        <span class="slider"></span>
+    </label>
+</div>
+<b-select-action ng-model="$.action.Settings" actions="$.moduleActions" services="$.services"
+    data-source="['fields','form','variables','actionParams']" data-variables="variables" data-fields="fields">
+</b-select-action>

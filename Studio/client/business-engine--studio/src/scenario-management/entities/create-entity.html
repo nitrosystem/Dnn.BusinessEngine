@@ -14,9 +14,9 @@
                     <label class="form-label">Scenario</label>
                     <div class="b-input-group">
                         <select id="drpScenarioId" ng-model="$.entity.ScenarioId" class="b-input form-select"
-                            ng-options="scenario.ScenarioId as scenario.ScenarioTitle for scenario in $.scenarios"
-                            ng-change="$.onScenarioChange()" ng-disabled="$.running" chosen
-                            inherit-select-classes="true" placeholder-text-single="'Select entity scenario'" required>
+                            ng-options="scenario.Id as scenario.ScenarioTitle for scenario in $.$rootScope.scenarios"
+                            ng-disabled="true" chosen inherit-select-classes="true"
+                            placeholder-text-single="'Select entity scenario'" required>
                         </select>
                         <span><i class="codicon codicon-activate-breakpoints"></i></span>
                     </div>
@@ -25,7 +25,7 @@
                     <label class="form-label">Group</label>
                     <div class="b-input-group">
                         <select ng-model="$.entity.GroupId" class="b-input form-select"
-                            ng-options="group.GroupId as group.GroupName for group in $.groups" chosen
+                            ng-options="group.Id as group.GroupName for group in $.groups" chosen
                             inherit-select-classes="true" placeholder-text-single="'Select a group(optional)'">
                             <option value=""></option>
                         </select>
@@ -134,207 +134,6 @@
             </div>
         </div>
         <!------------------------------------>
-        <!--Entity Relationships-->
-        <!------------------------------------>
-        <div class="b-group mb-4">
-            <div class="group-header collapsed" data-bs-toggle="collapse" data-bs-target="#grpEntityRelationships">
-                <h3 class="group-label">
-                    <span class="group-icon">
-                        <i class="codicon codicon-references"></i>
-                    </span> Entity Relationships
-                </h3>
-                <span class="group-collapse">
-                    <i class="codicon codicon-chevron-up"></i>
-                </span>
-            </div>
-            <div id="grpEntityRelationships" class="group-content collapse">
-                <div class="b-table theme-gray mb-3" ng-repeat="relationship in $.entity.Relationships">
-                    <div class="table-header mb-0">
-                        <div class="d-flex flex-wrap align-items-center w-100">
-                            <div class="col-7 border-end b-splitter pe-5">
-                                <div class="d-flex">
-                                    <div class="col-6">
-                                        <div class="b-field mb-0">
-                                            <label class="form-label">Parent Entity(Primary Key)</label>
-                                            <div class="b-input-group">
-                                                <select ng-model="relationship.ParentEntityTableName" class="b-input"
-                                                    ng-options="entity.TableName as entity.EntityName+'('+entity.TableName+')' for entity in $.entities | orderBy:'EntityName'"
-                                                    chosen inherit-select-classes="true"
-                                                    placeholder-text-single="'Select parent entity'"
-                                                    ng-change="$.onParentEntityChange(relationship)"
-                                                    ng-disabled="$.running" required>
-                                                    <option disabled value=""></option>
-                                                </select>
-                                                <span><i class="codicon codicon-table"></i></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="b-field mb-0">
-                                            <label class="form-label">Child Entity(Foreign Key Table)</label>
-                                            <div class="b-input-group">
-                                                <input type="button" class="b-input text-start" readonly
-                                                    value="{{$.entity.EntityName}}({{$.entity.TableName}})" />
-                                                <span><i class="codicon codicon-table"></i></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col ps-5">
-                                <div class="b-field mb-1">
-                                    <label class="form-label d-block">Enforce For Replication</label>
-                                    <label class="b-switch">
-                                        <input type="checkbox" ng-model="relationship.EnforceForReplication">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="b-field mb-1">
-                                    <label class="form-label d-block">Enforce Foreign Key Constraint</label>
-                                    <label class="b-switch">
-                                        <input type="checkbox" ng-model="relationship.EnforceForeignKeyConstraint">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="table-body">
-                        <div class="d-flex" role="button" ng-style="{'order':($index+1)}">
-                            <div class="col-7 border-end b-splitter pe-5">
-                                <div ng-repeat="column in relationship.Columns">
-                                    <div class="d-flex">
-                                        <div class="col-6 my-auto">
-                                            <div class="b-field  mb-0">
-                                                <div class="b-input-group">
-                                                    <select ng-model="column.PrimaryKey" class="b-input form-select"
-                                                        ng-options="column.ColumnName as column.ColumnName for column in relationship.ParentEntityColumns"
-                                                        chosen inherit-select-classes="true"
-                                                        placeholder-text-single="'Select primary field'">
-                                                        <option value=""></option>
-                                                    </select>
-                                                    <span><i class="codicon codicon-table"></i></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-5 my-auto">
-                                            <div class="b-field mb-0">
-                                                <div class="b-input-group">
-                                                    <select ng-model="column.ForeignKey" class="b-input form-select"
-                                                        ng-options="column.ColumnName as column.ColumnName for column in $.entity.Columns"
-                                                        chosen inherit-select-classes="true"
-                                                        placeholder-text-single="'Select foreign field'">
-                                                        <option value=""></option>
-                                                    </select>
-                                                    <span><i class="codicon codicon-table"></i></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-1 my-auto">
-                                            <div class="b-field mb-0">
-                                                <button type="button" class="b-btn btn-cancel p-2"
-                                                    ng-click="relationship.Columns.splice($index,1)"
-                                                    ng-disabled="$.running">
-                                                    <i class="codicon codicon-trash me-0"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col ps-5">
-                                <div class="d-flex">
-                                    <div class="col-6">
-                                        <div class="b-field mb-1">
-                                            <label class="form-label d-block">DELETE Specification</label>
-                                            <div class="b-input-group">
-                                                <select ng-model="relationship.DELETESpecification"
-                                                    class="b-input form-select" chosen inherit-select-classes="true"
-                                                    placeholder-text-single="'Delete rule'">
-                                                    <option value=""></option>
-                                                    <option value="NO_ACTION">No Action</option>
-                                                    <option value="CASCADE">Cascade</option>
-                                                    <option value="SET_NULL">Set Null</option>
-                                                    <option value="SET_DEFAULT">Set Default</option>
-                                                </select>
-                                                <span><i class="codicon codicon-table"></i></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="b-field mb-1">
-                                            <label class="form-label d-block">UPDATE Specification</label>
-                                            <div class="b-input-group">
-                                                <select ng-model="relationship.UPDATESpecification"
-                                                    class="b-input form-select" chosen inherit-select-classes="true"
-                                                    placeholder-text-single="'Update rule'">
-                                                    <option value=""></option>
-                                                    <option value="NO_ACTION">No Action</option>
-                                                    <option value="CASCADE">Cascade</option>
-                                                    <option value="SET_NULL">Set Null</option>
-                                                    <option value="SET_DEFAULT">Set Default</option>
-                                                </select>
-                                                <span><i class="codicon codicon-table"></i></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="table-footer">
-                        <div class="b-field">
-                            <label class="form-label">Relationship Name</label>
-                            <div class="b-input-group">
-                                <input type="text" ng-model="relationship.RelationshipName" class="b-input"
-                                    placeholder="Enter relationship name" autocomplete="off" required />
-                                <span><i class="codicon codicon-account"></i></span>
-                            </div>
-                        </div>
-                        <button type="button" class="b-btn btn-action btn-sm mb-3"
-                            ng-click="relationship.Columns.push({})">
-                            <i class="codicon codicon-plus me-0"></i>
-                        </button>
-                        <button type="button" class="b-btn btn-cancel d-flex ms-auto"
-                            ng-click="$.entity.Relationships.splice($index,1)" ng-disabled="$.running">
-                            <i class="codicon codicon-trash me-0"></i>
-                        </button>
-                    </div>
-                </div>
-                <button type="button" class="b-btn btn-text-icon btn-action ms-auto"
-                    ng-click="$.onAddRelationshipClick()" ng-disabled="$.running">
-                    <i class="codicon codicon-plus"></i>
-                    Add Relationship
-                </button>
-            </div>
-        </div>
-        <!------------------------------------>
-        <!--Advanced Options-->
-        <!------------------------------------>
-        <div class="b-group mb-4">
-            <div class="group-header collapsed" data-bs-toggle="collapse" data-bs-target="#grpEntityAdvancedOptions">
-                <h3 class="group-label">
-                    <span class="group-icon">
-                        <i class="codicon codicon-server-process"></i>
-                    </span> Advanced Options
-                </h3>
-                <span class="group-collapse">
-                    <i class="codicon codicon-chevron-up"></i>
-                </span>
-            </div>
-            <div id="grpEntityAdvancedOptions" class="group-content collapse">
-                <div class="pt-3 pb-3">
-                    <div class="b-field">
-                        <label class="form-label d-block">Multiple Columns For Primary Key</label>
-                        <label class="b-switch">
-                            <input type="checkbox" ng-model="$.entity.IsMultipleColumnsForPK">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!------------------------------------>
         <!--Entity Columns Table-->
         <!------------------------------------>
         <div class="entity-columns">
@@ -345,22 +144,20 @@
                         <span class="header-subtitle">Columns of Table or view on database</span>
                     </div>
                     <div class="header-tools">
-                        <div class="b-btn-group">
+                        <div class="b-btn-group" ng-if="$.entity.Id || !$.entity.IsReadonly">
                             <button type="button" class="b-btn btn-text-icon btn-action" ng-click="$.onAddColumnClick()"
-                                ng-disabled="$.column">
-                                <i class="codicon codicon-plus" ng-disabled="$.running"></i>
+                                ng-disabled="$.column || $.entity.IsReadonly">
+                                <i class="codicon codicon-plus"></i>
                                 Add Column
                             </button>
-                            <button type="button" class="b-btn btn-action dropdown-toggle dropdown-toggle-split"
+                            <button type="button" ng-if="$.entity.Id" class="b-btn btn-action dropdown-toggle dropdown-toggle-split"
                                 ng-disabled="$.column" data-bs-toggle="dropdown" aria-expanded="false">
                             </button>
-                            <div class="dropdown-menu b-dropdown-menu">
+                            <div class="dropdown-menu b-dropdown-menu" ng-if="$.entity.Id">
                                 <a class="dropdown-item" href="" ng-if="!$.entity.IsReadonly"
-                                    ng-click="$.onSyncColumns()">Sync Columns With Database</a>
+                                    ng-click="$.onSyncColumns()">Sync Columns With DB Table </a>
                                 <a class="dropdown-item" href="" ng-if="$.entity.IsReadonly"
                                     ng-click="$.onRefreshColumns()">Refresh Columns</a>
-                                <a class="dropdown-item" href="">Import columns from excel file</a>
-                                <a class="dropdown-item" href="">Import columns from text file</a>
                             </div>
                         </div>
                     </div>
@@ -419,7 +216,7 @@
                     <!------------------------------------>
                     <!-- Edit Column -->
                     <!------------------------------------>
-                    <div ng-if="$.column.IsEdited" class="d-flex table-row edit-row"
+                    <div ng-if="$.column.IsEdited && !$.entity.IsReadonly" class="d-flex table-row edit-row"
                         ng-style="{'order':$.column.ViewOrder}">
                         <div class="col-3 me-2">
                             <input type="text" id="txtColumnName" ng-model="$.column.ColumnName"
@@ -459,9 +256,9 @@
                     </div>
                 </div>
                 <div class="table-footer">
-                    <button type="button" class="b-btn btn-action btn-sm mb-3" ng-click="$.onAddColumnClick()"
-                        ng-disabled="$.column">
-                        <i class="codicon codicon-plus me-0" ng-disabled="$.running"></i>
+                    <button type="button" ng-if="!$.entity.IsReadonly" class="b-btn btn-action btn-sm mb-3"
+                        ng-click="$.onAddColumnClick()" ng-disabled="$.column">
+                        <i class="codicon codicon-plus me-0"></i>
                     </button>
                     <div ng-if="!$.entity.Columns.length" class="b-notify notify-info mb-4">
                         <i class="codicon codicon-info b-icon-2"></i>
@@ -495,23 +292,6 @@
                                 <i class="codicon codicon-circle-slash"></i>
                                 Cancel
                             </button>
-                        </div>
-                    </div>
-                    <div ng-if="$.isNewEntity" class="mt-4 b-notify notify-warning mb-3">
-                        <i class="codicon codicon-info b-icon-2"></i>
-                        <div class="text">
-                            <h6 class="label text-uppercase">Create View Model Base On Entity</h6>
-                            <div class="subtext">
-                                Do you want to create a ViewModel based on the created Entity?
-                                <br> Every column at Entity is one property at ViewModel
-                                <br> After click on below button, goto ViewModel page and will create or update
-                                ViewModel
-                                <br>
-                                <button type="button" class="mt-2 b-btn btn-green" ng-click="$.onSaveViewModelClick()">
-                                    <i class="codicon codicon-references"></i>
-                                    Add View Model
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>

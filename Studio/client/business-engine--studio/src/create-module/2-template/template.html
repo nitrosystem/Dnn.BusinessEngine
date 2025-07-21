@@ -5,15 +5,15 @@
     <div class="mb-sidebar" b-custom-sidebar="builder">
         <ul class="sidebar-tabs">
             <li class="tab-item" ng-class="{'active':$.currentSidebarTab=='toolbox'}" role="presentation"
-                ng-click="$.onSidebarTabClick('toolbox')" ng-if="$.module.ModuleBuilderType !== 1" b-custom-tooltip
-                data-bs-placement="bottom" title="Components Toolbox">
+                ng-click="$.onSidebarTabClick('toolbox')" b-custom-tooltip data-bs-placement="bottom"
+                title="Components Toolbox">
                 <a class="item-link" role="button">
                     <i class="codicon codicon-extensions"></i>
                 </a>
             </li>
             <li class="tab-item" ng-class="{'active':$.currentSidebarTab=='field-settings'}" role="presentation"
-                ng-click="$.onSidebarTabClick('field-settings')" ng-if="$.module.ModuleBuilderType !==1 "
-                b-custom-tooltip data-bs-placement="bottom" title="Current Field Settings">
+                ng-click="$.onSidebarTabClick('field-settings')" b-custom-tooltip data-bs-placement="bottom"
+                title="Current Field Settings">
                 <a class="item-link" role="button">
                     <i class="codicon codicon-settings-gear"></i>
                 </a>

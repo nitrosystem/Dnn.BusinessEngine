@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
@@ -77,12 +77,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
 
             var result = mapper.Map(service);
             return result;
-        }
-
-        public static ServiceInfo MapServiceInfo(ServiceViewModel service)
-        {
-            var mapper = new ExpressionMapper<ServiceViewModel, ServiceInfo>();
-            return mapper.Map(service);
         }
 
         #endregion

@@ -1,6 +1,6 @@
 ﻿using Dapper;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,7 +12,6 @@ using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using System.Collections.ObjectModel;
 using System.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using static Dapper.SqlMapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
@@ -21,7 +20,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Providers;
 using System.Collections;
 using System.Text;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository
+namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 {
     public class RepositoryBase : IRepositoryBase
     {
@@ -63,6 +62,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository
             ), cacheAttr.timeOut);
 
             return result ?? default(T);
+        }
+
+        public async Task<IEnumerable<TColumnType>> GetColumnValuesAsync<T, TColumnType>(string column) where T : class, IEntity, new()
+        {
+            if (!typeof(T).GetProperties().Any(p => p.Name == column))
+                throw new ArgumentException($"Invalid column name {column}.");
+
+            var table = AttributeCache.Instance.GetTableName<T>();
+            var query = $"SELECT {column} FROM {table}";
+            var cacheAttr = AttributeCache.Instance.GetCache<T>();
+
+            return await _cacheService.GetOrCreate<IEnumerable<TColumnType>>(cacheAttr.key + $"_{column}", () =>
+             _unitOfWork.Connection.QueryAsync<TColumnType>(
+                query,
+                _unitOfWork.Transaction
+            ), cacheAttr.timeOut);
         }
 
         public async Task<TColumnType> GetColumnValueAsync<T, TColumnType>(Guid id, string column) where T : class, IEntity, new()
@@ -107,6 +122,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository
             var table = AttributeCache.Instance.GetTableName<T>();
             var scopeColumn = AttributeCache.Instance.GetScope<T>();
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
+            var cacheKey = !string.IsNullOrEmpty(cacheAttr.key)
+                ? cacheAttr.key + $"_Scope_{value}"
+                : string.Empty;
 
             var query = $"SELECT * FROM {table} WHERE {scopeColumn} = @Value";
 
@@ -121,7 +139,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository
             }
             if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
 
-            return await _cacheService.GetOrCreate<IEnumerable<T>>(cacheAttr.key + $"_Scope_{value}", () =>
+            return await _cacheService.GetOrCreate<IEnumerable<T>>(cacheKey, () =>
              _unitOfWork.Connection.QueryAsync<T>(
                 query,
                 new { Value = value }
@@ -309,7 +327,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository
 
             // Get all properties of the entity that are not marked with [IgnoreInsert]
             var properties = typeof(T).GetProperties()
-                .Where(p => !Attribute.IsDefined(p, typeof(IgnoreInsertAttribute)))
+            //    .Where(p => !Attribute.IsDefined(p, typeof(IgnoreInsertAttribute)))
                 .ToArray();
 
 
@@ -400,7 +418,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Repository
             }
         }
 
-        public async Task<bool> UpdateColumnAsync<T>(string column, string value, Guid id) where T : class, IEntity, new()
+        public async Task<bool> UpdateColumnAsync<T>(string column, object value, Guid id) where T : class, IEntity, new()
         {
             if (!typeof(T).GetProperties().Any(p => p.Name == column))
                 throw new ArgumentException($"Invalid column name {column}.");

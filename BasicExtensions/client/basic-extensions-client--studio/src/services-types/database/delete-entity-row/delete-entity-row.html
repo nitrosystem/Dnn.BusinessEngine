@@ -1,0 +1,180 @@
+﻿<div class="create-bind-entity">
+    <div class="row">
+        <!------------------------------------>
+        <!--Service Info-->
+        <!------------------------------------>
+        <div class="col-6">
+            <div class="b-group">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpDatabase">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Database
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpDatabase" class="group-content collapse show">
+                    <div class="b-field">
+                        <label class="form-label">Stored Procedure Name</label>
+                        <div class="b-input-group">
+                            <div class="b-input form-control d-flex">
+                                <div class="col-4">
+                                    <input type="text"
+                                        ng-model="$.deleteEntityRowService.Settings.StoredProcedurePrefixName"
+                                        class="b-input-nobg" placeholder="Prefix name"
+                                        ng-change="$.deleteEntityRowService.Settings.StoredProcedureNameModified=true" />
+                                </div>
+                                <div class="col-8">
+                                    <input type="text" id="txtSpPostfix"
+                                        ng-model="$.deleteEntityRowService.Settings.StoredProcedurePostfixName"
+                                        ng-change="$.deleteEntityRowService.Settings.StoredProcedureNameModified=true"
+                                        class="b-input-nobg" placeholder="Example GetProducts" autocomplete="off"
+                                        required />
+                                </div>
+                            </div>
+                            <span><i class="codicon codicon-table"></i></span>
+                        </div>
+                    </div>
+                    <div class="b-notify notify-small notify-note mb-2">
+                        <i class="codicon codicon-feedback b-icon-2"></i>
+                        <p class="text text-justify mb-0">
+                            <b>Very important note:</b>
+                            Be careful in choosing the name of the module because it is not possible to change the
+                            name
+                            of the module after saving the module.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!--Base Query-->
+        <!------------------------------------>
+        <div class="col-6">
+            <div class="b-group">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpBaseQuery">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Base Query
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpBaseQuery" class="group-content">
+                    <div class="b-field">
+                        <div class="row">
+                            <div monaco-editor ng-model="$.deleteEntityRowService.BaseQuery" data-language="sql"
+                                data-height="150px" required>
+                            </div>
+                            <button type="button" class="b-btn mt-3" ng-click="$.onResetBaseQueryClick()">
+                                Reset Query
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Select Entity-->
+    <!------------------------------------>
+    <div class="mb-3">
+        <label class="form-label">Select Entity</label>
+        <div class="row">
+            <div class="col-6">
+                <select id="drpEntityId" ng-model="$.deleteEntityRowService.EntityId" class="b-input form-select"
+                    ng-options="entity.Id as entity.EntityName for entity in $.entities"
+                    ng-change="$.onSelectedEntityChange()" chosen inherit-select-classes="true"
+                    placeholder-text-single="'Select entity'" ng-disabled="$.running" required>
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <!------------------------------------>
+    <!-- Conditions-->
+    <!------------------------------------>
+    <div class="b-group">
+        <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpConditions">
+            <h3 class="group-label">
+                <span class="group-icon">
+                    <i class="codicon codicon-server-process"></i>
+                </span> Conditions
+                <span ng-show="deleteEntityRowService.Conditions.length">({{deleteEntityRowService.Conditions.length}})</span>
+            </h3>
+            <span class="group-collapse">
+                <i class="codicon codicon-chevron-up"></i>
+            </span>
+        </div>
+        <div id="grpConditions" class="group-content collapse">
+            <table class="table table-bordered table-dark table-columns-vmiddle">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Expression</th>
+                        <th>Condition Group</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="filter in $.deleteEntityRowService.Conditions">
+                        <td class="w-150">
+                            <select ng-model="filter.Type" class="b-input form-select">
+                                <option disabled value="">Type</option>
+                                <option ng-value="0" disabled>Standard</option>
+                                <option ng-value="1">Custom</option>
+                            </select>
+                        </td>
+                        <td ng-if="filter.Type==0"></td>
+                        <td ng-if="filter.Type==1">
+                            <input type="text" ng-model="filter.CustomQuery" class="b-input form-control"
+                                placeholder="Custom Query" required />
+                        </td>
+                        <td class="w-200">
+                            <input type="text" ng-model="filter.ConditionGroupName" class="b-input form-control"
+                                placeholder="Custom Query" required />
+                        </td>
+                        <td>
+                            <button type="button" class="b-btn btn-cancel"
+                                ng-click="$.deleteEntityRowService.Conditions.splice($index,1)">
+                                <i class="codicon codicon-trash me-0"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="20">
+                            <button type="button" class="b-btn" ng-click="$.onAddFilterClick()">
+                                <i class="codicon codicon-plus me-0"></i>
+                            </button>
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Service Params-->
+    <!------------------------------------>
+    <div class="b-group">
+        <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpServiceParams">
+            <h3 class="group-label">
+                <span class="group-icon">
+                    <i class="codicon codicon-server-process"></i>
+                </span> Service Params
+            </h3>
+            <span class="group-collapse">
+                <i class="codicon codicon-chevron-up"></i>
+            </span>
+        </div>
+        <div id="grpServiceParams" class="group-content collapse show">
+            <b-service-params data-service="$.serviceController.service"></b-service-params>
+        </div>
+    </div>
+</div>

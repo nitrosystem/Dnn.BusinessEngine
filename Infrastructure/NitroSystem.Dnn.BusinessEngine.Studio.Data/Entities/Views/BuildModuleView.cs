@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.Contract;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +10,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
     public class BuildModuleView : IEntity
     {
         public Guid Id { get; set; }
-        public Guid? ParentId { get; set; }
         public int? DnnModuleId { get; set; }
         public string ModuleType { get; set; }
-        public string ModuleBuilderType { get; set; }
         public string ModuleName { get; set; }
         public string LayoutTemplate { get; set; }
         public string LayoutCss { get; set; }

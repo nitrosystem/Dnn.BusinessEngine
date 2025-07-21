@@ -1,0 +1,10 @@
+.b-upload-file {
+    border-style: dashed;
+    border-width: 0.2em;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+}
+
+.b-upload-file .upload-remove-icon {
+    padding: .3em;
+    font-size: .8em;
+}

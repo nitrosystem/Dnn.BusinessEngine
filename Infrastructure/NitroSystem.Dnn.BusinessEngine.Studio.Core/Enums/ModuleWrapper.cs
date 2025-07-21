@@ -10,9 +10,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Enums
    public enum ModuleWrapper
     {
         [Description("DnnPage")]
-        DnnPage = 0,
-
-        [Description("Dashboard")]
-        Dashboard = 1,
+        DnnPage = 0
     }
 }

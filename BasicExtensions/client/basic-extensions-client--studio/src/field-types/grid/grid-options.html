@@ -1,0 +1,13 @@
+<div class="b-field">
+    <label class="form-label">Enable Paging</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.field.Settings.EnablePaging" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div ng-if="$.field.Settings.EnablePaging">
+    <div class="b-field">
+        <label class="form-label">Page Size</label>
+        <input type="number" ng-model="$.field.Settings.PageSize" class="b-input b-input form-control" />
+    </div>
+</div>
