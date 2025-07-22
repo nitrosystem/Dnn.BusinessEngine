@@ -95,7 +95,6 @@
     <Compile Include="Dto\GuidDTO.cs" />
     <Compile Include="Dto\ModuleDTO.cs" />
     <Compile Include="Dto\ModuleResourceDTO.cs" />
-    <Compile Include="Dto\ModuleTemplateDTO.cs" />
     <Compile Include="Dto\PageResourceDTO.cs" />
     <Compile Include="Dto\BuildModuleDTO.cs" />
     <Compile Include="Dto\CheckModuleNameDTO.cs" />

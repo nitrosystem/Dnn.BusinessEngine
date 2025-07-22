@@ -49,9 +49,9 @@ export class CreateModuleLibrariesController {
         this.libraryEditWidget = libraryEditWidget
         this.resourceEditWidget = resourceEditWidget
 
-        this.$rootScope.createModuleValidatedStep.push(4);
+        this.$rootScope.createModuleValidatedStep.push(3);
 
-        $scope.$on("onCreateModuleValidateStep4", (e, task, args) => {
+        $scope.$on("onCreateModuleValidateStep3", (e, task, args) => {
             this.validateStep.apply(this, [task, args]);
         });
 
@@ -61,7 +61,7 @@ export class CreateModuleLibrariesController {
     }
 
     onPageLoad() {
-        this.moduleId = this.globalService.getParameterByName('id');
+        const id = this.globalService.getParameterByName('id');
 
         this.running = "get-module-libraries";
         this.awaitAction = {
@@ -69,7 +69,7 @@ export class CreateModuleLibrariesController {
             subtitle: "Just a moment for get the module libraries...",
         };
 
-        this.apiService.get("Module", "GetModuleCustomLibraries", { moduleId: this.moduleId, }).then((data) => {
+        this.apiService.get("Module", "GetModuleCustomLibraries", { moduleId: id }).then((data) => {
             this.libraries = data.Libraries;
             this.moduleCustomLibraries = data.ModuleCustomLibraries ?? [];
             this.moduleCustomResources = data.ModuleCustomResources ?? [];
@@ -86,24 +86,6 @@ export class CreateModuleLibrariesController {
             this.notifyService.error(error.data.Message);
 
             delete this.running;
-        });
-    }
-
-    onPreviousStepClick() {
-        this.$scope.$emit('onCreateModuleChangeStep', { step: 3 });
-    }
-
-    onNextStepClick() {
-        this.$scope.$emit('onCreateModuleChangeStep', { step: 5 });
-    }
-
-    validateStep(task, args) {
-        task.wait(() => {
-            const $defer = this.$q.defer();
-
-            $defer.resolve(true);
-
-            return $defer.promise;
         });
     }
 
@@ -340,6 +322,24 @@ export class CreateModuleLibrariesController {
 
     onCancelEditClick() {
         this.disposeWorkingMode();
+    }
+
+    onPreviousStepClick() {
+        this.$scope.$emit('onCreateModuleChangeStep', { step: 2 });
+    }
+
+    onNextStepClick() {
+        this.$scope.$emit('onCreateModuleChangeStep', { step: 4 });
+    }
+
+    validateStep(task, args) {
+        task.wait(() => {
+            const $defer = this.$q.defer();
+
+            $defer.resolve(true);
+
+            return $defer.promise;
+        });
     }
 
     disposeWorkingMode() {

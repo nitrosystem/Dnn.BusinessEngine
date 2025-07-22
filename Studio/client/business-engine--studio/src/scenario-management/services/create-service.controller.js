@@ -115,7 +115,7 @@ export class CreateServiceController {
             }
             else
                 this.step = step;
-        } else if (this.step > step && this.step > 1) {
+        } else if (this.step > step) {
             this.step = step;
         }
 

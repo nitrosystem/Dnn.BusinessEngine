@@ -69,7 +69,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var module = await this._moduleService.GetModuleViewModelAsync(moduleId, this.PortalSettings);
+                var module = await this._moduleService.GetModuleViewModelAsync(moduleId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, module);
             }
@@ -101,11 +101,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                //_unitOfWork.BeginTransaction();
-
                 var moduleId = await _moduleService.SaveModuleAsync(module, module.Id == Guid.Empty);
-
-                //_unitOfWork.Commit();
 
                 return Request.CreateResponse(HttpStatusCode.OK, moduleId);
             }
@@ -120,11 +116,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         #region 2-Select Template
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetTemplates(Guid moduleId, string searchText = "")
+        public async Task<HttpResponseMessage> GetTemplates(Guid moduleId)
         {
             try
             {
-                var module = await _moduleService.GetModuleViewModelAsync(moduleId, PortalSettings);
+                var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 var installedTemplates = await _templateService.GetTemplatesViewModelAsync(module.ModuleType);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
@@ -141,31 +137,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveModuleTemplate(ModuleTemplateDTO postData)
+        public async Task<HttpResponseMessage> SaveModuleTemplate(ModuleTemplateDto module)
         {
             try
             {
-                var module = await _moduleService.GetModuleViewModelAsync(postData.ModuleId, PortalSettings);
-                module.Template = postData.Template;
-                module.Theme = postData.Theme;
-                module.LayoutTemplate = postData.LayoutTemplate;
-                module.LayoutCss = postData.LayoutCss;
+                var isUpdated = await _moduleService.UpdateModuleTemplateAsync(module);
 
-                //_unitOfWork.BeginTransaction();
-
-                await _moduleService.SaveModuleAsync(module, false);
-
-                //_unitOfWork.Commit();
-
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    Success = true
-                });
+                return Request.CreateResponse(HttpStatusCode.OK, isUpdated);
             }
             catch (Exception ex)
             {
-                //_unitOfWork.Rollback();
-
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -224,18 +205,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                //_unitOfWork.BeginTransaction();
-
                 var isDeleted = await _moduleService.DeleteModuleVariablesAsync(postData.Id);
-
-                //_unitOfWork.Commit();
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
             catch (Exception ex)
             {
-                //_unitOfWork.Rollback();
-
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -332,7 +307,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveModuleCustomLibrary(ModuleCustomLibraryDto library)
+        public async Task<HttpResponseMessage> SaveModuleCustomLibrary(ModuleCustomLibraryViewModel library)
         {
             try
             {
@@ -348,7 +323,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveModuleCustomResource(ModuleCustomResourceDto resource)
+        public async Task<HttpResponseMessage> SaveModuleCustomResource(ModuleCustomResourceViewModel resource)
         {
             try
             {
@@ -373,7 +348,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                var module = await _moduleService.GetModuleViewModelAsync(moduleId, PortalSettings);
+                var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 var fieldTypes = await _moduleService.GetFieldTypesViewModelAsync();
                 var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
                 var variables = _moduleService.GetModuleVariablesViewModelAsync(moduleId);
@@ -424,22 +399,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveModuleLayoutTemplate(ModuleLayoutTemplateDto postData)
-        {
-            try
-            {
-                var isUpdated = await _moduleService.UpdateModuleLayoutTemplateAsync(postData);
-
-                return Request.CreateResponse(HttpStatusCode.OK, isUpdated);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<HttpResponseMessage> BuildModule(BuildModuleRequest postdata)
         {
             try
@@ -460,8 +419,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                //_unitOfWork.BeginTransaction();
-
                 postData.Field.Id = await _moduleService.SaveFieldAsync(postData.Field, postData.Field.Id == Guid.Empty);
 
                 if (postData.ReorderFields && postData.PaneFieldIds != null && postData.PaneFieldIds.Any())
@@ -476,14 +433,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     });
                 }
 
-                //_unitOfWork.Commit();
-
                 return Request.CreateResponse(HttpStatusCode.OK, postData.Field.Id);
             }
             catch (Exception ex)
             {
-                //_unitOfWork.Rollback();
-
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -494,8 +447,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                //_unitOfWork.BeginTransaction();
-
                 await _moduleService.UpdateFieldPaneAsync(postData);
 
                 await _moduleService.SortFieldsAsync(new SortPaneFieldsDto()
@@ -505,14 +456,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     PaneFieldIds = postData.PaneFieldIds
                 });
 
-                //_unitOfWork.Commit();
-
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
-                //_unitOfWork.Rollback();
-
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -539,18 +486,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                //_unitOfWork.BeginTransaction();
-
                 var isDeleted = await _moduleService.DeleteFieldAsync(postData.Id);
-
-                //_unitOfWork.Commit();
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
             catch (Exception ex)
             {
-                //_unitOfWork.Rollback();
-
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -637,18 +578,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                //_unitOfWork.BeginTransaction();
-
                 action.Id = await _actionService.SaveActionAsync(action, action.Id == Guid.Empty);
-
-                //_unitOfWork.Commit();
 
                 return Request.CreateResponse(HttpStatusCode.OK, action.Id);
             }
             catch (Exception ex)
             {
-                //_unitOfWork.Rollback();
-
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -659,22 +594,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                bool result = false;
-
-                //_unitOfWork.BeginTransaction();
-
-                await _actionService.DeleteActionAsync(postData.Id);
-
-                //_unitOfWork.Commit();
-
-                result = true;
+                var result = await _actionService.DeleteActionAsync(postData.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, result);
             }
             catch (Exception ex)
             {
-                //_unitOfWork.Rollback();
-
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }

@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 {
@@ -24,17 +25,25 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
     {
         #region Module Services
 
-        Task<ModuleViewModel> GetModuleViewModelAsync(Guid id, PortalSettings portalSettings);
+        Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId);
 
         Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId, PortalSettings portalSettings);
 
         Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew);
 
-        Task<bool> DeleteModuleAsync(Guid id);
+        Task<bool> DeleteModuleAsync(Guid moduleId);
 
         Task<bool?> IsValidModuleName(Guid scenarioId, Guid? moduleId, string moduleName);
 
         Task BuildModuleAsync(BuildModuleRequest postData, PortalSettings portalSettings, HttpContext context);
+
+        #endregion
+
+        #region Module Template Services
+
+        Task<ModuleTemplateDto> GetModuleTemplateDtoAsync(Guid moduleId);
+
+        Task<bool> UpdateModuleTemplateAsync(ModuleTemplateDto module);
 
         #endregion
 
@@ -48,7 +57,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task<Guid> SaveModuleVariablesAsync(ModuleVariableViewModel variale, bool isNew);
 
-        Task<bool> DeleteModuleVariablesAsync(Guid id);
+        Task<bool> DeleteModuleVariablesAsync(Guid moduleId);
 
         #endregion
 
@@ -72,9 +81,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task SortFieldsAsync(SortPaneFieldsDto data);
 
-        Task<bool> DeleteFieldAsync(Guid id);
-
-        Task<bool> UpdateModuleLayoutTemplateAsync(ModuleLayoutTemplateDto data);
+        Task<bool> DeleteFieldAsync(Guid moduleId);
 
         #endregion
 
@@ -84,15 +91,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task<IEnumerable<ModuleCustomResourceViewModel>> GetModuleCustomResourcesAsync(Guid moduleId);
 
-        Task<Guid> SaveModuleCustomLibraryAsync(ModuleCustomLibraryDto library);
+        Task<Guid> SaveModuleCustomLibraryAsync(ModuleCustomLibraryViewModel library);
 
-        Task<Guid> SaveModuleCustomResourceAsync(ModuleCustomResourceDto resource);
+        Task<Guid> SaveModuleCustomResourceAsync(ModuleCustomResourceViewModel resource);
 
         Task SortModuleCustomLibraries(LibraryOrResource target, IEnumerable<SortModuleCustomLibrariesDto> items);
 
-        Task<bool> DeleteModuleCustomLibraryAsync(Guid id);
+        Task<bool> DeleteModuleCustomLibraryAsync(Guid moduleId);
 
-        Task<bool> DeleteModuleCustomResourceAsync(Guid id);
+        Task<bool> DeleteModuleCustomResourceAsync(Guid moduleId);
 
         #endregion
     }

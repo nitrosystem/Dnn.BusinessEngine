@@ -56,9 +56,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         #region Module Services
 
-        public async Task<ModuleViewModel> GetModuleViewModelAsync(Guid id, PortalSettings portalSettings)
+        public async Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId)
         {
-            var module = await _repository.GetAsync<ModuleView>(id);
+            var module = await _repository.GetAsync<ModuleView>(moduleId);
 
             return ModuleMapping.MapModuleViewModel(module);
         }
@@ -172,42 +172,31 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             }
         }
 
-        //public async Task<string> GetModuleActionScriptsAsync(IEnumerable<ModuleActionTypeView> actionTypes, HttpContext context)
-        //{
-        //    var scripts = new StringBuilder();
-
-        //    foreach (var actionType in actionTypes)
-        //    {
-        //        string cacheKey = $"BE_ModuleActionTypes_Views_{actionType.ActionType}";
-
-        //        scripts.AppendLine("//Start Action Type : " + actionType.ActionType);
-
-        //        var result = _cacheService.Get<string>(cacheKey);
-        //        if (string.IsNullOrEmpty(result))
-        //        {
-        //            string actionJsMapPath = context.Server.MapPath($"~{actionType.ActionJsPath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions")}");
-        //            result = await FileUtil.GetFileContentAsync(actionJsMapPath);
-
-        //            scripts.AppendLine(result);
-
-        //            _cacheService.Set<string>(cacheKey, result);
-        //        }
-
-        //        scripts.AppendLine("//End Action Type : " + actionType.ActionType);
-        //    }
-
-        //    return scripts.ToString();
-        //}
-
-        public async Task<bool> UpdateModuleLayoutTemplateAsync(ModuleLayoutTemplateDto data)
+        public async Task<bool?> IsValidModuleName(Guid scenarioId, Guid? moduleId, string moduleName)
         {
-            var objModuleInfo = new ModuleInfo()
-            {
-                Id = data.ModuleId,
-                PreloadingTemplate = data.PreloadingTemplate,
-                LayoutTemplate = data.LayoutTemplate,
-                LayoutCss = data.LayoutCss
-            };
+            return await _repository.ExecuteStoredProcedureScalerAsync<bool?>("BusinessEngine_IsValidModuleName",
+                new { ScenarioId = scenarioId, ModuleId = moduleId, ModuleName = moduleName });
+        }
+
+        public async Task<bool> DeleteModuleAsync(Guid moduleId)
+        {
+            return await _repository.DeleteAsync<ModuleInfo>(moduleId);
+        }
+
+        #endregion
+
+        #region Module Template Services
+
+        public async Task<ModuleTemplateDto> GetModuleTemplateDtoAsync(Guid moduleId)
+        {
+            var module = await _repository.GetAsync<ModuleInfo>(moduleId);
+
+            return HybridMapper.Map<ModuleInfo, ModuleTemplateDto>(module);
+        }
+
+        public async Task<bool> UpdateModuleTemplateAsync(ModuleTemplateDto module)
+        {
+            var objModuleInfo = HybridMapper.Map<ModuleTemplateDto, ModuleInfo>(module);
 
             return await _repository.UpdateAsync<ModuleInfo>(
                 objModuleInfo,
@@ -215,17 +204,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 "LayoutTemplate",
                 "LayoutCss"
             );
-        }
-
-        public async Task<bool?> IsValidModuleName(Guid scenarioId, Guid? moduleId, string moduleName)
-        {
-            return await _repository.ExecuteStoredProcedureScalerAsync<bool?>("BusinessEngine_IsValidModuleName",
-                new { ScenarioId = scenarioId, ModuleId = moduleId, ModuleName = moduleName });
-        }
-
-        public async Task<bool> DeleteModuleAsync(Guid id)
-        {
-            return await _repository.DeleteAsync<ModuleInfo>(id);
         }
 
         #endregion
@@ -374,10 +352,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             _cacheService.RemoveByPrefix(cacheKey);
         }
 
-        public async Task<bool> DeleteFieldAsync(Guid id)
+        public async Task<bool> DeleteFieldAsync(Guid moduleId)
         {
-            var task1 = _repository.DeleteByScopeAsync<ModuleFieldSettingInfo>(id);
-            var task2 = _repository.DeleteAsync<ModuleFieldInfo>(id);
+            var task1 = _repository.DeleteByScopeAsync<ModuleFieldSettingInfo>(moduleId);
+            var task2 = _repository.DeleteAsync<ModuleFieldInfo>(moduleId);
 
             await Task.WhenAll(task1, task2);
 
@@ -438,9 +416,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return objModuleVariableInfo.Id;
         }
 
-        public async Task<bool> DeleteModuleVariablesAsync(Guid id)
+        public async Task<bool> DeleteModuleVariablesAsync(Guid moduleId)
         {
-            return await _repository.DeleteAsync<ModuleVariableInfo>(id);
+            return await _repository.DeleteAsync<ModuleVariableInfo>(moduleId);
         }
 
         #endregion
@@ -454,8 +432,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
             await Task.WhenAll(task1, task2);
 
-            return null;
-            //return DashboardMapping.MapCustomLibrariesViewModel(await task1, await task2);
+            var libraries = await task1;
+            var resources = await task2;
+
+            return libraries.Select(library =>
+             {
+                 return
+                 HybridMapper.MapWithConfig<ModuleCustomLibraryView, ModuleCustomLibraryViewModel>(library,
+                 (src, dest) =>
+                 {
+                     dest.Resources = resources.Where(r => r.LibraryId == library.Id).Select(resource =>
+                     {
+                         return HybridMapper.Map<ModuleCustomLibraryResourceView, ModuleCustomLibraryResourceViewModel>(resource);
+                     });
+                 });
+             });
         }
 
         public async Task<IEnumerable<ModuleCustomResourceViewModel>> GetModuleCustomResourcesAsync(Guid moduleId)
@@ -465,10 +456,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return BaseMapping<ModuleCustomResourceInfo, ModuleCustomResourceViewModel>.MapViewModels(resources);
         }
 
-        public async Task<Guid> SaveModuleCustomLibraryAsync(ModuleCustomLibraryDto library)
+        public async Task<Guid> SaveModuleCustomLibraryAsync(ModuleCustomLibraryViewModel library)
         {
             var objModuleCustomLibraryInfo = new ModuleCustomLibraryInfo();
-            PropertyCopier<ModuleCustomLibraryDto, ModuleCustomLibraryInfo>.Copy(library, objModuleCustomLibraryInfo);
+            PropertyCopier<ModuleCustomLibraryViewModel, ModuleCustomLibraryInfo>.Copy(library, objModuleCustomLibraryInfo);
 
             if (library.Id == Guid.Empty)
                 objModuleCustomLibraryInfo.Id = await _repository.AddAsync<ModuleCustomLibraryInfo>(objModuleCustomLibraryInfo);
@@ -481,10 +472,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return objModuleCustomLibraryInfo.Id;
         }
 
-        public async Task<Guid> SaveModuleCustomResourceAsync(ModuleCustomResourceDto resource)
+        public async Task<Guid> SaveModuleCustomResourceAsync(ModuleCustomResourceViewModel resource)
         {
             var objModuleCustomResourceInfo = new ModuleCustomResourceInfo();
-            PropertyCopier<ModuleCustomResourceDto, ModuleCustomResourceInfo>.Copy(resource, objModuleCustomResourceInfo);
+            PropertyCopier<ModuleCustomResourceViewModel, ModuleCustomResourceInfo>.Copy(resource, objModuleCustomResourceInfo);
 
             if (resource.Id == Guid.Empty)
                 objModuleCustomResourceInfo.Id = await _repository.AddAsync<ModuleCustomResourceInfo>(objModuleCustomResourceInfo);
@@ -511,14 +502,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             DataCache.ClearCache("BE_ModuleCustomResources_");
         }
 
-        public async Task<bool> DeleteModuleCustomLibraryAsync(Guid id)
+        public async Task<bool> DeleteModuleCustomLibraryAsync(Guid moduleId)
         {
-            return await _repository.DeleteAsync<ModuleCustomLibraryInfo>(id);
+            return await _repository.DeleteAsync<ModuleCustomLibraryInfo>(moduleId);
         }
 
-        public async Task<bool> DeleteModuleCustomResourceAsync(Guid id)
+        public async Task<bool> DeleteModuleCustomResourceAsync(Guid moduleId)
         {
-            return await _repository.DeleteAsync<ModuleCustomResourceInfo>(id);
+            return await _repository.DeleteAsync<ModuleCustomResourceInfo>(moduleId);
         }
 
         #endregion

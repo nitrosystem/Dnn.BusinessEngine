@@ -67,11 +67,11 @@ import { CreateServiceController } from "./scenario-management/services/create-s
 import { CreateModuleController } from "./create-module/create-module.controller.js";
 import { CreateModuleBasicOptionsController } from "./create-module/1-basic-options/basic-options.controller";
 import { CreateModuleTemplateController } from "./create-module/2-template/template.controller";
-import { CreateModuleVariablesController } from "./create-module/3-variables/variables.controller";
-import { CreateModuleLibrariesController } from "./create-module/4-libraries/libraries.controller";
+import { CreateModuleLibrariesController } from "./create-module/3-libraries/libraries.controller";
+import { CreateModuleVariablesController } from "./create-module/4-variables/variables.controller";
 import { CreateModuleModuleBuilderController } from "./create-module/5-module-builder/module-builder.controller.js";
-import { CreateModuleCreateActionController } from "./create-module/6-actions/create-action.controller.js";
 import { CreateModuleActionsController } from "./create-module/6-actions/actions.controller.js";
+import { CreateModuleCreateActionController } from "./create-module/6-actions/create-action.controller.js";
 
 import { ProviderSettingsController } from "./providers/provider-settings.controllers";
 

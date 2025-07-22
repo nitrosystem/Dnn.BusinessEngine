@@ -481,4 +481,24 @@ export class GlobalService {
             $target.removeClass(className);
         }, delay);
     }
+
+     compareTwoObject(sourceObject,destObject, ignoredFields = []) {
+        const changes = _.reduce(sourceObject, (result, value, key) => {
+            const oldValue = destObject[key];
+
+            if (ignoredFields.includes(key)) return result;
+
+            const isEmptyValue = (val) =>
+                val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0);
+
+            if (_.isEqual(value, oldValue) || (isEmptyValue(value) && isEmptyValue(oldValue))) {
+                return result;
+            }
+
+            result.push(key);
+            return result;
+        }, []);
+
+        return changes;
+    }
 }

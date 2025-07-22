@@ -1,33 +1,27 @@
 <div ng-controller="createModuleController as $">
     <div class="wizard-steps artin">
         <div class="wz-steps">
-            <div class="wz-step" ng-click="$.onStepClick(1,$event)"
-                ng-class="{'disabled1':$.running,'active':$.step==1}">
+            <div class="wz-step" ng-click="$.onStepClick(1,$event)" ng-class="{'active':$.step==1}">
                 <span></span>
                 Basic Options
             </div>
-            <div class="wz-step" ng-click="$.onStepClick(2,$event)"
-                ng-class="{'disabled1':$.running || $.stepsValid<2,'active':$.step==2 }">
+            <div class="wz-step" ng-click="$.onStepClick(2,$event)" ng-class="{'active':$.step==2}">
                 <span class="step-template"></span>
                 Select Template
             </div>
-            <div class="wz-step" ng-click="$.onStepClick(3,$event)"
-                ng-class="{'disabled1':$.running || $.stepsValid<3,'active':$.step==3 }">
-                <span class="variables"></span>
-                Variables
-            </div>
-            <div class="wz-step" ng-click="$.onStepClick(4,$event)"
-                ng-class="{'disabled1':$.running || $.stepsValid<4,'active':$.step==4}">
+            <div class="wz-step" ng-click="$.onStepClick(3,$event)" ng-class="{'active':$.step==3}">
                 <span class="libraries"></span>
                 Libraries
             </div>
-            <div class="wz-step" ng-click="$.onStepClick(5,$event)"
-                ng-class="{'disabled1':$.running || $.stepsValid<5,'active':$.step==5}">
+            <div class="wz-step" ng-click="$.onStepClick(4,$event)" ng-class="{'active':$.step==4}">
+                <span class="variables"></span>
+                Variables
+            </div>
+            <div class="wz-step" ng-click="$.onStepClick(5,$event)" ng-class="{'active':$.step==5}">
                 <span class="module-builder"></span>
                 Module Builder
             </div>
-            <div class="wz-step" ng-click="$.onStepClick(6,$event)"
-                ng-class="{'disabled1':$.running || $.stepsValid<6,'active':$.step==6}">
+            <div class="wz-step" ng-click="$.onStepClick(6,$event)" ng-class="{'active':$.step==6}">
                 <span class="actions"></span>
                 Actions
             </div>
@@ -38,9 +32,9 @@
             <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(2)>=0" ng-show="$.step==2"
                 ng-include="$.templateTemplate"></div>
             <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(3)>=0" ng-show="$.step==3"
-                ng-include="$.variablesTemplate"></div>
-            <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(4)>=0" ng-show="$.step==4"
                 ng-include="$.librariesTemplate"></div>
+            <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(4)>=0" ng-show="$.step==4"
+                ng-include="$.variablesTemplate"></div>
             <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(5)>=0" ng-show="$.step==5"
                 ng-include="$.moduleBuilderTemplate"></div>
             <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(6)>=0" ng-show="$.step==6"

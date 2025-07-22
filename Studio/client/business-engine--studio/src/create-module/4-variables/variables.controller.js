@@ -24,9 +24,9 @@ export class CreateModuleVariablesController {
 
         this.variableEditWidget = variableEditWidget;
 
-        this.$rootScope.createModuleValidatedStep.push(3);
+        this.$rootScope.createModuleValidatedStep.push(4);
 
-        $scope.$on("onCreateModuleValidateStep3", (e, task, args) => {
+        $scope.$on("onCreateModuleValidateStep4", (e, task, args) => {
             this.validateStep.apply(this, [task, args]);
         });
 
@@ -34,7 +34,30 @@ export class CreateModuleVariablesController {
     }
 
     onPageLoad() {
-        this.getVariables();
+        const id = this.globalService.getParameterByName('id');
+
+        this.running = "get-module-variables";
+        this.awaitAction = {
+            title: "Get Variables",
+            subtitle: "Just a moment for get the module variables...",
+        };
+
+        this.apiService.get("Module", "GetModuleVariables", { moduleId: id }).then((data) => {
+            this.variableTypes = data.VariableTypes;
+            this.variables = data.Variables ?? [];
+            this.viewModels = data.ViewModels;
+
+            delete this.awaitAction;
+            delete this.running;
+        }, (error) => {
+            this.awaitAction.isError = true;
+            this.awaitAction.subtitle = error.statusText;
+            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+
+            this.notifyService.error(error.data.Message);
+
+            delete this.running;
+        });
 
         this.setForm();
     }
@@ -58,54 +81,6 @@ export class CreateModuleVariablesController {
             this.$scope,
             "$.variable"
         );
-    }
-
-    getVariables() {
-        let moduleId = this.globalService.getParameterByName('id');
-
-        this.running = "get-module-variables";
-        this.awaitAction = {
-            title: "Get Variables",
-            subtitle: "Just a moment for get the module variables...",
-        };
-
-        this.apiService.get("Module", "GetModuleVariables", {
-            moduleId: moduleId,
-        }).then((data) => {
-            this.variableTypes = data.VariableTypes;
-            this.variables = data.Variables ?? [];
-            this.viewModels = data.ViewModels;
-            this.isLoadedCompleted = true;
-
-            delete this.awaitAction;
-            delete this.running;
-        }, (error) => {
-            this.awaitAction.isError = true;
-            this.awaitAction.subtitle = error.statusText;
-            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-            this.notifyService.error(error.data.Message);
-
-            delete this.running;
-        });
-    }
-
-    onPrevStepClick() {
-        this.$scope.$emit('onCreateModuleChangeStep', { step: 3 });
-    }
-
-    onNextStepClick() {
-        this.$scope.$emit('onCreateModuleChangeStep', { step: 4 });
-    }
-
-    validateStep(task, args) {
-        task.wait(() => {
-            const $defer = this.$q.defer();
-
-            $defer.resolve(true);
-
-            return $defer.promise;
-        });
     }
 
     onAddVariableClick() {
@@ -188,6 +163,24 @@ export class CreateModuleVariablesController {
                     delete this.running;
                 });
             }
+        });
+    }
+
+    onPrevStepClick() {
+        this.$scope.$emit('onCreateModuleChangeStep', { step: 3 });
+    }
+
+    onNextStepClick() {
+        this.$scope.$emit('onCreateModuleChangeStep', { step: 5 });
+    }
+
+    validateStep(task, args) {
+        task.wait(() => {
+            const $defer = this.$q.defer();
+
+            $defer.resolve(true);
+
+            return $defer.promise;
         });
     }
 

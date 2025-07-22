@@ -59,8 +59,7 @@
                     </div>
                     <div id="grpTemplate_{{$.module.Id}}" class="group-content collapse show">
                         <div class="templates">
-                            <div class="template-item"
-                                ng-repeat="template in $.installedTemplates | orderBy:'ExtensionId'"
+                            <div class="template-item" ng-repeat="template in $.templates | orderBy:'ExtensionId'"
                                 ng-class="{'active':template.TemplateName==$.module.Template}"
                                 ng-click="$.onSelectTemplateClick(template)">
                                 <div class="template-score">
@@ -130,7 +129,7 @@
                     <label class="header-label">Themes</label>
                     <div class="themes">
                         <div class="theme-box" ng-repeat="theme in $.template.Themes"
-                            ng-class="{'active':theme.ThemeName==$.module.Theme,'is-dark':theme.IsDark}"
+                            ng-class="{'active':theme.ThemeName==$.module.Theme}"
                             ng-click="$.onSelectThemeClick(theme)">
                             <div class="theme-image-wrapper">
                                 <i class="codicon codicon-activate-breakpoints theme-icon"></i>

@@ -71,7 +71,7 @@ class SelectServiceController {
 
         this.apiService.get("Studio", "GetServiceParams", { serviceId: this.action.ServiceId }).then((data) => {
             _.filter(this.services, (s) => {
-                return s.ServiceId == this.action.ServiceId;
+                return s.Id == this.action.ServiceId;
             }).map((service) => {
                 service.Params = data;
             });
@@ -87,7 +87,7 @@ class SelectServiceController {
         this.action.Params = this.action.Params || [];
 
         _.filter(this.services, (s) => {
-            return s.ServiceId == this.action.ServiceId;
+            return s.Id == this.action.ServiceId;
         }).map((service) => {
             this.globalService.bindParams(this.action.Params, service.Params);
         });

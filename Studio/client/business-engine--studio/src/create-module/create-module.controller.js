@@ -1,7 +1,7 @@
 import basicOptionsTemplate from "./1-basic-options/basic-options.html";
 import templateTemplate from "./2-template/template.html";
-import variablesTemplate from "./3-variables/variables.html";
-import librariesTemplate from "./4-libraries/libraries.html";
+import librariesTemplate from "./3-libraries/libraries.html";
+import variablesTemplate from "./4-variables/variables.html";
 import moduleBuilderTemplate from "./5-module-builder/module-builder.html";
 import actionsTemplate from "./6-actions/actions.html";
 
@@ -17,23 +17,15 @@ export class CreateModuleController {
 
         this.basicOptionsTemplate = basicOptionsTemplate;
         this.templateTemplate = templateTemplate;
-        this.variablesTemplate = variablesTemplate;
         this.librariesTemplate = librariesTemplate;
+        this.variablesTemplate = variablesTemplate;
         this.moduleBuilderTemplate = moduleBuilderTemplate;
         this.actionsTemplate = actionsTemplate;
 
+        this.$rootScope.createModuleValidatedStep = [];
+
         $scope.$on('onCreateModuleChangeStep', (e, args) => {
-            this.onStepClick(args.step);
-        });
-
-        $scope.$on('onFillBasicModuleOptions', (e, args) => {
-            this.module = args.module;
-
-            let step = parseInt(this.globalService.getParameterByName('st') || '1');
-            if (step != this.step) {
-                this.$rootScope.createModuleValidatedStep.push(step);
-                this.$timeout(() => { this.onStepClick(step); });
-            }
+            this.gotoStep(args.step);
         });
 
         studioService.setFocusModuleDelegate(this, this.onFocusModule);
@@ -42,9 +34,13 @@ export class CreateModuleController {
     }
 
     onPageLoad() {
-        let step = parseInt(this.globalService.getParameterByName('st') || '1');
-        this.$rootScope.createModuleValidatedStep = [step];
-        this.$timeout(() => this.onStepClick(step));
+        const id = this.globalService.getParameterByName("id");
+        const step = this.globalService.getParameterByName("st");
+
+        this.step = id
+            ? parseInt(step) || 1
+            : 1;
+        this.gotoStep(this.step);
 
         this.onFocusModule();
     }
@@ -54,24 +50,28 @@ export class CreateModuleController {
 
         this.$rootScope.explorerExpandedItems.push(...["modules", "create-module"]);
         if (moduleId) this.$rootScope.explorerExpandedItems.push(moduleId);
-        
+
         this.$rootScope.explorerCurrentItem = !moduleId ? "create-module" : moduleId;
     }
 
     onStepClick(step) {
-        if (step > (this.step ?? 1)) {
-            this.$deferredBroadcast(this.$scope, 'onCreateModuleValidateStep' + (this.step || step)).then((isValid) => {
-                if (isValid) {
-                    this.step = step;
-                    this.$rootScope.createModuleValidatedStep.push(step);
+        this.gotoStep(step)
+    }
 
-                    this.setStepUrl();
-                }
+    gotoStep(step) {
+        if (this.step < step) {
+            this.$deferredBroadcast(this.$scope, 'onCreateModuleValidateStep' + this.step).then((isValid) => {
+                this.step = isValid ? step : this.step;
+                this.$rootScope.createModuleValidatedStep.push(this.step);
+                this.setStepUrl();
             });
         }
-        else if (!this.step || step < (this.step ?? 1)) {
+        else if (this.step > step) {
             this.step = step;
-            this.$rootScope.createModuleValidatedStep.push(step);
+        }
+
+        if (this.step == step) {
+            this.$rootScope.createModuleValidatedStep.push(this.step);
             this.setStepUrl();
         }
     }
@@ -79,8 +79,5 @@ export class CreateModuleController {
     setStepUrl() {
         let newUrl = this.globalService.replaceUrlParam("st", this.step);
         this.globalService.pushState(newUrl);
-
-        if (this.step == 2) this.$rootScope.currentActivityBar = 'builder';
-        else this.$rootScope.currentActivityBar = 'explorer'
     }
 }

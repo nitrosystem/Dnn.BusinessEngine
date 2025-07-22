@@ -22,7 +22,7 @@ export class CreateModuleTemplateController {
         this.apiService = apiService;
         this.validationService = validationService;
         this.notifyService = notificationService;
-        this.filter = { pageIndex: 1, pageSize: 10 };
+        this.filter = {};
 
         this.$rootScope.createModuleValidatedStep.push(2);
 
@@ -34,32 +34,24 @@ export class CreateModuleTemplateController {
     }
 
     onPageLoad() {
-        this.onSidebarTabClick('toolbox');
+        const id = this.globalService.getParameterByName('id');
 
-        this.moduleId = this.globalService.getParameterByName('id');
-
-        this.getTemplates();
-    }
-
-    getTemplates() {
         this.running = "get-templates";
         this.awaitAction = {
             title: "Loading Templates",
             subtitle: "Just a moment for loading templates...",
         };
 
-        this.apiService.get("Module", "GetTemplates", {
-            moduleId: this.moduleId,
-            searchText: this.filter.searchText
-        }).then((data) => {
+        this.apiService.get("Module", "GetTemplates", { moduleId: id }).then((data) => {
+            this.templates = data.InstalledTemplates;
             this.module = data.Module;
-            this.installedTemplates = data.InstalledTemplates;
+            this.oldModule = angular.copy(this.module);
 
-            if (this.module.Template) {
-                _.filter(this.installedTemplates, (t) => { return t.TemplateName == this.module.Template }).map((template) => {
-                    this.onSelectTemplateClick(template);
-                });
-            }
+            this.template = this.module.Template
+                ? _.find(this.templates, (t) => { return t.TemplateName == this.module.Template; })
+                : null;
+
+            this.onSidebarTabClick('toolbox');
 
             delete this.running;
             delete this.awaitAction;
@@ -72,28 +64,31 @@ export class CreateModuleTemplateController {
 
             delete this.running;
         });
+
+        this.setForm();
+    }
+
+    setForm() {
+        this.form = this.validationService.init({
+            Template: {
+                required: true,
+            },
+            LayoutTemplate: {
+                required: true,
+            }
+        },
+            true,
+            this.$scope,
+            "$.module"
+        );
     }
 
     onSidebarTabClick(tab) {
         this.currentSidebarTab = tab;
     }
 
-    onPrevStepClick() {
-        this.$scope.$emit('onCreateModuleChangeStep', { step: 2 });
-    }
-
-    onNextStepClick() {
-        this.$scope.$emit('onCreateModuleChangeStep', { step: 3 });
-    }
-
-    validateStep(task, args) {
-        task.wait(() => {
-            return this.onApplyTemplateClick();
-        });
-    }
-
     onSelectTemplateClick(template) {
-        if (this.template && this.template.TemplateName == template.TemplateName) return;
+        if (this.module.Template == template.TemplateName) return;
 
         this.template = _.cloneDeep(template);
         this.module.Template = this.template.TemplateName;
@@ -129,89 +124,51 @@ export class CreateModuleTemplateController {
     onApplyTemplateClick() {
         const $defer = this.$q.defer();
 
-        this.running = "apply-template";
-        this.awaitAction = {
-            title: "Apply Template For Module",
-            subtitle: "Just a moment for setting the template for this module...",
-        };
+        this.form.validated = true;
+        this.form.validator(this.module);
 
-        this.apiService.post("Module", "SaveModuleTemplate", {
-            ModuleId: this.module.Id,
-            Template: this.module.Template,
-            Theme: this.module.Theme,
-            LayoutTemplate: this.module.LayoutTemplate,
-            LayoutCss: this.module.LayoutCss
-        }).then((data) => {
-            this.notifyService.success(
-                "The module template has been save successfully"
-            );
-
+        var changes = this.globalService.compareTwoObject(this.module, this.oldModule);
+        if (Object.keys(changes).length === 0)
             $defer.resolve(true);
+        else if (this.form.valid) {
+            this.running = "apply-template";
+            this.awaitAction = {
+                title: "Apply Template For Module",
+                subtitle: "Just a moment for setting the template for this module...",
+            };
 
-            delete this.running;
-            delete this.awaitAction;
-        }, (error) => {
-            this.awaitAction.isError = true;
-            this.awaitAction.subtitle = error.statusText;
-            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+            this.apiService.post("Module", "SaveModuleTemplate", this.module).then((data) => {
+                if (data) this.notifyService.success("The module template has been save successfully");
 
-            this.notifyService.error(error.data.Message);
+                $defer.resolve(datat);
 
-            delete this.running;
-        });
+                delete this.running;
+                delete this.awaitAction;
+            }, (error) => {
+                this.awaitAction.isError = true;
+                this.awaitAction.subtitle = error.statusText;
+                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+
+                this.notifyService.error(error.data.Message);
+
+                delete this.running;
+            });
+        }
 
         return $defer.promise;
     }
 
-    onAddTemplateClick() {
-        this.$scope.$emit("onGotoPage", { page: "create-template" });
+    onPrevStepClick() {
+        this.$scope.$emit('onCreateModuleChangeStep', { step: 2 });
     }
 
-    onEditTemplateClick(id, title) {
-        this.$scope.$emit("onGotoPage", {
-            page: "create-template",
-            id: id,
-            title: title,
-        });
+    onNextStepClick() {
+        this.$scope.$emit('onCreateModuleChangeStep', { step: 3 });
     }
 
-    onDeleteTemplateClick(id, index) {
-        swal({
-            title: "Are you sure?",
-            text: "Once deleted, you will not be able to recover this imaginary template!",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((willDelete) => {
-            if (willDelete) {
-                this.running = "get-templates";
-                this.awaitAction = {
-                    title: "Remove Template",
-                    subtitle: "Just a moment for removing template...",
-                };
-
-                this.apiService.post("Studio", "DeleteTemplate", { Id: id }).then(
-                    (data) => {
-                        this.templates.splice(index, 1);
-
-                        this.notifyService.success("Template deleted has been successfully");
-
-                        this.$rootScope.refreshSidebarExplorerItems();
-
-                        delete this.awaitAction;
-                        delete this.running;
-                    }, (error) => {
-                        this.awaitAction.isError = true;
-                        this.awaitAction.subtitle = error.statusText;
-                        this.awaitAction.desc =
-                            this.globalService.getErrorHtmlFormat(error);
-
-                        this.notifyService.error(error.data.Message);
-
-                        delete this.running;
-                    }
-                );
-            }
+    validateStep(task, args) {
+        task.wait(() => {
+            return this.onApplyTemplateClick();
         });
     }
 }

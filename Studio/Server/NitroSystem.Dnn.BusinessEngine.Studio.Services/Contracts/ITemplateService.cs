@@ -23,7 +23,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
     public interface ITemplateService
     {
         Task<IEnumerable<TemplateViewModel>> GetTemplatesViewModelAsync(ModuleType moduleType);
-
-        Task<TemplateViewModel> GetTemplateViewModelAsync(Guid id);
     }
 }

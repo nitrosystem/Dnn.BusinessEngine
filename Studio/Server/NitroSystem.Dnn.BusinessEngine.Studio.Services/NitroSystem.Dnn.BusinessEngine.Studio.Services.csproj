@@ -83,13 +83,11 @@
     <Compile Include="Contracts\IViewModelService.cs" />
     <Compile Include="Dto\Global\ActionLiteDto.cs" />
     <Compile Include="Dto\Module\ModuleFieldLiteDto.cs" />
+    <Compile Include="Dto\Module\ModuleTemplateDto.cs" />
     <Compile Include="Dto\Module\SortModuleCustomLibrariesDto.cs" />
-    <Compile Include="Dto\Module\ModuleLayoutTemplateDto.cs" />
     <Compile Include="Dto\Module\SortPaneFieldsDto.cs" />
     <Compile Include="Dto\Module\ModuleFieldUpdateDto.cs" />
     <Compile Include="Dto\LibraryLiteDto.cs" />
-    <Compile Include="Dto\Module\ModuleCustomResourceDto.cs" />
-    <Compile Include="Dto\Module\ModuleCustomLibraryDto.cs" />
     <Compile Include="Dto\Module\ModuleFieldTypeDto.cs" />
     <Compile Include="Dto\ServiceTypeDto.cs" />
     <Compile Include="Enums\BuildTypeScope.cs" />

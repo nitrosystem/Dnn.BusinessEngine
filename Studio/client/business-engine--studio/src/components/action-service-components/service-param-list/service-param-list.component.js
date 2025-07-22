@@ -42,7 +42,7 @@ class ServiceParamListController {
 
         this.apiService.get("Studio", "GetServiceParams", { serviceId: this.serviceId }).then((data) => {
             _.filter(this.services, (s) => {
-                return s.ServiceId == this.serviceId;
+                return s.Id == this.serviceId;
             }).map((service) => {
                 service.Params = data;
             });
@@ -58,7 +58,7 @@ class ServiceParamListController {
         this.params = this.params || [];
 
         _.filter(this.services, (s) => {
-            return s.ServiceId == this.serviceId;
+            return s.Id == this.serviceId;
         }).map((service) => {
             this.globalService.bindParams(this.params, service.Params);
         });

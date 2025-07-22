@@ -1489,14 +1489,14 @@ export class CreateModuleModuleBuilderController {
             this.module.LayoutTemplateBackup != this.module.LayoutTemplate ||
             this.module.LayoutCssBackup != this.module.LayoutCss
         ) {
-
-            this.apiService.post("Module", "SaveModuleLayoutTemplate", {
+            this.apiService.post("Module", "SaveModuleTemplate", {
                 ModuleId: this.module.Id,
                 Template: this.module.Template,
                 LayoutTemplate: this.module.LayoutTemplate,
                 LayoutCss: this.module.LayoutCss
             }).then((data) => {
-                this.notifyService.success("Module layout template updated has been successfully");
+                if (data)
+                    this.notifyService.success("Module layout template updated has been successfully");
 
                 delete this.awaitAction;
                 delete this.running;

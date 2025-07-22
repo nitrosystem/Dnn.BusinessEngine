@@ -34,14 +34,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
     public class TemplateService : ITemplateService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
 
-        public TemplateService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
+        public TemplateService(IRepositoryBase repository)
         {
-            _unitOfWork = unitOfWork;
-            _cacheService = cacheService;
             _repository = repository;
         }
 
@@ -74,11 +70,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                         dest.PreviewImages = dest.PreviewImages.ReplaceFrequentTokens();
                     });
             });
-        }
-
-        public async Task<TemplateViewModel> GetTemplateViewModelAsync(Guid id)
-        {
-            return null;
         }
 
         #endregion

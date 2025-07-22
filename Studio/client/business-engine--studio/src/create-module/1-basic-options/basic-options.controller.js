@@ -39,9 +39,6 @@ export class CreateModuleBasicOptionsController {
 
     onPageLoad() {
         const id = this.globalService.getParameterByName("id");
-        var step = this.globalService.getParameterByName("st");
-        this.step = step && id ? parseInt(step) : 1;
-        this.stepsValid = this.step;
 
         this.running = "get-module";
         this.awaitAction = {
@@ -49,18 +46,9 @@ export class CreateModuleBasicOptionsController {
             subtitle: "Just a moment for loading module...",
         };
 
-        this.apiService.get("Module", "GetModuleBasicOptions", { moduleId: isNaN(id) ? id : null }).then((data) => {
-            this.module = data;
+        this.apiService.get("Module", "GetModuleBasicOptions", { ...(id && { moduleId: id }) }).then((data) => {
+            this.module = data ?? { ScenarioId: GlobalSettings.scenarioId };
             this.oldModule = angular.copy(this.module);
-
-            if (this.module) {
-                this.$scope.$emit('onFillBasicModuleOptions', { module: this.module });
-            }
-            else if (!this.module) {
-                this.module = {
-                    ScenarioId: GlobalSettings.scenarioId,
-                };
-            }
 
             delete this.running;
             delete this.awaitAction;
@@ -94,42 +82,12 @@ export class CreateModuleBasicOptionsController {
         );
     }
 
-    onPreviousStepClick() {
-        Swal.fire({
-            title: '<p style="font-size:1.3rem">There is no step before the first step!! Of course, if you want, you can enter the matrix world!!!.</p>',
-            html: '<i class="codicon codicon-broadcast" style="font-size:5rem;"></i>',
-            confirmButtonText: '<i class="codicon codicon-smiley mt-1 b-icon-2"></i>',
-            showClass: {
-                popup: `
-                  animate__animated
-                  animate__fadeInUp
-                  animate__faster
-                `
-            },
-            hideClass: {
-                popup: `
-                  animate__animated
-                  animate__fadeOutDown
-                  animate__faster
-                `
-            }
-        });
-    }
-
-    onNextStepClick() {
-        this.$scope.$emit('onCreateModuleChangeStep', { step: 2 });
-    }
-
-    validateStep(task, args) {
-        task.wait(() => {
-            return this.onSaveModuleClick();
-        });
-    }
-
     validateModuleName() {
         var $defer = this.$q.defer();
 
-        if (_.isEmpty(this.module.ModuleName)) {
+        if (this.module.Id)
+            $defer.resolve();
+        else if (_.isEmpty(this.module.ModuleName)) {
             this.moduleNameIsValid = false;
             this.moduleNameIsEmpty = true;
             this.moduleNameIsValidPattern = true;
@@ -181,59 +139,54 @@ export class CreateModuleBasicOptionsController {
         this.form.validated = true;
         this.form.validator(this.module);
 
-        if (this.module == this.oldModule)
+        var changes = this.globalService.compareTwoObject(this.module, this.oldModule);
+        if (Object.keys(changes).length === 0)
             $defer.resolve(true);
-        else {
-            if (this.form.valid) {
-                this.validateModuleName().then(() => {
-                    const id = this.globalService.getParameterByName("id");
-                    if (!isNaN(id)) this.module.DnnModuleId = id;
+        else if (this.form.valid) {
+            this.validateModuleName().then(() => {
+                const id = this.globalService.getParameterByName("id");
+                if (!isNaN(id)) this.module.DnnModuleId = id;
 
-                    this.running = "save-module";
-                    this.awaitAction = {
-                        title: "Saving Module",
-                        subtitle: "Just a moment for saving the module...",
-                    };
+                this.running = "save-module";
+                this.awaitAction = {
+                    title: "Saving Module",
+                    subtitle: "Just a moment for saving the module...",
+                };
 
-                    this.currentTabKey = this.$rootScope.currentTab.key;
+                this.currentTabKey = this.$rootScope.currentTab.key;
 
-                    this.apiService.post("Module", "SaveModuleBasicOptions", this.module).then((data) => {
-                        this.notifyService.success("Module updated has been successfully");
+                this.apiService.post("Module", "SaveModuleBasicOptions", this.module).then((data) => {
+                    this.notifyService.success("Module updated has been successfully");
 
-                        this.$rootScope.refreshSidebarExplorerItems();
+                    this.$rootScope.refreshSidebarExplorerItems();
 
-                        let isNew = !this.module.Id;
+                    let isNew = !this.module.Id;
 
-                        this.module.Id = data;
-                        this.oldModule = angular.copy(this.module);
+                    this.module.Id = data;
+                    this.oldModule = angular.copy(this.module);
 
-                        if (isNew) this.$scope.$emit('onFillBasicModuleOptions', { module: this.module });
-
-                        this.$scope.$emit("onUpdateCurrentTab", {
-                            id: this.module.Id,
-                            title: this.module.ModuleName,
-                            key: this.currentTabKey,
-                        });
-
-                        $defer.resolve(true);
-
-                        delete this.awaitAction;
-                        delete this.running;
-                    }, (error) => {
-                        this.awaitAction.isError = true;
-                        this.awaitAction.subtitle = error.statusText;
-                        this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-                        this.notifyService.error(error.data.Message);
-
-                        $defer.reject();
-
-                        delete this.running;
+                    this.$scope.$emit("onUpdateCurrentTab", {
+                        id: this.module.Id,
+                        title: this.module.ModuleName,
+                        key: this.currentTabKey,
                     });
+
+                    $defer.resolve(true);
+
+                    delete this.awaitAction;
+                    delete this.running;
+                }, (error) => {
+                    this.awaitAction.isError = true;
+                    this.awaitAction.subtitle = error.statusText;
+                    this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+
+                    this.notifyService.error(error.data.Message);
+
+                    $defer.reject();
+
+                    delete this.running;
                 });
-            }
-            else
-                $defer.resolve(false);
+            });
         }
 
         return $defer.promise;
@@ -249,5 +202,37 @@ export class CreateModuleBasicOptionsController {
 
     onCloseWindow() {
         this.$scope.$emit('onCloseModule');
+    }
+
+    onPreviousStepClick() {
+        Swal.fire({
+            title: '<p style="font-size:1.3rem">There is no step before the first step!! Of course, if you want, you can enter the matrix world!!!.</p>',
+            html: '<i class="codicon codicon-broadcast" style="font-size:5rem;"></i>',
+            confirmButtonText: '<i class="codicon codicon-smiley mt-1 b-icon-2"></i>',
+            showClass: {
+                popup: `
+                  animate__animated
+                  animate__fadeInUp
+                  animate__faster
+                `
+            },
+            hideClass: {
+                popup: `
+                  animate__animated
+                  animate__fadeOutDown
+                  animate__faster
+                `
+            }
+        });
+    }
+
+    onNextStepClick() {
+        this.$scope.$emit('onCreateModuleChangeStep', { step: 2 });
+    }
+
+    validateStep(task, args) {
+        task.wait(() => {
+            return this.onSaveModuleClick();
+        });
     }
 }
