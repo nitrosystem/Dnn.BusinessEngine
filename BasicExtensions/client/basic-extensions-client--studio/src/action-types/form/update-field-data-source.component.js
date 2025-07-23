@@ -6,18 +6,16 @@ class UpdateFieldDataSourceController {
     }
 
     $onInit() {
-        if (this.action.Settings.FieldID) this.updateFieldChange()
+        if (this.action.Settings.FieldId) this.updateFieldChange()
     }
 
     updateFieldChange() {
         const field = _.find(this.fields, (f) => {
-            return f.FieldID == this.action.Settings.FieldID;
+            return f.Id == this.action.Settings.FieldId;
         });
 
         const datasource = field.DataSource;
-        this.service = _.find(this.services, (s) => {
-            return s.ServiceId == datasource.ServiceId;
-        });
+        this.service = _.find(this.services, (s) => { return s.Id == datasource.ServiceId; });
 
         this.action.Params = datasource.ServiceParams;
     }

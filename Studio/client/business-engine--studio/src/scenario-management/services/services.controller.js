@@ -18,7 +18,7 @@ export class ServicesController {
         this.globalService = globalService;
         this.apiService = apiService;
         this.notifyService = notificationService;
-        
+
         this.filter = { pageIndex: 1, pageSize: 10 };
 
         studioService.setFocusModuleDelegate(this, this.onFocusModule);
@@ -36,7 +36,7 @@ export class ServicesController {
             title: "Loading Services",
             subtitle: "Just a moment for loading services...",
         };
-        this.apiService.get("Studio","GetServices", {
+        this.apiService.get("Studio", "GetServices", {
             pageIndex: this.filter.pageIndex,
             pageSize: this.filter.pageSize,
             searchText: this.filter.searchText,
@@ -110,28 +110,25 @@ export class ServicesController {
                     subtitle: "Just a moment for removing service...",
                 };
 
-                this.apiService.post("Studio", "DeleteService", { ID: id }).then(
-                    (data) => {
-                        this.services.splice(index, 1);
+                this.apiService.post("Studio", "DeleteService", { Id: id }).then((data) => {
+                    this.services.splice(index, 1);
 
-                        this.notifyService.success("Service deleted has been successfully");
+                    this.notifyService.success("Service deleted has been successfully");
 
-                        this.$rootScope.refreshSidebarExplorerItems();
+                    this.$rootScope.refreshSidebarExplorerItems();
 
-                        delete this.awaitAction;
-                        delete this.running;
-                    },
-                    (error) => {
-                        this.awaitAction.isError = true;
-                        this.awaitAction.subtitle = error.statusText;
-                        this.awaitAction.desc =
-                            this.globalService.getErrorHtmlFormat(error);
+                    delete this.awaitAction;
+                    delete this.running;
+                }, (error) => {
+                    this.awaitAction.isError = true;
+                    this.awaitAction.subtitle = error.statusText;
+                    this.awaitAction.desc =
+                        this.globalService.getErrorHtmlFormat(error);
 
-                        this.notifyService.error(error.data.Message);
+                    this.notifyService.error(error.data.Message);
 
-                        delete this.running;
-                    }
-                );
+                    delete this.running;
+                });
             }
         });
     }

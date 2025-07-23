@@ -28,7 +28,7 @@ class ButtonFieldController {
     onAddFieldActionClick() {
         this.$scope.$emit("onGotoPage", {
             page: "create-action",
-            parentID: this.field.FieldID,
+            parentId: this.field.Id,
             subParams: { type: "field" },
         });
     }

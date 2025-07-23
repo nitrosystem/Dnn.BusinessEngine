@@ -31,7 +31,7 @@ class SelectActionController {
         this.model.Params = this.model.Params || [];
 
         _.filter(this.actions, (a) => {
-            return a.ActionId == this.model.ActionId;
+            return a.Id == this.model.ActionId;
         }).map((action) => {
             this.globalService.bindParams(
                 this.model.Params,
@@ -46,7 +46,7 @@ class SelectActionController {
         var result = [];
 
         _.filter(this.services, (s) => {
-            return s.ServiceId == serviceId;
+            return s.Id == serviceId;
         }).map((service) => {
             _.forEach(service.Params, (sp) => {
                 result.push({ ParamName: sp.ParamName });
@@ -69,7 +69,7 @@ class SelectActionController {
         this.param = param;
         this.param.IsNew = false;
         this.param.IsEdited = true;
-        this.param.OrderID = $index + 1;
+        this.param.OrderId = $index + 1;
 
         this.$timeout(() => {
             this.$scope.$broadcast("onEditParam");

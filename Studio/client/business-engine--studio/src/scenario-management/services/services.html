@@ -20,10 +20,10 @@
                     </div>
                     <div class="col-3">
                         <div class="b-input-group">
-                            <select ng-model="$.filter.serviceSubtype" class="b-input form-select"
+                            <select ng-model="$.filter.serviceType" class="b-input form-select"
                                 ng-options="st.ServiceType as st.ServiceType for st in $.serviceTypes"
                                 ng-change="$.onApplyFilter()" ng-disabled="$.running" chosen
-                                inherit-select-classes="true" placeholder-text-single="'Service subtype'" required>
+                                inherit-select-classes="true" placeholder-text-single="'Service type'" required>
                                 <option value=""></option>
                             </select>
                             <span><i class="codicon codicon-briefcase"></i></span>
@@ -31,7 +31,7 @@
                     </div>
                     <div class="col-1">
                         <button type="button" class="b-input form-control ps-1" ng-click="$.onClearFilterClick()">
-                            <i class="codicon codicon-chrome-close"></i>
+                            <i class="codicon codicon-search"></i>
                         </button>
                     </div>
                     <div class="col-3 text-end">

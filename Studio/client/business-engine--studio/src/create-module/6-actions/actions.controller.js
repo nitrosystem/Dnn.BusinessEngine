@@ -26,16 +26,16 @@ export class CreateModuleActionsController {
     }
 
     onPageLoad() {
+        const id = this.globalService.getParameterByName('id');
+
         this.running = "get-actions";
         this.awaitAction = {
             title: "Loading Actions",
             subtitle: "Just a moment for loading actions...",
         };
 
-        let moduleId = this.globalService.getParameterByName('id');
-
         this.apiService.get("Module", "GetActions", {
-            moduleId: moduleId,
+            moduleId: id,
             pageIndex: this.filter.pageIndex,
             pageSize: this.filter.pageSize,
             fieldId: this.filter.fieldId,
@@ -46,14 +46,14 @@ export class CreateModuleActionsController {
             this.actions = data.Actions;
             this.fields = data.Fields;
 
-            if (!this.filter.fieldId) {
-                var items = {};
-                var groups = _.groupBy(_.filter(this.actions, (a) => { return a.FieldId }), 'FieldName');
-                for (var key in groups) {
-                    items[key] = this.populateActions(groups[key]);
-                }
-                this.fieldActions = items;
-            }
+            // if (!this.filter.fieldId) {
+            //     var items = {};
+            //     var groups = _.groupBy(_.filter(this.actions, (a) => { return a.FieldId }), 'FieldName');
+            //     for (var key in groups) {
+            //         items[key] = this.populateActions(groups[key]);
+            //     }
+            //     this.fieldActions = items;
+            // }
             //this.onFocusModule();
 
             delete this.running;
@@ -168,26 +168,23 @@ export class CreateModuleActionsController {
                     subtitle: "Just a moment for removing action...",
                 };
 
-                this.apiService.post("Studio", "DeleteAction", { Id: id }).then(
-                    (data) => {
-                        this.allActions.splice(index, 1);
+                this.apiService.post("Studio", "DeleteAction", { Id: id }).then((data) => {
+                    this.actions.splice(index, 1);
 
-                        this.notifyService.success("Action deleted has been successfully");
+                    this.notifyService.success("Action deleted has been successfully");
 
-                        delete this.awaitAction;
-                        delete this.running;
-                    },
-                    (error) => {
-                        this.awaitAction.isError = true;
-                        this.awaitAction.subtitle = error.statusText;
-                        this.awaitAction.desc =
-                            this.globalService.getErrorHtmlFormat(error);
+                    delete this.awaitAction;
+                    delete this.running;
+                }, (error) => {
+                    this.awaitAction.isError = true;
+                    this.awaitAction.subtitle = error.statusText;
+                    this.awaitAction.desc =
+                        this.globalService.getErrorHtmlFormat(error);
 
-                        this.notifyService.error(error.data.Message);
+                    this.notifyService.error(error.data.Message);
 
-                        delete this.running;
-                    }
-                );
+                    delete this.running;
+                });
             }
         });
     }

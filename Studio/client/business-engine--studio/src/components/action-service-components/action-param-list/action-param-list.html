@@ -38,7 +38,7 @@
         <!------------------------------------>
         <!-- Edit Param -->
         <!------------------------------------>
-        <div ng-if="$.param.IsEdited" class="d-flex table-row edit-row" ng-style="{'order':$.param.OrderID}">
+        <div ng-if="$.param.IsEdited" class="d-flex table-row edit-row" ng-style="{'order':$.param.OrderIc}">
             <div class="col-5 my-auto">
                 <span ng-if="!$.param.IsCustomParam">{{$.param.ParamName}}</span>
                 <input type="text" ng-if="$.param.IsCustomParam" class="b-input form-control" ng-model="$.param.ParamName" placeholder="Enter param name" autocomplete="off" />

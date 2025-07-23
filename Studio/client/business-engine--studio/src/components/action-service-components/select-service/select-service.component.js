@@ -33,7 +33,7 @@ class SelectServiceController {
         this.apiService.get("Studio", "GetServices", {
             pageIndex: pageIndex, pageSize: 10,
             searchText: searchText,
-            serviceSubtype: this.serviceType
+            serviceType: this.serviceType
         }).then((data) => {
             this.services = data.Services;
             this.$scope.$broadcast('onUpdatedItems', data);
@@ -112,7 +112,7 @@ class SelectServiceController {
         this.param = param;
         this.param.IsNew = false;
         this.param.IsEdited = true;
-        this.param.OrderID = $index + 1;
+        this.param.OrderId = $index + 1;
 
         this.$timeout(() => {
             this.$scope.$broadcast("onEditParam");

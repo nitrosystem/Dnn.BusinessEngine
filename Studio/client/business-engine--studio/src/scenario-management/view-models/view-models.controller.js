@@ -107,28 +107,25 @@ export class ViewModelsController {
                     subtitle: "Just a moment for removing viewModel...",
                 };
 
-                this.apiService.post("Studio", "DeleteViewModel", { ID: id }).then(
-                    (data) => {
-                        this.viewModels.splice(index, 1);
+                this.apiService.post("Studio", "DeleteViewModel", { Id: id }).then((data) => {
+                    this.viewModels.splice(index, 1);
 
-                        this.notifyService.success("ViewModel deleted has been successfully");
+                    this.notifyService.success("ViewModel deleted has been successfully");
 
-                        this.$rootScope.refreshSidebarExplorerItems();
+                    this.$rootScope.refreshSidebarExplorerItems();
 
-                        delete this.awaitAction;
-                        delete this.running;
-                    },
-                    (error) => {
-                        this.awaitAction.isError = true;
-                        this.awaitAction.subtitle = error.statusText;
-                        this.awaitAction.desc =
-                            this.globalService.getErrorHtmlFormat(error);
+                    delete this.awaitAction;
+                    delete this.running;
+                }, (error) => {
+                    this.awaitAction.isError = true;
+                    this.awaitAction.subtitle = error.statusText;
+                    this.awaitAction.desc =
+                        this.globalService.getErrorHtmlFormat(error);
 
-                        this.notifyService.error(error.data.Message);
+                    this.notifyService.error(error.data.Message);
 
-                        delete this.running;
-                    }
-                );
+                    delete this.running;
+                });
             }
         });
     }

@@ -97,9 +97,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return ServiceMapping.MapServicesViewModel(services, Enumerable.Empty<ServiceParamInfo>());
         }
 
-        public async Task<(IEnumerable<ServiceViewModel> Items, int TotalCount)> GetServicesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, string serviceType, string sortBy)
+        public async Task<(IEnumerable<ServiceViewModel> Items, int? TotalCount)> GetServicesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, string serviceType, string sortBy)
         {
-            var result = await _repository.ExecuteStoredProcedureAsListWithPagingAsync<ServiceView>("BusinessEngine_GetServices",
+            var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
+                "BusinessEngine_GetServicesWithParams",
                     new
                     {
                         ScenarioId = scenarioId,
@@ -108,12 +109,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                         PageIndex = pageIndex,
                         PageSize = pageSize,
                         SortBy = sortBy
-                    });
+                    },
+                    grid => grid.ReadSingle<int?>(),
+                    grid => grid.Read<ServiceView>(),
+                    grid => grid.Read<ServiceParamInfo>()
+                );
 
-            var services = result.Item1;
-            var totalCount = result.Item2;
+            var totalCount = results[0] as int?;
+            var services = results[1] as IEnumerable<ServiceView>;
+            var serviceParams = results[2] as IEnumerable<ServiceParamInfo>;
 
-            return (ServiceMapping.MapServicesViewModel(services, Enumerable.Empty<ServiceParamInfo>()), totalCount);
+            return (ServiceMapping.MapServicesViewModel(services, serviceParams), totalCount);
         }
 
         public async Task<(Guid ServiceId, Guid? ExtensionServiceId)> SaveServiceAsync(ServiceViewModel service, string extensionServiceJson, bool isNew)
@@ -198,9 +204,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<IEnumerable<ServiceParamViewModel>> GetServiceParamsAsync(Guid serviceId)
         {
-            var serviceParams = await _repository.GetByScopeAsync<ServiceView>(serviceId);
+            var serviceParams = await _repository.GetByScopeAsync<ServiceParamInfo>(serviceId);
 
-            return BaseMapping<ServiceView, ServiceParamViewModel>.MapViewModels(serviceParams);
+            return BaseMapping<ServiceParamInfo, ServiceParamViewModel>.MapViewModels(serviceParams);
         }
 
         #endregion

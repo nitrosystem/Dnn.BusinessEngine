@@ -1250,7 +1250,7 @@ export class CreateModuleModuleBuilderController {
         this.$scope.$emit("onGotoPage", {
             page: "create-action",
             parentId: actionId || action.ModuleId,
-            id: action.ActionId,
+            id: action.Id,
             title: action.ActionName,
             subParams: subParams,
         });
@@ -1260,7 +1260,7 @@ export class CreateModuleModuleBuilderController {
         this.$scope.$emit("onGotoPage", {
             page: "create-action",
             parentId: action.FieldId,
-            id: action.ActionId,
+            id: action.Id,
             title: action.ActionName,
             subParams: { type: 'field' },
         });

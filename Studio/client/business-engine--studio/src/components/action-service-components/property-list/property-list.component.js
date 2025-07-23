@@ -35,7 +35,7 @@ class PropertyListController {
             IsEdited: true,
             EvalType: "=",
             GroupName: "Group" + this.properties.length + 1,
-            OrderID: this.properties.length + 1,
+            OrderId: this.properties.length + 1,
         });
 
         this.property = this.properties[this.properties.length - 1];
@@ -58,7 +58,7 @@ class PropertyListController {
         this.property = property;
         this.property.IsNew = false;
         this.property.IsEdited = true;
-        this.property.OrderID = $index + 1;
+        this.property.OrderId = $index + 1;
     }
 
     onDoneClick() {

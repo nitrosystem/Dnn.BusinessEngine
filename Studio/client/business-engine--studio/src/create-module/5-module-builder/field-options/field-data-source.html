@@ -74,7 +74,7 @@
                             paging="{visiblePages:5}"
                             modal="{'title':'Services','showCloseButton':true,'placeholder':'Search by service name(Press enter)'}"
                             on-fetch-items="$.getServices(pageIndex,searchText)" on-select-item="$.onFieldDataSourceServiceChange(item)"
-                            text="ServiceName" value="ServiceId"
+                            text="ServiceName" value="Id"
                             storage="$.currentField" storage-key="Settings"
                             ng-disabled="waiting"></b-selective>
                         <span><i class="codicon codicon-gear"></i></span>

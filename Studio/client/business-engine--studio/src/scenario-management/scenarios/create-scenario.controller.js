@@ -69,7 +69,7 @@ export class CreateScenarioController {
             };
 
             this.apiService.post("Studio", "SaveScenario", this.scenario).then((data) => {
-                const isNewScenario = !this.scenario.ScenarioId;
+                const isNewScenario = !this.scenario.Id;
 
                 this.scenario = data;
                 this.$rootScope.scenario = _.clone(this.scenario);
@@ -77,7 +77,7 @@ export class CreateScenarioController {
                 this.notifyService.success("Scenario updated has been successfully");
 
                 return;
-                
+
                 if (isNewScenario) {
                     const url = this.globalService.replaceUrlParam("s", this.scenario.ScenarioName);
 
@@ -111,7 +111,7 @@ export class CreateScenarioController {
             title: "Rendering All Modules",
             subtitle: "Just a moment for rendering the scenario all modules...",
         };
-        this.moduleBuilderService.rebuildScenarioModules(this.scenario.ScenarioId, this.$scope);
+        this.moduleBuilderService.rebuildScenarioModules(this.scenario.Id, this.$scope);
     }
 
     onDeleteScenarioClick() {
@@ -143,8 +143,8 @@ export class CreateScenarioController {
                 subtitle: "Just a moment for removing the scenario and child items...",
             };
 
-            this.apiService.post("Studio", "DeleteScenarioAndChilds", { ID: this.scenario.ScenarioId }).then((data) => {
-                this.notifyService.success("The removed scenario and child items have been successfully deleted.");
+            this.apiService.post("Studio", "DeleteScenarioAndChilds", { Id: this.scenario.Id }).then((data) => {
+                if (data) this.notifyService.success("The removed scenario and child items have been successfully deleted.");
 
                 delete this.awaitAction;
                 delete this.running;

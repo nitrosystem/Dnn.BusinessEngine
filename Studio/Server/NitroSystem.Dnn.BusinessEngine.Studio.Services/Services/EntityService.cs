@@ -61,9 +61,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<(IEnumerable<EntityViewModel> Items, int? TotalCount)> GetEntitiesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, byte? entityType, bool? isReadonly, string sortBy)
         {
-            var results =
-                await _repository
-                    .ExecuteStoredProcedureMultiGridResultAsync(
+            var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
                         "BusinessEngine_GetEntitiesWithColumns",
                         new
                         {

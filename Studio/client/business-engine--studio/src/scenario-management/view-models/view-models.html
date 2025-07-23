@@ -1,6 +1,7 @@
 <div ng-controller="viewModelsController as $" class="viewModels">
     <b-content-widget data-title="View Models" data-icon="combine" data-module-type="viewModels"
-        data-subtitle="Scenario view models" data-await-action="$.awaitAction" data-sorting="true" data-sort-method="onSortingClick">
+        data-subtitle="Scenario view models" data-await-action="$.awaitAction" data-sorting="true"
+        data-sort-method="onSortingClick">
         <div class="advanced-search-box">
             <div class="content-pane">
                 <div class="row">
@@ -18,8 +19,8 @@
                     </div>
                     <div class="col text-end">
                         <div class="b-btn-group">
-                            <button type="button" class="b-btn btn-text-icon btn-submit" ng-click="$.onAddViewModelClick()"
-                                ng-disabled="$.column">
+                            <button type="button" class="b-btn btn-text-icon btn-submit"
+                                ng-click="$.onAddViewModelClick()" ng-disabled="$.column">
                                 <i class="codicon codicon-plus" ng-disabled="$.running"></i>
                                 Add View Model
                             </button>
@@ -73,10 +74,10 @@
                     <div class="g-col-2">
                         <div class="b-multi-btns">
                             <button type="button"
-                                ng-click="$.onEditViewModelClick(viewModel.ViewModelID,viewModel.ViewModelName)">
+                                ng-click="$.onEditViewModelClick(viewModel.Id,viewModel.ViewModelName)">
                                 <i class="codicon codicon-edit"></i>
                             </button>
-                            <button type="button" ng-click="$.onDeleteViewModelClick(viewModel.ViewModelID,$index)">
+                            <button type="button" ng-click="$.onDeleteViewModelClick(viewModel.Id,$index)">
                                 <i class="codicon codicon-trash"></i>
                             </button>
                             <button type="button">
@@ -94,7 +95,8 @@
                         <h4 class="label">No viewModels.</h4>
                         <span class="subtext">
                             Click
-                            <button type="button" class="b-btn btn-text-icon btn-sm ms-2 me-2" ng-click="$.onAddViewModelClick()">
+                            <button type="button" class="b-btn btn-text-icon btn-sm ms-2 me-2"
+                                ng-click="$.onAddViewModelClick()">
                                 Add ViewModel
                             </button>
                             for creating a new viewModel.

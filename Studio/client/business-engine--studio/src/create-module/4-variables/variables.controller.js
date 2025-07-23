@@ -139,7 +139,7 @@ export class CreateModuleVariablesController {
         this.disposeWorkingMode();
     }
 
-    onDeleteVariableClick(variableID, $index) {
+    onDeleteVariableClick(variableId, $index) {
         this.globalService.deleteConfirmAlert().then((yes) => {
             if (yes) {
                 this.running = "delete-variable";
@@ -148,7 +148,7 @@ export class CreateModuleVariablesController {
                     subtitle: "Just a moment for removing the current variable...",
                 };
 
-                this.apiService.post("Module", "DeleteModuleVariable", { ID: variableID }).then((data) => {
+                this.apiService.post("Module", "DeleteModuleVariable", { Id: variableId }).then((data) => {
                     this.notifyService.success("The variable removed has been successfully");
 
                     this.variables.splice($index, 1);

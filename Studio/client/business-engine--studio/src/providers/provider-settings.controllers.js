@@ -32,7 +32,7 @@ export class ProviderSettingsController {
     }
 
     onPageLoad() {
-        this.id = this.globalService.getParameterByName("id");
+        const id = this.globalService.getParameterByName("id");
         this.step = 1;
 
         this.running = "get-provider-settings";
@@ -43,7 +43,7 @@ export class ProviderSettingsController {
 
         this.apiService
             .get("Studio", "GetProvider", {
-                providerID: this.id,
+                providerId: id,
             })
             .then((data) => {
                 this.provider = data;

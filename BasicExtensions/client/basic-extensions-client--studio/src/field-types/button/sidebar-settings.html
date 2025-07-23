@@ -1,6 +1,7 @@
 ﻿<div class="b-field">
     <label class="form-label">Button Type</label>
-    <select ng-model="$.currentField.Settings.ButtonType" class="b-input form-select" chosen inherit-select-classes="true" required>
+    <select ng-model="$.currentField.Settings.ButtonType" class="b-input form-select" chosen
+        inherit-select-classes="true" required>
         <option value=""></option>
         <option value="button">Standard Button</option>
         <option value="submit">Submit Button</option>
@@ -40,13 +41,17 @@
 </div>
 <div class="b-field" ng-if="$.currentField.Settings.ButtonType=='button'">
     <label class="form-label">Validation Groups</label>
-    <select ng-model="$.currentField.Settings.ValidationGroups" class="b-input form-select" chosen inherit-select-classes="true" ng-options="field.FieldID as field.FieldName for field in $.fields | filter: {IsGroup:true}" multiple required>
+    <select ng-model="$.currentField.Settings.ValidationGroups" class="b-input form-select" chosen
+        inherit-select-classes="true"
+        ng-options="field.Id as field.FieldName for field in $.fields | filter: {IsGroup:true}" multiple required>
         <option value=""></option>
     </select>
 </div>
 <div class="b-field" ng-if="$.currentField.Settings.ButtonType=='button'">
     <label class="form-label">Validation Panes</label>
-    <select ng-model="$.currentField.Settings.ValidationPanes" class="b-input form-select" chosen inherit-select-classes="true" ng-options="pane.paneName as pane.paneTitle for pane in $.panes" multiple required>
+    <select ng-model="$.currentField.Settings.ValidationPanes" class="b-input form-select" chosen
+        inherit-select-classes="true" ng-options="pane.paneName as pane.paneTitle for pane in $.panes" multiple
+        required>
         <option value=""></option>
     </select>
 </div>

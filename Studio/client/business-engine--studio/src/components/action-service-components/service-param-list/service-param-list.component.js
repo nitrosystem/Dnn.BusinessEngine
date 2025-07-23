@@ -75,7 +75,7 @@ class ServiceParamListController {
         this.param = param;
         this.param.IsNew = false;
         this.param.IsEdited = true;
-        this.param.OrderID = $index + 1;
+        this.param.OrderId = $index + 1;
 
         this.$timeout(() => {
             this.$scope.$broadcast("onEditParam");

@@ -27,69 +27,24 @@
             </div>
             <div class="col-1">
                 <div class="b-input-group">
-                    <button type="button" class="b-btn btn-submit ps-3 pe-3" ng-click="$.onSearchClick()"
+                    <button type="button" class="b-btn btn-action ps-3 pe-3" ng-click="$.onSearchClick()"
                         ng-disabled="$.column">
                         <i class="codicon codicon-search m-0" ng-disabled="$.running"></i>
                     </button>
                 </div>
             </div>
             <div class="ms-auto">
-                <div class="b-btn-group">
-                    <button type="button" class="b-btn btn-text-icon btn-submit" ng-click="$.onAddActionClick()"
-                        ng-disabled="$.column">
-                        <i class="codicon codicon-plus" ng-disabled="$.running"></i>
-                        Add Action
-                    </button>
-                    <button type="button" class="b-btn btn-submit dropdown-toggle dropdown-toggle-split"
-                        ng-disabled="$.column" data-bs-toggle="dropdown" aria-expanded="false">
-                    </button>
-                    <div class="dropdown-menu b-dropdown-menu">
-                    </div>
-                </div>
+                <button type="button" class="b-btn btn-text-icon btn-submit" ng-click="$.onAddActionClick()"
+                    ng-disabled="$.column">
+                    <i class="codicon codicon-plus" ng-disabled="$.running"></i>
+                    Add Action
+                </button>
             </div>
         </div>
         <!------------------------------------>
         <!--Display Mode : Table-->
         <!------------------------------------>
         <div class="b-table" ng-if="$.displayMode=='table'">
-            <div class="table-header">
-                <div class="col-3 me-3">
-                    <div class="b-input-group">
-                        <input type="text" ng-model="$.filter.ActionName" class="b-input form-control"
-                            placeholder="Search by action name" />
-                        <span><i class="codicon codicon-bell"></i></span>
-                    </div>
-                </div>
-                <div class="col-3 me-3">
-                    <div class="b-input-group">
-                        <input type="text" ng-model="$.filter.ActionName" class="b-input form-control"
-                            placeholder="Search by action name" />
-                        <span><i class="codicon codicon-circuit-board"></i></span>
-                    </div>
-                </div>
-                <div class="col-1">
-                    <div class="b-input-group">
-                        <button type="button" class="b-btn btn-submit ps-3 pe-3" ng-click="$.onSearchClick()"
-                            ng-disabled="$.column">
-                            <i class="codicon codicon-search m-0" ng-disabled="$.running"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="header-tools">
-                    <div class="b-btn-group">
-                        <button type="button" class="b-btn btn-text-icon btn-text-icon btn-action"
-                            ng-click="$.onAddActionClick()" ng-disabled="$.column">
-                            <i class="codicon codicon-plus" ng-disabled="$.running"></i>
-                            Add Action
-                        </button>
-                        <button type="button" class="b-btn btn-action dropdown-toggle dropdown-toggle-split"
-                            ng-disabled="$.column" data-bs-toggle="dropdown" aria-expanded="false">
-                        </button>
-                        <div class="dropdown-menu b-dropdown-menu">
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="table-body">
                 <div class="grid columns-name">
                     <div class="g-col-1">
@@ -109,7 +64,7 @@
                         <i class="codicon codicon-ellipsis"></i>
                     </div>
                 </div>
-                <div class="grid table-row" ng-repeat="action in $.allActions | orderBy: 'ViewOrder'">
+                <div class="grid table-row" ng-repeat="action in $.actions">
                     <div class="g-col-1">
                         <label class="b-checkbox">
                             <input type="checkbox" ng-model="$.action.IsSelected">
@@ -134,17 +89,17 @@
                         </button>
                         <button type="button" class="b-clean text-light p-0"
                             ng-click="$.onActionSwapClick($index,$index+1)"
-                            ng-disabled="$.running || $index==$.allActions.length-1">
+                            ng-disabled="$.running || $index==$.actions.length-1">
                             <i class="codicon codicon-arrow-down"></i>
                         </button>
                     </div>
                     <div class="g-col-2">
                         <div class="b-multi-btns">
                             <button type="button"
-                                ng-click="$.onEditActionClick(action.ActionId,action.ActionName,action.FieldId)">
+                                ng-click="$.onEditActionClick(action.Id,action.ActionName,action.FieldId)">
                                 <i class="codicon codicon-edit"></i>
                             </button>
-                            <button type="button" ng-click="$.onDeleteActionClick(action.ActionId,$index)">
+                            <button type="button" ng-click="$.onDeleteActionClick(action.Id,$index)">
                                 <i class="codicon codicon-trash"></i>
                             </button>
                             <button type="button">
@@ -155,7 +110,7 @@
                 </div>
             </div>
             <div class="table-footer">
-                <div ng-if="!$.allActions.length" class="b-notify notify-info mb-4">
+                <div ng-if="!$.actions.length" class="b-notify notify-info mb-4">
                     <i class="codicon codicon-info b-icon-2"></i>
                     <div class="text">
                         <h4 class="label">No actions.</h4>
@@ -191,7 +146,7 @@
                     </span>
                 </div>
                 <div id="grpModuleActions" class="group-content collapse show">
-                    <div class="action-item" ng-repeat="action in $.moduleActions | orderBy: 'ViewOrder'"
+                    <div class="action-item" ng-repeat="action in $.actions | orderBy: 'ViewOrder'"
                         ng-class="{'action-has-childs':action.Childs.length}" ng-include="'actionItem.html'"></div>
                 </div>
             </div>
@@ -232,7 +187,7 @@
                         <i ng-if="!action.ActionTypeIcon" class="codicon codicon-github-action action-type-icon"></i>
                         <img ng-if="action.ActionTypeIcon" ng-src="{{action.ActionTypeIcon}}" class="action-type-icon" />
                         <p class="action-type">{{action.ActionType}}</p>
-                        <a class="text-white" href="#actionSubItems{{action.ActionId}}" data-bs-toggle="collapse" role="button" ng-if="action.Childs.length" ng-click="action.IsExpanded=!action.IsExpanded">
+                        <a class="text-white" href="#actionSubItems{{action.Id}}" data-bs-toggle="collapse" role="button" ng-if="action.Childs.length" ng-click="action.IsExpanded=!action.IsExpanded">
                             <i ng-if="!action.IsExpanded" class="codicon codicon-collapse-all"></i>
                             <i ng-if="action.IsExpanded" class="codicon codicon-expand-all"></i>
                         </a>
@@ -278,23 +233,23 @@
                     <p class="text-white-50" ng-if="action.Conditions.length">{{action.Conditions.length}} Conditions</p>
                 </div>
                 <div class="col-1">
-                    <button type="button" class="b-btn mb-2" ng-click="$.onEditActionClick(action.ActionId,action.ActionName,action.FieldId)">
+                    <button type="button" class="b-btn mb-2" ng-click="$.onEditActionClick(action.Id,action.ActionName,action.FieldId)">
                         <i class="codicon codicon-edit me-0"></i>
                     </button>
-                    <button type="button" class="b-btn mb-2" ng-click="$.onDeleteActionClick(action.ActionId,$index)">
+                    <button type="button" class="b-btn mb-2" ng-click="$.onDeleteActionClick(action.Id,$index)">
                         <i class="codicon codicon-trash me-0"></i>
                     </button>
-                    <a class="b-btn" href="#actionMoreData{{action.ActionId}}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">
+                    <a class="b-btn" href="#actionMoreData{{action.Id}}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">
                         <i class="codicon codicon-chevron-down me-0"></i>
                     </a>
                 </div>
             </div>
-            <div class="collapse multi-collapse" id="actionMoreData{{action.ActionId}}">
+            <div class="collapse multi-collapse" id="actionMoreData{{action.Id}}">
                 <div class="action-options">
                     <h5 class="option-name">More Data </h5>
                     <div class="option-item">
                         <label class="item-label">Action Id:</label>
-                        <label class="item-label">{{action.ActionId}}</label>
+                        <label class="item-label">{{action.Id}}</label>
                     </div>
                     <div class="option-item">
                         <label class="item-label">Module Id:</label>
@@ -351,7 +306,7 @@
                 </div>
             </div>
         </div>
-        <div class="action-sub-items collapse show ms-3" id="actionSubItems{{action.ActionId}}" ng-if="action.Childs.length">
+        <div class="action-sub-items collapse show ms-3" id="actionSubItems{{action.Id}}" ng-if="action.Childs.length">
             <div class="sub-item action-item" ng-repeat="action in action.Childs | orderBy: 'ViewOrder'" ng-class="{'action-has-childs':action.Childs.length}" ng-include="'actionItem.html'"></div>
         </div>
     </script>

@@ -39,8 +39,7 @@
                             <div id="grpServiceType{{$.service.Id}}_{{$index}}" class="group-content collapse show">
                                 <div class="row">
                                     <!--Select Service Subtype-->
-                                    <div class="col"
-                                        ng-repeat="serviceType in value | toArray:false | orderBy:'ViewOrder'">
+                                    <div class="col mb-3" ng-repeat="serviceType in value | toArray:false">
                                         <div class="card service-type"
                                             ng-click="$.onSelectServiceTypeClick(serviceType)"
                                             ng-class="{'active':$.service.ServiceType==serviceType.ServiceType}">

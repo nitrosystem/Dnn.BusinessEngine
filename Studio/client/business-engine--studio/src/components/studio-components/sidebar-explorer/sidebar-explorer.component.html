@@ -213,21 +213,10 @@
                         </a>
                     </li>
                     <li class="exp-item" ng-repeat="item in $.modules | fuzzyBy: 'Title': $.searchItem">
-                        <a class="exp-label collapsed" data-bs-toggle="collapse"
-                            data-bs-target="#expModuleItem{{$index}}">
-                            <i class="codicon codicon-chevron-down exp-arrow-icon"></i>
+                        <a class="exp-label" ng-class="{'active':$.$rootScope.explorerCurrentItem==item.ItemId}"
+                            ng-click="$.onItemClick($event,'create-module',null,item.ItemId,item.Title)">
                             <i class="codicon codicon-window"></i> {{item.Title}}
                         </a>
-                        <ul class="exp-sub-items collapse" id="expModuleItem{{$index}}"
-                            ng-class="{'show':$.isExpanded(item.ItemId)}">
-                            <li class="exp-item" id="module-settings-{{item.ItemId}}">
-                                <a class="exp-label"
-                                    ng-click="$.onItemClick($event,'create-module',null,item.ItemId,item.Title)"
-                                    ng-class="{'active':$.$rootScope.explorerCurrentItem==item.ItemId}">
-                                    <i class="codicon codicon-layout-menubar"></i> Module Builder
-                                </a>
-                            </li>
-                        </ul>
                     </li>
                 </ul>
             </li>

@@ -231,7 +231,7 @@ export class CreateViewModelController {
                 id: "drpPropertyType",
                 required: true,
             },
-            PropertyTypeID: {
+            PropertyTypeId: {
                 rule: (value) => {
                     if (
                         (this.property.PropertyType == "viewModel" ||
@@ -241,7 +241,7 @@ export class CreateViewModelController {
                         return "Select a view model for property type";
                     } else return true;
                 },
-                id: "drpPropertyTypeID",
+                id: "drpPropertyTypeId",
             },
         });
     }
@@ -390,30 +390,25 @@ export class CreateViewModelController {
                     subtitle: "Just a moment for removing viewModel...",
                 };
 
-                this.apiService.post("Studio", "DeleteViewModel", { ID: this.viewModel.Id }).then(
-                    (data) => {
-                        this.notifyService.success(
-                            "ViewModel deleted has been successfully"
-                        );
+                this.apiService.post("Studio", "DeleteViewModel", { Id: this.viewModel.Id }).then((data) => {
+                    if (data) this.notifyService.success("ViewModel deleted has been successfully");
 
-                        this.onCloseWindow();
+                    this.onCloseWindow();
 
-                        this.$rootScope.refreshSidebarExplorerItems();
+                    this.$rootScope.refreshSidebarExplorerItems();
 
-                        delete this.awaitAction;
-                        delete this.running;
-                    },
-                    (error) => {
-                        this.awaitAction.isError = true;
-                        this.awaitAction.subtitle = error.statusText;
-                        this.awaitAction.desc =
-                            this.globalService.getErrorHtmlFormat(error);
+                    delete this.awaitAction;
+                    delete this.running;
+                }, (error) => {
+                    this.awaitAction.isError = true;
+                    this.awaitAction.subtitle = error.statusText;
+                    this.awaitAction.desc =
+                        this.globalService.getErrorHtmlFormat(error);
 
-                        this.notifyService.error(error.data.Message);
+                    this.notifyService.error(error.data.Message);
 
-                        delete this.running;
-                    }
-                );
+                    delete this.running;
+                });
             }
         });
     }

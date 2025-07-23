@@ -58,37 +58,37 @@
 </div>
 <div class="b-field">
     <label class="form-label">Autocomplete</label>
-    <input type="search" ng-model="$.currentField.Settings.Autocomplete" list="autocompletes" class="b-input form-control"
-        placeholder="Field max length" />
-        <datalist id="autocompletes">
-            <option value="off" />
-            <option value="on" />
-            <option value="username" />
-            <option value="name" />
-            <option value="family-name" />
-            <option value="country-name" />
-            <option value="country" />
-            <option value="additional-name" />
-            <option value="nickname" />
-            <option value="street-address" />
-            <option value="mobile" />
-            <option value="tel" />
-            <option value="email" />
-            <option value="url" />
-            <option value="organization" />
-            <option value="transaction-amount" />
-            <option value="postal-code" />
-            <option value="cc-number" />
-            <option value="cc-exp-year" />
-            <option value="cc-exp-month" />
-            <option value="billing" />
-            <option value="sex" />
-          </datalist>
+    <input type="search" ng-model="$.currentField.Settings.Autocomplete" list="autocompletes"
+        class="b-input form-control" placeholder="Field max length" />
+    <datalist id="autocompletes">
+        <option value="off" />
+        <option value="on" />
+        <option value="username" />
+        <option value="name" />
+        <option value="family-name" />
+        <option value="country-name" />
+        <option value="country" />
+        <option value="additional-name" />
+        <option value="nickname" />
+        <option value="street-address" />
+        <option value="mobile" />
+        <option value="tel" />
+        <option value="email" />
+        <option value="url" />
+        <option value="organization" />
+        <option value="transaction-amount" />
+        <option value="postal-code" />
+        <option value="cc-number" />
+        <option value="cc-exp-year" />
+        <option value="cc-exp-month" />
+        <option value="billing" />
+        <option value="sex" />
+    </datalist>
 </div>
 <div class="b-field">
     <label class="form-label">Enter Event</label>
     <select ng-model="$.currentField.Settings.EnterAction" class="b-input form-control" chosen
-        inherit-select-classes="true" ng-options="action.ActionID as action.ActionName for action in $.actions">
+        inherit-select-classes="true" ng-options="action.Id as action.ActionName for action in $.actions">
         <option value="">---None---</option>
     </select>
 </div>
@@ -96,7 +96,7 @@
     <label class="form-label">Call Button Click</label>
     <select ng-model="$.currentField.Settings.EnterButtonClick" class="b-input form-control" chosen
         inherit-select-classes="true"
-        ng-options="field.FieldID as field.FieldName for field in $.fields | filter: {FieldType:'Button'}">
+        ng-options="field.Id as field.FieldName for field in $.fields | filter: {FieldType:'Button'}">
         <option value="">---None---</option>
     </select>
 </div>

@@ -194,26 +194,20 @@ export class CreateEntityController {
         };
 
         this.apiService
-            .get("Studio", "GetDatabaseObjects", {
-                databaseID: this.entity.DatabaseID || null,
-            })
-            .then(
-                (data) => {
-                    this.dataBaseObjects = { Tables: data.Tables, Views: data.Views };
+            .get("Studio", "GetDatabaseObjects",).then((data) => {
+                this.dataBaseObjects = { Tables: data.Tables, Views: data.Views };
 
-                    delete this.running;
-                    delete this.awaitAction;
-                },
-                (error) => {
-                    this.awaitAction.isError = true;
-                    this.awaitAction.subtitle = error.statusText;
-                    this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+                delete this.running;
+                delete this.awaitAction;
+            }, (error) => {
+                this.awaitAction.isError = true;
+                this.awaitAction.subtitle = error.statusText;
+                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
 
-                    this.notifyService.error(error.data.Message);
+                this.notifyService.error(error.data.Message);
 
-                    delete this.running;
-                }
-            );
+                delete this.running;
+            });
     }
 
     onDatabaseObjectChange() {
@@ -223,28 +217,22 @@ export class CreateEntityController {
             subtitle: "Just a moment for loading database object columns...",
         };
 
-        this.apiService
-            .get("Studio", "GetDatabaseObjectColumns", {
-                objectName: this.entity.TableName,
-                databaseID: this.entity.DatabaseID || null,
-            })
-            .then(
-                (data) => {
-                    this.entity.Columns = data;
+        this.apiService.get("Studio", "GetDatabaseObjectColumns", {
+            objectName: this.entity.TableName
+        }).then((data) => {
+            this.entity.Columns = data;
 
-                    delete this.running;
-                    delete this.awaitAction;
-                },
-                (error) => {
-                    this.awaitAction.isError = true;
-                    this.awaitAction.subtitle = error.statusText;
-                    this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+            delete this.running;
+            delete this.awaitAction;
+        }, (error) => {
+            this.awaitAction.isError = true;
+            this.awaitAction.subtitle = error.statusText;
+            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
 
-                    this.notifyService.error(error.data.Message);
+            this.notifyService.error(error.data.Message);
 
-                    delete this.running;
-                }
-            );
+            delete this.running;
+        });
     }
 
     onSyncColumns() {
@@ -254,45 +242,39 @@ export class CreateEntityController {
             subtitle: "Just a moment for loading database object columns...",
         };
 
-        this.apiService
-            .get("Studio", "GetDatabaseObjectColumns", {
-                objectName: this.entity.TableName,
-                databaseID: this.entity.DatabaseID || null,
-            })
-            .then(
-                (columns) => {
-                    var beAdded = _.differenceBy(
-                        columns,
-                        this.entity.Columns,
-                        "ColumnName"
-                    );
-                    var beRemoved = _.differenceBy(
-                        this.entity.Columns,
-                        columns,
-                        "ColumnName"
-                    );
-
-                    this.entity.Columns.push(...beAdded);
-
-                    _.remove(this.entity.Columns, (c) => {
-                        return _.filter(beRemoved, (i) => {
-                            return i.ColumnName == c.ColumnName;
-                        }).length;
-                    });
-
-                    delete this.running;
-                    delete this.awaitAction;
-                },
-                (error) => {
-                    this.awaitAction.isError = true;
-                    this.awaitAction.subtitle = error.statusText;
-                    this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-                    this.notifyService.error(error.data.Message);
-
-                    delete this.running;
-                }
+        this.apiService.get("Studio", "GetDatabaseObjectColumns", {
+            objectName: this.entity.TableName,
+        }).then((columns) => {
+            var beAdded = _.differenceBy(
+                columns,
+                this.entity.Columns,
+                "ColumnName"
             );
+            var beRemoved = _.differenceBy(
+                this.entity.Columns,
+                columns,
+                "ColumnName"
+            );
+
+            this.entity.Columns.push(...beAdded);
+
+            _.remove(this.entity.Columns, (c) => {
+                return _.filter(beRemoved, (i) => {
+                    return i.ColumnName == c.ColumnName;
+                }).length;
+            });
+
+            delete this.running;
+            delete this.awaitAction;
+        }, (error) => {
+            this.awaitAction.isError = true;
+            this.awaitAction.subtitle = error.statusText;
+            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+
+            this.notifyService.error(error.data.Message);
+
+            delete this.running;
+        });
     }
 
     onRefreshColumns() {
@@ -500,7 +482,7 @@ export class CreateEntityController {
                     subtitle: "Just a moment for removing entity...",
                 };
 
-                this.apiService.post("Studio", "DeleteEntity", { ID: this.entity.Id }).then(
+                this.apiService.post("Studio", "DeleteEntity", { Id: this.entity.Id }).then(
                     (data) => {
                         this.notifyService.success("Entity deleted has been successfully");
 

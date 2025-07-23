@@ -7,13 +7,13 @@
         <div class="header-tools me-3 col-4">
             <div class="col-10 me-2">
                 <div class="b-input-group">
-                    <b-selective ng-model="$.action.ServiceID" placeholder="Select a service"
+                    <b-selective ng-model="$.action.ServiceId" placeholder="Select a service"
                         table="{headers:[{'title':'Service Name','column':'ServiceName'}],'search':['ServiceName']}"
                         paging="{visiblePages:5}"
                         modal="{'title':'Services','showCloseButton':true,'placeholder':'Search by service name(Press enter)'}"
                         on-fetch-items="$.getServices(pageIndex,searchText,serviceType)"
-                        on-select-item="$.onServiceChange(item)" text="ServiceName" value="ServiceID"
-                        filter="{serviceSubtype:$.serviceType}" storage="$.action" storage-key="Settings"
+                        on-select-item="$.onServiceChange(item)" text="ServiceName" value="Id"
+                        filter="{serviceType:$.serviceType}" storage="$.action" storage-key="Settings"
                         ng-disabled="waiting"></b-selective>
                     <span><i class="codicon codicon-gear"></i></span>
                 </div>
@@ -29,7 +29,7 @@
                     <a class="dropdown-item" href="" ng-click="$.onAddServiceClick()">
                         <i class="codicon codicon-plus me-2"></i> Add New Service
                     </a>
-                    <a class="dropdown-item" href="" ng-if="$.action.ServiceID" ng-click="$.onEditServiceClick()">
+                    <a class="dropdown-item" href="" ng-if="$.action.ServiceId" ng-click="$.onEditServiceClick()">
                         <i class="codicon codicon-edit me-2"></i> Edit Service
                     </a>
                     <a class="dropdown-item" href="" ng-click="$.onChangeScenarioClick()">
@@ -71,7 +71,7 @@
         <!------------------------------------>
         <!-- Edit Param -->
         <!------------------------------------>
-        <div ng-if="$.param.IsEdited" class="d-flex table-row edit-row" ng-style="{'order':$.param.OrderID}">
+        <div ng-if="$.param.IsEdited" class="d-flex table-row edit-row" ng-style="{'order':$.param.OrderId}">
             <div class="col-4 my-auto">{{$.param.ParamName}}</div>
             <div class="col-4 my-auto">
                 <div class="d-flex">

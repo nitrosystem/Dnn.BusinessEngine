@@ -67,12 +67,12 @@ export class SelectScenarioController {
 
             this.apiService.post("Studio", "SaveScenario", this.scenario).then(
                 (data) => {
-                    this.scenario.ScenarioId = data;
+                    this.scenario.Id = data;
 
                     this.notifyService.success("Scenario updated has been successfully");
 
                     this.$scope.$emit("onUpdateCurrentTab", {
-                        id: this.scenario.ScenarioId,
+                        id: this.scenario.Id,
                         title: this.scenario.ScenarioName,
                         key: this.currentTabKey,
                     });

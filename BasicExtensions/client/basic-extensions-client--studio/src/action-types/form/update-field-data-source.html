@@ -1,8 +1,9 @@
 <div class="b-field">
     <label class="form-label">Field</label>
     <div class="b-input-group">
-        <select id="drpField" ng-model="$.action.Settings.FieldID" class="b-input form-select" ng-options="field.FieldID as field.FieldName for field in $.fields" ng-change="$.updateFieldChange()" chosen inherit-select-classes="true" placeholder-text-single="'Select field'"
-            required>
+        <select id="drpField" ng-model="$.action.Settings.FieldId" class="b-input form-select"
+            ng-options="field.Id as field.FieldName for field in $.fields" ng-change="$.updateFieldChange()" chosen
+            inherit-select-classes="true" placeholder-text-single="'Select field'" required>
         </select>
         <span><i class="codicon codicon-plus"></i></span>
     </div>
@@ -27,7 +28,8 @@
             <div class="col-6">Param Name</div>
             <div class="col-6">Param Value</div>
         </div>
-        <div class="d-flex table-row" ng-repeat="param in $.action.Params | orderBy : 'ViewOrder'" ng-style="{'order':($index+1)}">
+        <div class="d-flex table-row" ng-repeat="param in $.action.Params | orderBy : 'ViewOrder'"
+            ng-style="{'order':($index+1)}">
             <div class="col-6 my-auto">
                 {{param.ParamName}}
             </div>

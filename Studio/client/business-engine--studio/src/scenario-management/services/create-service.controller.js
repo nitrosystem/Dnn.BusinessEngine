@@ -349,26 +349,25 @@ export class CreateServiceController {
                     subtitle: "Just a moment for removing service...",
                 };
 
-                this.apiService.post("Studio", "DeleteService", { ID: this.service.Id }).then(
-                    (data) => {
-                        this.notifyService.success("Service deleted has been successfully");
+                this.apiService.post("Studio", "DeleteService", { Id: this.service.Id }).then((data) => {
+                    if (data) this.notifyService.success("Service deleted has been successfully");
 
-                        this.onCloseWindow();
+                    this.onCloseWindow();
 
-                        this.$rootScope.refreshSidebarExplorerItems();
+                    this.$rootScope.refreshSidebarExplorerItems();
 
-                        delete this.awaitAction;
-                        delete this.running;
-                    }, (error) => {
-                        this.awaitAction.isError = true;
-                        this.awaitAction.subtitle = error.statusText;
-                        this.awaitAction.desc =
-                            this.globalService.getErrorHtmlFormat(error);
+                    delete this.awaitAction;
+                    delete this.running;
+                }, (error) => {
+                    this.awaitAction.isError = true;
+                    this.awaitAction.subtitle = error.statusText;
+                    this.awaitAction.desc =
+                        this.globalService.getErrorHtmlFormat(error);
 
-                        this.notifyService.error(error.data.Message);
+                    this.notifyService.error(error.data.Message);
 
-                        delete this.running;
-                    });
+                    delete this.running;
+                });
             }
         });
     }

@@ -33,7 +33,7 @@ class ActionParamListController {
         this.params = this.params || [];
 
         _.filter(this.actions, (a) => {
-            return a.ActionId == this.actionId;
+            return a.Id == this.actionId;
         }).map((action) => {
             this.globalService.bindParams(this.params, action.Params);
         });
@@ -52,7 +52,7 @@ class ActionParamListController {
             IsNew: true,
             IsEdited: true,
             IsCustomParam: true,
-            OrderID: this.params.length + 1,
+            OrderId: this.params.length + 1,
         });
 
         this.param = this.params[this.params.length - 1];
@@ -69,7 +69,7 @@ class ActionParamListController {
         this.param = param;
         this.param.IsNew = false;
         this.param.IsEdited = true;
-        this.param.OrderID = $index + 1;
+        this.param.OrderId = $index + 1;
 
         this.$timeout(() => {
             this.$scope.$broadcast("onEditParam");
