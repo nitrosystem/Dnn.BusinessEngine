@@ -9,13 +9,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Caching;
+using NitroSystem.Dnn.BusinessEngine.Studio.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
 {
     [Table("BusinessEngine_ActionConditions")]
     [Cacheable("BE_ActionConditions_", CacheItemPriority.Default, 20)]
     [Scope("ActionId")]
-    public class ActionConditionInfo : IEntity, IExpressionInfo
+    public class ActionConditionInfo : IEntity, IExpression
     {
         public Guid Id { get; set; }
         public Guid ActionId { get; set; }

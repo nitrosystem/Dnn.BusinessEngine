@@ -1,21 +1,19 @@
-﻿
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Caching;
+using NitroSystem.Dnn.BusinessEngine.Studio.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
 {
     [Table("BusinessEngine_ActionResults")]
     [Cacheable("BE_ActionResults_", CacheItemPriority.Default, 20)]
     [Scope("ActionId")]
-    public class ActionResultInfo : IEntity, IExpressionInfo
+    public class ActionResultInfo : IEntity, IExpression
     {
         public Guid Id { get; set; }
         public Guid ActionId { get; set; }

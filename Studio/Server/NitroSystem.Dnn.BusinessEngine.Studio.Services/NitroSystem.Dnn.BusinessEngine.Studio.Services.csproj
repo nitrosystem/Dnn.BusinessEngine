@@ -95,7 +95,6 @@
     <Compile Include="Enums\ImportExportType.cs" />
     <Compile Include="Enums\LibraryOrResource.cs" />
     <Compile Include="Enums\ModuleVariableScope.cs" />
-    <Compile Include="Enums\VariableTypeLanguage.cs" />
     <Compile Include="Mapping\ResourceMapping.cs" />
     <Compile Include="Mapping\ActionMapping.cs" />
     <Compile Include="Models\ModuleFieldTypeCustomEventListItem.cs" />
@@ -142,7 +141,6 @@
     <Compile Include="ViewModels\Service\ServiceViewModel.cs" />
     <Compile Include="ViewModels\Template\TemplateFieldTypeViewModel.cs" />
     <Compile Include="ViewModels\Template\TemplateViewModel.cs" />
-    <Compile Include="ViewModels\Module\VariableTypeViewModel.cs" />
     <Compile Include="ViewModels\ViewModel\ViewModelViewModel.cs" />
   </ItemGroup>
   <ItemGroup />

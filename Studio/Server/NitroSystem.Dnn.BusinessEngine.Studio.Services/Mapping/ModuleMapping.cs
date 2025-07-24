@@ -261,17 +261,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
 
         #region Module Variable Mapping
 
-        public static IEnumerable<ModuleVariableViewModel> MapModuleVariablesViewModel(IEnumerable<ModuleVariableView> variables, IEnumerable<ViewModelInfo> viewModels)
+        public static IEnumerable<ModuleVariableViewModel> MapModuleVariablesViewModel(IEnumerable<ModuleVariableInfo> variables, IEnumerable<ViewModelInfo> viewModels)
         {
             return variables.Select(variable => MapModuleVariableViewModel(variable, viewModels));
         }
 
-        public static ModuleVariableViewModel MapModuleVariableViewModel(ModuleVariableView variable, IEnumerable<ViewModelInfo> viewModels)
+        public static ModuleVariableViewModel MapModuleVariableViewModel(ModuleVariableInfo variable, IEnumerable<ViewModelInfo> viewModels)
         {
-            var mapper = new ExpressionMapper<ModuleVariableView, ModuleVariableViewModel>();
+            var mapper = new ExpressionMapper<ModuleVariableInfo, ModuleVariableViewModel>();
             mapper.AddCustomMapping(src => src.Scope, dest => dest.Scope, source => (ModuleVariableScope)source.Scope);
-            mapper.AddCustomMapping(src => src.Language, dest => dest.Language, source => (VariableTypeLanguage)source.Language);
-            mapper.AddCustomMapping(src => src.Icon, dest => dest.Icon, source => source.Icon.ReplaceFrequentTokens());
             mapper.AddCustomMapping(src => src, dest => dest.ViewModel, source => (viewModels ?? Enumerable.Empty<ViewModelInfo>()).FirstOrDefault(v => v.Id == source.ViewModelId));
 
             var result = mapper.Map(variable);

@@ -14,15 +14,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Module;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Action;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
 {
     public interface IActionService
     {
-        Task<(IEnumerable<ActionViewModel> Items, int TotalCount)> GetActionsViewModelAsync(Guid moduleId, Guid? fieldId, int pageIndex, int pageSize, string searchText, string actionType, string sortBy);
+        Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId);
 
-        Task<ActionViewModel> GetActionViewModelAsync(Guid actionId);
+        Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId, Guid? fieldId, string eventName, bool isServerSide);
 
-        Task<IEnumerable<ModuleFieldLiteDto>> GetFieldsHaveActionsAsync(Guid moduleId);
+        //Task<ActionViewModel> GetActionViewModelAsync(Guid actionId);
+
+        //Task<IEnumerable<ModuleFieldLiteDto>> GetFieldsHaveActionsAsync(Guid moduleId);
     }
 }

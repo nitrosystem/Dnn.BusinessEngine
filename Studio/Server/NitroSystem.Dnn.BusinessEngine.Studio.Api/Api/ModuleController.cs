@@ -162,13 +162,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                var variableTypes = await _moduleService.GetVariableTypesViewModelAsync();
                 var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
                 var viewModels = await _viewModelService.GetViewModelsAsync(scenarioId, 1, 1000, "", "Title");
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
-                    VariableTypes = variableTypes,
                     Variables = variables,
                     ViewModels = viewModels
                 });

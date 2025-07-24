@@ -100,7 +100,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         public async Task<(IEnumerable<ServiceViewModel> Items, int? TotalCount)> GetServicesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, string serviceType, string sortBy)
         {
             var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                "BusinessEngine_GetServicesWithParams",
+                "BusinessEngine_GetServicesWithParams", "Studio_Services_",
                     new
                     {
                         ScenarioId = scenarioId,

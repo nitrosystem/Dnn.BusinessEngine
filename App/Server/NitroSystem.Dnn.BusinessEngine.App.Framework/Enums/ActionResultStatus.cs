@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Framework.Enums
 {
-    public enum ActionResultStatus : byte
+    public enum ActionResultStatus 
     {
         OnCompleted = 0,
         OnCompletedSuccess = 1,

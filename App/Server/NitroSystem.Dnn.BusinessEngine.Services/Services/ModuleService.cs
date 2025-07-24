@@ -30,6 +30,9 @@ using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Module;
+using DotNetNuke.Services.Scheduling;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.ViewModel;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 {
@@ -68,7 +71,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             return resources.Select(
                 resource =>
                 {
-                    return HybridMapper.MapWithConfig<PageResourceInfo, PageResourceViewModel>(resource, (src, dest) => { });
+                    return HybridMapper.Map<PageResourceInfo, PageResourceViewModel>(resource);
                 }
             );
         }
@@ -80,7 +83,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             return resources.Where(r => r.IsActive).Select(
                 resource =>
                 {
-                    return HybridMapper.MapWithConfig<PageResourceInfo, PageResourceViewModel>(resource, (src, dest) => { });
+                    return HybridMapper.Map<PageResourceInfo, PageResourceViewModel>(resource);
                 });
         }
 
@@ -758,6 +761,40 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 
         //    return await task1 && await task2;
         //}
+
+        #endregion
+
+        #region Module Variables
+
+        public async Task<IEnumerable<ModuleVariableDto>> GetModuleVariables(Guid moduleId, ModuleVariableScope scope)
+        {
+            var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
+                "BusinessEngine_App_GetModuleVariables", "App_ModuleVariables_",
+                    new
+                    {
+                        ModuleId = moduleId,
+                        Scope = scope,
+                    },
+                    grid => grid.Read<ModuleVariableInfo>(),
+                    grid => grid.Read<ViewModelPropertyInfo>()
+                );
+
+            var variables = results[0] as IEnumerable<ModuleVariableInfo>;
+            var viewModelsProperties = results[1] as IEnumerable<ViewModelPropertyInfo>;
+
+            return variables.Select(variable =>
+            {
+                return HybridMapper.MapWithConfig<ModuleVariableInfo, ModuleVariableDto>(variable,
+                (src, dest) =>
+                {
+                    dest.Scope = (ModuleVariableScope)variable.Scope;
+                    viewModelsProperties.Where(p => p.ViewModelId == variable.ViewModelId).Select(prop =>
+                    {
+                        return HybridMapper.Map<ViewModelPropertyInfo, ViewModelPropertyDto>(prop);
+                    });
+                });
+            });
+        }
 
         #endregion
     }

@@ -24,7 +24,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
         public string ActionTypeIcon { get; set; }
         public string ActionTypeTitle { get; set; }
         public string Event { get; set; }
-        public byte? ParentResultStatus { get; set; }
+        public int? ParentActionTriggerCondition { get; set; }
         public bool IsServerSide { get; set; }
         public bool RunChildsInServerSide { get; set; }
         public bool HasPreScript { get; set; }

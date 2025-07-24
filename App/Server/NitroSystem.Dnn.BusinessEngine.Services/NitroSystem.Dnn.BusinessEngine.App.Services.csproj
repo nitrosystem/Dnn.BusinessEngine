@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Dapper.2.1.66\lib\net461\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="DotNetNuke, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\DotNetNuke.dll</HintPath>
     </Reference>
@@ -44,6 +47,9 @@
     <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.1\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
     </Reference>
@@ -55,6 +61,12 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,26 +75,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contracts\BuildModuleRequest.cs" />
     <Compile Include="Contracts\IActionService.cs" />
     <Compile Include="Contracts\ITemplateService.cs" />
     <Compile Include="Contracts\IGlobalService.cs" />
     <Compile Include="Contracts\IModuleService.cs" />
-    <Compile Include="Dto\Module\ModuleFieldLiteDto.cs" />
-    <Compile Include="Dto\Module\SortModuleCustomLibrariesDto.cs" />
-    <Compile Include="Dto\Module\ModuleLayoutTemplateDto.cs" />
-    <Compile Include="Dto\Module\SortPaneFieldsDto.cs" />
-    <Compile Include="Dto\Module\ModuleFieldUpdateDto.cs" />
+    <Compile Include="Dto\Action\ActionDto.cs" />
     <Compile Include="Dto\LibraryLiteDto.cs" />
-    <Compile Include="Dto\Module\ModuleCustomResourceDto.cs" />
-    <Compile Include="Dto\Module\ModuleCustomLibraryDto.cs" />
-    <Compile Include="Dto\Module\ModuleFieldTypeDto.cs" />
-    <Compile Include="Enums\BuildTypeScope.cs" />
+    <Compile Include="Dto\Module\ModuleVariableDto.cs" />
+    <Compile Include="Dto\ViewModel\ViewModelDto.cs" />
+    <Compile Include="Dto\ViewModel\ViewModelPropertyDto.cs" />
     <Compile Include="Enums\EntityType.cs" />
-    <Compile Include="Enums\ImportExportType.cs" />
-    <Compile Include="Enums\LibraryOrResource.cs" />
     <Compile Include="Enums\ModuleVariableScope.cs" />
-    <Compile Include="Enums\VariableTypeLanguage.cs" />
+    <Compile Include="Services\ActionService.cs" />
     <Compile Include="Services\ModuleService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\Action\ActionResultViewModel.cs" />
@@ -99,13 +103,9 @@
     <Compile Include="ViewModels\Library\LibraryViewModel.cs" />
     <Compile Include="ViewModels\Module\Field\ModuleFieldTypeTemplateViewModel.cs" />
     <Compile Include="ViewModels\Module\Field\ModuleFieldTypeThemeViewModel.cs" />
-    <Compile Include="ViewModels\Module\ModuleCustomLibraryResourceViewModel.cs" />
-    <Compile Include="ViewModels\Module\ModuleCustomResourceViewModel.cs" />
-    <Compile Include="ViewModels\Module\ModuleCustomLibraryViewModel.cs" />
     <Compile Include="ViewModels\Module\Field\ModuleFieldSettingViewModel.cs" />
     <Compile Include="ViewModels\Module\Field\ModuleFieldTypeViewModel.cs" />
     <Compile Include="ViewModels\Module\Field\ModuleFieldViewModel.cs" />
-    <Compile Include="ViewModels\Module\ModuleVariableViewModel.cs" />
     <Compile Include="ViewModels\Module\ModuleViewModel.cs" />
     <Compile Include="ViewModels\Global\PaymentMethodViewModel.cs" />
     <Compile Include="ViewModels\Global\ScenarioViewModel.cs" />
@@ -115,7 +115,6 @@
     <Compile Include="ViewModels\Service\ServiceViewModel.cs" />
     <Compile Include="ViewModels\Template\TemplateFieldTypeViewModel.cs" />
     <Compile Include="ViewModels\Template\TemplateViewModel.cs" />
-    <Compile Include="ViewModels\Module\VariableTypeViewModel.cs" />
     <Compile Include="ViewModels\ViewModel\ViewModelViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

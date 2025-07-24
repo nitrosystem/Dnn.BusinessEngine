@@ -26,28 +26,26 @@ using System.Drawing;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Api
 {
     public class ModuleController : DnnApiController
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ICacheService _cacheService;
+        private readonly IModuleData _moduleData;
         private readonly IModuleService _moduleService;
-        private readonly IActionService _actionService;
+        private readonly IActionWorker _actionWorker;
 
         public ModuleController(
-            IUnitOfWork unitOfWork,
-            ICacheService cacheService,
-            IModuleService moduleService
-            //IActionService actionService
+            IModuleData moduledata,
+            IModuleService moduleService,
+            IActionWorker actionWorker
         )
         {
-            _unitOfWork = unitOfWork;
-            _cacheService = cacheService;
-            //_dashboardService = dashboardService;
+            _moduleData = moduledata;
             _moduleService = moduleService;
-            //_actionService = actionService;
+            _actionWorker = actionWorker;
         }
 
         #region Common
@@ -506,13 +504,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Api
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 if (module == null) throw new Exception("Module Not Config");
 
-                string moduleTemplateUrl = "";
-                string moduleTemplateJsUrl = "";
-                string moduleTemplateCssUrl = "";
-
+                await _moduleData.InitializeModuleData(module.Id);
                 //this._moduleData.InitModuleData(moduleGuid, connectionId, this.UserInfo.UserId, null, null, postData.PageUrl, !module.IsSSR);
 
-                //await this._actionWorker.CallActions(moduleId, null, "OnPageInit"); // call "OnPageInit" event actions. Not important server side
+                //await _actionWorker.CallActions(moduleId, null, "OnPageLoad", true); 
 
                 var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
 
@@ -539,9 +534,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Api
                 {
                     Fields = fields,
                     //Actions = actions,
-                    ModuleTemplateUrl = moduleTemplateUrl,
-                    ModuleTemplateJsUrl = moduleTemplateJsUrl,
-                    ModuleTemplateCssUrl = moduleTemplateCssUrl,
                     ConnectionId = connectionId,
                     //Variables = variables,
                     //Data = moduleData,

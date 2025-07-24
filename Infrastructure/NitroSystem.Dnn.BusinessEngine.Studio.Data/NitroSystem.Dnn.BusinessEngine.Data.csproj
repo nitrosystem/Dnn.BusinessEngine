@@ -56,7 +56,6 @@
     <Compile Include="Repository\ExecuteSqlCommand.cs" />
     <Compile Include="Contracts\CssModel.cs" />
     <Compile Include="Contracts\ModuleFieldTypeInfo.cs" />
-    <Compile Include="Contracts\IExpressionInfo.cs" />
     <Compile Include="Contracts\IParamInfo.cs" />
     <Compile Include="Entities\Tables\ActionConditionInfo.cs" />
     <Compile Include="Entities\Tables\ActionInfo.cs" />
@@ -67,7 +66,6 @@
     <Compile Include="Entities\Tables\ScenarioInfo.cs" />
     <Compile Include="Entities\Tables\ServiceInfo.cs" />
     <Compile Include="Entities\Tables\ServiceParamInfo.cs" />
-    <Compile Include="Entities\Tables\VariableTypeInfo.cs" />
     <Compile Include="Entities\Tables\TemplateLibraryInfo.cs" />
     <Compile Include="Entities\Tables\TemplateThemeInfo.cs" />
     <Compile Include="Entities\Tables\TemplateInfo.cs" />
@@ -106,7 +104,6 @@
     <Compile Include="Entities\Views\ModuleCustomLibraryResourceView.cs" />
     <Compile Include="Entities\Views\ModuleFieldSettingView.cs" />
     <Compile Include="Entities\Views\ModuleCustomLibraryView.cs" />
-    <Compile Include="Entities\Views\ModuleVariableView.cs" />
     <Compile Include="Entities\Views\DefinedListItemView.cs" />
     <Compile Include="Entities\Views\ModuleView.cs" />
     <Compile Include="Entities\Views\ServiceView.cs" />

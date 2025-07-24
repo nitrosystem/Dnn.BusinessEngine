@@ -18,7 +18,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
         public Guid ViewModelId { get; set; }
         public string PropertyName { get; set; }
         public string PropertyType { get; set; }
-        public Guid? PropertyTypeId { get; set; }
         public int ViewOrder { get; set; }
     }
 }

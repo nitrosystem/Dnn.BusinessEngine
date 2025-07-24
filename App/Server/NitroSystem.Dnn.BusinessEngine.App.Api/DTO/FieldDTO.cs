@@ -1,4 +1,5 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Api.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,8 +25,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.DTO
         public bool IsJsonValue { get; set; }
         public string Value { get; set; }
         public string ThemeCssClass { get; set; }
-        //public IEnumerable<IExpressionInfo> ShowConditions { get; set; }
-        //public IEnumerable<IExpressionInfo> EnableConditions { get; set; }
+        public IEnumerable<IExpression> ShowConditions { get; set; }
+        public IEnumerable<IExpression> EnableConditions { get; set; }
         public IEnumerable<FieldValueInfo> FieldValues { get; set; }
         public FieldDataSourceResult DataSource { get; set; }
         public IDictionary<string, object> Settings { get; set; }

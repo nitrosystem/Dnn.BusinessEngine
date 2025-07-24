@@ -108,6 +108,7 @@
     <Compile Include="Contracts\IDto.cs" />
     <Compile Include="Contracts\IEntity.cs" />
     <Compile Include="Contracts\IExecuteSqlCommand.cs" />
+    <Compile Include="Contracts\IExpression.cs" />
     <Compile Include="Contracts\IField.cs" />
     <Compile Include="Contracts\IModule.cs" />
     <Compile Include="Contracts\IRepositoryBase.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Contracts\IExtensionServiceViewModel.cs" />
     <Compile Include="Contracts\IServiceLocator.cs" />
     <Compile Include="Contracts\IViewModel.cs" />
+    <Compile Include="Enums\ActionResultStatus.cs" />
     <Compile Include="Enums\DtoType.cs" />
     <Compile Include="Enums\FieldDataSourceType.cs" />
     <Compile Include="Enums\ModuleType.cs" />
@@ -147,9 +149,7 @@
     <Compile Include="Contracts\IExpressionService.cs" />
     <Compile Include="Contracts\IModuleData.cs" />
     <Compile Include="Contracts\TokenBase.cs" />
-    <Compile Include="DTO\ModuleVariableDto.cs" />
     <Compile Include="Enums\Scope.cs" />
-    <Compile Include="Enums\VariableScope.cs" />
     <Compile Include="General\General.cs" />
     <Compile Include="ClientResources\ClientResourceManager.cs" />
     <Compile Include="Security\Encryptor.cs" />
@@ -172,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DefinedList\" />
+    <Folder Include="ModuleData\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -6,6 +6,7 @@ using System.Web.Caching;
 
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
 {
@@ -22,7 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
         public string ActionName { get; set; }
         public string ActionType { get; set; }
         public string Event { get; set; }
-        public byte? ParentResultStatus { get; set; }
+        public int? ParentActionTriggerCondition { get; set; }
         public bool IsServerSide { get; set; }
         public bool RunChildsInServerSide { get; set; }
         public bool HasPreScript { get; set; }

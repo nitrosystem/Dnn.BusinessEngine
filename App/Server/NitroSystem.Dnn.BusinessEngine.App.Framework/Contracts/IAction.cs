@@ -5,13 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Framework.Dto;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Action;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Framework.Contracts
 {
     public interface IAction
     {
-        //void Init(IActionWorker actionWorker, ActionDto action, IModuleData moduleData, IExpressionService expressionService, IServiceWorker serviceWorker);
+        void Init(ActionDto action);
 
-        Task<object> ExecuteAsync<T>(bool isServerSide);
+        Task<object> ExecuteAsync<T>();
     }
 }

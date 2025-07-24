@@ -57,7 +57,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             var results =
                 await _repository
                     .ExecuteStoredProcedureMultiGridResultAsync(
-                        "BusinessEngine_GetViewModelsWithProperties",
+                        "BusinessEngine_GetViewModelsWithProperties", "Studio_ViewModels_",
                         new
                         {
                             ScenarioId = scenarioId,
@@ -99,8 +99,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 foreach (var objViewModelPropertyInfo in viewModel.Properties)
                 {
                     objViewModelPropertyInfo.ViewModelId = objViewModelInfo.Id;
-
-                    if (objViewModelPropertyInfo.PropertyType != "viewModel" && objViewModelPropertyInfo.PropertyType != "listOfViewModel") objViewModelPropertyInfo.PropertyTypeId = null;
 
                     await _repository.AddAsync<ViewModelPropertyInfo>(objViewModelPropertyInfo);
                 }

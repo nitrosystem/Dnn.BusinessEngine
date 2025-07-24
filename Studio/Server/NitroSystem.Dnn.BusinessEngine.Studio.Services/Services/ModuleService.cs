@@ -109,7 +109,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                     ModuleId = module.Id
                 });
 
-                var spFieldsTask = _repository.ExecuteStoredProcedureMultiGridResultAsync("BusinessEngine_GetBuildModulesFieldsAndSettings",
+                var spFieldsTask = _repository.ExecuteStoredProcedureMultiGridResultAsync(
+                    "BusinessEngine_GetBuildModulesFieldsAndSettings", "Studio_ModulesFields_",
                     new
                     {
                         ModuleId = module.Id
@@ -366,23 +367,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         #region Module Variable Services
 
-        public async Task<IEnumerable<VariableTypeViewModel>> GetVariableTypesViewModelAsync()
-        {
-            var variableTypes = await _repository.GetAllAsync<VariableTypeInfo>();
-            return variableTypes.Select(source =>
-            {
-                return HybridMapper.MapWithConfig<VariableTypeInfo, VariableTypeViewModel>(
-                source, (src, dest) =>
-                {
-                    dest.Language = (VariableTypeLanguage)source.Language;
-                    dest.Icon = (dest.Icon ?? string.Empty).ReplaceFrequentTokens();
-                });
-            });
-        }
-
         public async Task<IEnumerable<ModuleVariableViewModel>> GetModuleVariablesViewModelAsync(Guid moduleId)
         {
-            var task1 = _repository.GetByScopeAsync<ModuleVariableView>(moduleId);
+            var task1 = _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId);
             var task2 = _repository.ExecuteStoredProcedureAsListAsync<ViewModelInfo>("BusinessEngine_GetVariablesViewModels",
                 new { ModuleId = moduleId });
 
@@ -393,7 +380,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<ModuleVariableViewModel> GetModuleVariableViewModelAsync(Guid variableId)
         {
-            var variable = await _repository.GetAsync<ModuleVariableView>(variableId);
+            var variable = await _repository.GetAsync<ModuleVariableInfo>(variableId);
 
             return ModuleMapping.MapModuleVariableViewModel(variable, null);
         }

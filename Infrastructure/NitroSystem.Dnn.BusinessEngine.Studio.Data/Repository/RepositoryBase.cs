@@ -634,7 +634,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
         }
 
         public async Task<object[]> ExecuteStoredProcedureMultiGridResultAsync(string storedProcedure,
-            object parameters, params Func<GridReader, object>[] readerFuncs)
+            string cacheKey, object parameters, params Func<GridReader, object>[] readerFuncs)
         {
             AllowedStoredProcedures.CheckValidStoredProcedure(storedProcedure);
 

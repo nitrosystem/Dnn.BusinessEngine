@@ -22,7 +22,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
     {
         private readonly IServiceLocator _serviceLocator;
 
-        public BuildModuleLayout( IServiceLocator serviceLocator)
+        public BuildModuleLayout(IServiceLocator serviceLocator)
         {
             _serviceLocator = serviceLocator;
         }

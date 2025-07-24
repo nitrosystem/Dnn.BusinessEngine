@@ -15,6 +15,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Core.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Module;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
 {
@@ -35,5 +38,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
         Task<IEnumerable<ModuleFieldViewModel>> GetFieldsViewModelAsync(Guid moduleId);
 
         #endregion
+
+        #region Module Variables
+
+        Task<IEnumerable<ModuleVariableDto>> GetModuleVariables(Guid moduleId, ModuleVariableScope scope);
+
+        #endregion    
     }
 }

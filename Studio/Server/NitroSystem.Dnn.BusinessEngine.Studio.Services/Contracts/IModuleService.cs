@@ -49,8 +49,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         #region Module Variable Services
 
-        Task<IEnumerable<VariableTypeViewModel>> GetVariableTypesViewModelAsync();
-
         Task<IEnumerable<ModuleVariableViewModel>> GetModuleVariablesViewModelAsync(Guid moduleId);
 
         Task<ModuleVariableViewModel> GetModuleVariableViewModelAsync(Guid variableId);
