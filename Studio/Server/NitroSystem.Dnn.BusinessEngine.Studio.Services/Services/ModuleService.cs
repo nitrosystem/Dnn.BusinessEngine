@@ -377,13 +377,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return ModuleMapping.MapModuleVariablesViewModel(await task1, await task2);
         }
 
-        public async Task<ModuleVariableViewModel> GetModuleVariableViewModelAsync(Guid variableId)
-        {
-            var variable = await _repository.GetAsync<ModuleVariableInfo>(variableId);
-
-            return ModuleMapping.MapModuleVariableViewModel(variable, null);
-        }
-
         public async Task<Guid> SaveModuleVariablesAsync(ModuleVariableViewModel variale, bool isNew)
         {
             var objModuleVariableInfo = HybridMapper.MapWithConfig<ModuleVariableViewModel, ModuleVariableInfo>(

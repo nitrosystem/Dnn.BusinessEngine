@@ -5,7 +5,7 @@ using System;
 using System.Globalization;
 using System.Web;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Web.Modules
+namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
     public partial class Studio : PortalModuleBase
     {

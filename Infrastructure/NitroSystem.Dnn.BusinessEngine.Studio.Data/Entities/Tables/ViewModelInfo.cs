@@ -19,8 +19,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public Guid ScenarioId { get; set; }
         public Guid? GroupId { get; set; }
         public string ViewModelName { get; set; }
-        public DateTime CreatedOnDate { get; set; }
         public string Description { get; set; }
+        public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }

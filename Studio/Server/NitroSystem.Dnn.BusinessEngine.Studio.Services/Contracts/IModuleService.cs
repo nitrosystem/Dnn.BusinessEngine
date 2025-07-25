@@ -51,8 +51,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task<IEnumerable<ModuleVariableViewModel>> GetModuleVariablesViewModelAsync(Guid moduleId);
 
-        Task<ModuleVariableViewModel> GetModuleVariableViewModelAsync(Guid variableId);
-
         Task<Guid> SaveModuleVariablesAsync(ModuleVariableViewModel variale, bool isNew);
 
         Task<bool> DeleteModuleVariablesAsync(Guid moduleId);

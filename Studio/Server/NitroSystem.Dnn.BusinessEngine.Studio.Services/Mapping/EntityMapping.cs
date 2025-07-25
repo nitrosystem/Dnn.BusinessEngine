@@ -41,8 +41,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             if (objEntityInfo == null) return null;
 
             var mapper = new ExpressionMapper<EntityInfo, EntityViewModel>();
-            mapper.AddCustomMapping(src => src.EntityType, dest => dest.EntityType, source => (EntityType)source.EntityType);
-            mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, source => TypeCasting.TryJsonCasting<IDictionary<string, object>>(source.Settings));
+            mapper.AddCustomMapping(src => src.EntityType, dest => dest.EntityType, src => (EntityType)src.EntityType);
+            mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, src => TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.Settings));
             mapper.AddCustomMapping(src => src, dest => dest.Columns, map => columns);
 
             return mapper.Map(objEntityInfo);
@@ -53,8 +53,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             if (entity == null) return null;
 
             var mapper = new ExpressionMapper<EntityViewModel, EntityInfo>();
-            mapper.AddCustomMapping(src => src.EntityType, dest => dest.EntityType, source => (int)source.EntityType);
-            mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, source => JsonConvert.SerializeObject(source.Settings));
+            mapper.AddCustomMapping(src => src.EntityType, dest => dest.EntityType, src => (int)src.EntityType);
+            mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, src => JsonConvert.SerializeObject(src.Settings));
             return mapper.Map(entity);
         }
 

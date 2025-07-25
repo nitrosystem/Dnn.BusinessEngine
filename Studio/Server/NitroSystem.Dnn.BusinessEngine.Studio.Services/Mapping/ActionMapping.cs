@@ -68,12 +68,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
         public static ActionViewModel MapActionViewModel(ActionView action, IEnumerable<ActionResultInfo> actionResults, IEnumerable<ActionConditionInfo> conditions, IEnumerable<ActionParamInfo> actionParams)
         {
             var mapper = new ExpressionMapper<ActionView, ActionViewModel>();
-            mapper.AddCustomMapping(src => src, dest => dest.ActionTypeIcon, source => source.ActionTypeIcon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
-            mapper.AddCustomMapping(src => src, dest => dest.Params, source => actionParams);
-            mapper.AddCustomMapping(src => src, dest => dest.Conditions, source => conditions);
-            mapper.AddCustomMapping(src => src, dest => dest.Results, source => GetActionResultsViewModel(actionResults));
+            mapper.AddCustomMapping(src => src, dest => dest.ActionTypeIcon, src => src.ActionTypeIcon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
+            mapper.AddCustomMapping(src => src, dest => dest.Params, src => actionParams);
+            mapper.AddCustomMapping(src => src, dest => dest.Conditions, src => conditions);
+            mapper.AddCustomMapping(src => src, dest => dest.Results, src => GetActionResultsViewModel(actionResults));
             mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings,
-                source => TypeCasting.TryJsonCasting<IDictionary<string, object>>(source.Settings),
+                src => TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.Settings),
                 condition => !string.IsNullOrEmpty(condition.Settings));
 
             var result = mapper.Map(action);
@@ -86,7 +86,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
             {
                 var mapper = new ExpressionMapper<ActionResultInfo, ActionResultViewModel>();
                 mapper.AddCustomMapping(src => src.Conditions, dest => dest.Conditions,
-                        source => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(source.Conditions),
+                        src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.Conditions),
                         condition => !string.IsNullOrEmpty(condition.Conditions));
                 return mapper.Map(result);
             });
@@ -100,13 +100,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
             MapActionInfoWithChilds(ActionViewModel action)
         {
             var actionMapper = new ExpressionMapper<ActionViewModel, ActionInfo>();
-            actionMapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, source => JsonConvert.SerializeObject(source.Settings));
+            actionMapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, src => JsonConvert.SerializeObject(src.Settings));
             var objActionInfo = actionMapper.Map(action);
 
             var actionResults = (action.Results ?? Enumerable.Empty<ActionResultViewModel>()).Select(result =>
                 {
                     var actionResultMapper = new ExpressionMapper<ActionResultViewModel, ActionResultInfo>();
-                    actionResultMapper.AddCustomMapping(src => src.Conditions, dest => dest.Conditions, source => JsonConvert.SerializeObject(source.Conditions));
+                    actionResultMapper.AddCustomMapping(src => src.Conditions, dest => dest.Conditions, src => JsonConvert.SerializeObject(src.Conditions));
                     return actionResultMapper.Map(result);
                 });
 

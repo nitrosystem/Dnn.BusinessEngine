@@ -290,9 +290,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
-                    VariableTypes = GlobalItems.VariableTypes,
+                    VariableTypes = GlobalItems.VariableTypes.Append("ViewModel").Append("ViewModelList"),
                     Variables = variables,
-                    ViewModels = viewModels
+                    ViewModels = viewModels.Items
                 });
             }
             catch (Exception ex)
@@ -307,13 +307,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                bool isNew = variable.Id == Guid.Empty;
+                variable.Id = await _moduleService.SaveModuleVariablesAsync(variable, variable.Id == Guid.Empty);
 
-                variable.Id = await _moduleService.SaveModuleVariablesAsync(variable, isNew);
-
-                variable = await _moduleService.GetModuleVariableViewModelAsync(variable.Id);
-
-                return Request.CreateResponse(HttpStatusCode.OK, variable);
+                return Request.CreateResponse(HttpStatusCode.OK, variable.Id);
             }
             catch (Exception ex)
             {

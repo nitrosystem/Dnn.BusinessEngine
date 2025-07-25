@@ -41,8 +41,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         public static ModuleViewModel MapModuleViewModel(ModuleView module)
         {
             var mapper = new ExpressionMapper<ModuleView, ModuleViewModel>();
-            mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, source =>
-                    TypeCasting.TryJsonCasting<IDictionary<string, object>>(source.Settings.ToString()),
+            mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, src =>
+                    TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.Settings.ToString()),
                     condition => !string.IsNullOrWhiteSpace(condition.Settings));
 
             var result = mapper.Map(module);
@@ -52,7 +52,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         public static ModuleInfo MapModuleInfo(ModuleViewModel module)
         {
             var mapper = new ExpressionMapper<ModuleViewModel, ModuleInfo>();
-            mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, source => JsonConvert.SerializeObject(source.Settings));
+            mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, src => JsonConvert.SerializeObject(src.Settings));
 
             var result = mapper.Map(module);
             return result;
@@ -90,14 +90,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         public static ModuleFieldTypeViewModel MapModuleFieldTypeViewModel(ModuleFieldTypeView fieldtype, IEnumerable<ModuleFieldTypeTemplateInfo> templates, IEnumerable<ModuleFieldTypeThemeInfo> themes)
         {
             var mapper = new ExpressionMapper<ModuleFieldTypeView, ModuleFieldTypeViewModel>();
-            mapper.AddCustomMapping(src => src.Icon, dest => dest.Icon, source => source.Icon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
-            mapper.AddCustomMapping(src => src.DefaultSettings, dest => dest.DefaultSettings, source => TypeCasting.TryJsonCasting<IDictionary<string, object>>(source.DefaultSettings.ToString()));
+            mapper.AddCustomMapping(src => src.Icon, dest => dest.Icon, src => src.Icon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
+            mapper.AddCustomMapping(src => src.DefaultSettings, dest => dest.DefaultSettings, src => TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.DefaultSettings.ToString()));
             mapper.AddCustomMapping(src => src, dest => dest.Templates,
-                source => MapModuleFieldTypeTemplatesViewModel(templates),
+                src => MapModuleFieldTypeTemplatesViewModel(templates),
                 condition => templates != null && templates.Any()
             );
             mapper.AddCustomMapping(src => src, dest => dest.Themes,
-                source => MapModuleFieldTypeThemesViewModel(themes),
+                src => MapModuleFieldTypeThemesViewModel(themes),
                 condition => themes != null && themes.Any()
             );
 
@@ -116,11 +116,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         {
             var mapper = new ExpressionMapper<ModuleFieldTypeTemplateInfo, ModuleFieldTypeTemplateViewModel>();
             mapper.AddCustomMapping(src => src.TemplatePath, dest => dest.TemplatePath,
-                source => source.TemplatePath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
+                src => src.TemplatePath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
                 condition => !string.IsNullOrWhiteSpace(condition.TemplatePath)
             );
             mapper.AddCustomMapping(src => src.TemplatePath, dest => dest.TemplatePath,
-                source => source.TemplateImage.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
+                src => src.TemplateImage.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
                 condition => !string.IsNullOrWhiteSpace(condition.TemplatePath)
             );
 
@@ -139,11 +139,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         {
             var mapper = new ExpressionMapper<ModuleFieldTypeThemeInfo, ModuleFieldTypeThemeViewModel>();
             mapper.AddCustomMapping(src => src.ThemeImage, dest => dest.ThemeImage,
-                source => source.ThemeImage.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
+                src => src.ThemeImage.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
                 condition => !string.IsNullOrWhiteSpace(condition.ThemeImage)
             );
             mapper.AddCustomMapping(src => src.ThemeCssPath, dest => dest.ThemeCssPath,
-                source => source.ThemeCssPath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
+                src => src.ThemeCssPath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
                 condition => !string.IsNullOrWhiteSpace(condition.ThemeCssPath)
             );
 
@@ -171,13 +171,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         {
             var mapper = new ExpressionMapper<ModuleFieldInfo, ModuleFieldViewModel>();
             mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
-                source => source.AuthorizationViewField.Split(','),
+                src => src.AuthorizationViewField.Split(','),
                 condition => !string.IsNullOrEmpty(condition.AuthorizationViewField));
-            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, source => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(source.ShowConditions));
-            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, source => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(source.EnableConditions));
-            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, source => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(source.FieldValues));
-            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, source => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(source.DataSource));
-            mapper.AddCustomMapping(src => src, dest => dest.Settings, source => MapModuleFieldSettingsToDictionary(settings));
+            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.ShowConditions));
+            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.EnableConditions));
+            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, src => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(src.FieldValues));
+            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, src => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(src.DataSource));
+            mapper.AddCustomMapping(src => src, dest => dest.Settings, src => MapModuleFieldSettingsToDictionary(settings));
 
             var result = mapper.Map(field);
             return result;
@@ -195,23 +195,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         {
             var mapper = new ExpressionMapper<ModuleFieldViewModel, ModuleFieldInfo>();
             mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
-                source => string.Join(",", source.AuthorizationViewField),
+                src => string.Join(",", src.AuthorizationViewField),
                 condition => condition.AuthorizationViewField != null && condition.AuthorizationViewField.Any()
             );
             mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions,
-                source => JsonConvert.SerializeObject(source.ShowConditions),
+                src => JsonConvert.SerializeObject(src.ShowConditions),
                 condition => condition.ShowConditions != null && condition.ShowConditions.Any()
             );
             mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions,
-                source => JsonConvert.SerializeObject(source.EnableConditions),
+                src => JsonConvert.SerializeObject(src.EnableConditions),
                 condition => condition.EnableConditions != null && condition.EnableConditions.Any()
             );
             mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues,
-               source => JsonConvert.SerializeObject(source.FieldValues),
+               src => JsonConvert.SerializeObject(src.FieldValues),
                condition => condition.FieldValues != null && condition.FieldValues.Any()
            );
             mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource,
-               source => JsonConvert.SerializeObject(source.DataSource),
+               src => JsonConvert.SerializeObject(src.DataSource),
                condition => condition.DataSource != null
            );
 
@@ -242,15 +242,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
 
             var mapper = new ExpressionMapper<ModuleFieldInfo, BuildModuleFieldDto>();
             mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
-                source => source.AuthorizationViewField.Split(','),
+                src => src.AuthorizationViewField.Split(','),
                 condition => !string.IsNullOrEmpty(condition.AuthorizationViewField));
-            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, source => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(source.ShowConditions));
-            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, source => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(source.EnableConditions));
-            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, source => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(source.FieldValues));
-            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, source => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(source.DataSource));
-            mapper.AddCustomMapping(src => src, dest => dest.Settings, source => dictionarySettings);
+            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.ShowConditions));
+            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.EnableConditions));
+            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, src => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(src.FieldValues));
+            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, src => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(src.DataSource));
+            mapper.AddCustomMapping(src => src, dest => dest.Settings, src => dictionarySettings);
             mapper.AddCustomMapping(src => src, dest => dest.GlobalSettings,
-                source => DictionaryToObjectConverter.ConvertToObject<ModuleFieldGlobalSettings>(dictionarySettings) ?? new ModuleFieldGlobalSettings());
+                src => DictionaryToObjectConverter.ConvertToObject<ModuleFieldGlobalSettings>(dictionarySettings) ?? new ModuleFieldGlobalSettings());
 
             var result = mapper.Map(field);
             return result;
@@ -268,8 +268,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         public static ModuleVariableViewModel MapModuleVariableViewModel(ModuleVariableInfo variable, IEnumerable<ViewModelInfo> viewModels)
         {
             var mapper = new ExpressionMapper<ModuleVariableInfo, ModuleVariableViewModel>();
-            mapper.AddCustomMapping(src => src.Scope, dest => dest.Scope, source => (ModuleVariableScope)source.Scope);
-            mapper.AddCustomMapping(src => src, dest => dest.ViewModel, source => (viewModels ?? Enumerable.Empty<ViewModelInfo>()).FirstOrDefault(v => v.Id == source.ViewModelId));
+            mapper.AddCustomMapping(src => src.Scope, dest => dest.Scope, src => (ModuleVariableScope)src.Scope);
+            mapper.AddCustomMapping(src => src, dest => dest.ViewModel,
+                src => ViewModelMapping.MapViewModel(viewModels.FirstOrDefault(v => v.Id == src.ViewModelId), null),
+                src => src.ViewModelId != null
+            );
 
             var result = mapper.Map(variable);
             return result;

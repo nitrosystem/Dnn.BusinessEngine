@@ -130,18 +130,17 @@
     <Compile Include="studio\studio.ascx.designer.cs">
       <DependentUpon>studio.ascx</DependentUpon>
     </Compile>
-    <Compile Include="studio\studio.aspx.cs">
+    <Compile Include="studio.aspx.cs">
       <DependentUpon>studio.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="studio\studio.aspx.designer.cs">
+    <Compile Include="studio.aspx.designer.cs">
       <DependentUpon>studio.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\logo.ico" />
     <Content Include="data\sql-templates\create-entity.sql" />
-    <Content Include="studio\container.html" />
     <Content Include="studio\module.css" />
     <Content Include="module\module.ascx" />
     <Content Include="module\module.css" />
@@ -156,7 +155,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <Content Include="studio\studio.ascx" />
-    <Content Include="studio\studio.aspx" />
+    <Content Include="studio.aspx" />
     <Content Include="web.config" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>

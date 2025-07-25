@@ -75,7 +75,18 @@ export class CreateModuleVariablesController {
             Scope: {
                 id: "drpVariableScope",
                 required: true,
-            }
+            },
+            ViewModelId: {
+                id: "drpViewModel",
+                rule: (value) => {
+                    if ((this.variable.VariableType == 'ViewModel' ||
+                        this.variable.VariableType == 'ViewModelList') &&
+                        !value)
+                        return false;
+
+                    return true;
+                },
+            },
         },
             true,
             this.$scope,
@@ -110,12 +121,12 @@ export class CreateModuleVariablesController {
 
             this.apiService.post("Module", "SaveModuleVariable", this.variable).then((data) => {
                 if (!this.variable.Id) {
-                    this.variable = data;
+                    this.variable.Id = data;
                     this.variables.push(this.variable);
                 }
                 else {
                     _.filter(this.variables, (v) => { return v.Id == this.variable.Id }).map((v) => {
-                        this.variables[this.variables.indexOf(v)] = data;
+                        this.variables[this.variables.indexOf(v)] = this.variable;
                     });
                 }
 

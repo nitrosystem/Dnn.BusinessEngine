@@ -65,13 +65,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         public static ServiceViewModel MapServiceViewModel(ServiceView service, IEnumerable<ServiceParamInfo> serviceParams)
         {
             var mapper = new ExpressionMapper<ServiceView, ServiceViewModel>();
-            mapper.AddCustomMapping(src => src.ServiceTypeIcon, dest => dest.ServiceTypeIcon, source => source.ServiceTypeIcon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
+            mapper.AddCustomMapping(src => src.ServiceTypeIcon, dest => dest.ServiceTypeIcon, src => src.ServiceTypeIcon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
             mapper.AddCustomMapping(src => src.AuthorizationRunService, dest => dest.AuthorizationRunService,
-                source => source.AuthorizationRunService.Split(','),
+                src => src.AuthorizationRunService.Split(','),
                 condition => !string.IsNullOrEmpty(condition.AuthorizationRunService));
-            mapper.AddCustomMapping(src => src.ResultType, dest => dest.ResultType, source => (ServiceResultType)source.ResultType);
+            mapper.AddCustomMapping(src => src.ResultType, dest => dest.ResultType, src => (ServiceResultType)src.ResultType);
             mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings,
-                    source => TypeCasting.TryJsonCasting<IDictionary<string, object>>(source.Settings),
+                    src => TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.Settings),
                     condition => !string.IsNullOrEmpty(condition.Settings));
             mapper.AddCustomMapping(src => src, dest => dest.Params, map => serviceParams);
 

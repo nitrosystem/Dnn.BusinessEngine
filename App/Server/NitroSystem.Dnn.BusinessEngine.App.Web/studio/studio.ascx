@@ -1,5 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="studio.ascx.cs" Inherits="NitroSystem.Dnn.BusinessEngine.Modules.Studio" %>
-<%@ Register TagPrefix="dnn" Namespace="DotNetNuke.Web.Client.ClientResourceManagement" Assembly="DotNetNuke.Web.Client" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="studio.ascx.cs" Inherits="NitroSystem.Dnn.BusinessEngine.App.Web.Modules.Studio" %>
 
 <div id="bEngineStudioBoxs" class="container studio-type-boxs">
     <div class="row">
@@ -16,8 +15,6 @@
 </div>
 
 <div id="bEngineStudioApp"></div>
-
-<dnn:DnnJsInclude runat="server" FilePath="~/DesktopModules/BusinessEngine/Scripts/studio-setup.js"></dnn:DnnJsInclude>
 
 <script type="text/javascript">
     window.bEngineGlobalSettings = {

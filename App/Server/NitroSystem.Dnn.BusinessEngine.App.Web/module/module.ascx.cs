@@ -15,7 +15,7 @@ using DotNetNuke.Entities.Portals;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.App.Web
+namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
     public partial class Module : PortalModuleBase, IActionable
     {
@@ -65,7 +65,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
 
         }
 
-        public string ConnectionID
+        public string ConnectionId
         {
             get
             {

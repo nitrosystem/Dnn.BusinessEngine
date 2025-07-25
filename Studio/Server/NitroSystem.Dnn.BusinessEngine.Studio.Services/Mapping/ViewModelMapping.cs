@@ -32,7 +32,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         public static ViewModelViewModel MapViewModel(ViewModelInfo viewModel, IEnumerable<ViewModelPropertyInfo> properties)
         {
             var mapper = new ExpressionMapper<ViewModelInfo, ViewModelViewModel>();
-            mapper.AddCustomMapping(src => src, dest => dest.Properties, map => properties);
+            mapper.AddCustomMapping(src => src, dest => dest.Properties,
+                map => properties,
+                src => properties != null
+            );
 
             var result = mapper.Map(viewModel);
             return result;

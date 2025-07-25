@@ -8,7 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.DTO
 {
     public class ModuleDTO
     {
-        public string ConnectionID { get; set; }
+        public string ConnectionId { get; set; }
         public string PageUrl { get; set; }
         public bool IsDashboardModule { get; set; }
     }

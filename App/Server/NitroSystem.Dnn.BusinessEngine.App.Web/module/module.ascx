@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="module.ascx.cs" Inherits="NitroSystem.Dnn.BusinessEngine.App.Web.Module" EnableViewState="false" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="module.ascx.cs" Inherits="NitroSystem.Dnn.BusinessEngine.App.Web.Modules.Module" EnableViewState="false" %>
 <%@ Register TagPrefix="b" TagName="PageResource" Src="../controls/page-resources.ascx" %>
 
 <asp:PlaceHolder ID="pnlAntiForgery" runat="server"></asp:PlaceHolder>
@@ -7,7 +7,7 @@
 <div id="pnlBusinessEngine<%=this.ModuleGuid%>" data-module="<%=this.ModuleGuid%>" class="b-engine-module  <%=this.bRtlCssClass%>"
     b-ng-app="BusinessEngineClientApp"
     ng-controller="moduleController as $"
-    ng-init="$.onInitModule(<%=this.ModuleId%>,'<%=this.ModuleGuid%>', '<%=this.ModuleName%>','<%=this.ConnectionID%>')">
+    ng-init="$.onInitModule(<%=this.ModuleId%>,'<%=this.ModuleGuid%>', '<%=this.ModuleName%>','<%=this.ConnectionId%>')">
     <div id="pnlTemplate" runat="server"></div>
 </div>
 

@@ -11,9 +11,20 @@
                     <label class="form-label">Variable Type</label>
                     <div class="b-input-group">
                         <select id="drpVariableType" ng-model="$.variable.VariableType" class="b-input form-select"
-                            ng-options="vt for vt in $.variableTypes"
-                            ng-disabled="$.running" chosen inherit-select-classes="true"
-                            placeholder-text-single="'Select variable type'" required>
+                            ng-options="vt for vt in $.variableTypes" ng-disabled="$.running" chosen
+                            inherit-select-classes="true" placeholder-text-single="'Select variable type'" required>
+                        </select>
+                        <span><i class="codicon codicon-activate-breakpoints"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">View Model</label>
+                    <div class="b-input-group">
+                        <select id="drpViewModel"
+                            ng-if="$.variable.VariableType=='ViewModel' || $.variable.VariableType=='ViewModelList'"
+                            ng-model="$.variable.ViewModelId" class="b-input form-select"
+                            ng-options="vm.Id as vm.ViewModelName for vm in $.viewModels" required>
+                            <option value="">Select view model</option>
                         </select>
                         <span><i class="codicon codicon-activate-breakpoints"></i></span>
                     </div>
@@ -28,7 +39,6 @@
                     </div>
                 </div>
             </div>
-            <!-- ng-class="{'opacity-50':$.variable.Settings.IsHideVariableType}" -->
             <div class="col-5 ps-3">
                 <div class="b-field">
                     <label class="form-label">Scope</label>

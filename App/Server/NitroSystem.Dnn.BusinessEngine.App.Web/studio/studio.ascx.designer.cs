@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NitroSystem.Dnn.BusinessEngine.Modules
+namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
 
 

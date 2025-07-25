@@ -782,7 +782,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                 (src, dest) =>
                 {
                     dest.Scope = (ModuleVariableScope)variable.Scope;
-                    viewModelsProperties.Where(p => p.ViewModelId == variable.ViewModelId).Select(prop =>
+                    dest.Properties = viewModelsProperties.Where(p => p.ViewModelId == variable.ViewModelId).Select(prop =>
                     {
                         return HybridMapper.Map<ViewModelPropertyInfo, PropertyDto>(prop);
                     });

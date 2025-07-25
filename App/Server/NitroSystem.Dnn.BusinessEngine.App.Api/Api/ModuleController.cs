@@ -499,7 +499,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Api
             {
                 var moduleId = Guid.Parse(Request.Headers.GetValues("ModuleId").First());
 
-                string connectionId = Guid.Empty.ToString();// postData.ConnectionId;
+                string connectionId = postData.ConnectionId;
 
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 if (module == null) throw new Exception("Module Not Config");
