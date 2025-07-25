@@ -27,10 +27,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
 
         Task<ModuleViewModel> GetModuleViewModelAsync(Guid id);
 
-        Task<IEnumerable<PageResourceViewModel>> GetPageResourcesByModuleViewModelAsync(Guid moduleId);
-
-        Task<IEnumerable<PageResourceViewModel>> GetActivePageResourcesByPageViewModelAsync(int pageId);
-
         #endregion
 
         #region Module Field Services

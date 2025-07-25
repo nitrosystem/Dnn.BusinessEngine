@@ -58,28 +58,28 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                });
         }
 
-        public async Task<IEnumerable<PageResourceViewModel>> GetPageResourcesByModuleViewModelAsync(Guid moduleId)
-        {
-            var resources = await _repository.GetByScopeAsync<PageResourceInfo>(moduleId, "LoadOrder");
+        //public async Task<IEnumerable<PageResourceViewModel>> GetPageResourcesByModuleViewModelAsync(Guid moduleId)
+        //{
+        //    var resources = await _repository.GetByScopeAsync<PageResourceInfo>(moduleId, "LoadOrder");
 
-            return resources.Select(
-                resource =>
-                {
-                    return HybridMapper.Map<PageResourceInfo, PageResourceViewModel>(resource);
-                }
-            );
-        }
+        //    return resources.Select(
+        //        resource =>
+        //        {
+        //            return HybridMapper.Map<PageResourceInfo, PageResourceViewModel>(resource);
+        //        }
+        //    );
+        //}
 
-        public async Task<IEnumerable<PageResourceViewModel>> GetActivePageResourcesByPageViewModelAsync(int pageId)
-        {
-            var resources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("DnnPageId", pageId, "LoadOrder");
+        //public async Task<IEnumerable<PageResourceViewModel>> GetActivePageResourcesByPageViewModelAsync(int pageId)
+        //{
+        //    var resources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("DnnPageId", pageId, "LoadOrder");
 
-            return resources.Where(r => r.IsActive).Select(
-                resource =>
-                {
-                    return HybridMapper.Map<PageResourceInfo, PageResourceViewModel>(resource);
-                });
-        }
+        //    return resources.Where(r => r.IsActive).Select(
+        //        resource =>
+        //        {
+        //            return HybridMapper.Map<PageResourceInfo, PageResourceViewModel>(resource);
+        //        });
+        //}
 
         //public async Task<ModuleViewModel> GetHtmlTypeModuleViewModelAsync(Guid id, PortalSettings portalSettings)
         //{
