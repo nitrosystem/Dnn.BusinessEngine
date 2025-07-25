@@ -1,6 +1,5 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Framework.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationCore.Contract;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,11 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationCore.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
+namespace NitroSystem.Dnn.BusinessEngine.App.Framework.Services
 {
     public class ActionCondition : IActionCondition
     {
@@ -25,42 +23,43 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             this._expressionService = expressionService;
         }
 
-        public bool IsTrueConditions(IEnumerable<IExpressionInfo> conditions)
+        public bool IsTrueConditions(IEnumerable<IExpression> conditions)
         {
-            if (conditions == null || !conditions.Any()) return true;
+            return true;
+            //if (conditions == null || !conditions.Any()) return true;
 
-            bool andResult = true;
+            //bool andResult = true;
 
-            var groups = conditions.GroupBy(c => c.GroupName);
-            foreach (var group in groups)
-            {
-                bool orResult = false;
+            //var groups = conditions.GroupBy(c => c.GroupName);
+            //foreach (var group in groups)
+            //{
+            //    bool orResult = false;
 
-                foreach (var condition in group)
-                {
-                    var leftValue = this._expressionService.ParseExpression(condition.LeftExpression, this._moduleData, new List<object>());
+            //    foreach (var condition in group)
+            //    {
+            //        var leftValue = this._expressionService.ParseExpression(condition.LeftExpression, this._moduleData, new List<object>());
 
-                    //var leftValue = leftExp;
-                    //if (this._expressionService.IsComputationalExpression(leftExp)) leftValue = this._expressionService.Evaluate(leftExp).ToString();
+            //        //var leftValue = leftExp;
+            //        //if (this._expressionService.IsComputationalExpression(leftExp)) leftValue = this._expressionService.Evaluate(leftExp).ToString();
 
-                    var rightValue = this._expressionService.ParseExpression(condition.RightExpression, this._moduleData, new List<object>());
+            //        var rightValue = this._expressionService.ParseExpression(condition.RightExpression, this._moduleData, new List<object>());
 
-                    //var rightValue = rightExp;
-                    //if (this._expressionService.IsComputationalExpression(rightExp)) rightValue = this._expressionService.Evaluate(rightExp).ToString();
+            //        //var rightValue = rightExp;
+            //        //if (this._expressionService.IsComputationalExpression(rightExp)) rightValue = this._expressionService.Evaluate(rightExp).ToString();
 
-                    bool compareResult = CompareTwoValue(leftValue, rightValue, condition.EvalType);
+            //        bool compareResult = CompareTwoValue(leftValue, rightValue, condition.EvalType);
 
-                    if (!orResult && compareResult) orResult = true;
-                }
+            //        if (!orResult && compareResult) orResult = true;
+            //    }
 
-                if (!orResult)
-                {
-                    andResult = false;
-                    break;
-                }
-            }
+            //    if (!orResult)
+            //    {
+            //        andResult = false;
+            //        break;
+            //    }
+            //}
 
-            return andResult;
+            //return andResult;
         }
 
         public bool CompareTwoValue(string leftValue, string rightValue, string operatorType)
@@ -69,25 +68,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             {
                 case "=":
                     return leftValue.ToLower() == rightValue.ToLower();
-                    break;
                 case "!=":
                     return leftValue != rightValue;
-                    break;
                 case ">":
                     return decimal.Parse(leftValue.ToString()) > decimal.Parse(rightValue.ToString());
-                    break;
                 case "<":
                     return decimal.Parse(leftValue.ToString()) < decimal.Parse(rightValue.ToString());
-                    break;
                 case "isfilled":
                     return leftValue != null;
-                    break;
                 case "isnull":
                     return leftValue == null;
-                    break;
                 default:
                     return false;
-                    break;
             }
         }
     }

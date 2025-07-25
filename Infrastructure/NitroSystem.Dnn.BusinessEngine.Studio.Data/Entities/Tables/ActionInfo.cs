@@ -8,7 +8,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
+namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_Actions")]
     [Cacheable("BE_Actions_", CacheItemPriority.Default, 20)]

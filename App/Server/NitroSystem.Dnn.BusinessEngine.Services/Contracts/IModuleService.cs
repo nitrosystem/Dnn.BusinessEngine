@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Module.Field;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using System;
 using System.Collections.Generic;

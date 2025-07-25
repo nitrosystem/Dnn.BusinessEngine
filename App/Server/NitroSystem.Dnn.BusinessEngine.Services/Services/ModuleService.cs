@@ -23,29 +23,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
-using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Module;
 using DotNetNuke.Services.Scheduling;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.ViewModel;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 {
     public class ModuleService : IModuleService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
 
-        public ModuleService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
+        public ModuleService(IRepositoryBase repository)
         {
-            _unitOfWork = unitOfWork;
-            _cacheService = cacheService;
             _repository = repository;
         }
 
@@ -60,7 +54,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                {
                    dest.Settings = string.IsNullOrEmpty(module.Settings)
                    ? null
-                   : TypeCastingUtil<IDictionary<string, object>>.TryJsonCasting(module.Settings.ToString());
+                   : TypeCasting.TryJsonCasting<IDictionary<string, object>>(module.Settings.ToString());
                });
         }
 
@@ -790,7 +784,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                     dest.Scope = (ModuleVariableScope)variable.Scope;
                     viewModelsProperties.Where(p => p.ViewModelId == variable.ViewModelId).Select(prop =>
                     {
-                        return HybridMapper.Map<ViewModelPropertyInfo, ViewModelPropertyDto>(prop);
+                        return HybridMapper.Map<ViewModelPropertyInfo, PropertyDto>(prop);
                     });
                 });
             });

@@ -1,10 +1,9 @@
 ﻿using DotNetNuke.Entities.Portals;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using System;
@@ -43,7 +42,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         {
             var mapper = new ExpressionMapper<ModuleView, ModuleViewModel>();
             mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, source =>
-                    TypeCastingUtil<IDictionary<string, object>>.TryJsonCasting(source.Settings.ToString()),
+                    TypeCasting.TryJsonCasting<IDictionary<string, object>>(source.Settings.ToString()),
                     condition => !string.IsNullOrWhiteSpace(condition.Settings));
 
             var result = mapper.Map(module);
@@ -92,7 +91,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         {
             var mapper = new ExpressionMapper<ModuleFieldTypeView, ModuleFieldTypeViewModel>();
             mapper.AddCustomMapping(src => src.Icon, dest => dest.Icon, source => source.Icon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
-            mapper.AddCustomMapping(src => src.DefaultSettings, dest => dest.DefaultSettings, source => TypeCastingUtil<IDictionary<string, object>>.TryJsonCasting(source.DefaultSettings.ToString()));
+            mapper.AddCustomMapping(src => src.DefaultSettings, dest => dest.DefaultSettings, source => TypeCasting.TryJsonCasting<IDictionary<string, object>>(source.DefaultSettings.ToString()));
             mapper.AddCustomMapping(src => src, dest => dest.Templates,
                 source => MapModuleFieldTypeTemplatesViewModel(templates),
                 condition => templates != null && templates.Any()
@@ -174,10 +173,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
                 source => source.AuthorizationViewField.Split(','),
                 condition => !string.IsNullOrEmpty(condition.AuthorizationViewField));
-            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, source => TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(source.ShowConditions));
-            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, source => TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(source.EnableConditions));
-            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, source => TypeCastingUtil<IEnumerable<FieldValueInfo>>.TryJsonCasting(source.FieldValues));
-            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, source => TypeCastingUtil<FieldDataSourceInfo>.TryJsonCasting(source.DataSource));
+            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, source => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(source.ShowConditions));
+            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, source => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(source.EnableConditions));
+            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, source => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(source.FieldValues));
+            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, source => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(source.DataSource));
             mapper.AddCustomMapping(src => src, dest => dest.Settings, source => MapModuleFieldSettingsToDictionary(settings));
 
             var result = mapper.Map(field);
@@ -245,10 +244,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
                 source => source.AuthorizationViewField.Split(','),
                 condition => !string.IsNullOrEmpty(condition.AuthorizationViewField));
-            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, source => TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(source.ShowConditions));
-            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, source => TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(source.EnableConditions));
-            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, source => TypeCastingUtil<IEnumerable<FieldValueInfo>>.TryJsonCasting(source.FieldValues));
-            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, source => TypeCastingUtil<FieldDataSourceInfo>.TryJsonCasting(source.DataSource));
+            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, source => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(source.ShowConditions));
+            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, source => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(source.EnableConditions));
+            mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, source => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(source.FieldValues));
+            mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, source => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(source.DataSource));
             mapper.AddCustomMapping(src => src, dest => dest.Settings, source => dictionarySettings);
             mapper.AddCustomMapping(src => src, dest => dest.GlobalSettings,
                 source => DictionaryToObjectConverter.ConvertToObject<ModuleFieldGlobalSettings>(dictionarySettings) ?? new ModuleFieldGlobalSettings());

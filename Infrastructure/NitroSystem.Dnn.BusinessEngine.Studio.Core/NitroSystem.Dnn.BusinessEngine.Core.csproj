@@ -66,8 +66,8 @@
       <HintPath>..\..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.JScript" />
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -128,6 +128,7 @@
     <Compile Include="ExpressionService\ConditionParser\LogicalNode.cs" />
     <Compile Include="ExpressionService\ConditionParser\Temp.cs" />
     <Compile Include="General\ErrorService.cs" />
+    <Compile Include="General\GlobalItems.cs" />
     <Compile Include="General\StringExtensions.cs" />
     <Compile Include="IO\BatchExecutor.cs" />
     <Compile Include="Mapper\HybridMapper.cs" />
@@ -146,8 +147,6 @@
     <Compile Include="Reflection\ServiceLocator.cs" />
     <Compile Include="App_Start\DnnFeatureController.cs" />
     <Compile Include="Common\ProgressMonitoring.cs" />
-    <Compile Include="Contracts\IExpressionService.cs" />
-    <Compile Include="Contracts\IModuleData.cs" />
     <Compile Include="Contracts\TokenBase.cs" />
     <Compile Include="Enums\Scope.cs" />
     <Compile Include="General\General.cs" />

@@ -64,8 +64,8 @@
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -101,6 +101,7 @@
     <Compile Include="Enums\EnumUtil.cs" />
     <Compile Include="IO\ZipUtil.cs" />
     <Compile Include="Reflection\PropertyCopier.cs" />
+    <Compile Include="Reflection\Type\TypeChecker.cs" />
     <Compile Include="WebApi\CustomMultipartFormDataStreamProviderChangeFileName.cs" />
     <Compile Include="WebApi\CustomMultipartFormDataStreamProvider.cs" />
     <Compile Include="IO\DirectoryExtensions.cs" />
@@ -108,7 +109,6 @@
     <Compile Include="Models\SqlResultInfo.cs" />
     <Compile Include="IO\PdfUtil.cs" />
     <Compile Include="Db\DbUtil.cs" />
-    <Compile Include="Reflection\DynamicCodeUtil.cs" />
     <Compile Include="Enums\WatermarkerPosition.cs" />
     <Compile Include="IO\FileUtil.cs" />
     <Compile Include="Common\Globals.cs" />
@@ -120,8 +120,7 @@
     <Compile Include="Reflection\ReflectionExtensions.cs" />
     <Compile Include="Reflection\ReflectionUtil.cs" />
     <Compile Include="Common\RegexExtensions.cs" />
-    <Compile Include="Reflection\TypeCasting\TypeCastingUtil.cs" />
-    <Compile Include="Reflection\TypeUtil.cs" />
+    <Compile Include="Reflection\Type\TypeCasting.cs" />
     <Compile Include="Common\Uri.cs" />
     <Compile Include="Common\UrlUtil.cs" />
     <Compile Include="Common\HtmlUtil.cs" />

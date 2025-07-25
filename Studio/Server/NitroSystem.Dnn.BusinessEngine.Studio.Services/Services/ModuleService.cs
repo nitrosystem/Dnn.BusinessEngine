@@ -19,7 +19,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 
 using System;
@@ -34,7 +34,6 @@ using System.Web.UI;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
-using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
@@ -227,7 +226,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             var customEvents = await _repository.GetColumnValueAsync<ModuleFieldTypeInfo, string>("CustomEvents", "FieldType", fieldType);
 
             return !string.IsNullOrEmpty(fieldType)
-                ? TypeCastingUtil<IEnumerable<ModuleFieldTypeCustomEventListItem>>.TryJsonCasting(customEvents)
+                ? TypeCasting.TryJsonCasting<IEnumerable<ModuleFieldTypeCustomEventListItem>>(customEvents)
                 : Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
         }
 

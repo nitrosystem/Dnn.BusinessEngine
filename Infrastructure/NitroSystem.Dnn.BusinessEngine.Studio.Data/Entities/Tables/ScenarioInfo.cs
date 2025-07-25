@@ -8,7 +8,7 @@ using Dapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
+namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_Scenarios")]
     [Cacheable("BE_Scenarios_", CacheItemPriority.Default, 20)]

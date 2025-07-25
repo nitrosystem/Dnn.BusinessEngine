@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Caching;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
+namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_ServiceTypes")]
     [Cacheable("BE_ServiceTypes_", CacheItemPriority.Default, 20)]

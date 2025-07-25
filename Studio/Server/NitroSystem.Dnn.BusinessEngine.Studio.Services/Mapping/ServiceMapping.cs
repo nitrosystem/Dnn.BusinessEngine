@@ -2,11 +2,10 @@
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
+using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
 {
@@ -71,7 +71,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
                 condition => !string.IsNullOrEmpty(condition.AuthorizationRunService));
             mapper.AddCustomMapping(src => src.ResultType, dest => dest.ResultType, source => (ServiceResultType)source.ResultType);
             mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings,
-                    source => TypeCastingUtil<IDictionary<string, object>>.TryJsonCasting(source.Settings),
+                    source => TypeCasting.TryJsonCasting<IDictionary<string, object>>(source.Settings),
                     condition => !string.IsNullOrEmpty(condition.Settings));
             mapper.AddCustomMapping(src => src, dest => dest.Params, map => serviceParams);
 

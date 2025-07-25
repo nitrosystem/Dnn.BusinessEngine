@@ -1,5 +1,5 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Api.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

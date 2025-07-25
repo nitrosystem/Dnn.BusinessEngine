@@ -11,7 +11,7 @@
                     <label class="form-label">Variable Type</label>
                     <div class="b-input-group">
                         <select id="drpVariableType" ng-model="$.variable.VariableType" class="b-input form-select"
-                            ng-options="vt.VariableType as vt.VariableType for vt in $.variableTypes"
+                            ng-options="vt for vt in $.variableTypes"
                             ng-disabled="$.running" chosen inherit-select-classes="true"
                             placeholder-text-single="'Select variable type'" required>
                         </select>

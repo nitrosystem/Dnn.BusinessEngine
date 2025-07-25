@@ -6,7 +6,7 @@ using System.Web.Caching;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
+namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     public class LibraryResourceViewModel : IViewModel
     {

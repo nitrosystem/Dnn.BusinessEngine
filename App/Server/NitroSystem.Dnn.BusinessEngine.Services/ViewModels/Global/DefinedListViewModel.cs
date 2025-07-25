@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+﻿using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using System;
 using System.Collections;
 using System.Collections.Generic;

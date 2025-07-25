@@ -50,8 +50,8 @@
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -67,6 +67,8 @@
     <Compile Include="Contracts\ActionEventArgs.cs" />
     <Compile Include="Contracts\ActionTree.cs" />
     <Compile Include="Contracts\IActionResult.cs" />
+    <Compile Include="Contracts\IExpressionService.cs" />
+    <Compile Include="Contracts\IModuleData.cs" />
     <Compile Include="Contracts\IService.cs" />
     <Compile Include="Contracts\IAction.cs" />
     <Compile Include="Contracts\IActionCondition.cs" />
@@ -76,6 +78,7 @@
     <Compile Include="Enums\ActionResultStatus.cs" />
     <Compile Include="Enums\ActionPaymentStatus.cs" />
     <Compile Include="Enums\VariableType.cs" />
+    <Compile Include="Models\ModuleDataContext.cs" />
     <Compile Include="Models\ServiceResult.cs" />
     <Compile Include="Models\ActionResult.cs" />
     <Compile Include="ModuleData\ExpressionFunctions.cs" />
@@ -85,7 +88,9 @@
     <Compile Include="ModuleData\ModuleDataInitializer.cs" />
     <Compile Include="ModuleData\ReflectionExpressionService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\ActionCondition.cs" />
     <Compile Include="Services\ActionWorker.cs" />
+    <Compile Include="Services\ModuleDataCleanupService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Common\NitroSystem.Dnn.BusinessEngine.Common.csproj">

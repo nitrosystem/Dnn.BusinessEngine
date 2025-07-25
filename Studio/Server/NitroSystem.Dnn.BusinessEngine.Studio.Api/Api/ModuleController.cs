@@ -24,6 +24,7 @@ using DotNetNuke.Security.Roles;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
+using NitroSystem.Dnn.BusinessEngine.Core.General;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -153,69 +154,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         #endregion
 
-        #region 3-Variables
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetModuleVariables(Guid moduleId)
-        {
-            try
-            {
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
-                var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
-                var viewModels = await _viewModelService.GetViewModelsAsync(scenarioId, 1, 1000, "", "Title");
-
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    Variables = variables,
-                    ViewModels = viewModels
-                });
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveModuleVariable(ModuleVariableViewModel variable)
-        {
-            try
-            {
-                bool isNew = variable.Id == Guid.Empty;
-
-                variable.Id = await _moduleService.SaveModuleVariablesAsync(variable, isNew);
-
-                variable = await _moduleService.GetModuleVariableViewModelAsync(variable.Id);
-
-                return Request.CreateResponse(HttpStatusCode.OK, variable);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteModuleVariable(GuidDTO postData)
-        {
-            try
-            {
-                var isDeleted = await _moduleService.DeleteModuleVariablesAsync(postData.Id);
-
-                return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        #endregion
-
-        #region 4-Libraries & Resources
+        #region 3-Libraries & Resources
 
         [HttpGet]
         public async Task<HttpResponseMessage> GetModuleCustomLibraries(Guid moduleId)
@@ -328,6 +267,69 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 resource.Id = await _moduleService.SaveModuleCustomResourceAsync(resource);
 
                 return Request.CreateResponse(HttpStatusCode.OK, resource.Id);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        #endregion
+
+        #region 4-Variables
+
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetModuleVariables(Guid moduleId)
+        {
+            try
+            {
+                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+
+                var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
+                var viewModels = await _viewModelService.GetViewModelsAsync(scenarioId, 1, 1000, "", "Title");
+
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    VariableTypes = GlobalItems.VariableTypes,
+                    Variables = variables,
+                    ViewModels = viewModels
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> SaveModuleVariable(ModuleVariableViewModel variable)
+        {
+            try
+            {
+                bool isNew = variable.Id == Guid.Empty;
+
+                variable.Id = await _moduleService.SaveModuleVariablesAsync(variable, isNew);
+
+                variable = await _moduleService.GetModuleVariableViewModelAsync(variable.Id);
+
+                return Request.CreateResponse(HttpStatusCode.OK, variable);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> DeleteModuleVariable(GuidDTO postData)
+        {
+            try
+            {
+                var isDeleted = await _moduleService.DeleteModuleVariablesAsync(postData.Id);
+
+                return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
             catch (Exception ex)
             {

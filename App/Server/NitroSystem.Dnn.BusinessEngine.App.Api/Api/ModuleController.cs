@@ -504,7 +504,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Api
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 if (module == null) throw new Exception("Module Not Config");
 
-                await _moduleData.InitializeModuleData(module.Id);
+                await _moduleData.InitializeModuleData(connectionId, module.Id);
                 //this._moduleData.InitModuleData(moduleGuid, connectionId, this.UserInfo.UserId, null, null, postData.PageUrl, !module.IsSSR);
 
                 //await _actionWorker.CallActions(moduleId, null, "OnPageLoad", true); 

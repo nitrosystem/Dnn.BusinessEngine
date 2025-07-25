@@ -1,5 +1,5 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Framework.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Core.Contracts;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Framework.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;

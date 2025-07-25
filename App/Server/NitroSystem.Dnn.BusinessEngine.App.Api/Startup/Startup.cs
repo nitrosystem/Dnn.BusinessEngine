@@ -16,6 +16,9 @@ using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Core.ModuleBuilder;
 using NitroSystem.Dnn.BusinessEngine.Core.ModuleData;
 using NitroSystem.Dnn.BusinessEngine.App.Framework.ModuleData;
+using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Framework.Services;
+using NitroSystem.Dnn.BusinessEngine.App.Framework.Services;
 
 
 namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
@@ -24,22 +27,27 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IExpressionService, ExpressionService>();
-            services.AddScoped<IModuleData, ModuleData>();
+            services.AddSingleton<IServiceLocator, ServiceLocator>();
+            services.AddSingleton<ICacheService, CacheServiceBase>();
 
-            //GlobalConfiguration.Configuration.Filters.Add(new BasicAuthenticationAttribute());
-            //services.AddScoped<IDbConnection>(sp =>
-            //{
-            //    var connection = new SqlConnection(DataProvider.Instance().ConnectionString + ";MultipleActiveResultSets=True;");
-            //    connection.Open();
-            //    return connection;
-            //});
+            services.AddScoped<IDbConnection>(sp =>
+            {
+                var connection = new SqlConnection(DataProvider.Instance().ConnectionString + ";MultipleActiveResultSets=True;");
+                connection.Open();
+                return connection;
+            });
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IRepositoryBase, RepositoryBase>();
-            services.AddSingleton<IExecuteSqlCommand, ExecuteSqlCommand>();
 
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IActionService, ActionService>();
+
+            services.AddScoped<IModuleData, ModuleData>();
+            services.AddScoped<IExpressionService, ExpressionService>();
+
+            services.AddScoped<IActionCondition, ActionCondition>();
+            services.AddScoped<IActionWorker, ActionWorker>();
+            //services.AddScoped<IServiceWorker, ServiceWorker>();
         }
     }
 }

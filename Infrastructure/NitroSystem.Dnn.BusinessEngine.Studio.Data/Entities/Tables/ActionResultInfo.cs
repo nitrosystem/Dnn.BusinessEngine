@@ -6,9 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Caching;
-using NitroSystem.Dnn.BusinessEngine.Studio.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
+namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_ActionResults")]
     [Cacheable("BE_ActionResults_", CacheItemPriority.Default, 20)]

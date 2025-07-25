@@ -1,10 +1,8 @@
 ﻿using DotNetNuke.Collections;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using System;
 using System.Collections.Generic;
@@ -14,6 +12,7 @@ using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using DotNetNuke.Common.Utilities;
+using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
 {
@@ -74,7 +73,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
             mapper.AddCustomMapping(src => src, dest => dest.Conditions, source => conditions);
             mapper.AddCustomMapping(src => src, dest => dest.Results, source => GetActionResultsViewModel(actionResults));
             mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings,
-                source => TypeCastingUtil<IDictionary<string, object>>.TryJsonCasting(source.Settings),
+                source => TypeCasting.TryJsonCasting<IDictionary<string, object>>(source.Settings),
                 condition => !string.IsNullOrEmpty(condition.Settings));
 
             var result = mapper.Map(action);
@@ -87,7 +86,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
             {
                 var mapper = new ExpressionMapper<ActionResultInfo, ActionResultViewModel>();
                 mapper.AddCustomMapping(src => src.Conditions, dest => dest.Conditions,
-                        source => TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(source.Conditions),
+                        source => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(source.Conditions),
                         condition => !string.IsNullOrEmpty(condition.Conditions));
                 return mapper.Map(result);
             });

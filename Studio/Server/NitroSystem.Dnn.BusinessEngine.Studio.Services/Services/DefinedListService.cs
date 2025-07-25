@@ -14,7 +14,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 
 using System;
@@ -27,7 +27,6 @@ using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using System.Runtime.Remoting.Messaging;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using DotNetNuke.Collections;

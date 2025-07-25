@@ -3,7 +3,7 @@ using DotNetNuke.Entities.Portals;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;

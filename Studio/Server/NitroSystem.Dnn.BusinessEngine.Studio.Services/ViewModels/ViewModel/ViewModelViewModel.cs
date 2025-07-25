@@ -1,5 +1,5 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -11,11 +11,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 using NitroSystem.Dnn.BusinessEngine.Framework.Enums;
-using NitroSystem.Dnn.BusinessEngine.Common.TypeCasting;
 using System.Runtime.Remoting.Messaging;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Action;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
@@ -28,7 +27,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
         private readonly IActionService _actionService;
         private readonly IExpressionService _expressionService;
         private readonly IActionCondition _actionCondition;
-        private readonly IServiceWorker _serviceWorker;
+        //private readonly IServiceWorker _serviceWorker;
         private readonly IServiceLocator _serviceLocator;
 
         public ActionWorker(
@@ -36,25 +35,24 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             IActionService actionService,
             IExpressionService expressionService,
             IActionCondition actionCondition,
-            IServiceWorker serviceWorker,
+            //IServiceWorker serviceWorker,
             IServiceLocator serviceLocator)
         {
             _moduleData = moduleData;
             _actionService = actionService;
             _expressionService = expressionService;
             _actionCondition = actionCondition;
-            _serviceWorker = serviceWorker;
+            //_serviceWorker = serviceWorker;
             _serviceLocator = serviceLocator;
         }
 
-        public async Task<object> CallActions(Guid moduleId, Guid? fieldId, string eventName, bool isServerSide)
+        public async Task<object> CallActions(string connectionId, Guid moduleId, Guid? fieldId, string eventName, bool isServerSide)
         {
             var actions = await _actionService.GetActionsDtoAsync(moduleId, fieldId, eventName, isServerSide);
 
             var buffer = CreateBuffer(new Queue<ActionTree>(), actions);
-
             if (buffer.Any())
-                return await CallAction(buffer);
+                return await CallAction(connectionId, buffer);
             else
                 return null;
         }
@@ -77,7 +75,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
         //    return await CallAction(buffer);
         //}
 
-        public async Task<object> CallAction(Queue<ActionTree> buffer)
+        public async Task<object> CallAction(string connectionId, Queue<ActionTree> buffer)
         {
             object result = null;
 
@@ -88,7 +86,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             var checkConditions = action.Event == "OnPageLoad" || !action.CheckConditionsInClientSide;
             if (action != null && (!checkConditions || _actionCondition.IsTrueConditions(action.Conditions)))
             {
-                ProccessActionParams(action.Params);
+                ProccessActionParams(connectionId, action.Params);
 
                 IAction actionController = CreateInstance(action.ActionType);
 
@@ -99,32 +97,32 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
                     var method = actionController.GetType().GetMethod("OnActionSuccessEvent");
                     if (method != null) method.Invoke(actionController, null);
 
-                    if (node.SuccessActions.Any()) await CallAction(node.SuccessActions);
+                    if (node.SuccessActions.Any()) await CallAction(connectionId, node.SuccessActions);
                 }
                 catch (Exception)
                 {
                     var method = actionController.GetType().GetMethod("OnActionErrorEvent");
                     if (method != null) method.Invoke(actionController, null);
 
-                    if (node.ErrorActions.Any()) await CallAction(node.ErrorActions);
+                    if (node.ErrorActions.Any()) await CallAction(connectionId, node.ErrorActions);
                 }
                 finally
                 {
                     var method = actionController.GetType().GetMethod("OnActionCompleted");
                     if (method != null) method.Invoke(actionController, null);
 
-                    if (node.CompletedActions.Any()) await CallAction(node.CompletedActions);
+                    if (node.CompletedActions.Any()) await CallAction(connectionId, node.CompletedActions);
                 }
 
                 if (buffer.Any())
-                    return await CallAction(buffer);
+                    return await CallAction(connectionId, buffer);
                 else
                     return result;
             }
             else
             {
                 if (buffer.Any())
-                    return await CallAction(buffer);
+                    return await CallAction(connectionId, buffer);
                 else
                     return result;
             }
@@ -134,7 +132,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
         {
             //var objActionTypeInfo = ActionTypeRepository.Instance.GetActionTypeByName(actionType);
 
-            return _serviceLocator.CreateInstance<IAction>(businessControllerClass, this, _moduleData, _expressionService, _serviceWorker);
+            return _serviceLocator.CreateInstance<IAction>(businessControllerClass, this, _moduleData, _expressionService/*, _serviceWorker*/);
         }
 
         //private Queue<ActionTree> CreateBuffer(Guid actionId)
@@ -204,12 +202,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             return buffer;
         }
 
-        private void ProccessActionParams(IEnumerable<ActionParamInfo> actionParams)
+        private void ProccessActionParams(string connectionId, IEnumerable<ActionParamInfo> actionParams)
         {
             foreach (var item in actionParams ?? Enumerable.Empty<ActionParamInfo>())
             {
                 string expression = item.ParamValue != null ? item.ParamValue.ToString() : "";
-                item.ParamValue = _expressionService.Evaluate(expression, _moduleData);
+                item.ParamValue = _expressionService.Evaluate(connectionId, expression, _moduleData);
             }
         }
 

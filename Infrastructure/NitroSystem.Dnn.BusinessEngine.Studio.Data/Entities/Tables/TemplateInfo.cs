@@ -6,7 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Caching;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables
+namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_Templates")]
     [Cacheable("BE_Templates_", CacheItemPriority.Default, 20)]
