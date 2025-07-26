@@ -40,27 +40,17 @@
             <div class="variable-item" ng-repeat="variable in $.variables">
                 <div class="vi-content">
                     <div class="vi-row">
-                        <div class="image-wrapper">
-                            <img ng-src="{{variable.Icon}}" />
+                        <div class="variable-icon-wrapper">
+                            <i class="codicon codicon-variable-group"></i>
                         </div>
                         <h5 class="variable-type">{{variable.VariableType}}</h5>
                         <h3 class="variable-name">{{variable.VariableName}}</h3>
                         <h3 class="variable-scope">{{variable.ScopeName}}</h3>
                     </div>
-                    <div class="vi-row">
-                        <p class="variable-description">{{tem.Description}}</p>
-                    </div>
                 </div>
                 <div class="v-actions">
-                    <div class="category-wrapper">
-                        <div class="icon-wrapper">
-                            <i class="codicon codicon-{{variable.VariableTypeCategoryIcon}}"></i>
-                        </div>
-                        <label class="category-name">{{variable.Category}}</label>
-                    </div>
                     <i class="codicon codicon-edit" ng-click="$.onEditVariableClick(variable)"></i>
                     <i class="codicon codicon-trash" ng-click="$.onDeleteVariableClick(variable.Id,$index)"></i>
-                    <i class="codicon codicon-expand-all" ng-click="$.onExpandVariableClick(variable)"></i>
                 </div>
             </div>
             <div ng-if="$.isLoadedCompleted && !$.variables.length" class="b-notify notify-info mb-4">
