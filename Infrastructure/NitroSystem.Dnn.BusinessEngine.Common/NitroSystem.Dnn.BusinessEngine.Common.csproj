@@ -97,6 +97,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums\FieldDataSourceType.cs" />
+    <Compile Include="Helpers\Globals\SmartValueComparer.cs" />
+    <Compile Include="Helpers\Globals\ValueComparer.cs" />
     <Compile Include="Helpers\IO\ZipUtil.cs" />
     <Compile Include="Helpers\Reflection\PropertyCopier.cs" />
     <Compile Include="Helpers\Reflection\Type\TypeChecker.cs" />
@@ -114,7 +116,7 @@
     <Compile Include="Models\SqlResultInfo.cs" />
     <Compile Include="Helpers\DB\DbUtil.cs" />
     <Compile Include="Helpers\IO\FileUtil.cs" />
-    <Compile Include="Helpers\Globals.cs" />
+    <Compile Include="Helpers\Globals\Globals.cs" />
     <Compile Include="Models\ImageInfo.cs" />
     <Compile Include="Models\LinkInfo.cs" />
     <Compile Include="Models\TableColumnInfo.cs" />

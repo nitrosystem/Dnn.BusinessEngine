@@ -5,13 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Common.Globals;
 
 namespace NitroSystem.Dnn.BusinessEngine.Framework.Contracts
 {
     public interface IActionCondition
     {
-        bool IsTrueConditions(IEnumerable<ExpressionInfo> conditions);
-
-        bool CompareTwoValue(string leftValue, string rightValue, string operatorType);
+        bool IsTrueConditions(IModuleData moduleData, IEnumerable<ExpressionInfo> conditions);
     }
 }

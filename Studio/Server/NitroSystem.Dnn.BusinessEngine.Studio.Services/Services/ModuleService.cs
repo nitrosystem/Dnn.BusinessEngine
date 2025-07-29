@@ -359,7 +359,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<IEnumerable<ModuleVariableViewModel>> GetModuleVariablesViewModelAsync(Guid moduleId)
         {
-            var task1 = _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId);
+            var task1 = _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId, "ViewOrder");
             var task2 = _repository.ExecuteStoredProcedureAsListAsync<ViewModelInfo>("BusinessEngine_GetVariablesViewModels",
                 new { ModuleId = moduleId });
 
@@ -368,10 +368,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return ModuleMapping.MapModuleVariablesViewModel(await task1, await task2);
         }
 
-        public async Task<Guid> SaveModuleVariablesAsync(ModuleVariableViewModel variale, bool isNew)
+        public async Task<Guid> SaveModuleVariablesAsync(ModuleVariableViewModel variable, bool isNew)
         {
-            var objModuleVariableInfo = HybridMapper.MapWithConfig<ModuleVariableViewModel, ModuleVariableInfo>(
-                variale, (src, dest) => { });
+            var objModuleVariableInfo = HybridMapper.MapWithConfig<ModuleVariableViewModel, ModuleVariableInfo>(variable,
+                (src, dest) =>
+                {
+                    dest.Scope = (int)variable.Scope;
+                });
 
             if (isNew)
             {

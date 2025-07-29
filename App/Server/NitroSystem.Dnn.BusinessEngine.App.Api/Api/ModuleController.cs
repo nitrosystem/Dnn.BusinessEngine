@@ -503,6 +503,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
 
                 await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad", true);
 
+                var data = _userDataStore.GetDataForClients(moduleId, moduleData);
+
                 var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
 
                 //this._moduleData.SetFieldItem(field.FieldName, lightField);
@@ -529,8 +531,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                     Fields = fields,
                     //Actions = actions,
                     //Variables = variables,
-                    //Data = moduleData,
-                    //DashboardModuleResources = moduleResources
+                    Data = data
                 });
             }
             catch (Exception ex)

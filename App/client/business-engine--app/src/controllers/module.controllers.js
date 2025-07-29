@@ -34,20 +34,19 @@ export class ModuleController {
         this.$scope.$rootScope = $rootScope;
     }
 
-    onInitModule(dnnModuleId, moduleId, moduleName, connectionID) {
+    onInitModule(dnnModuleId, moduleId, moduleName, connectionId) {
         this.module = {
             dnnModuleId: dnnModuleId,
             moduleId: moduleId,
+            connectionId: connectionId,
             moduleName: moduleName
         };
-
-        this.$scope.connectionID = connectionID;
 
         this.onPageLoad();
     }
 
     onPageLoad() {
-        this.$scope.Form = {};
+        this.$scope._Form = {};
         this.$scope.Field = {};
         this.$scope.Pane = {};
 
@@ -55,13 +54,24 @@ export class ModuleController {
 
         this.apiService.get("Module", "GetModuleData", {
             moduleId: this.module.moduleId,
-            connectionID: this.$scope.connectionID,
+            connectionId: this.module.connectionId,
             pageUrl: document.URL
         }).then((data) => {
             this.fields = data.Fields || [];
 
             this.$scope.variables = data.Variables || [];
-            this.$scope.variables.push({ VariableName: "Form", IsSystemVariable: true }, { VariableName: "Field", IsSystemVariable: true }, { VariableName: "Pane", IsSystemVariable: true }, { VariableName: "_ActionParam", IsSystemVariable: true }, { VariableName: "_PageParam", IsSystemVariable: true });
+
+            _.forEach(data.Data ?? {}, (value, key) => {
+                this.$scope[key] = value;
+                this.$scope.variables.push({ VariableName: key });
+            });
+
+            this.$scope.variables.push(
+                { VariableName: "_Form", IsSystemVariable: true },
+                { VariableName: "_Field", IsSystemVariable: true },
+                { VariableName: "_Pane", IsSystemVariable: true },
+                { VariableName: "_PageParam", IsSystemVariable: true }
+            );
 
             this.actions = data.Actions || [];
             _.map(this.actions, (action) => {
@@ -74,36 +84,37 @@ export class ModuleController {
                 this.globalService.parseJsonItems(field.Settings);
 
                 field.Actions = [];
-                _.filter(this.actions, (a) => { return a.FieldID == field.FieldID; }).map((action) => { field.Actions.push(action); });
+                _.filter(this.actions, (a) => { return a.FieldId == field.Id; }).map((action) => { field.Actions.push(action); });
 
-                this.appendWatches("Field." + field.FieldName + ".Value", "onFieldValueChange", field.FieldID);
-                this.appendWatches("Field." + field.FieldName + ".IsShow", "onFieldShowChange", field.FieldID);
+                this.appendWatches("Field." + field.FieldName + ".IsShow", "onFieldShowChange", field.Id);
 
                 if (field.IsValuable) {
-                    this.setFieldValue(field.FieldID);
+                    this.appendWatches("Field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
+
+                    this.setFieldValue(field.Id);
 
                     _.forEach(field.FieldValues, (fv) => {
-                        this.appendWatches(fv.ValueExpression, "setFieldValue", field.FieldID);
+                        this.appendWatches(fv.ValueExpression, "setFieldValue", field.Id);
 
                         _.forEach(fv.Conditions, (c) => {
-                            this.appendWatches(c.LeftExpression, "setFieldValue", field.FieldID);
+                            this.appendWatches(c.LeftExpression, "setFieldValue", field.Id);
                         });
                     });
                 }
 
                 if (field.DataSource) {
-                    if (field.DataSource.RunServiceClientSide) dataSourceFields.push(field.FieldID);
+                    if (field.DataSource.RunServiceClientSide) dataSourceFields.push(field.Id);
 
-                    this.appendWatches(`Field.${field.FieldName}.DataSource`, "onFieldDataSourceChange", field.FieldID);
+                    this.appendWatches(`Field.${field.FieldName}.DataSource`, "onFieldDataSourceChange", field.Id);
                 }
 
-                this.showHideField(field.FieldID);
+                this.showHideField(field.Id);
 
                 _.forEach(field.ShowConditions, (c) => {
-                    this.appendWatches(c.LeftExpression, "showHideField", field.FieldID);
-                    this.appendWatches(c.RightExpression, "showHideField", field.FieldID);
+                    this.appendWatches(c.LeftExpression, "showHideField", field.Id);
+                    this.appendWatches(c.RightExpression, "showHideField", field.Id);
                 });
-                this.$scope.Field[field.FieldName] = field;
+                this.$scope._Field[field.FieldName] = field;
             });
 
             this.assignScopeData(data.Data);
@@ -115,7 +126,7 @@ export class ModuleController {
 
                 this.actionService.callActions(clientActions, this.module.moduleId, null, "OnPageLoad", this.$scope).then((data) => {
                     this.$timeout(() => {
-                        _.forEach(dataSourceFields, (fieldID) => { this.getFieldDataSource(fieldID); })
+                        _.forEach(dataSourceFields, (fieldId) => { this.getFieldDataSource(fieldId); })
                     }, 1000);
                 });
 
@@ -136,9 +147,9 @@ export class ModuleController {
             if (key == 'Field') {
                 //این قسمت باید بازنویسی شود و با فعال کردن کدهای زیر آبجکت فیلد دچار مشکل می شود
                 // _.forOwn(value, (fieldData, fieldName) => {
-                //     this.$scope.Field[fieldName] = {...this.$scope.Field[fieldName], ...fieldData };
+                //     this.$scope._Field[fieldName] = {...this.$scope._Field[fieldName], ...fieldData };
                 //     _.filter(this.fields, (f) => { return f.FieldName == fieldName }).map((f) => {
-                //         this.fields[this.fields.indexOf(f)] = this.$scope.Field[fieldName]
+                //         this.fields[this.fields.indexOf(f)] = this.$scope._Field[fieldName]
                 //     });
                 // });
             } else {
@@ -150,8 +161,8 @@ export class ModuleController {
         });
     }
 
-    onFieldValueChange(fieldID) {
-        var field = this.getFieldByID(fieldID);
+    onFieldValueChange(fieldId) {
+        var field = this.getFieldById(fieldId);
         if (field /*&& this.completedForm*/) {
             if (field.Settings.SaveValueIn) {
                 var match = /(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm.exec(
@@ -162,10 +173,8 @@ export class ModuleController {
                     model.assign(this.$scope, field.Value);
                 }
             } else {
-                this.$scope.Field[field.FieldName].Value = field.Value;
-                this.$scope.Form[field.FieldName] = field.Value;
-
-                console.log(this.$scope.Form)
+                this.$scope._Field[field.FieldName].Value = field.Value;
+                this.$scope._Form[field.FieldName] = field.Value;
             }
 
             if (field.BeValidate) {
@@ -174,22 +183,22 @@ export class ModuleController {
             }
 
             this.$timeout(() => {
-                if (field.Value !== field.OldValue) this.$scope.$broadcast(`onFieldValueChange_${field.FieldID}`, { field: field });
+                if (field.Value !== field.OldValue) this.$scope.$broadcast(`onFieldValueChange_${field.Id}`, { field: field });
                 field.OldValue = angular.copy(field.Value);
             }, 200);
 
             if (field.Actions && field.Actions.length)
-                this.callActionByEvent(this.actions, fieldID, "OnFieldValueChange");
+                this.callActionByEvent(this.actions, fieldId, "OnFieldValueChange");
         } else
             console.warn(
-                "Field not found. Method: onFieldValueChange, FieldID: " + fieldID
+                "Field not found. Method: onFieldValueChange, FieldId: " + fieldId
             );
     }
 
-    setFieldValue(fieldID) {
-        var field = this.getFieldByID(fieldID);
+    setFieldValue(fieldId) {
+        var field = this.getFieldById(fieldId);
         if (field) {
-            this.$scope.Form[field.FieldName] = field.Value;
+            this.$scope._Form[field.FieldName] = field.Value;
 
             _.forEach(field.FieldValues, (fv) => {
                 if (!fv.Conditions ||
@@ -211,17 +220,17 @@ export class ModuleController {
                         field.Value = value.split(",");
                     else field.Value = value;
 
-                    this.$scope.Form[field.FieldName] = field.Value;
+                    this.$scope._Form[field.FieldName] = field.Value;
                 }
             });
         } else
             console.warn(
-                "Field not found. Method: setFieldValue, FieldID: " + fieldID
+                "Field not found. Method: setFieldValue, FieldId: " + fieldId
             );
     }
 
-    onFieldShowChange(fieldID) {
-        var field = this.getFieldByID(fieldID);
+    onFieldShowChange(fieldId) {
+        var field = this.getFieldById(fieldId);
         if (field) {
             if (!field.Settings.EnableSetNullValueWhenFieldIsHide && !field.IsShow && field.Value) {
                 field.ValueBackup = _.clone(field.Value);
@@ -232,13 +241,13 @@ export class ModuleController {
                 delete field.ValueBackup;
             }
 
-            this.$scope.Form[field.FieldName] = field.Value;
+            // this.$scope._Form[field.FieldName] = field.Value;
         } else
-            console.warn("Field not found. Method: onFieldShowChange, FieldID: " + fieldID);
+            console.warn("Field not found. Method: onFieldShowChange, FieldId: " + fieldId);
     }
 
-    showHideField(fieldID) {
-        var field = this.getFieldByID(fieldID);
+    showHideField(fieldId) {
+        var field = this.getFieldById(fieldId);
         if (field) {
             if (field.ShowConditions && field.ShowConditions.length) {
                 field.IsShow = this.expressionService.checkConditions(
@@ -248,27 +257,27 @@ export class ModuleController {
             }
         } else
             console.warn(
-                "Field not found. Method: showHideField, FieldID: " + fieldID
+                "Field not found. Method: showHideField, FieldId: " + fieldId
             );
     }
 
-    getFieldDataSource(fieldID, pageIndex) {
-        var field = this.getFieldByID(fieldID);
+    getFieldDataSource(fieldId, pageIndex) {
+        var field = this.getFieldById(fieldId);
         if (field && field.DataSource) {
             var datasource = _.clone(field.DataSource);
 
             if (datasource.Type == "2") {
                 this.apiService.post("Module", "GetFieldDataSource", {
                     ModuleId: this.module.moduleId,
-                    ConnectionID: this.$scope.connectionID,
-                    FieldID: fieldID,
+                    ConnectionId: this.module.connectionId,
+                    FieldId: fieldId,
                     PageIndex: pageIndex || 1,
                     PageSize: this.expressionService.parseExpression(field.Settings.PageSize, this.$scope),
-                    Form: this.$scope.Form,
+                    Form: this.$scope._Form,
                     PageUrl: document.URL,
                 })
                     .then((data) => {
-                        this.$scope.Field[data.FieldName].DataSource = data.DataSource;
+                        this.$scope._Field[data.FieldName].DataSource = data.DataSource;
                     });
             } else if (datasource.Type == "actions") {
                 const listName = field.DataSource.ListName;
@@ -279,15 +288,15 @@ export class ModuleController {
                 field.DataSource.Items = value;
             }
         } else {
-            console.warn("Field not found. Method: getFieldDataSource, FieldID: " + fieldID);
+            console.warn("Field not found. Method: getFieldDataSource, FieldId: " + fieldId);
         }
     }
 
-    onFieldDataSourceChange(fieldID) {
-        var field = this.getFieldByID(fieldID);
+    onFieldDataSourceChange(fieldId) {
+        var field = this.getFieldById(fieldId);
 
         this.$timeout(() => {
-            if (field.DataSource !== field.OldDataSource) this.$scope.$broadcast(`onFieldDataSourceChange_${field.FieldID}`, { field: field });
+            if (field.DataSource !== field.OldDataSource) this.$scope.$broadcast(`onFieldDataSourceChange_${field.Id}`, { field: field });
             field.OldDataSource = field.DataSource;
         }, 200);
     }
@@ -300,7 +309,7 @@ export class ModuleController {
         });
 
         this.validateFields(fields).then((isValid) => {
-            this.$scope.Form._IsValid = isValid;
+            this.$scope._Form._IsValid = isValid;
 
             defer.resolve(isValid);
         });
@@ -328,7 +337,7 @@ export class ModuleController {
         const defer = this.$q.defer();
 
         var fields = _.filter(this.fields, (f) => {
-            return f.PaneName == paneName && this.isFieldShow(f);
+            return f._PaneName == paneName && this.isFieldShow(f);
         });
 
         _.filter(fields, (f) => {
@@ -338,8 +347,8 @@ export class ModuleController {
         });
 
         this.validateFields(fields).then((isValid) => {
-            this.$scope.Pane[paneName] = this.$scope.Pane[paneName] || {};
-            this.$scope.Pane[paneName].IsValid = isValid;
+            this.$scope._Pane[paneName] = this.$scope._Pane[paneName] || {};
+            this.$scope._Pane[paneName].IsValid = isValid;
 
             defer.resolve(isValid);
         });
@@ -353,7 +362,7 @@ export class ModuleController {
         if (!buffer.length) {
             defer.resolve();
         } else {
-            const group = this.getFieldByID(buffer[0]);
+            const group = this.getFieldById(buffer[0]);
             this.validateGroup(group).then(() => {
                 buffer.shift();
                 this.validateGroups(buffer, defer);
@@ -500,7 +509,7 @@ export class ModuleController {
 
     callActionsByEvent(target, eventName, includeServerSide, sender) {
         var moduleId;
-        var fieldID;
+        var fieldId;
         var actions;
 
         if (includeServerSide)
@@ -513,25 +522,25 @@ export class ModuleController {
         }
 
         if (target == 'field') {
-            fieldID = sender;
+            fieldId = sender;
         }
 
         return this.actionService.callActions(
             actions,
             moduleId,
-            fieldID,
+            fieldId,
             eventName,
             this.$scope
         );
     }
 
-    callActionByEvent(actions, fieldID, eventName) {
+    callActionByEvent(actions, fieldId, eventName) {
         const defer = this.$q.defer();
 
         this.actionService.callActions(
             actions,
             this.module.moduleId,
-            fieldID,
+            fieldId,
             eventName,
             this.$scope
         ).then(() => {
@@ -583,9 +592,9 @@ export class ModuleController {
         });
     }
 
-    getFieldByID(fieldID) {
+    getFieldById(fieldId) {
         const field = _.find(this.fields, (f) => {
-            return f.FieldID == fieldID;
+            return f.Id == fieldId;
         });
         return field;
     }
@@ -602,7 +611,7 @@ export class ModuleController {
 
         const findNestedFields = (group) => {
             const childs = _.filter(this.fields, (f) => {
-                return f.ParentID == group.FieldID && this.isFieldShow(f);
+                return f.ParentId == group.FieldId && this.isFieldShow(f);
             });
 
             fields = fields.concat(childs);

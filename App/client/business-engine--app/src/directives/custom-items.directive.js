@@ -1,37 +1,3 @@
-export function DashboardLinkDirective($compile, expressionService) {
-    return {
-        restrict: "EA",
-        replace: true,
-        link: (scope, element, attrs) => {
-            element.on("click", ($event) => {
-                const pageName = attrs.page;
-
-                var paramList = [];
-                var params = (attrs.params || "").split("&");
-                _.forEach(params, (p) => {
-                    var parsedParam = expressionService.parseExpression(
-                        p,
-                        scope,
-                        "",
-                        true
-                    );
-                    paramList.push(parsedParam);
-                });
-                const pageParams = paramList.join("&");
-
-                scope.$emit("onGotoDashboardPage", {
-                    pageName: pageName,
-                    params: pageParams,
-                    isUpdatePageParams: true,
-                });
-
-                $event.preventDefault();
-                if ($event) $event.stopPropagation();
-            });
-        },
-    };
-}
-
 export function BindText(expressionService) {
     return {
         restrict: "A",

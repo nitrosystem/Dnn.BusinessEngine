@@ -80,7 +80,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
 
             var action = node.Action;
 
-            if (action != null && _actionCondition.IsTrueConditions(action.Conditions))
+            if (action != null && _actionCondition.IsTrueConditions(moduleData, action.Conditions))
             {
                 //ServiceDto service = null;
                 //if (action.ServiceId.HasValue)
@@ -222,7 +222,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
         {
             foreach (var item in action.Results)
             {
-                var isTrue = _actionCondition.IsTrueConditions(item.Conditions);
+                var isTrue = _actionCondition.IsTrueConditions(moduleData, item.Conditions);
                 if (isTrue)
                 {
                     var value = _expressionService.Evaluate(moduleData, item.RightExpression);
