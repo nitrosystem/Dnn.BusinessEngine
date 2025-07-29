@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.DTO
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto
 {
-    public class GuidDTO
+    public class GuidDto
     {
         public Guid Id { get; set; }
     }

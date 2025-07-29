@@ -14,11 +14,12 @@ using System;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Core.ModuleBuilder;
-using NitroSystem.Dnn.BusinessEngine.Core.ModuleData;
 using NitroSystem.Dnn.BusinessEngine.App.Framework.ModuleData;
 using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Framework.Services;
 using NitroSystem.Dnn.BusinessEngine.App.Framework.Services;
+using NitroSystem.Dnn.BusinessEngine.App.Framework.Contracts;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 
 namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
@@ -27,8 +28,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IServiceLocator, ServiceLocator>();
-            services.AddSingleton<ICacheService, CacheServiceBase>();
+            services.AddSingleton<IUserDataStore, InMemoryUserDataStore>();
 
             services.AddScoped<IDbConnection>(sp =>
             {
@@ -41,13 +41,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
 
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IActionService, ActionService>();
+            services.AddScoped<IServiceFactory, ServiceFactory>();
 
-            services.AddScoped<IModuleData, ModuleData>();
             services.AddScoped<IExpressionService, ExpressionService>();
 
-            services.AddScoped<IActionCondition, ActionCondition>();
             services.AddScoped<IActionWorker, ActionWorker>();
-            //services.AddScoped<IServiceWorker, ServiceWorker>();
+            services.AddScoped<IActionCondition, ActionCondition>();
         }
     }
 }

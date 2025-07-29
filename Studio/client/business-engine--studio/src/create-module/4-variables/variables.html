@@ -53,7 +53,7 @@
                     <i class="codicon codicon-trash" ng-click="$.onDeleteVariableClick(variable.Id,$index)"></i>
                 </div>
             </div>
-            <div ng-if="$.isLoadedCompleted && !$.variables.length" class="b-notify notify-info mb-4">
+            <div ng-if="!$.variables.length" class="b-notify notify-info mb-4">
                 <i class="codicon codicon-info b-icon-2"></i>
                 <div class="text">
                     <h4 class="label">The module has no variables.</h4>

@@ -8,8 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Enums
 {
     public enum ActionResultStatus 
     {
-        OnCompleted = 0,
-        OnCompletedSuccess = 1,
-        OnCompletedError = 2
+        Successful = 1,
+        Error = 2
     }
 }

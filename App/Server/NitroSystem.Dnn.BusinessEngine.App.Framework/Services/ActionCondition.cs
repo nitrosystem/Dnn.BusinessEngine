@@ -1,5 +1,4 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Framework.Dto;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,23 +6,21 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Framework.Services
 {
     public class ActionCondition : IActionCondition
     {
-        private readonly IModuleData _moduleData;
         private readonly IExpressionService _expressionService;
 
-        public ActionCondition(IModuleData moduleData, IExpressionService expressionService)
+        public ActionCondition(IExpressionService expressionService)
         {
-            this._moduleData = moduleData;
             this._expressionService = expressionService;
         }
 
-        public bool IsTrueConditions(IEnumerable<IExpression> conditions)
+        public bool IsTrueConditions(IEnumerable<ExpressionInfo> conditions)
         {
             return true;
             //if (conditions == null || !conditions.Any()) return true;

@@ -10,7 +10,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Contracts
     public interface IActionResult
     {
         ActionResultStatus ResultStatus { get; set; }
-        bool IsError { get; set; }
-        string ErrorMessage { get; set; }
+        object Data { get; set; }
+        Exception ErrorException { get; set; }
     }
 }

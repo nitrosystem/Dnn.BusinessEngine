@@ -85,93 +85,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return objModuleInfo.Id;
         }
 
-        public async Task BuildModuleAsync(BuildModuleRequest postData, PortalSettings portalSettings, HttpContext context)
-        {
-            if (postData.Scope == BuildScope.OnlyOneModule && !postData.ModuleId.HasValue)
-                throw new ArgumentNullException(nameof(postData.ModuleId));
-            else if (postData.Scope == BuildScope.AllScenarioModules && !postData.ScenarioId.HasValue)
-                throw new ArgumentNullException(nameof(postData.ScenarioId));
-
-            var modules = await _repository.ExecuteStoredProcedureAsListAsync<BuildModuleView>("BusinessEngine_GetBuildModulesByScope",
-                new
-                {
-                    postData.Scope,
-                    postData.ModuleId,
-                    postData.ScenarioId
-                });
-
-            foreach (var module in modules)
-            {
-                var spResourceReaderTask = _repository.ExecuteStoredProcedureAsDataReaderAsync("BusinessEngine_GetBuildModulesAllResources",
-                new
-                {
-                    ModuleId = module.Id
-                });
-
-                var spFieldsTask = _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                    "BusinessEngine_GetBuildModulesFieldsAndSettings", "Studio_ModulesFields_",
-                    new
-                    {
-                        ModuleId = module.Id
-                    },
-                    grid => grid.Read<ModuleFieldInfo>(),
-                    grid => grid.Read<ModuleFieldSettingView>()
-                );
-
-                var spPageIdTask = _repository.ExecuteStoredProcedureScalerAsync<int>("BusinessEngine_GetTabIdByDnnModuleId",
-                    new
-                    {
-                        module.DnnModuleId
-                    }
-                 );
-
-                await Task.WhenAll(spResourceReaderTask, spFieldsTask, spPageIdTask);
-
-                var fieldsData = await spFieldsTask;
-                var fields = (IEnumerable<ModuleFieldInfo>)fieldsData[0];
-                var fieldsSettings = (IEnumerable<ModuleFieldSettingView>)fieldsData[1];
-                var pageId = await spPageIdTask;
-
-                var moduleToBuild = new BuildModuleDto();
-                module.CopyProperties(moduleToBuild);
-
-                var fieldsToBuild = ModuleMapping.MapModuleFieldsDto(fields, fieldsSettings);
-
-                var resourcesToBuild = new List<BuildModuleResourceDto>();
-                using (var reader = await spResourceReaderTask)
-                {
-                    while (reader.Read())
-                    {
-                        resourcesToBuild.Add(new BuildModuleResourceDto()
-                        {
-                            ModuleId = Globals.GetSafeGuid(reader["ModuleId"]),
-                            ResourceType = (ResourceType)reader["ResourceType"],
-                            ActionType = (ActionType)reader["ActionType"],
-                            ResourcePath = Globals.GetSafeString(reader["ResourcePath"]),
-                            EntryType = Globals.GetSafeString(reader["EntryType"]),
-                            Additional = Globals.GetSafeString(reader["Additional"]),
-                            CacheKey = Globals.GetSafeString(reader["CacheKey"]),
-                            Condition = Globals.GetSafeString(reader["Condition"]),
-                            LoadOrder = Globals.GetSafeInt(reader["LoadOrder"])
-                        });
-                    }
-                }
-
-                var status = await _buildModuleService.PrepareBuild(moduleToBuild, _repository, portalSettings);
-                if (status.IsReadyToBuild)
-                {
-                    var pageResources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("DnnPageId", pageId);
-                    var pageResourcesDto = ResourceMapping.MapPageResourcesDto(pageResources);
-
-                    var finalResources = await _buildModuleService.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
-                    var mappedResources = ResourceMapping.MapPageResourcesInfo(finalResources);
-                    await _repository.BulkInsertAsync<PageResourceInfo>(mappedResources);
-                }
-                else if (status.ExceptionError != null)
-                    throw status.ExceptionError ?? throw new Exception("The module is not ready to be build!");
-            }
-        }
-
         public async Task<bool?> IsValidModuleName(Guid scenarioId, Guid? moduleId, string moduleName)
         {
             return await _repository.ExecuteStoredProcedureScalerAsync<bool?>("BusinessEngine_IsValidModuleName",
@@ -181,6 +94,84 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         public async Task<bool> DeleteModuleAsync(Guid moduleId)
         {
             return await _repository.DeleteAsync<ModuleInfo>(moduleId);
+        }
+
+        #endregion
+
+        #region Build Module Services
+
+        public async Task BuildModuleAsync(Guid moduleId, PortalSettings portalSettings, HttpContext context)
+        {
+            var module = await _repository.GetAsync<ModuleView>(moduleId);
+
+            var spResourceReaderTask = _repository.ExecuteStoredProcedureAsDataReaderAsync("BusinessEngine_GetBuildModulesAllResources",
+            new
+            {
+                ModuleId = module.Id
+            });
+
+            var spFieldsTask = _repository.ExecuteStoredProcedureMultiGridResultAsync(
+                "BusinessEngine_GetBuildModulesFieldsAndSettings", "Studio_ModulesFields_",
+                new
+                {
+                    ModuleId = module.Id
+                },
+                grid => grid.Read<ModuleFieldInfo>(),
+                grid => grid.Read<ModuleFieldSettingView>()
+            );
+
+            var spPageIdTask = _repository.ExecuteStoredProcedureScalerAsync<int>("BusinessEngine_GetTabIdByDnnModuleId",
+                new
+                {
+                    module.DnnModuleId
+                }
+             );
+
+            await Task.WhenAll(spResourceReaderTask, spFieldsTask, spPageIdTask);
+
+            var fieldsData = await spFieldsTask;
+            var fields = (IEnumerable<ModuleFieldInfo>)fieldsData[0];
+            var fieldsSettings = (IEnumerable<ModuleFieldSettingView>)fieldsData[1];
+            var pageId = await spPageIdTask;
+
+            var moduleToBuild = new BuildModuleDto();
+            module.CopyProperties(moduleToBuild);
+            moduleToBuild.BuildPath = $@"[BUILDPATH]\{module.ScenarioName}\{module.ModuleName}";
+
+            var fieldsToBuild = ModuleMapping.MapModuleFieldsDto(fields, fieldsSettings);
+
+            var resourcesToBuild = new List<BuildModuleResourceDto>();
+            using (var reader = await spResourceReaderTask)
+            {
+                while (reader.Read())
+                {
+                    resourcesToBuild.Add(new BuildModuleResourceDto()
+                    {
+                        ModuleId = Globals.GetSafeGuid(reader["ModuleId"]),
+                        ResourceType = (ResourceType)reader["ResourceType"],
+                        ActionType = (ActionType)reader["ActionType"],
+                        ResourcePath = Globals.GetSafeString(reader["ResourcePath"]),
+                        EntryType = Globals.GetSafeString(reader["EntryType"]),
+                        Additional = Globals.GetSafeString(reader["Additional"]),
+                        CacheKey = Globals.GetSafeString(reader["CacheKey"]),
+                        Condition = Globals.GetSafeString(reader["Condition"]),
+                        LoadOrder = Globals.GetSafeInt(reader["LoadOrder"])
+                    });
+                }
+            }
+
+            var status = await _buildModuleService.PrepareBuild(moduleToBuild, _repository, portalSettings);
+            if (status.IsReadyToBuild)
+            {
+                var pageResources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("DnnPageId", pageId);
+                var pageResourcesDto = ResourceMapping.MapPageResourcesDto(pageResources);
+
+                var finalResources = await _buildModuleService.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
+                var mappedResources = ResourceMapping.MapPageResourcesInfo(finalResources);
+                await _repository.BulkInsertAsync<PageResourceInfo>(mappedResources);
+            }
+            else if (status.ExceptionError != null)
+                throw status.ExceptionError ?? throw new Exception("The module is not ready to be build!");
         }
 
         #endregion

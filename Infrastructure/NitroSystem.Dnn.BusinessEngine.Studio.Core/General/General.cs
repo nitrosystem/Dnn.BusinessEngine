@@ -1,6 +1,6 @@
 ﻿using DotNetNuke.Common.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Common.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.Models;
+using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using System;
 using System.Collections.Generic;

@@ -69,7 +69,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
         {
             get
             {
-                return Request.AnonymousID;
+                return Guid.NewGuid().ToString();
             }
         }
 

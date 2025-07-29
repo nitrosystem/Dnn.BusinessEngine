@@ -1,5 +1,5 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Framework.Dto;
+using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Contracts
 {
     public interface IActionCondition
     {
-        bool IsTrueConditions(IEnumerable<IExpression> conditions);
+        bool IsTrueConditions(IEnumerable<ExpressionInfo> conditions);
 
         bool CompareTwoValue(string leftValue, string rightValue, string operatorType);
     }

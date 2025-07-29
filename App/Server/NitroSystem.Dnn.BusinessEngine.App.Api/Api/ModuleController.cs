@@ -6,7 +6,6 @@ using DotNetNuke.Services.Scheduling;
 using DotNetNuke.Web.Api;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NitroSystem.Dnn.BusinessEngine.Api.DTO;
 using NitroSystem.Dnn.BusinessEngine.Api.Models;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using System;
@@ -28,22 +27,23 @@ using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.App.Framework.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Api
+namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {
     public class ModuleController : DnnApiController
     {
-        private readonly IModuleData _moduleData;
+        private readonly IUserDataStore _userDataStore;
         private readonly IModuleService _moduleService;
         private readonly IActionWorker _actionWorker;
 
         public ModuleController(
-            IModuleData moduledata,
+            IUserDataStore userDataStore,
             IModuleService moduleService,
             IActionWorker actionWorker
         )
         {
-            _moduleData = moduledata;
+            _userDataStore = userDataStore;
             _moduleService = moduleService;
             _actionWorker = actionWorker;
         }
@@ -491,22 +491,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Api
         #endregion
 
         [AllowAnonymous]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> GetModuleData(ModuleDTO postData)
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetModuleData(Guid moduleId, string connectionId, string pageUrl)
         {
             try
             {
-                var moduleId = Guid.Parse(Request.Headers.GetValues("ModuleId").First());
-
-                string connectionId = postData.ConnectionId;
-
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 if (module == null) throw new Exception("Module Not Config");
 
-                await _moduleData.InitializeModuleData(connectionId, module.Id);
+                var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, module.Id);
 
-                await _actionWorker.CallActions(connectionId, moduleId, null, "OnPageLoad", true);
+                await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad", true);
 
                 var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
 
@@ -533,7 +528,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Api
                 {
                     Fields = fields,
                     //Actions = actions,
-                    ConnectionId = connectionId,
                     //Variables = variables,
                     //Data = moduleData,
                     //DashboardModuleResources = moduleResources

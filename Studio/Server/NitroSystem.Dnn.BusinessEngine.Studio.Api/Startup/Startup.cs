@@ -22,8 +22,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IServiceLocator, ServiceLocator>();
-            services.AddSingleton<ICacheService, CacheServiceBase>();
             services.AddSingleton<IExecuteSqlCommand, ExecuteSqlCommand>();
 
             services.AddScoped<IDbConnection>(sp =>

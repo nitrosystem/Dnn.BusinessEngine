@@ -95,7 +95,6 @@
     <Compile Include="Entities\Tables\ViewModelInfo.cs" />
     <Compile Include="Entities\Tables\ViewModelPropertyInfo.cs" />
     <Compile Include="Entities\Views\ActionView.cs" />
-    <Compile Include="Entities\Views\BuildModuleView.cs" />
     <Compile Include="Entities\Views\ExplorerItemView.cs" />
     <Compile Include="Entities\Views\ModuleActionTypeView.cs" />
     <Compile Include="Entities\Views\ModuleCustomLibraryResourceView.cs" />
@@ -132,12 +131,7 @@
       <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Attributes\" />
-    <Folder Include="Cashing\" />
-    <Folder Include="Enums\" />
-    <Folder Include="Repositories\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF NOT ($(ConfigurationName)) == (Debug) GOTO END

@@ -13,7 +13,7 @@ using DotNetNuke.Common.Utilities;
 using DotNetNuke.Security.Roles;
 using DotNetNuke.Web.Api;
 using DotNetNuke.Entities.Portals;
-using NitroSystem.Dnn.BusinessEngine.Studio.Api.DTO;
+using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
 using DotNetNuke.Entities.Controllers;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
@@ -137,7 +137,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> UpdateItemGroup(ExplorerItemDTO item)
+        public async Task<HttpResponseMessage> UpdateItemGroup(ExplorerItemDto item)
         {
             try
             {
@@ -251,7 +251,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteGroup(GuidDTO postData)
+        public async Task<HttpResponseMessage> DeleteGroup(GuidDto postData)
         {
             try
             {
@@ -369,7 +369,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteEntity(GuidDTO postData)
+        public async Task<HttpResponseMessage> DeleteEntity(GuidDto postData)
         {
             try
             {
@@ -458,7 +458,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteViewModel(GuidDTO postData)
+        public async Task<HttpResponseMessage> DeleteViewModel(GuidDto postData)
         {
             try
             {
@@ -577,7 +577,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteService(GuidDTO postData)
+        public async Task<HttpResponseMessage> DeleteService(GuidDto postData)
         {
             try
             {

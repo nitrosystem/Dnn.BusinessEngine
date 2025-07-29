@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Action;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Framework.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +34,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Contracts
 
         public abstract bool TryParseModel(string actionDetails);
 
-        public abstract Task<object> ExecuteAsync<T>();
+        public abstract Task<object> ExecuteAsync();
 
         public void OnActionSuccess()
         {

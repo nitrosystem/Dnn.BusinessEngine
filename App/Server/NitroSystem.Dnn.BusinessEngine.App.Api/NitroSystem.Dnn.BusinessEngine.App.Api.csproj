@@ -81,26 +81,7 @@
   <ItemGroup>
     <Compile Include="Contracts\IJWTAttribute.cs" />
     <Compile Include="Api\ModuleController.cs" />
-    <Compile Include="DTO\BuildModuleOnServerDTO.cs" />
-    <Compile Include="DTO\CustomizeStylesDTO.cs" />
-    <Compile Include="DTO\DashboardPageSortDTO.cs" />
-    <Compile Include="DTO\DefinedListFieldDTO.cs" />
-    <Compile Include="DTO\ExplorerItemDTO.cs" />
-    <Compile Include="DTO\AvailableExtensionDTO.cs" />
-    <Compile Include="DTO\ExtensionManifestDTO.cs" />
-    <Compile Include="DTO\FieldDataSourceDTO.cs" />
-    <Compile Include="DTO\FieldDTO.cs" />
-    <Compile Include="DTO\FieldSortDTO.cs" />
-    <Compile Include="DTO\GuidDTO.cs" />
-    <Compile Include="DTO\ModuleCustomResourceDTO.cs" />
-    <Compile Include="DTO\ModuleDTO.cs" />
-    <Compile Include="DTO\ModuleResourceDTO.cs" />
-    <Compile Include="DTO\DashboardSkinDTO.cs" />
-    <Compile Include="DTO\ModuleTemplateDTO.cs" />
-    <Compile Include="DTO\PageResourceDTO.cs" />
-    <Compile Include="DTO\BuildModuleDTO.cs" />
     <Compile Include="Enums\ModuleCustomResourcesType.cs" />
-    <Compile Include="DTO\CheckModuleNameDTO.cs" />
     <Compile Include="Models\FieldDataSourceResult.cs" />
     <Compile Include="Models\FieldValueInfo.cs" />
     <Compile Include="Models\UploadFileInfo.cs" />

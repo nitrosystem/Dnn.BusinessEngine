@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.Models;
+﻿using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
 using System;
 using System.Collections.Generic;

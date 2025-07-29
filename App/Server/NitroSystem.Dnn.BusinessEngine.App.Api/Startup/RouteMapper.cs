@@ -9,7 +9,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
     {
         public void RegisterRoutes(IMapRoute mapRouteManager)
         {
-            mapRouteManager.MapHttpRoute("BusinessEngine", "default", "{controller}/{action}", new[] { "NitroSystem.Dnn.BusinessEngine.Api" });
+            mapRouteManager.MapHttpRoute("BusinessEngine", "default", "{controller}/{action}", new[] { "NitroSystem.Dnn.BusinessEngine.App.Api" });
 
             //GlobalConfiguration.Configuration.AddModuleInfoProvider(new StudioModuleInfoProvider());
         }

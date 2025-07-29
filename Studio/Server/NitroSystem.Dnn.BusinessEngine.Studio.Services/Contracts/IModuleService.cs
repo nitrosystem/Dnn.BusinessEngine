@@ -35,7 +35,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task<bool?> IsValidModuleName(Guid scenarioId, Guid? moduleId, string moduleName);
 
-        Task BuildModuleAsync(BuildModuleRequest postData, PortalSettings portalSettings, HttpContext context);
+        Task BuildModuleAsync(Guid moduleId, PortalSettings portalSettings, HttpContext context);
 
         #endregion
 

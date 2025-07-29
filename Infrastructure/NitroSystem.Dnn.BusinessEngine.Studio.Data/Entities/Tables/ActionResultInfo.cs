@@ -12,7 +12,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
     [Table("BusinessEngine_ActionResults")]
     [Cacheable("BE_ActionResults_", CacheItemPriority.Default, 20)]
     [Scope("ActionId")]
-    public class ActionResultInfo : IEntity, IExpression
+    public class ActionResultInfo : IEntity
     {
         public Guid Id { get; set; }
         public Guid ActionId { get; set; }

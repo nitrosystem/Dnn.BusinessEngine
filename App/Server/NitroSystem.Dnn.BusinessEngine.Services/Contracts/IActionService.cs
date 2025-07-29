@@ -13,8 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Module;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Action;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
 {
@@ -23,6 +22,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
         Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId);
 
         Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId, Guid? fieldId, string eventName, bool isServerSide);
+
+        Task<string> GetBusinessControllerClass(string actionType);
 
         //Task<ActionViewModel> GetActionViewModelAsync(Guid actionId);
 

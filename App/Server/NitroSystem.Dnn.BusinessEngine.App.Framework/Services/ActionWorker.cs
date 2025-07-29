@@ -1,5 +1,4 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Framework.Dto;
 using NitroSystem.Dnn.BusinessEngine.Framework.Models;
 using NitroSystem.Dnn.BusinessEngine.Framework.Services;
 using System;
@@ -13,46 +12,44 @@ using System.Text.RegularExpressions;
 using NitroSystem.Dnn.BusinessEngine.Framework.Enums;
 using System.Runtime.Remoting.Messaging;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Models;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Action;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
+using Microsoft.Extensions.DependencyInjection;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
+using DotNetNuke.Entities.Users;
+using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+using DotNetNuke.UI.UserControls;
+using NitroSystem.Dnn.BusinessEngine.App.Framework.ModuleData;
 
 namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
 {
     public class ActionWorker : IActionWorker
     {
-        private readonly IModuleData _moduleData;
         private readonly IActionService _actionService;
         private readonly IExpressionService _expressionService;
         private readonly IActionCondition _actionCondition;
-        //private readonly IServiceWorker _serviceWorker;
         private readonly IServiceLocator _serviceLocator;
 
         public ActionWorker(
-            IModuleData moduleData,
             IActionService actionService,
             IExpressionService expressionService,
             IActionCondition actionCondition,
-            //IServiceWorker serviceWorker,
             IServiceLocator serviceLocator)
         {
-            _moduleData = moduleData;
             _actionService = actionService;
             _expressionService = expressionService;
             _actionCondition = actionCondition;
-            //_serviceWorker = serviceWorker;
             _serviceLocator = serviceLocator;
         }
 
-        public async Task<object> CallActions(string connectionId, Guid moduleId, Guid? fieldId, string eventName, bool isServerSide)
+        public async Task<object> CallActions(IModuleData moduleData, Guid moduleId, Guid? fieldId, string eventName, bool isServerSide)
         {
             var actions = await _actionService.GetActionsDtoAsync(moduleId, fieldId, eventName, isServerSide);
 
             var buffer = CreateBuffer(new Queue<ActionTree>(), actions);
             if (buffer.Any())
-                return await CallAction(connectionId, buffer);
+                return await CallAction(moduleData, buffer);
             else
                 return null;
         }
@@ -75,64 +72,83 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
         //    return await CallAction(buffer);
         //}
 
-        public async Task<object> CallAction(string connectionId, Queue<ActionTree> buffer)
+        public async Task<object> CallAction(IModuleData moduleData, Queue<ActionTree> buffer)
         {
-            object result = null;
+            IActionResult result = null;
 
             var node = buffer.Dequeue();
 
             var action = node.Action;
 
-            var checkConditions = action.Event == "OnPageLoad" || !action.CheckConditionsInClientSide;
-            if (action != null && (!checkConditions || _actionCondition.IsTrueConditions(action.Conditions)))
+            if (action != null && _actionCondition.IsTrueConditions(action.Conditions))
             {
-                ProccessActionParams(connectionId, action.Params);
+                //ServiceDto service = null;
+                //if (action.ServiceId.HasValue)
+                //{
+                //    service = await _serviceFactory.GetServiceDtoAsync(action.ServiceId.Value);
+                //    if (!service.IsEnabled) return null;
 
-                IAction actionController = CreateInstance(action.ActionType);
+                //    //if (service.AuthorizationRunService != null &&
+                //    //    service.AuthorizationRunService.Any(role => UserController.Instance.GetCurrentUserInfo().IsInRole(role))
+                //    //)
+                //    //    return null;
+                //}
+
+                foreach (var item in action.Params)
+                {
+                    var value = _expressionService.Evaluate(moduleData, item.ParamValue) as string;
+                    item.ParamValue = value;
+                }
+
+                IAction actionController = await GetActionExtensionInstance(action.ActionType);
 
                 try
                 {
-                    result = await actionController.ExecuteAsync<object>();
+                    result = await actionController.ExecuteAsync(action);
+
+                    if (action.ServiceId.HasValue && result.Data != null) moduleData.Set("_ServiceResult", result.Data);
+
+                    SetActionResults(moduleData, action);
 
                     var method = actionController.GetType().GetMethod("OnActionSuccessEvent");
                     if (method != null) method.Invoke(actionController, null);
 
-                    if (node.SuccessActions.Any()) await CallAction(connectionId, node.SuccessActions);
+                    if (node.SuccessActions.Any()) await CallAction(moduleData, node.SuccessActions);
                 }
                 catch (Exception)
                 {
                     var method = actionController.GetType().GetMethod("OnActionErrorEvent");
                     if (method != null) method.Invoke(actionController, null);
 
-                    if (node.ErrorActions.Any()) await CallAction(connectionId, node.ErrorActions);
+                    if (node.ErrorActions.Any()) await CallAction(moduleData, node.ErrorActions);
                 }
                 finally
                 {
                     var method = actionController.GetType().GetMethod("OnActionCompleted");
                     if (method != null) method.Invoke(actionController, null);
 
-                    if (node.CompletedActions.Any()) await CallAction(connectionId, node.CompletedActions);
+                    if (node.CompletedActions.Any()) await CallAction(moduleData, node.CompletedActions);
                 }
 
                 if (buffer.Any())
-                    return await CallAction(connectionId, buffer);
+                    return await CallAction(moduleData, buffer);
                 else
                     return result;
             }
             else
             {
                 if (buffer.Any())
-                    return await CallAction(connectionId, buffer);
+                    return await CallAction(moduleData, buffer);
                 else
                     return result;
             }
         }
 
-        public IAction CreateInstance(string businessControllerClass)
+        private async Task<IAction> GetActionExtensionInstance(string actionType)
         {
-            //var objActionTypeInfo = ActionTypeRepository.Instance.GetActionTypeByName(actionType);
+            var businessControllerClass = await _actionService.GetBusinessControllerClass(actionType);
 
-            return _serviceLocator.CreateInstance<IAction>(businessControllerClass, this, _moduleData, _expressionService/*, _serviceWorker*/);
+            return _serviceLocator.GetInstance<IAction>(businessControllerClass);
         }
 
         //private Queue<ActionTree> CreateBuffer(Guid actionId)
@@ -202,59 +218,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             return buffer;
         }
 
-        private void ProccessActionParams(string connectionId, IEnumerable<ActionParamInfo> actionParams)
+        private void SetActionResults(IModuleData moduleData, ActionDto action)
         {
-            foreach (var item in actionParams ?? Enumerable.Empty<ActionParamInfo>())
+            foreach (var item in action.Results)
             {
-                string expression = item.ParamValue != null ? item.ParamValue.ToString() : "";
-                item.ParamValue = _expressionService.Evaluate(connectionId, expression, _moduleData);
+                var isTrue = _actionCondition.IsTrueConditions(item.Conditions);
+                if (isTrue)
+                {
+                    var value = _expressionService.Evaluate(moduleData, item.RightExpression);
+                    var setter = _expressionService.BuildJObjectSetter(item.LeftExpression);
+                    setter(moduleData, value);
+                }
             }
         }
-
-        //public void SetActionResults(ActionDto action, object data)
-        //{
-        //    bool isServiceBase = action.ServiceId != null;
-
-        //    var results = ActionResultRepository.Instance.GetResults(action.Id);
-        //    foreach (var item in results)
-        //    {
-        //        var conditions = Enumerable.Empty<ExpressionInfo>();
-        //        if (!string.IsNullOrWhiteSpace(item.Conditions)) conditions = TypeCastingUtil<IEnumerable<ExpressionInfo>>.TryJsonCasting(item.Conditions);
-
-        //        bool isTrue = _actionCondition.IsTrueConditions(conditions);
-
-        //        if (isTrue)
-        //        {
-        //            object value = isServiceBase && data != null ? ProcessActionResultsToken(item.RightExpression, data, isServiceBase) : null;
-        //            if (value == null)
-        //                value = _expressionService.ParseExpression(item.RightExpression, _moduleData, new List<object>(), false, item.ExpressionParsingType);
-
-        //            _moduleData.SetData(item.LeftExpression, value);
-        //        }
-        //    }
-        //}
-
-        //private object ProcessActionResultsToken(string expression, object data, bool isServiceBase)
-        //{
-        //    object result = null;
-
-        //    if (data == null) return result;
-
-        //    ServiceResult serviceResult = isServiceBase ? (data as ServiceResult) : null;
-        //    JObject serviceData = isServiceBase ? JObject.FromObject(serviceResult) : null;
-
-        //    var match = Regex.Match(expression, @"^(?:_ServiceResult)\.?(.[^{}:\$,]+)?$");
-        //    if (match.Success && match.Groups.Count == 2)
-        //    {
-        //        var propertyPath = match.Groups[1].Value;
-
-        //        if (isServiceBase && serviceData != null)
-        //        {
-        //            result = serviceData.SelectToken(propertyPath);
-        //        }
-        //    }
-
-        //    return result;
-        //}
     }
 }

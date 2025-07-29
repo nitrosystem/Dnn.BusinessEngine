@@ -17,7 +17,6 @@ using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Module.Field;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,8 +28,9 @@ using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Module;
 using DotNetNuke.Services.Scheduling;
+using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
+using NitroSystem.Dnn.BusinessEngine.Common.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 {
@@ -643,9 +643,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             }));
         }
 
-        public async Task<Core.Models.FieldDataSourceResult> GetFieldDataSource(string dataSourceSettings, /*IServiceWorker serviceWorker,*/ bool isServerSide = true)
+        public async Task<FieldDataSourceResult> GetFieldDataSource(string dataSourceSettings,  bool isServerSide = true)
         {
-            var dataSource = JsonConvert.DeserializeObject<Core.Models.FieldDataSourceInfo>(dataSourceSettings);
+            var dataSource = JsonConvert.DeserializeObject<FieldDataSourceInfo>(dataSourceSettings);
 
             var result = await GetFieldDataSourceItems(dataSource, isServerSide);
             result.Type = dataSource.Type;
@@ -655,9 +655,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             return result;
         }
 
-        public async Task<Core.Models.FieldDataSourceResult> GetFieldDataSourceItems(Core.Models.FieldDataSourceInfo dataSource/*, IServiceWorker serviceWorker*/, bool isServerSide)
+        public async Task<FieldDataSourceResult> GetFieldDataSourceItems(FieldDataSourceInfo dataSource/*, IServiceWorker serviceWorker*/, bool isServerSide)
         {
-            Core.Models.FieldDataSourceResult result = new Core.Models.FieldDataSourceResult() { };
+            FieldDataSourceResult result = new FieldDataSourceResult() { };
 
             try
             {
@@ -784,7 +784,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                     dest.Scope = (ModuleVariableScope)variable.Scope;
                     dest.Properties = viewModelsProperties.Where(p => p.ViewModelId == variable.ViewModelId).Select(prop =>
                     {
-                        return HybridMapper.Map<ViewModelPropertyInfo, PropertyDto>(prop);
+                        return HybridMapper.Map<ViewModelPropertyInfo, PropertyInfo>(prop);
                     });
                 });
             });

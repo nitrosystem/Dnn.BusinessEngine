@@ -17,7 +17,7 @@ using DotNetNuke.Data;
 using System.Data.SqlClient;
 using DotNetNuke.Web.Client.ClientResourceManagement;
 using NitroSystem.Dnn.BusinessEngine.Core.ADO_NET;
-using NitroSystem.Dnn.BusinessEngine.Core.Models;
+using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web
 {

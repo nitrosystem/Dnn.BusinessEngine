@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Models;
+using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
@@ -58,13 +58,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             return result;
         }
 
-        public static ModuleDto MapModuleDto(ModuleView module)
-        {
-            var mapper = new ExpressionMapper<ModuleView, ModuleDto>();
+        //public static ModuleDto MapModuleDto(ModuleView module)
+        //{
+        //    var mapper = new ExpressionMapper<ModuleView, ModuleDto>();
 
-            var result = mapper.Map(module);
-            return result;
-        }
+        //    var result = mapper.Map(module);
+        //    return result;
+        //}
 
         #endregion
 

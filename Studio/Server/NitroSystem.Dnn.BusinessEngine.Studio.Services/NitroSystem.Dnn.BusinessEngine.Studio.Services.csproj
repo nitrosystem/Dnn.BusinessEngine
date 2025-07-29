@@ -72,10 +72,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contracts\BuildModuleRequest.cs" />
     <Compile Include="Contracts\IActionService.cs" />
     <Compile Include="Contracts\IDefinedListService.cs" />
     <Compile Include="Contracts\IEntityService.cs" />
+    <Compile Include="Contracts\IExtensionServiceFactory.cs" />
+    <Compile Include="Contracts\IExtensionServiceViewModel.cs" />
     <Compile Include="Contracts\IServiceFactory.cs" />
     <Compile Include="Contracts\ITemplateService.cs" />
     <Compile Include="Contracts\IGlobalService.cs" />

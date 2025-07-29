@@ -81,7 +81,6 @@
     <Compile Include="Dto\BuildModuleResultDto.cs" />
     <Compile Include="Dto\PageResourceDto.cs" />
     <Compile Include="Dto\BuildModuleDto.cs" />
-    <Compile Include="Dto\ModuleDto.cs" />
     <Compile Include="Dto\BuildModuleFieldDto.cs" />
     <Compile Include="Dto\BuildModuleResourceDto.cs" />
     <Compile Include="Dto\PrebuildResultDto.cs" />

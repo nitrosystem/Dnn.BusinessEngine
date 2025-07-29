@@ -27,13 +27,11 @@ import {
     BindImage,
     BindText,
     bindUrl,
-    DashboardLinkDirective,
     FocusDirective,
 } from "./directives/custom-items.directive";
 
 //Controllers
 import { ModuleController } from "./controllers/module.controllers";
-import { DashboardController } from "./controllers/dashboard.controller";
 
 const app = angular
     .module("BusinessEngineClientApp", [require("angular-sanitize"), "angular.filter", "ngFileUpload"])
@@ -55,8 +53,6 @@ const app = angular
     .directive("bindImage", BindImage)
     .directive("bindUrl", bindUrl)
     .directive("field", FieldDirective)
-    .directive("bDashboardLink", DashboardLinkDirective)
-    .controller("moduleController", ModuleController)
-    .controller("dashboardController", DashboardController);
+    .controller("moduleController", ModuleController);
 
 window.bEngineApp = app;

@@ -17,7 +17,6 @@ using System.Web;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Dto.Module;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
 {

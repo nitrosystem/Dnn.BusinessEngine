@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.DTO
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto
 {
-    public class CheckModuleNameDTO
+    public class CheckModuleNameDto
     {
         public Guid ScenarioId{ get; set; }
         public Guid? ModuleId { get; set; }

@@ -14,7 +14,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
     [Table("BusinessEngine_ActionConditions")]
     [Cacheable("BE_ActionConditions_", CacheItemPriority.Default, 20)]
     [Scope("ActionId")]
-    public class ActionConditionInfo : IEntity, IExpression
+    public class ActionConditionInfo : IEntity
     {
         public Guid Id { get; set; }
         public Guid ActionId { get; set; }

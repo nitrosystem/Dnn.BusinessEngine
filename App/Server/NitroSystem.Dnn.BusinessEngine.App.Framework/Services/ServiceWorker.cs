@@ -60,17 +60,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             return ServiceLocator<IService>.CreateInstance(objServiceTypeInfo.BusinessControllerClass);
         }
 
-        public DynamicParameters FillSqlParams(IEnumerable<IParamInfo> serviceParams)
-        {
-            var result = new DynamicParameters();
-
-            foreach (var param in serviceParams ?? Enumerable.Empty<IParamInfo>())
-            {
-                result.Add(param.ParamName, param.ParamValue);
-            }
-
-            return result;
-        }
+       
 
         private void ProcessServiceParams(IEnumerable<IParamInfo> serviceParams, IEnumerable<IParamInfo> actionParams)
         {

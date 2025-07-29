@@ -19,11 +19,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public Guid Id { get; set; }
         public Guid ActionId { get; set; }
         public string ParamName { get; set; }
-        public string ParamType { get; set; }
-        public object ParamValue { get; set; }
-        public string DefaultValue { get; set; }
-        public string ExpressionParsingType { get; set; }
-        public bool IsCustomParam { get; set; }
+        public string ParamValue { get; set; }
         public int ViewOrder { get; set; }
     }
 }

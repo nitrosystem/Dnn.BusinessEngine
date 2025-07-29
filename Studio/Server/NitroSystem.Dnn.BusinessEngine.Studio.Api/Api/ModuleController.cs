@@ -1,5 +1,5 @@
 ﻿using DotNetNuke.Web.Api;
-using NitroSystem.Dnn.BusinessEngine.Studio.Api.DTO;
+using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
@@ -82,7 +82,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> CheckModuleName(CheckModuleNameDTO module)
+        public async Task<HttpResponseMessage> CheckModuleName(CheckModuleNameDto module)
         {
             try
             {
@@ -196,7 +196,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteModuleCustomLibrary(GuidDTO postData)
+        public async Task<HttpResponseMessage> DeleteModuleCustomLibrary(GuidDto postData)
         {
             try
             {
@@ -212,7 +212,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteModuleCustomResource(GuidDTO postData)
+        public async Task<HttpResponseMessage> DeleteModuleCustomResource(GuidDto postData)
         {
             try
             {
@@ -319,7 +319,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteModuleVariable(GuidDTO postData)
+        public async Task<HttpResponseMessage> DeleteModuleVariable(GuidDto postData)
         {
             try
             {
@@ -395,11 +395,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> BuildModule(BuildModuleRequest postdata)
+        public async Task<HttpResponseMessage> BuildModule([FromBody] Guid moduleId)
         {
             try
             {
-                await _moduleService.BuildModuleAsync(postdata, PortalSettings, HttpContext.Current);
+                await _moduleService.BuildModuleAsync(moduleId, PortalSettings, HttpContext.Current);
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
@@ -478,7 +478,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteModuleField(GuidDTO postData)
+        public async Task<HttpResponseMessage> DeleteModuleField(GuidDto postData)
         {
             try
             {
@@ -586,7 +586,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteAction(GuidDTO postData)
+        public async Task<HttpResponseMessage> DeleteAction(GuidDto postData)
         {
             try
             {

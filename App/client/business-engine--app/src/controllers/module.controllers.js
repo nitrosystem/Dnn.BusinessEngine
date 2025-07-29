@@ -34,13 +34,13 @@ export class ModuleController {
         this.$scope.$rootScope = $rootScope;
     }
 
-    onInitModule(dnnModuleId, moduleId, moduleName, connectionID, isDashboardModule) {
+    onInitModule(dnnModuleId, moduleId, moduleName, connectionID) {
         this.module = {
             dnnModuleId: dnnModuleId,
             moduleId: moduleId,
-            moduleName: moduleName,
-            isDashboardModule: isDashboardModule
+            moduleName: moduleName
         };
+
         this.$scope.connectionID = connectionID;
 
         this.onPageLoad();
@@ -52,9 +52,12 @@ export class ModuleController {
         this.$scope.Pane = {};
 
         this.watches = [];
-        this.apiHeader = { ModuleId: this.module.moduleId };
 
-        this.apiService.post("Module", "GetModuleData", { ConnectionID: this.$scope.connectionID, PageUrl: document.URL, IsDashboardModule: this.module.isDashboardModule }, {}, this.apiHeader).then((data) => {
+        this.apiService.get("Module", "GetModuleData", {
+            moduleId: this.module.moduleId,
+            connectionID: this.$scope.connectionID,
+            pageUrl: document.URL
+        }).then((data) => {
             this.fields = data.Fields || [];
 
             this.$scope.variables = data.Variables || [];
@@ -65,99 +68,63 @@ export class ModuleController {
                 action.Settings = JSON.parse(action.Settings);
             });
 
-            this.$module = $(`#pnlBusinessEngine${this.module.moduleId}`);
+            var dataSourceFields = [];
 
-            this.getContent(data.ModuleTemplateUrl).then((moduleTemplate) => {
-                if (data.ModuleBuilderType == 'HtmlEditor') {
-                    this.assignScopeData(data.Data);
+            _.forEach(this.fields, (field) => {
+                this.globalService.parseJsonItems(field.Settings);
 
-                    // if (!this.module.isSSR) {
-                    //     this.$module.html(this.$compile(moduleTemplate)(this.$scope));
-                    // }
+                field.Actions = [];
+                _.filter(this.actions, (a) => { return a.FieldID == field.FieldID; }).map((action) => { field.Actions.push(action); });
 
-                    this.$scope.loadedModule = true;
-                    this.$timeout(() => {
-                        $('.b-engine-module').addClass('is-loaded');
-                    });
+                this.appendWatches("Field." + field.FieldName + ".Value", "onFieldValueChange", field.FieldID);
+                this.appendWatches("Field." + field.FieldName + ".IsShow", "onFieldShowChange", field.FieldID);
 
-                    const moduleFunction = eval(`${this.globalService.capitalizeFirstLetter(this.module.moduleName.replace(/-/g, ''))}Controller`);
-                    if (moduleFunction) {
-                        const controller = new moduleFunction(this, this.$scope);
-                        controller.onPageLoad();
-                    }
-                } else if (!data.ModuleBuilderType || data.ModuleBuilderType == 'FormDesigner') {
-                    $('#bDashboardModuleHeaders').html('');
-                    const dashboardModuleResources = data.DashboardModuleResources ?? [];
-                    this.generateClientResourcesTag(dashboardModuleResources, dashboardModuleResources.length - 1, this.$q.defer()).then(() => {
-                        var dataSourceFields = [];
+                if (field.IsValuable) {
+                    this.setFieldValue(field.FieldID);
 
-                        _.forEach(this.fields, (field) => {
-                            this.globalService.parseJsonItems(field.Settings);
+                    _.forEach(field.FieldValues, (fv) => {
+                        this.appendWatches(fv.ValueExpression, "setFieldValue", field.FieldID);
 
-                            field.Actions = [];
-                            _.filter(this.actions, (a) => { return a.FieldID == field.FieldID; }).map((action) => { field.Actions.push(action); });
-
-                            this.appendWatches("Field." + field.FieldName + ".Value", "onFieldValueChange", field.FieldID);
-                            this.appendWatches("Field." + field.FieldName + ".IsShow", "onFieldShowChange", field.FieldID);
-
-                            if (field.IsValuable) {
-                                this.setFieldValue(field.FieldID);
-
-                                _.forEach(field.FieldValues, (fv) => {
-                                    this.appendWatches(fv.ValueExpression, "setFieldValue", field.FieldID);
-
-                                    _.forEach(fv.Conditions, (c) => {
-                                        this.appendWatches(c.LeftExpression, "setFieldValue", field.FieldID);
-                                    });
-                                });
-                            }
-
-                            if (field.DataSource) {
-                                if (field.DataSource.RunServiceClientSide) dataSourceFields.push(field.FieldID);
-
-                                this.appendWatches(`Field.${field.FieldName}.DataSource`, "onFieldDataSourceChange", field.FieldID);
-                            }
-
-                            this.showHideField(field.FieldID);
-
-                            _.forEach(field.ShowConditions, (c) => {
-                                this.appendWatches(c.LeftExpression, "showHideField", field.FieldID);
-                                this.appendWatches(c.RightExpression, "showHideField", field.FieldID);
-                            });
-                            this.$scope.Field[field.FieldName] = field;
-                        });
-
-                        this.assignScopeData(data.Data);
-
-                        this.raiseWatches();
-
-                        // if (!this.module.isSSR) {
-                        //     this.$module.html(this.$compile(moduleTemplate)(this.$scope));
-                        // }
-
-                        this.$timeout(() => {
-                            var clientActions = _.filter(this.actions, (a) => { return !a.IsServerSide });
-                            this.actionService.callActions(clientActions, this.module.moduleId, null, "OnPageLoad", this.$scope).then((data) => {
-                                this.$timeout(() => {
-                                    _.forEach(dataSourceFields, (fieldID) => { this.getFieldDataSource(fieldID); })
-                                }, 1000);
-                            });
-                        });
-
-                        this.$scope.loadedModule = true;
-                        this.$timeout(() => {
-                            $('.b-engine-module').addClass('is-loaded');
+                        _.forEach(fv.Conditions, (c) => {
+                            this.appendWatches(c.LeftExpression, "setFieldValue", field.FieldID);
                         });
                     });
                 }
 
-                this.$timeout(() => {
-                    this.completedForm = true;
-                })
-            }, (error) => { });
-        },
-            (error) => { }
-        );
+                if (field.DataSource) {
+                    if (field.DataSource.RunServiceClientSide) dataSourceFields.push(field.FieldID);
+
+                    this.appendWatches(`Field.${field.FieldName}.DataSource`, "onFieldDataSourceChange", field.FieldID);
+                }
+
+                this.showHideField(field.FieldID);
+
+                _.forEach(field.ShowConditions, (c) => {
+                    this.appendWatches(c.LeftExpression, "showHideField", field.FieldID);
+                    this.appendWatches(c.RightExpression, "showHideField", field.FieldID);
+                });
+                this.$scope.Field[field.FieldName] = field;
+            });
+
+            this.assignScopeData(data.Data);
+
+            this.raiseWatches();
+
+            this.$timeout(() => {
+                var clientActions = _.filter(this.actions, (a) => { return !a.IsServerSide });
+
+                this.actionService.callActions(clientActions, this.module.moduleId, null, "OnPageLoad", this.$scope).then((data) => {
+                    this.$timeout(() => {
+                        _.forEach(dataSourceFields, (fieldID) => { this.getFieldDataSource(fieldID); })
+                    }, 1000);
+                });
+
+                this.$scope.loadedModule = true;
+                this.completedForm = true;
+
+                $('.b-engine-module').addClass('is-loaded');
+            });
+        });
     }
 
     assignScopeData(serverObjects) {
@@ -181,47 +148,6 @@ export class ModuleController {
                     this.$scope[key] = value;
             }
         });
-    }
-
-    getContent(templateUrl) {
-        const defer = this.$q.defer();
-
-        if (!templateUrl)
-            defer.resolve();
-        else
-            return this.apiService.getContent(templateUrl, true)
-
-        return defer.promise;
-    }
-
-    generateClientResourcesTag(resources, index, $defer) {
-        if (!this.module.isDashboardModule)
-            $defer.resolve();
-        else if (index < 0) {
-            this.$timeout(() => {
-                delete this.$rootScope.isLoadingDashboardModule;
-            });
-
-            $defer.resolve();
-        }
-        else {
-            const appendCss = (resource) => {
-                var head = document.getElementById('bDashboardModuleHeaders');
-                var link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.type = 'text/css';
-                link.href = resource.ResourcePath;
-                link.media = 'all';
-                head.appendChild(link);
-            }
-
-            const resource = resources[index];
-            appendCss(resource);
-
-            this.generateClientResourcesTag(resources, --index, $defer);
-        }
-
-        return $defer.promise;
     }
 
     onFieldValueChange(fieldID) {
