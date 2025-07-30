@@ -18,6 +18,7 @@ using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto.Module;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 {
@@ -50,6 +51,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
         #region Module Variable Services
 
         Task<IEnumerable<ModuleVariableViewModel>> GetModuleVariablesViewModelAsync(Guid moduleId);
+
+        Task<IEnumerable<ModuleVariableDto>> GetModuleVariablesDtoAsync(Guid moduleId);
 
         Task<Guid> SaveModuleVariablesAsync(ModuleVariableViewModel variale, bool isNew);
 

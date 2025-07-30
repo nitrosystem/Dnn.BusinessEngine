@@ -106,7 +106,6 @@
     <Compile Include="Models\Shared\FieldDataSourceInfo.cs" />
     <Compile Include="Models\Shared\FieldDataSourceResult.cs" />
     <Compile Include="Models\Shared\FieldValueInfo.cs" />
-    <Compile Include="Models\Shared\PageResourceInfo.cs" />
     <Compile Include="Models\Shared\ParamInfo.cs" />
     <Compile Include="Models\Shared\PropertyInfo.cs" />
     <Compile Include="Providers\WebApi\CustomMultipartFormDataStreamProviderChangeFileName.cs" />

@@ -108,6 +108,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dto\PageResourceInfo.cs" />
     <Compile Include="module\module.ascx.cs">
       <DependentUpon>module.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

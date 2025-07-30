@@ -23,7 +23,7 @@
                 <input type="radio" name="fieldDataSource" ng-value="2" ng-model="$.currentField.DataSource.Type"
                     ng-change="$.onFieldDataSourceTypeChange()" />
                 <i class="input-helper"></i>
-                Data Source Service
+                Variable Data
             </label>
         </div>
     </div>
@@ -52,7 +52,8 @@
                 <select ng-model="$.currentField.DataSource.ListId" class="b-input form-select" chosen
                     inherit-select-classes="true"
                     ng-options="definedList.Id as definedList.ListName for definedList in $.definedLists"
-                    ng-change="$.onDefinedListChange()" ng-disabled="waiting" placeholder-text-single="'Select a list'">
+                    ng-change="$.onDefinedListChange()" ng-disabled="$.running"
+                    placeholder-text-single="'Select a list'">
                     <option value=""></option>
                 </select>
                 <span><i class="codicon codicon-list-selection"></i></span>
@@ -68,40 +69,38 @@
                 <div class="b-field">
                     <label class="form-label">Data Source Service</label>
                     <div class="b-input-group">
-                        <b-selective ng-model="$.currentField.DataSource.ServiceId" 
-                            placeholder="Select a service as data source"
-                            table="{headers:[{'title':'Service Name','column':'ServiceName','value':'ServiceId'}],'search':['ServiceName']}"
-                            paging="{visiblePages:5}"
-                            modal="{'title':'Services','showCloseButton':true,'placeholder':'Search by service name(Press enter)'}"
-                            on-fetch-items="$.getServices(pageIndex,searchText)" on-select-item="$.onFieldDataSourceServiceChange(item)"
-                            text="ServiceName" value="Id"
-                            storage="$.currentField" storage-key="Settings"
-                            ng-disabled="waiting"></b-selective>
-                        <span><i class="codicon codicon-gear"></i></span>
+                        <select ng-model="$.currentField.DataSource.VariableName" class="b-input form-select" chosen
+                            inherit-select-classes="true"
+                            ng-options="variable.VariableName as variable.VariableName for variable in $.variablesAsList"
+                            ng-change="$.onDataSourceVariableChange()" ng-disabled="$.running"
+                            placeholder-text-single="'Select a list'">
+                            <option value=""></option>
+                        </select>
                     </div>
-                </div>
-                <div class="b-field">
-                    <label class="form-label d-block">Run service after page load(client side)</label>
-                    <label class="b-switch">
-                        <input type="checkbox" ng-model="$.currentField.DataSource.RunServiceClientSide">
-                        <span class="slider"></span>
-                    </label>
                 </div>
             </div>
             <div class="col-6 ps-3">
                 <div class="b-field">
-                    <label class="form-label">Text Field</label>
+                    <label class="form-label">Value Field</label>
                     <div class="b-input-group">
-                        <input type="text" ng-model="$.currentField.DataSource.TextField" class="b-input form-control"
-                            placeholder="Enter text field" required />
+                        <select ng-model="$.currentField.DataSource.ValueField" class="b-input form-select" chosen
+                            inherit-select-classes="true"
+                            ng-options="prop.PropertyName as prop.PropertyName for prop in $.currentFieldVariableProperties"
+                            ng-disabled="$.running" placeholder-text-single="'Select a property'">
+                            <option value=""></option>
+                        </select>
                         <span><i class="codicon codicon-gear"></i></span>
                     </div>
                 </div>
                 <div class="b-field">
-                    <label class="form-label">Value Field</label>
+                    <label class="form-label">Text Field</label>
                     <div class="b-input-group">
-                        <input type="text" ng-model="$.currentField.DataSource.ValueField" class="b-input form-control"
-                            placeholder="Enter text field" required />
+                        <select ng-model="$.currentField.DataSource.TextField" class="b-input form-select" chosen
+                            inherit-select-classes="true"
+                            ng-options="prop.PropertyName as prop.PropertyName for prop in $.currentFieldVariableProperties"
+                            ng-disabled="$.running" placeholder-text-single="'Select a property'">
+                            <option value=""></option>
+                        </select>
                         <span><i class="codicon codicon-gear"></i></span>
                     </div>
                 </div>
@@ -165,8 +164,8 @@
     <!-- Actions Button -->
     <!------------------------------------>
     <div class="mb-1 d-flex justify-content-end mt-auto">
-        <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveFieldDataSourceClick($event)"
-            ng-disabled="$.running">
+        <button type="button" class="b-btn btn-text-icon btn-submit me-2"
+            ng-click="$.onSaveFieldDataSourceClick($event)" ng-disabled="$.running">
             <i class="codicon codicon-save" ng-class="{'loading-circle mini':$.running=='save-action'}"></i>
             Save
         </button>

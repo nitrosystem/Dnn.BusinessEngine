@@ -85,6 +85,7 @@
     <Compile Include="Dto\Global\ActionLiteDto.cs" />
     <Compile Include="Dto\Module\ModuleFieldLiteDto.cs" />
     <Compile Include="Dto\Module\ModuleTemplateDto.cs" />
+    <Compile Include="Dto\Module\ModuleVariableDto.cs" />
     <Compile Include="Dto\Module\SortModuleCustomLibrariesDto.cs" />
     <Compile Include="Dto\Module\SortPaneFieldsDto.cs" />
     <Compile Include="Dto\Module\ModuleFieldUpdateDto.cs" />

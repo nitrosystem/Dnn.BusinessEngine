@@ -191,6 +191,7 @@ export class CreateModuleModuleBuilderController {
         this.apiService.get("Module", "GetModuleBuilder", { moduleId: id || null }).then((data) => {
             this.module = data.Module;
             this.fields = data.Fields;
+            this.variablesAsList = data.VariablesAsList;
 
             this.fieldTypes = this.parseFieldTypes(data.FieldTypes);
 
@@ -296,26 +297,6 @@ export class CreateModuleModuleBuilderController {
         );
     }
 
-    getSignificantChanges(currentField, currentFieldBackup, ignoredFields = []) {
-        const changes = _.reduce(currentField, (result, value, key) => {
-            const oldValue = currentFieldBackup[key];
-
-            if (ignoredFields.includes(key)) return result;
-
-            const isEmptyValue = (val) =>
-                val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0);
-
-            if (_.isEqual(value, oldValue) || (isEmptyValue(value) && isEmptyValue(oldValue))) {
-                return result;
-            }
-
-            result.push(key);
-            return result;
-        }, []);
-
-        return changes;
-    }
-
     parseFieldTypes(fieldTypes) {
         fieldTypes.forEach(ft => {
             ft.Icon = (ft.Icon || '').replace('[EXTPATH]', GlobalSettings.modulePath + "extensions");
@@ -356,14 +337,7 @@ export class CreateModuleModuleBuilderController {
 
         $(`#buildLogs${this.module.Id}`).html('')
 
-        const buildingData = {
-            Scope: scope || 0,
-            ModuleId: this.module.Id,
-            ParentId: this.module.ParentId,
-            ScenarioId: this.module.ScenarioId
-        };
-
-        this.apiService.post("Module", "BuildModule", buildingData).then((data) => {
+        this.apiService.post("Module", "BuildModule", null, { moduleId: this.module.Id }).then((data) => {
             this.notifyService.success("Build module has been successfully!. ;)");
 
             delete this.awaitAction;
@@ -1041,7 +1015,8 @@ export class CreateModuleModuleBuilderController {
                 delete this.running;
             }
             );
-        } else if (this.currentField.DataSource && this.currentField.DataSource.Type == 1) {
+        }
+        else if (this.currentField.DataSource && this.currentField.DataSource.Type == 1) {
             if (this.definedLists) {
                 this.onDefinedListChange();
                 return;
@@ -1070,12 +1045,9 @@ export class CreateModuleModuleBuilderController {
                 delete this.running;
             });
         }
-    }
-
-    onFieldDataSourceServiceChange(item) {
-        this.currentField.DataSource.ServiceParams = _.clone(
-            item.Params
-        );
+        else if (this.currentField.DataSource && this.currentField.DataSource.Type == 2) {
+            this.onDataSourceVariableChange();
+        }
     }
 
     onSaveFieldDataSourceClick($event) {
@@ -1147,39 +1119,6 @@ export class CreateModuleModuleBuilderController {
         this.definedList = _.find(this.definedLists, (i) => { return i.ListId == this.currentField.DataSource.ListId });
     }
 
-    onServicePageClick(pageIndex) {
-        this.getServices(pageIndex);
-    }
-
-    getServices(pageIndex, searchText) {
-        const defer = this.$q.defer();
-
-        this.running = "get-services";
-        this.awaitAction = {
-            title: "Get Services By Page",
-            subtitle: "Just a moment for get services...",
-        };
-
-        this.apiService.get("Module", "GetServices", { pageIndex: pageIndex, pageSize: 10, searchText: searchText }).then((data) => {
-            defer.resolve(data);
-
-            delete this.awaitAction;
-            delete this.running;
-        }, (error) => {
-            this.awaitAction.isError = true;
-            this.awaitAction.subtitle = error.statusText;
-            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-            this.notifyService.error(error.data.Message);
-
-            defer.reject(error);
-
-            delete this.running;
-        });
-
-        return defer.promise;
-    }
-
     onCancelFieldDataSourceClick() {
         if (this.fieldDataSourceBackup) {
             this.currentField.DataSource = angular.copy(this.fieldDataSourceBackup);
@@ -1192,6 +1131,12 @@ export class CreateModuleModuleBuilderController {
 
     onEditFieldDataSourceClick($event, fieldId) {
         this.onShowFieldDataSourceClick($event, fieldId);
+    }
+
+    onDataSourceVariableChange() {
+        const variableName = this.currentField.DataSource.VariableName;
+        this.currentFieldVariableProperties =
+            _.find(this.variablesAsList, (v) => { return v.VariableName == variableName }).Properties;
     }
 
     /*------------------------------------*/

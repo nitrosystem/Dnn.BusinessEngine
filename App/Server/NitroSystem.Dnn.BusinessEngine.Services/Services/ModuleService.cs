@@ -637,124 +637,26 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                         : null;
 
                     dest.DataSource = field.IsSelective && !string.IsNullOrWhiteSpace(field.DataSource)
-                        ? await GetFieldDataSource(field.DataSource, false)
+                        ? await GetFieldDataSource(field.DataSource)
                         : null;
                 });
             }));
         }
 
-        public async Task<FieldDataSourceResult> GetFieldDataSource(string dataSourceSettings,  bool isServerSide = true)
+        public async Task<FieldDataSourceResult> GetFieldDataSource(string dataSourceSettings)
         {
             var dataSource = JsonConvert.DeserializeObject<FieldDataSourceInfo>(dataSourceSettings);
 
-            var result = await GetFieldDataSourceItems(dataSource, isServerSide);
-            result.Type = dataSource.Type;
-            result.TextField = dataSource.TextField;
-            result.ValueField = dataSource.ValueField;
+            FieldDataSourceResult result = HybridMapper.Map<FieldDataSourceInfo, FieldDataSourceResult>(dataSource);
 
-            return result;
-        }
-
-        public async Task<FieldDataSourceResult> GetFieldDataSourceItems(FieldDataSourceInfo dataSource/*, IServiceWorker serviceWorker*/, bool isServerSide)
-        {
-            FieldDataSourceResult result = new FieldDataSourceResult() { };
-
-            try
+            if ((dataSource.Type == FieldDataSourceType.StaticItems || dataSource.Type == FieldDataSourceType.UseDefinedList) &&
+                dataSource.ListId != null)
             {
-                var runServiceClientSide = dataSource.RunServiceClientSide != null ? dataSource.RunServiceClientSide.Value : true;
-
-                if (dataSource.Type == FieldDataSourceType.StaticItems || dataSource.Type == FieldDataSourceType.UseDefinedList)
-                {
-                    //Next Version...
-                    //var filters = dataSource.ListFilters == null ? "" : string.Join(" and ", dataSource.ListFilters.Select(f => string.Format("({0} {1} '{2}')", f.LeftExpression, f.EvalType, f.RightExpression)));
-
-                    if (dataSource.ListId != null)
-                    {
-                        result.Items = await _repository.GetByScopeAsync<DefinedListItemView>(dataSource.ListId); ;
-                        result.TotalCount = result.Items.Count();
-                    }
-                }
-                //else if (serviceWorker != null && dataSource.Type == FieldDataSourceType.DataSourceService && ((1 == 1) || (isServerSide && !runServiceClientSide) || (!isServerSide && runServiceClientSide)))
-                //{
-                //    var items = serviceWorker.RunService<ServiceResult>(dataSource.ServiceId.Value, dataSource.ServiceParams);
-                //    result.Items = items.Result.DataList;
-                //    result.TotalCount = items.Result.TotalCount;
-                //}
-            }
-            catch (Exception ex)
-            {
-                result.ErrorMessage = ex.Message;
+                result.Items = await _repository.GetByScopeAsync<DefinedListItemView>(dataSource.ListId); ;
             }
 
             return result;
         }
-
-        //public async Task<Guid> SaveModuleFieldAsync(ModuleFieldViewModel field)
-        //{
-        //    var objModuleFieldInfo = ModuleMapping.MapModuleFieldInfo(field);
-
-        //    if (field.IsNew)
-        //    {
-        //        objModuleFieldInfo.Id = await _repository.AddAsync<ModuleFieldInfo>(objModuleFieldInfo, true);
-        //    }
-        //    else
-        //    {
-        //        var isUpdated = await _repository.UpdateAsync<ModuleFieldInfo>(objModuleFieldInfo);
-        //        if (!isUpdated) ErrorService.ThrowUpdateFailedException(objModuleFieldInfo);
-
-        //        await _repository.DeleteByScopeAsync<ModuleFieldSettingInfo>(field.Id);
-        //    }
-
-        //    if (field.Settings != null)
-        //    {
-        //        foreach (var setting in field.Settings)
-        //        {
-        //            var value = setting.Value != null && setting.Value.GetType().IsClass && !(setting.Value is string)
-        //                ? JsonConvert.SerializeObject(setting.Value)
-        //                : setting.Value?.ToString();
-
-        //            var objModuleFieldSettingInfo = new ModuleFieldSettingInfo()
-        //            {
-        //                FieldId = objModuleFieldInfo.Id,
-        //                SettingName = setting.Key,
-        //                SettingValue = value
-        //            };
-
-        //            await _repository.AddAsync(objModuleFieldSettingInfo);
-        //        }
-        //    }
-
-        //    return objModuleFieldInfo.Id;
-        //}
-
-        //public async Task<bool> UpdateModuleFieldPaneAsync(SortPaneFieldsDto data)
-        //{
-        //    return await _repository.UpdateColumnAsync<ModuleFieldInfo>("PaneName", data.PaneName, data.FieldId);
-        //}
-
-        //public async Task SortModuleFieldsAsync(SortPaneFieldsDto data)
-        //{
-        //    await _repository.ExecuteStoredProcedureAsync("BusinessEngine_SortModuleFields",
-        //    new
-        //    {
-        //        ModuleId = data.ModuleId,
-        //        PaneName = data.PaneName,
-        //        FieldIds = JsonConvert.SerializeObject(data.PaneFieldIds)
-        //    });
-
-        //    var cacheKey = AttributeCache.Instance.GetCache<ModuleFieldInfo>().key;
-        //    _cacheService.RemoveByPrefix(cacheKey);
-        //}
-
-        //public async Task<bool> DeleteModuleFieldAsync(Guid id)
-        //{
-        //    var task1 = _repository.DeleteByScopeAsync<ModuleFieldSettingInfo>(id);
-        //    var task2 = _repository.DeleteAsync<ModuleFieldInfo>(id);
-
-        //    await Task.WhenAll(task1, task2);
-
-        //    return await task1 && await task2;
-        //}
 
         #endregion
 

@@ -18,14 +18,11 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,6 +32,8 @@ using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto.Module;
+using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -366,6 +365,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             await Task.WhenAll(task1, task2);
 
             return ModuleMapping.MapModuleVariablesViewModel(await task1, await task2);
+        }
+
+        public async Task<IEnumerable<ModuleVariableDto>> GetModuleVariablesDtoAsync(Guid moduleId)
+        {
+            var variables = await _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId, "VariableName");
+            var viewModelProperties = await _repository.GetAllAsync<ViewModelPropertyInfo>();
+
+            return variables.Select(variable =>
+                HybridMapper.MapWithConfig<ModuleVariableInfo, ModuleVariableDto>(variable,
+                (src, dest) =>
+                {
+                    dest.Scope = (ModuleVariableScope)variable.Scope;
+                    dest.Properties = viewModelProperties.Where(p => p.ViewModelId == variable.ViewModelId).Select(property =>
+                        HybridMapper.Map<ViewModelPropertyInfo, PropertyInfo>(property)
+                    );
+                })
+            );
         }
 
         public async Task<Guid> SaveModuleVariablesAsync(ModuleVariableViewModel variable, bool isNew)

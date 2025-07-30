@@ -68,8 +68,6 @@ export class ModuleController {
 
             this.$scope.variables.push(
                 { VariableName: "_Form", IsSystemVariable: true },
-                { VariableName: "_Field", IsSystemVariable: true },
-                { VariableName: "_Pane", IsSystemVariable: true },
                 { VariableName: "_PageParam", IsSystemVariable: true }
             );
 
@@ -78,11 +76,7 @@ export class ModuleController {
                 action.Settings = JSON.parse(action.Settings);
             });
 
-            var dataSourceFields = [];
-
             _.forEach(this.fields, (field) => {
-                this.globalService.parseJsonItems(field.Settings);
-
                 field.Actions = [];
                 _.filter(this.actions, (a) => { return a.FieldId == field.Id; }).map((action) => { field.Actions.push(action); });
 
@@ -102,11 +96,8 @@ export class ModuleController {
                     });
                 }
 
-                if (field.DataSource) {
-                    if (field.DataSource.RunServiceClientSide) dataSourceFields.push(field.Id);
-
-                    this.appendWatches(`Field.${field.FieldName}.DataSource`, "onFieldDataSourceChange", field.Id);
-                }
+                if (field.DataSource && field.DataSource.Type == 2 && field.DataSource.VariableName)
+                    this.appendWatches(field.DataSource.VariableName, "onFieldDataSourceChange", field.Id);
 
                 this.showHideField(field.Id);
 
@@ -114,7 +105,7 @@ export class ModuleController {
                     this.appendWatches(c.LeftExpression, "showHideField", field.Id);
                     this.appendWatches(c.RightExpression, "showHideField", field.Id);
                 });
-                this.$scope._Field[field.FieldName] = field;
+                this.$scope.Field[field.FieldName] = field;
             });
 
             this.assignScopeData(data.Data);
@@ -125,9 +116,6 @@ export class ModuleController {
                 var clientActions = _.filter(this.actions, (a) => { return !a.IsServerSide });
 
                 this.actionService.callActions(clientActions, this.module.moduleId, null, "OnPageLoad", this.$scope).then((data) => {
-                    this.$timeout(() => {
-                        _.forEach(dataSourceFields, (fieldId) => { this.getFieldDataSource(fieldId); })
-                    }, 1000);
                 });
 
                 this.$scope.loadedModule = true;
@@ -144,20 +132,10 @@ export class ModuleController {
         })
 
         _.forOwn(serverObjects, (value, key) => {
-            if (key == 'Field') {
-                //این قسمت باید بازنویسی شود و با فعال کردن کدهای زیر آبجکت فیلد دچار مشکل می شود
-                // _.forOwn(value, (fieldData, fieldName) => {
-                //     this.$scope._Field[fieldName] = {...this.$scope._Field[fieldName], ...fieldData };
-                //     _.filter(this.fields, (f) => { return f.FieldName == fieldName }).map((f) => {
-                //         this.fields[this.fields.indexOf(f)] = this.$scope._Field[fieldName]
-                //     });
-                // });
-            } else {
-                if (this.$scope[key])
-                    this.$scope[key] = { ...this.$scope[key], ...value };
-                else
-                    this.$scope[key] = value;
-            }
+            if (this.$scope[key])
+                this.$scope[key] = { ...this.$scope[key], ...value };
+            else
+                this.$scope[key] = value;
         });
     }
 
@@ -173,7 +151,7 @@ export class ModuleController {
                     model.assign(this.$scope, field.Value);
                 }
             } else {
-                this.$scope._Field[field.FieldName].Value = field.Value;
+                this.$scope.Field[field.FieldName].Value = field.Value;
                 this.$scope._Form[field.FieldName] = field.Value;
             }
 
@@ -261,43 +239,15 @@ export class ModuleController {
             );
     }
 
-    getFieldDataSource(fieldId, pageIndex) {
-        var field = this.getFieldById(fieldId);
-        if (field && field.DataSource) {
-            var datasource = _.clone(field.DataSource);
-
-            if (datasource.Type == "2") {
-                this.apiService.post("Module", "GetFieldDataSource", {
-                    ModuleId: this.module.moduleId,
-                    ConnectionId: this.module.connectionId,
-                    FieldId: fieldId,
-                    PageIndex: pageIndex || 1,
-                    PageSize: this.expressionService.parseExpression(field.Settings.PageSize, this.$scope),
-                    Form: this.$scope._Form,
-                    PageUrl: document.URL,
-                })
-                    .then((data) => {
-                        this.$scope._Field[data.FieldName].DataSource = data.DataSource;
-                    });
-            } else if (datasource.Type == "actions") {
-                const listName = field.DataSource.ListName;
-                const value = this.expressionService.parseExpression(listName, this.$scope);
-
-                field.DataSource = field.DataSource || {};
-                field.DataSource.Items = field.DataSource.Items || [];
-                field.DataSource.Items = value;
-            }
-        } else {
-            console.warn("Field not found. Method: getFieldDataSource, FieldId: " + fieldId);
-        }
-    }
-
     onFieldDataSourceChange(fieldId) {
+        debugger
         var field = this.getFieldById(fieldId);
+
+        field.DataSource = { ...field.DataSource, ...this.$scope[field.DataSource.VariableName] };
 
         this.$timeout(() => {
             if (field.DataSource !== field.OldDataSource) this.$scope.$broadcast(`onFieldDataSourceChange_${field.Id}`, { field: field });
-            field.OldDataSource = field.DataSource;
+            field.OldDataSource = angular.copy(field.DataSource);
         }, 200);
     }
 
@@ -337,7 +287,7 @@ export class ModuleController {
         const defer = this.$q.defer();
 
         var fields = _.filter(this.fields, (f) => {
-            return f._PaneName == paneName && this.isFieldShow(f);
+            return f.PaneName == paneName && this.isFieldShow(f);
         });
 
         _.filter(fields, (f) => {
@@ -347,8 +297,8 @@ export class ModuleController {
         });
 
         this.validateFields(fields).then((isValid) => {
-            this.$scope._Pane[paneName] = this.$scope._Pane[paneName] || {};
-            this.$scope._Pane[paneName].IsValid = isValid;
+            this.$scope.Pane[paneName] = this.$scope.Pane[paneName] || {};
+            this.$scope.Pane[paneName].IsValid = isValid;
 
             defer.resolve(isValid);
         });

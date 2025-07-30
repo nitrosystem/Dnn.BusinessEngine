@@ -91,9 +91,7 @@
     <Compile Include="ViewModels\ModuleFieldViewModel.cs" />
     <Compile Include="ViewModels\ModuleViewModel.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />

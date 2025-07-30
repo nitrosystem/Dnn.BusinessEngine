@@ -14,7 +14,7 @@
                         on-fetch-items="$.getServices(pageIndex,searchText,serviceType)"
                         on-select-item="$.onServiceChange(item)" text="ServiceName" value="Id"
                         filter="{serviceType:$.serviceType}" storage="$.action" storage-key="Settings"
-                        ng-disabled="waiting"></b-selective>
+                        ng-disabled="$.running"></b-selective>
                     <span><i class="codicon codicon-gear"></i></span>
                 </div>
             </div>

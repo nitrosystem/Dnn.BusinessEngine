@@ -347,13 +347,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 var fieldTypes = await _moduleService.GetFieldTypesViewModelAsync();
                 var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
-                var variables = _moduleService.GetModuleVariablesViewModelAsync(moduleId);
+                var variables = await _moduleService.GetModuleVariablesDtoAsync(moduleId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     Module = module,
                     FieldTypes = fieldTypes,
-                    Fields = fields
+                    Fields = fields,
+                    VariablesAsList = variables.Where(v => v.Scope != ModuleVariableScope.ServerSide && v.VariableType == "ViewModelList")
                 });
             }
             catch (Exception ex)
@@ -395,7 +396,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> BuildModule([FromBody] Guid moduleId)
+        public async Task<HttpResponseMessage> BuildModule([FromUri] Guid moduleId)
         {
             try
             {
