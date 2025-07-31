@@ -29,7 +29,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public bool CheckConditionsInClientSide { get; set; }
         public string PreScript { get; set; }
         public string PostScript { get; set; }
-        public int Version { get; set; }
+        public IEnumerable<string> AuthorizationRunAction { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }

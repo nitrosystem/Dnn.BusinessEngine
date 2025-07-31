@@ -28,7 +28,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto
         public string FieldTypeGeneratePanesBusinessControllerClass { get; set; }
         public IEnumerable<string> AuthorizationViewField { get; set; }
         public IEnumerable<ExpressionInfo> ShowConditions { get; set; }
-        public IEnumerable<ExpressionInfo> EnableConditions { get; set; }
         public IEnumerable<FieldValueInfo> FieldValues { get; set; }
         public FieldDataSourceInfo DataSource { get; set; }
         public IDictionary<string, object> Settings { get; set; }

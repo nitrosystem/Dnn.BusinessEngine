@@ -92,24 +92,6 @@
                                 <span><i class="codicon codicon-gear"></i></span>
                             </div>
                         </div>
-                        <div class="b-field">
-                            <label class="form-label">Authorization Run Service</label>
-                            <div class="b-input-group">
-                                <select ng-model="$.service.AuthorizationRunService" class="b-input form-select"
-                                    ng-options="role for role in $.$rootScope.roles" chosen
-                                    inherit-select-classes="true" multiple
-                                    placeholder-text-multiple="'Authorization run service'"></select>
-                                <span><i class="codicon codicon-bookmark"></i></span>
-                            </div>
-                        </div>
-                        <div class="b-field">
-                            <label class="form-label">View Order</label>
-                            <div class="b-input-group">
-                                <input type="number" ng-model="$.service.ViewOrder" class="b-input form-control"
-                                    placeholder="Enter service view order" />
-                                <span><i class="codicon codicon-sort-numeric-up"></i></span>
-                            </div>
-                        </div>
                     </div>
                     <div class="col ps-5">
                         <div class="b-field service-type-selected" ng-click="$.step=1">
@@ -125,32 +107,12 @@
                             </div>
                         </div>
                         <div class="b-field">
-                            <label class="b-checkbox">
-                                <input type="checkbox" ng-model="$.service.HasResult" />
-                                <i class="checkbox-icon"></i>
-                                Query Has Result
-                            </label>
-                        </div>
-                        <div class="b-field" ng-if="$.service.HasResult">
-                            <label class="form-label">Result Type</label>
-                            <div class="b-radio-list-inline">
-                                <div class="radio-item"><input ng-model="$.service.ResultType" ng-value="0"
-                                        name="rdServiceResultType" id="rdServiceResultTypeScaler" type="radio"><label
-                                        for="rdServiceResultTypeScaler">Scaler</label></div>
-                                <div class="radio-item"><input ng-model="$.service.ResultType" ng-value="1"
-                                        name="rdServiceResultType" id="rdServiceResultTypeDataRow" type="radio"><label
-                                        for="rdServiceResultTypeDataRow">Data Row</label></div>
-                                <div class="radio-item"><input ng-model="$.service.ResultType" ng-value="2"
-                                        name="rdServiceResultType" id="rdServiceResultTypeList" type="radio"><label
-                                        for="rdServiceResultTypeList">List</label></div>
+                            <label class="form-label">View Order</label>
+                            <div class="b-input-group">
+                                <input type="number" ng-model="$.service.ViewOrder" class="b-input form-control"
+                                    placeholder="Enter service view order" />
+                                <span><i class="codicon codicon-sort-numeric-up"></i></span>
                             </div>
-                        </div>
-                        <div class="b-field">
-                            <label class="b-checkbox">
-                                <input type="checkbox" ng-model="$.service.IsEnabled" />
-                                <i class="checkbox-icon"></i>
-                                Enable
-                            </label>
                         </div>
                     </div>
                 </div>

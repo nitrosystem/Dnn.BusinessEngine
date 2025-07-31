@@ -107,7 +107,8 @@
                                         class="b-input form-select b-btn btn-action text-start"
                                         ng-options="vm.Id as vm.ViewModelName for vm in $.viewModels"
                                         ng-change="$.onSelectedViewModelChange()" chosen inherit-select-classes="true"
-                                        placeholder-text-single="'Select view model'" required>
+                                        placeholder-text-single="'Select view model'" 
+                                        ng-disabled="!$.dataSourceService.Entities.length || $.running" required>
                                     </select>
                                 </div>
                                 <div class="col-1">
@@ -168,16 +169,7 @@
                             </div>
                         </div>
                         <div class="table-footer">
-                            <div ng-if="!$.dataSourceService.ViewModelId" class="b-notify notify-note mb-4">
-                                <i class="codicon codicon-info b-icon-2"></i>
-                                <div class="text">
-                                    <h4 class="label">No view model selected.</h4>
-                                    <span class="subtext">
-                                        Data source service must mapped to a view model.
-                                    </span>
-                                </div>
-                            </div>
-                            <div ng-if="$.dataSourceService.ViewModelId && !$.dataSourceService.Entities.length"
+                            <div ng-if="!$.dataSourceService.Entities.length"
                                 class="b-notify notify-note position-relative mb-4">
                                 <i class="codicon codicon-arrow-small-right position-absolute top-0 end-0"></i>
                                 <i class="codicon codicon-info b-icon-2"></i>
@@ -185,6 +177,16 @@
                                     <h4 class="label">No Entities selected.</h4>
                                     <span class="subtext">
                                         Before set view model properties select one or more entity.
+                                    </span>
+                                </div>
+                            </div>
+                            <div ng-if="$.dataSourceService.Entities.length && !$.dataSourceService.ViewModelId"
+                                class="b-notify notify-note mb-4">
+                                <i class="codicon codicon-info b-icon-2"></i>
+                                <div class="text">
+                                    <h4 class="label">No view model selected.</h4>
+                                    <span class="subtext">
+                                        Data source service must mapped to a view model.
                                     </span>
                                 </div>
                             </div>
@@ -410,7 +412,7 @@
                     <i class="codicon codicon-chevron-up"></i>
                 </span>
             </div>
-            <div id="grpFilters" class="group-content collapse">
+            <div id="grpFilters" class="group-content collapse show">
                 <table class="table table-bordered table-dark table-columns-vmiddle">
                     <thead>
                         <tr>
@@ -472,7 +474,7 @@
                     <i class="codicon codicon-chevron-up"></i>
                 </span>
             </div>
-            <div id="grpSortItems" class="group-content collapse">
+            <div id="grpSortItems" class="group-content collapse show">
                 <table class="table table-bordered table-dark table-columns-vmiddle">
                     <thead>
                         <tr>
@@ -545,7 +547,7 @@
         <!------------------------------------>
         <!-- Paging-->
         <!------------------------------------>
-        <div ng-if="$.service.ResultType == 'List'" class="b-group">
+        <div class="b-group">
             <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpPaging">
                 <h3 class="group-label">
                     <span class="group-icon">
@@ -556,7 +558,7 @@
                     <i class="codicon codicon-chevron-up"></i>
                 </span>
             </div>
-            <div id="grpPaging" class="group-content collapse">
+            <div id="grpPaging" class="group-content collapse show">
                 <div class="b-field">
                     <label class="b-checkbox">
                         <input type="checkbox" ng-model="$.dataSourceService.EnablePaging"

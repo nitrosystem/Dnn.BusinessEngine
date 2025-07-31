@@ -50,13 +50,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<IEnumerable<ServiceTypeDto>> GetServiceTypesDtoAsync()
         {
-            var serviceTypes = await _repository.GetAllAsync<ServiceTypeView>();
+            var serviceTypes = await _repository.GetAllAsync<ServiceTypeView>("GroupViewOrder", "ViewOrder");
             return serviceTypes.Select(serviceType =>
             {
                 return HybridMapper.MapWithConfig<ServiceTypeView, ServiceTypeDto>(
                    serviceType, (src, dest) =>
                    {
-                       dest.ResultType = (ServiceResultType?)serviceType.ResultType;
                        dest.Icon = (serviceType.Icon ?? string.Empty).ReplaceFrequentTokens();
                    });
             });
@@ -79,10 +78,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             if (serviceId != Guid.Empty)
                 serviceType = service.ServiceType;
 
-            var type = await _repository.GetColumnValueAsync<ServiceTypeInfo, string>("StudioControllerClass", "ServiceType", serviceType);
+            var type = await _repository.GetColumnValueAsync<ServiceTypeInfo, string>("BusinessControllerClass", "ServiceType", serviceType);
             if (!string.IsNullOrEmpty(type))
             {
-                var extensionController = _serviceLocator.CreateInstance<IExtensionServiceFactory>(type, _unitOfWork, _cacheService, _repository);
+                var extensionController = _serviceLocator.GetInstance<IExtensionServiceFactory>(type);
                 result.Extension = await extensionController.GetService(serviceId);
                 result.ExtensionDependency = await extensionController.GetDependencyList(scenarioId);
             }
@@ -129,8 +128,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             var objServiceInfo = HybridMapper.MapWithConfig<ServiceViewModel, ServiceInfo>(
             service, (src, dest) =>
             {
-                dest.ResultType = (int)service.ResultType;
-                dest.AuthorizationRunService = JsonConvert.SerializeObject(service.AuthorizationRunService);
                 dest.Settings = JsonConvert.SerializeObject(service.Settings);
             });
 
@@ -155,7 +152,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                     await _repository.AddAsync<ServiceParamInfo>(objServiceParamInfo);
                 }
 
-                var type = await _repository.GetColumnValueAsync<ServiceTypeInfo, string>("StudioControllerClass", "ServiceType", service.ServiceType);
+                var type = await _repository.GetColumnValueAsync<ServiceTypeInfo, string>("BusinessControllerClass", "ServiceType", service.ServiceType);
                 if (!string.IsNullOrEmpty(type))
                 {
                     var extensionController = _serviceLocator.CreateInstance<IExtensionServiceFactory>(type, _unitOfWork, _cacheService, _repository);

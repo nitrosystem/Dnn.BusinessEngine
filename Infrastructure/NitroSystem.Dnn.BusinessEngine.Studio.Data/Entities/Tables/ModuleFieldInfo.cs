@@ -35,7 +35,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public bool IsValuable { get; set; }
         public bool IsJsonValue { get; set; }
         public string ShowConditions { get; set; }
-        public string EnableConditions { get; set; }
         public string FieldValues { get; set; }
         public string DataSource { get; set; }
         public string AuthorizationViewField { get; set; }

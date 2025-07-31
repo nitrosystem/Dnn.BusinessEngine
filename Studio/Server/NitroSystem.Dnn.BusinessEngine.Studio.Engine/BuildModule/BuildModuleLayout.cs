@@ -170,7 +170,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                             value = jtoken.Value<string>() ?? "";
                         else if (jtoken == null || string.IsNullOrEmpty(value))
                             value = match.Groups["NullValue"].Value;
-
                     }
                     catch (Exception ex)
                     {

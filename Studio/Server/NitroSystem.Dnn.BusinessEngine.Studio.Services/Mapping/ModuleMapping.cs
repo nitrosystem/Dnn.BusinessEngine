@@ -174,7 +174,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
                 src => src.AuthorizationViewField.Split(','),
                 condition => !string.IsNullOrEmpty(condition.AuthorizationViewField));
             mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.ShowConditions));
-            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.EnableConditions));
             mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, src => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(src.FieldValues));
             mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, src => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(src.DataSource));
             mapper.AddCustomMapping(src => src, dest => dest.Settings, src => MapModuleFieldSettingsToDictionary(settings));
@@ -201,10 +200,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions,
                 src => JsonConvert.SerializeObject(src.ShowConditions),
                 condition => condition.ShowConditions != null && condition.ShowConditions.Any()
-            );
-            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions,
-                src => JsonConvert.SerializeObject(src.EnableConditions),
-                condition => condition.EnableConditions != null && condition.EnableConditions.Any()
             );
             mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues,
                src => JsonConvert.SerializeObject(src.FieldValues),
@@ -245,7 +240,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
                 src => src.AuthorizationViewField.Split(','),
                 condition => !string.IsNullOrEmpty(condition.AuthorizationViewField));
             mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.ShowConditions));
-            mapper.AddCustomMapping(src => src.EnableConditions, dest => dest.EnableConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.EnableConditions));
             mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, src => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(src.FieldValues));
             mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, src => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(src.DataSource));
             mapper.AddCustomMapping(src => src, dest => dest.Settings, src => dictionarySettings);

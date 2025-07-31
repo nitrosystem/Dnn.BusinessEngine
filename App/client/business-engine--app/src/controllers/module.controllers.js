@@ -99,9 +99,7 @@ export class ModuleController {
                 if (field.DataSource && field.DataSource.Type == 2 && field.DataSource.VariableName)
                     this.appendWatches(field.DataSource.VariableName, "onFieldDataSourceChange", field.Id);
 
-                this.showHideField(field.Id);
-
-                _.forEach(field.ShowConditions, (c) => {
+                _.forEach(field.ShowConditions ?? [], (c) => {
                     this.appendWatches(c.LeftExpression, "showHideField", field.Id);
                     this.appendWatches(c.RightExpression, "showHideField", field.Id);
                 });
@@ -201,46 +199,26 @@ export class ModuleController {
                     this.$scope._Form[field.FieldName] = field.Value;
                 }
             });
-        } else
-            console.warn(
-                "Field not found. Method: setFieldValue, FieldId: " + fieldId
-            );
+        }
     }
 
     onFieldShowChange(fieldId) {
         var field = this.getFieldById(fieldId);
         if (field) {
-            if (!field.Settings.EnableSetNullValueWhenFieldIsHide && !field.IsShow && field.Value) {
-                field.ValueBackup = _.clone(field.Value);
-                delete field.Value;
-            }
-            else if (!field.Settings.EnableSetNullValueWhenFieldIsHide && field.IsShow && field.ValueBackup) {
-                field.Value = _.clone(field.ValueBackup);
-                delete field.ValueBackup;
-            }
-
-            // this.$scope._Form[field.FieldName] = field.Value;
-        } else
-            console.warn("Field not found. Method: onFieldShowChange, FieldId: " + fieldId);
+        }
     }
 
     showHideField(fieldId) {
         var field = this.getFieldById(fieldId);
-        if (field) {
-            if (field.ShowConditions && field.ShowConditions.length) {
-                field.IsShow = this.expressionService.checkConditions(
-                    field.ShowConditions,
-                    this.$scope
-                );
-            }
-        } else
-            console.warn(
-                "Field not found. Method: showHideField, FieldId: " + fieldId
+        if (field && field.ShowConditions && field.ShowConditions.length) {
+            field.IsShow = this.expressionService.checkConditions(
+                field.ShowConditions,
+                this.$scope
             );
+        }
     }
 
     onFieldDataSourceChange(fieldId) {
-        debugger
         var field = this.getFieldById(fieldId);
 
         field.DataSource = { ...field.DataSource, ...this.$scope[field.DataSource.VariableName] };

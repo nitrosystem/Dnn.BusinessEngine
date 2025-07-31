@@ -22,9 +22,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
         public string ServiceComponent { get; set; }
         public string ComponentSubParams { get; set; }
         public string BusinessControllerClass { get; set; }
-        public string StudioControllerClass { get; set; }
-        public bool HasResult { get; set; }
-        public int ResultType { get; set; }
         public string Icon { get; set; }
         public bool IsEnabled { get; set; }
         public string Description { get; set; }

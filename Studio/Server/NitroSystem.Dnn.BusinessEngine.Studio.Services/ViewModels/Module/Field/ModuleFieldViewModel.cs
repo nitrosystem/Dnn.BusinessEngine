@@ -39,7 +39,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field
         public int ViewOrder { get; set; }
         public IEnumerable<string> AuthorizationViewField { get; set; }
         public IEnumerable<ExpressionInfo> ShowConditions { get; set; }
-        public IEnumerable<ExpressionInfo> EnableConditions { get; set; }
         public IEnumerable<FieldValueInfo> FieldValues { get; set; }
         public IEnumerable<ActionViewModel> Actions { get; set; }
         public FieldDataSourceInfo DataSource { get; set; }

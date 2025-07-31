@@ -19,10 +19,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public Guid? GroupId { get; set; }
         public string ServiceType { get; set; }
         public string ServiceName { get; set; }
-        public bool IsEnabled { get; set; }
-        public bool HasResult { get; set; }
-        public int ResultType { get; set; }
-        public string AuthorizationRunService { get; set; }
         public string Settings { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }

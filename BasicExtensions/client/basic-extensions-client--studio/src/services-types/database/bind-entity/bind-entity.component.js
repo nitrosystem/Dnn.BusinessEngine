@@ -41,15 +41,19 @@ class BindEntityServiceController {
 
     onPageLoad() {
         this.entities = this.serviceController.extensionDependency.Entities;
+        this.viewModels = this.serviceController.extensionDependency.ViewModels;
         this.bindEntityService = this.serviceController.extensionService ??
         {
             BaseQuery: this.baseQueryTemplate,
+            ViewModelProperties: [],
             Filters: [],
             Settings: {
                 StoredProcedurePrefixName: this.$rootScope.scenario.DatabaseObjectPrefix,
                 ...(this.service && { StoredProcedurePostfixName: this.service.ServiceName })
             }
         };
+
+        if (this.bindEntityService.Id) this.onSelectedEntityChange();
     }
 
     setForm() {
@@ -79,7 +83,44 @@ class BindEntityServiceController {
     onSelectedEntityChange() {
         _.filter(this.entities, (e) => { return e.Id == this.bindEntityService.EntityId }).map((e) => {
             this.bindEntityService.EntityTableName = e.TableName;
+
+            this.entity = e;
         })
+    }
+
+    onSelectedViewModelChange() {
+        this.onRefreshViewModelClick();
+    }
+
+    onRefreshViewModelClick() {
+        var result = [];
+
+        const viewModel = _.find(this.viewModels, (v) => {
+            return v.Id == this.bindEntityService.ViewModelId;
+        });
+
+        _.forEach(viewModel.Properties, (prop) => {
+            var property = {
+                Id: prop.Id,
+                PropertyName: prop.PropertyName
+            };
+
+            if (!this.bindEntityService.ViewModelProperties || !this.bindEntityService.ViewModelProperties.length) {
+                property.IsSelected = true;
+                property.ColumnName = prop.PropertyName;
+            }
+            else {
+                _.filter(this.bindEntityService.ViewModelProperties, (p) => {
+                    return p.Id == prop.Id;
+                }).map((p) => {
+                    property.ColumnName = p.Value ?? prop.PropertyName;
+                });
+            }
+
+            result.push(property);
+        });
+
+        this.bindEntityService.ViewModelProperties = result;
     }
 
     onAddFilterClick() {

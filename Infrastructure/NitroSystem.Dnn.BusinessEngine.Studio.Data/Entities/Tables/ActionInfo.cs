@@ -33,6 +33,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public string PreScript { get; set; }
         public string PostScript { get; set; }
         public string Settings { get; set; }
+        public string AuthorizationRunAction { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }

@@ -66,10 +66,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         {
             var mapper = new ExpressionMapper<ServiceView, ServiceViewModel>();
             mapper.AddCustomMapping(src => src.ServiceTypeIcon, dest => dest.ServiceTypeIcon, src => src.ServiceTypeIcon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
-            mapper.AddCustomMapping(src => src.AuthorizationRunService, dest => dest.AuthorizationRunService,
-                src => src.AuthorizationRunService.Split(','),
-                condition => !string.IsNullOrEmpty(condition.AuthorizationRunService));
-            mapper.AddCustomMapping(src => src.ResultType, dest => dest.ResultType, src => (ServiceResultType)src.ResultType);
             mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings,
                     src => TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.Settings),
                     condition => !string.IsNullOrEmpty(condition.Settings));

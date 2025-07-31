@@ -21,9 +21,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public string JsFile { get; set; }
         public string JsServiceFn { get; set; }
         public string BusinessControllerClass { get; set; }
-        public string StudioControllerClass { get; set; }
-        public bool HasResult { get; set; }
-        public ServiceResultType? ResultType { get; set; }
         public string Icon { get; set; }
         public bool IsEnabled { get; set; }
         public string Description { get; set; }
