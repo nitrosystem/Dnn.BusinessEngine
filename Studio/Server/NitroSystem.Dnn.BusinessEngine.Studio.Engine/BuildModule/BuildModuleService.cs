@@ -248,15 +248,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             switch (resourceType)
             {
                 case ResourceType.ModuleCss:
-                    return $"modules--{moduleName}.css";
+                    return $"module--{moduleName}.css";
                 case ResourceType.ModuleActionScript:
-                    return "modules--action.js";
+                    return $"modules--{moduleName}-actions.js";
                 case ResourceType.FieldTypeScript:
-                    return "fields--script.js";
+                    return $"module--{moduleName}-field-scripts.js";
                 case ResourceType.FieldDirectiveScript:
-                    return "fields--directive.js";
+                    return $"module--{moduleName}-field-directive.js";
                 case ResourceType.FieldTypeTheme:
-                    return "fields--theme.css";
+                    return $"module--{moduleName}-field-themes.css";
                 default:
                     return string.Empty;
             }

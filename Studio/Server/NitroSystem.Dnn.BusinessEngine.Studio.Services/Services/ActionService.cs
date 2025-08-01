@@ -11,7 +11,6 @@ using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto.Module;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
@@ -26,7 +25,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto.Global;
 using System.Collections.Concurrent;
 using System.Threading;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
@@ -63,13 +61,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         #region Action Services
 
-        public async Task<IEnumerable<ActionLiteDto>> GetActionsLiteDtoAsync(Guid moduleId, string sortBy = "ViewOrder")
+        public async Task<IEnumerable<ModuleFieldActionDto>> GetModuleFieldActions(Guid fieldId, string sortBy = "ViewOrder")
         {
-            var actions = await _repository.GetByScopeAsync<ActionInfo>(moduleId, sortBy);
+            var actions = await _repository.GetItemsByColumnAsync<ActionInfo>("FieldId", fieldId, sortBy);
 
             return actions.Select(action =>
             {
-                return HybridMapper.Map<ActionInfo, ActionLiteDto>(action);
+                return HybridMapper.Map<ActionInfo, ModuleFieldActionDto>(action);
             });
         }
 
@@ -102,12 +100,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             var actionsParams = await _repository.GetByScopeAsync<ActionParamInfo>(actionId);
 
             return ActionMapping.MapActionViewModel(action, actionsResults, actionsConditions, actionsParams);
-        }
-
-        public async Task<IEnumerable<ModuleFieldLiteDto>> GetFieldsHaveActionsAsync(Guid moduleId)
-        {
-            return await _repository.ExecuteStoredProcedureAsListAsync<ModuleFieldLiteDto>("BusinessEngine_GetFieldsHaveActions",
-                new { ModuleId = moduleId });
         }
 
         public async Task<Guid> SaveActionAsync(ActionViewModel action, bool isNew)

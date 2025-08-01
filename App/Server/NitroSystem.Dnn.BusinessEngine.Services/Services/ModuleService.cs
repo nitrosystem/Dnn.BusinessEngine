@@ -64,7 +64,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 
         public async Task<IEnumerable<ModuleFieldViewModel>> GetFieldsViewModelAsync(Guid moduleId)
         {
-            var task1 = _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId);
+            var task1 = _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId, "ViewOrder");
             var task2 = _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("ModuleId", moduleId);
 
             var fields = await task1;

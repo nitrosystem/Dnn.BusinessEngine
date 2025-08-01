@@ -37,7 +37,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
         private readonly string _fieldLayout =
-            @"<div data-field=""[[FieldName]]"" [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field-item]]"" [[IF:IsValuable==true:ng-class=""{'b-invalid':[FIELD].Validated && ([FIELD].RequiredError || ![FIELD].IsValid)}""]]>
+            @"<div [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field]]"" [[IF:IsValuable==true:ng-class=""{'b-invalid':[FIELD].Validated && ([FIELD].RequiredError || ![FIELD].IsValid)}""]]>
                 [[IF:FieldText!=null:<label class=""[[Settings.FieldTextCssClass??b-form-label]]"">[[FieldText]]</label>]]
                 [FIELD-COMPONENT]
                 [[IF:IsValuable==true && IsRequired==true:<p ng-show=""[FIELD].Validated && ([FIELD].Value==null || [FIELD].Value==undefined || [FIELD].Value=='') && [FIELD].RequiredError"" 
@@ -146,7 +146,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                 // --------------------- PARSE Field Show Conditions --------------------------
                 if (field.ShowConditions != null && field.ShowConditions.Any())
                 {
-                    fieldTemplate = fieldTemplate.Replace("[FIELD-DISPLAY-EXPRESSION]", $@"ng-if=""Field.{field.FieldName}.IsShow""");
+                    fieldTemplate = fieldTemplate.Replace("[FIELD-DISPLAY-EXPRESSION]", $@"ng-if=""$.field.{field.FieldName}.IsShow""");
                 }
                 else
                 {
@@ -178,7 +178,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                     fieldTemplate = fieldTemplate.Replace(match.Value, value ?? "");
                 }
 
-                fieldTemplate = fieldTemplate.Replace("[FIELD]", $"Field.{field.FieldName}");
+                fieldTemplate = fieldTemplate.Replace("[FIELD]", $"$.field.{field.FieldName}");
                 fieldTemplate = fieldTemplate.Replace("[FIELDNAME]", $"{field.FieldName}");
                 fieldTemplate = fieldTemplate.Replace("[FIELDID]", $"{field.Id}");
 

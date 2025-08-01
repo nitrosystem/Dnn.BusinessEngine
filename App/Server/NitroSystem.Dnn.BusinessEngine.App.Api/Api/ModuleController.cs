@@ -28,6 +28,7 @@ using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Framework.Contracts;
+using System.IO.Compression;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {
@@ -35,16 +36,19 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
     {
         private readonly IUserDataStore _userDataStore;
         private readonly IModuleService _moduleService;
+        private readonly IActionService _actionService;
         private readonly IActionWorker _actionWorker;
 
         public ModuleController(
             IUserDataStore userDataStore,
             IModuleService moduleService,
+            IActionService actionService,
             IActionWorker actionWorker
         )
         {
             _userDataStore = userDataStore;
             _moduleService = moduleService;
+            _actionService = actionService;
             _actionWorker = actionWorker;
         }
 
@@ -506,37 +510,34 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                 var data = _userDataStore.GetDataForClients(moduleId, moduleData);
 
                 var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
-
-                //this._moduleData.SetFieldItem(field.FieldName, lightField);
-
-                //foreach (var field in fields.Where(f => f.IsSelective && !string.IsNullOrWhiteSpace(f.DataSource.DataSourceJson)))
-                //{
-                //    field.DataSource = ModuleFieldMappings.GetFieldDataSource(field.DataSource.DataSourceJson, this._serviceWorker, false);
-                //}
-
-                //var variables = ModuleVariableMapping.GetVariablesViewModel(moduleId);
-
-                //var actions = ActionMapping.GetActionsDTO(moduleId);
-
-                //var moduleData = this._moduleData.GetModuleData(connectionId, moduleId);
-
-                //if (this.UserInfo.UserId >= 0)
-                //    moduleData["CurrentUser"] = JObject.FromObject(new { this.UserInfo.UserId, this.UserInfo.DisplayName });
-
-                //IEnumerable<PageResourceView> moduleResources = Enumerable.Empty<PageResourceView>();
-                //if (postData.IsDashboardModule) moduleResources = PageResourceRepository.Instance.GetActiveModuleResources(moduleId).Where(r => r.ResourceType == "css").OrderBy(r => r.ResourceType);
+                var actions = await _actionService.GetActionsDtoAsync(moduleId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
-                    Fields = fields,
-                    //Actions = actions,
-                    //Variables = variables,
-                    Data = data
+                    mf = ProtectPayload(fields),
+                    ma = ProtectPayload(actions),
+                    md = ProtectPayload(data)
                 });
             }
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        private static string ProtectPayload(object obj)
+        {
+            var json = JsonConvert.SerializeObject(obj);
+
+            using (var output = new MemoryStream())
+            {
+                using (var gzip = new GZipStream(output, CompressionMode.Compress))
+                using (var writer = new StreamWriter(gzip))
+                {
+                    writer.Write(json);
+                }
+
+                return Convert.ToBase64String(output.ToArray());
             }
         }
     }

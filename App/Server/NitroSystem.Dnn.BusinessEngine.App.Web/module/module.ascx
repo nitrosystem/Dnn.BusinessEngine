@@ -4,10 +4,9 @@
 <asp:PlaceHolder ID="pnlAntiForgery" runat="server"></asp:PlaceHolder>
 <b:PageResource ID="CtlPageResource" runat="server" />
 
-<div id="pnlBusinessEngine<%=this.ModuleGuid%>" data-module="<%=this.ModuleGuid%>" class="b-engine-module  <%=this.bRtlCssClass%>"
-    b-ng-app="BusinessEngineClientApp"
+<div b-ng-app="BusinessEngineClientApp" data-m="<%=this.ModuleGuid%>" class="b-engine-module  <%=this.bRtlCssClass%>"
     ng-controller="moduleController as $"
-    ng-init="$.onInitModule(<%=this.ModuleId%>,'<%=this.ModuleGuid%>', '<%=this.ModuleName%>','<%=this.ConnectionId%>')">
+    ng-init="$.onInitModule(<%=this.ModuleId%>,'<%=this.ModuleGuid%>', '<%=this.ConnectionId%>')">
     <div id="pnlTemplate" runat="server"></div>
 </div>
 
@@ -18,7 +17,7 @@
 
     $(document).ready(function () {
         $('*[b-ng-app]').each(function () {
-            const module = $(this).data('module');
+            const module = $(this).data('m');
             if (module && bAppRegistered.indexOf(module) == -1) {
                 angular.bootstrap($(this), ['BusinessEngineClientApp']);
 

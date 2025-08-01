@@ -11,8 +11,8 @@
                 <div class="b-input-group">
                     <select id="drpLibraryType" ng-model="$.library.LibraryId" class="b-input form-select"
                         ng-options="l.Id as (l.LibraryName+'-'+l.Version) for l in $.libraries" chosen
-                        inherit-select-classes="true" placeholder-text-single="'Select library'"
-                        ng-change="$.onLibraryChange()" ng-disabled="$.running" required>
+                        inherit-select-classes="true" placeholder-text-single="'Select library'" ng-disabled="$.running"
+                        required>
                     </select>
                     <span><i class="codicon codicon-library"></i></span>
                 </div>

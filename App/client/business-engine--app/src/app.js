@@ -20,7 +20,6 @@ import { ActionService } from "./services/action.service";
 
 //Directives
 import { bShow, bFor, bClick } from "./directives/angular-extended.directive";
-import { FieldDirective } from "./directives/field.directive";
 import {
     BindDate,
     BindHtml,
@@ -52,7 +51,6 @@ const app = angular
     .directive("bindDate", BindDate)
     .directive("bindImage", BindImage)
     .directive("bindUrl", bindUrl)
-    .directive("field", FieldDirective)
     .controller("moduleController", ModuleController);
 
 window.bEngineApp = app;

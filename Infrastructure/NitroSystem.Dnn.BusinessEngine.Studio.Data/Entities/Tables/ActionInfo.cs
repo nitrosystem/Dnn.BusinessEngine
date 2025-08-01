@@ -24,16 +24,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public string ActionType { get; set; }
         public string Event { get; set; }
         public int? ParentActionTriggerCondition { get; set; }
-        public bool IsServerSide { get; set; }
-        public bool RunChildsInServerSide { get; set; }
-        public bool HasPreScript { get; set; }
-        public bool HasPostScript { get; set; }
-        public bool DisableConditionForPreScript { get; set; }
-        public bool CheckConditionsInClientSide { get; set; }
-        public string PreScript { get; set; }
-        public string PostScript { get; set; }
-        public string Settings { get; set; }
+        public bool IsClientSide { get; set; }
         public string AuthorizationRunAction { get; set; }
+        public string Settings { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }

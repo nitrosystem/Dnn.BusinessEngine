@@ -77,10 +77,7 @@ export class CreateModuleCreateActionController {
             //this.module = data.Module;
             this.actionTypes = data.ActionTypes;
             this.actions = data.Actions;
-            this.services = data.Services;
-            this.viewModels = data.ViewModels;
             this.variables = data.Variables;
-            this.fields = data.Fields;
             this.events = data.Events;
             this.action = data.Action;
 

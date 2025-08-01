@@ -24,7 +24,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public string ServiceComponent { get; set; }
         public string BusinessControllerClass { get; set; }
         public string Icon { get; set; }
-        public bool IsEnabled { get; set; }
         public string Description { get; set; }
         public int ViewOrder { get; set; }
     }

@@ -180,7 +180,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SortModuleCustomLibraries([FromUri] LibraryOrResource target, IEnumerable<SortModuleCustomLibrariesDto> postData)
+        public async Task<HttpResponseMessage> SortModuleCustomLibraries([FromUri] LibraryOrResource target, IEnumerable<SortDto> postData)
         {
             try
             {
@@ -223,21 +223,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             catch (Exception ex)
             {
 
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetLibraryResources(Guid libraryId)
-        {
-            try
-            {
-                var result = await _globalService.GetLibraryResourcesViewModelAsync(libraryId);
-
-                return Request.CreateResponse(HttpStatusCode.OK, result);
-            }
-            catch (Exception ex)
-            {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -412,7 +397,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveModuleField(ModuleFieldUpdateDto postData)
+        public async Task<HttpResponseMessage> SaveModuleField(UpdateModuleFieldDto postData)
         {
             try
             {
@@ -508,12 +493,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var actions = results.Items;
                 var totalCount = results.TotalCount;
 
-                var fields = await _actionService.GetFieldsHaveActionsAsync(moduleId);
-
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     Actions = actions,
-                    Fields = fields,
                     Page = new PagingInfo(totalCount, pageSize, pageIndex)
                 });
             }
@@ -530,6 +512,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         }
 
         [HttpGet]
+        public async Task<HttpResponseMessage> GetAction(Guid moduleId, string fieldType)
+        {
+            return await GetAction(moduleId, Guid.Empty, fieldType);
+        }
+
+        [HttpGet]
         public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid actionId, string fieldType = null)
         {
             try
@@ -537,11 +525,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
                 var actionTypes = await _actionService.GetActionTypesViewModelAsync();
-                var actions = await _actionService.GetActionsLiteDtoAsync(moduleId);
-                var services = await _serviceFactory.GetServicesViewModelAsync(scenarioId, "ServiceName");
-                var viewModels = await _viewModelService.GetViewModelsAsync(scenarioId, "ViewModelName");
+                var actions = await _actionService.GetActionsViewModelAsync(moduleId, null, 1, 1000, null, null, "ActionName");
                 var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
-                var fields = await _moduleService.GetFieldsViewModelAsync(moduleId, "FieldName");
 
                 var events = GetDefaultCustomEvents(fieldType);
                 if (!string.IsNullOrEmpty(fieldType))
@@ -555,10 +540,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 {
                     ActionTypes = actionTypes,
                     Actions = actions,
-                    Services = services,
-                    ViewModels = viewModels,
                     Variables = variables,
-                    Fields = fields,
                     Events = events,
                     Action = action,
                 });

@@ -55,7 +55,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                                       batchSize: 5,
                                       async batch =>
                                       {
-                                          // تنظیم نهایی کلید کش
                                           foreach (var file in batch)
                                           {
                                               if (!string.IsNullOrEmpty(file.CacheKey))
@@ -66,10 +65,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                                               }
                                           }
 
-                                          // لود موازی فایل‌ها (محدود به 5 فایل همزمان)
-                                          var pathToEntryMap = batch.ToDictionary(
-                                              f => f.ResourcePath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"),
-                                              f => (f.EntryType, f.Additional, f.CacheKey));
+                                          var pathToEntryMap = batch
+                                              .GroupBy(f => f.ResourcePath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"))
+                                              .ToDictionary(
+                                                  g => g.Key,
+                                                  g => {
+                                                      var f = g.First(); 
+                                                      return (f.EntryType, f.Additional, f.CacheKey);
+                                                  });
 
                                           var contents = await LoadMultipleFilesAsync(
                                               resourcePaths: pathToEntryMap.Keys.ToList(),

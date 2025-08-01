@@ -18,7 +18,6 @@ using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto.Module;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 {
@@ -94,7 +93,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task<Guid> SaveModuleCustomResourceAsync(ModuleCustomResourceViewModel resource);
 
-        Task SortModuleCustomLibraries(LibraryOrResource target, IEnumerable<SortModuleCustomLibrariesDto> items);
+        Task SortModuleCustomLibraries(LibraryOrResource target, IEnumerable<SortDto> items);
 
         Task<bool> DeleteModuleCustomLibraryAsync(Guid moduleId);
 

@@ -1,4 +1,5 @@
 import { GlobalSettings } from "../configs/global.settings";
+import pako from 'pako';
 
 export class ModuleController {
     constructor(
@@ -34,21 +35,22 @@ export class ModuleController {
         this.$scope.$rootScope = $rootScope;
     }
 
-    onInitModule(dnnModuleId, moduleId, moduleName, connectionId) {
+    onInitModule(dnnModuleId, moduleId, connectionId) {
         this.module = {
             dnnModuleId: dnnModuleId,
             moduleId: moduleId,
             connectionId: connectionId,
-            moduleName: moduleName
         };
 
         this.onPageLoad();
     }
 
     onPageLoad() {
-        this.$scope._Form = {};
-        this.$scope.Field = {};
-        this.$scope.Pane = {};
+        this.form = {};
+        this.field = {};
+        this.pane = {};
+        this.data = {};
+        this.controllerCache = {};
 
         this.watches = [];
 
@@ -57,35 +59,22 @@ export class ModuleController {
             connectionId: this.module.connectionId,
             pageUrl: document.URL
         }).then((data) => {
-            this.fields = data.Fields || [];
+            this.fields = this.decodeProtectedData(data.mf) ?? [];
 
-            this.$scope.variables = data.Variables || [];
-
-            _.forEach(data.Data ?? {}, (value, key) => {
-                this.$scope[key] = value;
-                this.$scope.variables.push({ VariableName: key });
-            });
-
-            this.$scope.variables.push(
-                { VariableName: "_Form", IsSystemVariable: true },
-                { VariableName: "_PageParam", IsSystemVariable: true }
-            );
-
-            this.actions = data.Actions || [];
-            _.map(this.actions, (action) => {
-                action.Settings = JSON.parse(action.Settings);
+            _.forEach(this.decodeProtectedData(data.md) ?? {}, (value, key) => {
+                this.data[key] = value;
             });
 
             _.forEach(this.fields, (field) => {
                 field.Actions = [];
                 _.filter(this.actions, (a) => { return a.FieldId == field.Id; }).map((action) => { field.Actions.push(action); });
 
-                this.appendWatches("Field." + field.FieldName + ".IsShow", "onFieldShowChange", field.Id);
+                // this.appendWatches("field." + field.FieldName + ".IsShow", "onFieldShowChange", field.Id);
 
                 if (field.IsValuable) {
-                    this.appendWatches("Field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
-
                     this.setFieldValue(field.Id);
+
+                    this.appendWatches("field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
 
                     _.forEach(field.FieldValues, (fv) => {
                         this.appendWatches(fv.ValueExpression, "setFieldValue", field.Id);
@@ -101,45 +90,47 @@ export class ModuleController {
 
                 _.forEach(field.ShowConditions ?? [], (c) => {
                     this.appendWatches(c.LeftExpression, "showHideField", field.Id);
-                    this.appendWatches(c.RightExpression, "showHideField", field.Id);
                 });
-                this.$scope.Field[field.FieldName] = field;
-            });
 
-            this.assignScopeData(data.Data);
+                this.field[field.FieldName] = field;
+
+                let controllerInstance = this.controllerCache[field.FieldType];
+
+                if (!controllerInstance) {
+                    const ControllerClass = ComponentRegistry.resolve(field.FieldType);
+                    if (typeof ControllerClass === 'function') {
+                        controllerInstance = new ControllerClass(this); // فقط فرم رو پاس بده
+                        this.controllerCache[field.FieldType] = controllerInstance;
+                    }
+                }
+
+                if (controllerInstance && typeof controllerInstance.init === 'function')
+                    controllerInstance.init(field);
+            });
 
             this.raiseWatches();
 
+            this.actions = this.decodeProtectedData(data.ma);
+
             this.$timeout(() => {
-                var clientActions = _.filter(this.actions, (a) => { return !a.IsServerSide });
-
-                this.actionService.callActions(clientActions, this.module.moduleId, null, "OnPageLoad", this.$scope).then((data) => {
-                });
-
-                this.$scope.loadedModule = true;
-                this.completedForm = true;
+                let clientActions = _.filter(this.actions, (a) => { return !a.IsServerSide });
+                this.actionService.callActions(
+                    clientActions,
+                    this.module.moduleId,
+                    null,
+                    "OnPageLoad",
+                    this.$scope)
+                    .then((data) => {
+                    });
 
                 $('.b-engine-module').addClass('is-loaded');
             });
         });
     }
 
-    assignScopeData(serverObjects) {
-        _.forEach(serverObjects, (data) => {
-            this.globalService.parseJsonItems(data);
-        })
-
-        _.forOwn(serverObjects, (value, key) => {
-            if (this.$scope[key])
-                this.$scope[key] = { ...this.$scope[key], ...value };
-            else
-                this.$scope[key] = value;
-        });
-    }
-
     onFieldValueChange(fieldId) {
         var field = this.getFieldById(fieldId);
-        if (field /*&& this.completedForm*/) {
+        if (field) {
             if (field.Settings.SaveValueIn) {
                 var match = /(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm.exec(
                     field.Settings.SaveValueIn
@@ -149,8 +140,10 @@ export class ModuleController {
                     model.assign(this.$scope, field.Value);
                 }
             } else {
-                this.$scope.Field[field.FieldName].Value = field.Value;
-                this.$scope._Form[field.FieldName] = field.Value;
+                this.field[field.FieldName].Value = field.Value;
+
+                const key = this.field?.[field.FieldName]?.DataProperty;
+                if (key) this.data[key] = newVal;
             }
 
             if (field.BeValidate) {
@@ -174,30 +167,9 @@ export class ModuleController {
     setFieldValue(fieldId) {
         var field = this.getFieldById(fieldId);
         if (field) {
-            this.$scope._Form[field.FieldName] = field.Value;
-
             _.forEach(field.FieldValues, (fv) => {
-                if (!fv.Conditions ||
-                    !fv.Conditions.length ||
-                    this.expressionService.checkConditions(fv.Conditions, this.$scope)
-                ) {
-                    const value = this.expressionService.parseExpression(
-                        fv.ValueExpression,
-                        this.$scope,
-                        fv.ExpressionParsingType
-                    );
-
-                    if (
-                        value &&
-                        typeof value == "string" &&
-                        field.Settings.AllowMultiple &&
-                        !field.IsJsonValue
-                    )
-                        field.Value = value.split(",");
-                    else field.Value = value;
-
-                    this.$scope._Form[field.FieldName] = field.Value;
-                }
+                if (this.expressionService.checkConditions(fv.Conditions, this.data))
+                    field.Value = this.expressionService.parseExpression(fv.ValueExpression, this.data);
             });
         }
     }
@@ -211,17 +183,14 @@ export class ModuleController {
     showHideField(fieldId) {
         var field = this.getFieldById(fieldId);
         if (field && field.ShowConditions && field.ShowConditions.length) {
-            field.IsShow = this.expressionService.checkConditions(
-                field.ShowConditions,
-                this.$scope
-            );
+            field.IsShow = this.expressionService.checkConditions(field.ShowConditions, this.data);
         }
     }
 
     onFieldDataSourceChange(fieldId) {
         var field = this.getFieldById(fieldId);
 
-        field.DataSource = { ...field.DataSource, ...this.$scope[field.DataSource.VariableName] };
+        field.DataSource = { ...field.DataSource, ...this.data[field.DataSource.VariableName] };
 
         this.$timeout(() => {
             if (field.DataSource !== field.OldDataSource) this.$scope.$broadcast(`onFieldDataSourceChange_${field.Id}`, { field: field });
@@ -237,7 +206,7 @@ export class ModuleController {
         });
 
         this.validateFields(fields).then((isValid) => {
-            this.$scope._Form._IsValid = isValid;
+            this.form.isValid = isValid;
 
             defer.resolve(isValid);
         });
@@ -275,8 +244,8 @@ export class ModuleController {
         });
 
         this.validateFields(fields).then((isValid) => {
-            this.$scope.Pane[paneName] = this.$scope.Pane[paneName] || {};
-            this.$scope.Pane[paneName].IsValid = isValid;
+            this.pane[paneName] = this.pane[paneName] || {};
+            this.pane[paneName].IsValid = isValid;
 
             defer.resolve(isValid);
         });
@@ -341,23 +310,16 @@ export class ModuleController {
             field.IsValid = true;
             defer.resolve(field.IsValid);
         } else if (field.Settings.ValidationMethod) {
-            this.$deferredBroadcast(
-                this.$scope,
-                field.Settings.ValidationMethod
-            ).then((isValid) => {
+            this.$deferredBroadcast(this.$scope, field.Settings.ValidationMethod).then((isValid) => {
                 field.IsValid = isValid && this.validateFieldValidationPattern(field);
                 field.RequiredError = !field.IsValid;
 
                 defer.resolve(field.IsValid);
             });
         } else if (field.IsRequired) {
-            field.IsValid = !(
-                field.Value === null ||
-                field.Value === undefined ||
-                field.Value === ""
-            );
-
+            field.IsValid = !(field.Value === null || field.Value === undefined || field.Value === "");
             field.IsValid = field.IsValid && this.validateFieldValidationPattern(field);
+
             field.RequiredError = !field.IsValid;
 
             defer.resolve(field.IsValid);
@@ -514,9 +476,7 @@ export class ModuleController {
                     if (typeof this[item.callback] == "function")
                         this[item.callback].apply(this, item.params);
                 });
-            },
-                true
-            );
+            }, true);
         });
     }
 
@@ -554,5 +514,24 @@ export class ModuleController {
         findNestedFields(field);
 
         return fields;
+    }
+
+
+    decodeProtectedData(base64String) {
+        if (!base64String) return null;
+
+        // Base64 decode
+        const binaryString = atob(base64String);
+        const binaryData = new Uint8Array(binaryString.length);
+
+        for (let i = 0; i < binaryString.length; i++) {
+            binaryData[i] = binaryString.charCodeAt(i);
+        }
+
+        // GZip decompress
+        const decompressed = pako.inflate(binaryData, { to: 'string' });
+
+        // Parse JSON
+        return JSON.parse(decompressed);
     }
 }

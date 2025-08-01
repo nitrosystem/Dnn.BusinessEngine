@@ -1,83 +1,171 @@
 export class ExpressionService {
     constructor() {
         this.ExpressionFunctions = {
-            ToUpper: (value) => typeof value === 'string' ? value.toUpperCase() : value,
-            ToLower: (value) => typeof value === 'string' ? value.toLowerCase() : value,
-            Length: (value) => value?.length,
-            // توابع دلخواه دیگه رو هم می‌تونی اضافه کنی
+            ToUpper: (x) => typeof x === 'string' ? x.toUpperCase() : x,
+            ToLower: (x) => typeof x === 'string' ? x.toLowerCase() : x,
+            Add: (a, b) => a + b,
+            Length: (x) => x?.length ?? 0
+            // توابع دیگه مثل Subtract, If, Contains رو هم می‌تونی اضافه کنی
         };
     }
 
-    evaluate(moduleData, expression) {
-        if (this.isLiteral(expression))
-            return this.parseLiteral(expression);
+    checkConditions(conditions, data) {
+        if (!conditions || !conditions.length) return true;
 
-        const compiled = this.compileExpression(moduleData, expression);
-        return compiled(moduleData);
+        var andResult = true;
+
+        var groups = _.groupBy(conditions, "GroupName");
+        for (var key in groups) {
+            var orResult = false;
+            _.forEach(groups[key], (condition) => {
+                const leftTree = this.parseExpression(condition.LeftExpression);
+                const leftValue = this.evaluateExpressionTree(leftTree, data);
+
+                const rightTree = this.parseExpression(condition.RightExpression);
+                const rightValue = this.evaluateExpressionTree(rightTree, data);
+
+                const compareResult = this.compareValues(leftValue, rightValue, condition.EvalType);
+
+                if (!orResult && compareResult) orResult = true;
+            });
+            if (!orResult) {
+                andResult = false;
+                break;
+            }
+        }
+
+        return andResult;
     }
 
-    compileExpression(moduleData, expression) {
-        const funcMatch = expression.match(/^(\w+)\((.+)\)$/);
+    compareValues(left, right, op) {
+        const isValidDate = (val) => !isNaN(Date.parse(val));
+        const isArray = Array.isArray;
+        const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+        const isEmpty = (val) => val === null || val === undefined ||
+            (typeof val === 'string' && val.trim() === '') ||
+            (isArray(val) && val.length === 0) ||
+            (typeof val === 'object' && !isArray(val) && Object.keys(val).length === 0);
+
+        switch (op.toLowerCase()) {
+            case '=':
+                return isEqual(left, right);
+            case '!=':
+                return !isEqual(left, right);
+
+            case 'in':
+                return isArray(right) ? right.includes(left) : isEqual(left, right);
+
+            case 'not in':
+                return isArray(right) ? !right.includes(left) : !isEqual(left, right);
+
+            case 'like':
+                return typeof right === 'string' && String(right).includes(String(left));
+
+            case 'not like':
+                return typeof right === 'string' && !String(right).includes(String(left));
+
+            case '>':
+                if (isValidDate(left) && isValidDate(right))
+                    return new Date(left) > new Date(right);
+                if (!isNaN(left) && !isNaN(right))
+                    return Number(left) > Number(right);
+                return left > right;
+
+            case '>=':
+                if (isValidDate(left) && isValidDate(right))
+                    return new Date(left) >= new Date(right);
+                if (!isNaN(left) && !isNaN(right))
+                    return Number(left) >= Number(right);
+                return left >= right;
+
+            case '<':
+                if (isValidDate(left) && isValidDate(right))
+                    return new Date(left) < new Date(right);
+                if (!isNaN(left) && !isNaN(right))
+                    return Number(left) < Number(right);
+                return left < right;
+
+            case '<=':
+                if (isValidDate(left) && isValidDate(right))
+                    return new Date(left) <= new Date(right);
+                if (!isNaN(left) && !isNaN(right))
+                    return Number(left) <= Number(right);
+                return left <= right;
+
+            case 'isfilled':
+                return !isEmpty(left);
+
+            case 'isnull':
+                return isEmpty(left);
+
+            default:
+                throw new Error(`Unknown operator: ${op}`);
+        }
+    }
+
+    parseExpression(expression) {
+        expression = expression.trim();
+
+        // اگر literal باشه
+        if (/^["'].*["']$|^\d+(\.\d+)?$|^(true|false|null)$/i.test(expression)) {
+            return { type: 'Literal', value: JSON.parse(expression) };
+        }
+
+        // اگر فانکشن باشه
+        const funcMatch = expression.match(/^(\w+)\((.*)\)$/);
         if (funcMatch) {
-            const funcName = funcMatch[1];
-            const argPath = funcMatch[2];
-
-            const func = this.ExpressionFunctions[funcName];
-            if (!func) throw new Error(`Unknown '${funcName}'`);
-
-            return (data) => {
-                const value = this.resolvePath(data, argPath);
-                return func(value);
-            };
+            const name = funcMatch[1];
+            const args = this.splitArgs(funcMatch[2]).map(arg => this.parseExpression(arg.trim()));
+            return { type: 'Function', name, args };
         }
 
-        return (data) => this.resolvePath(data, expression);
+        // در غیر این صورت یک مسیر به داده‌ست
+        return { type: 'Path', value: expression };
     }
 
-    resolvePath(moduleData, path) {
-        if (!path) return null;
+    evaluateExpressionTree(node, data) {
+        switch (node.type) {
+            case 'Literal':
+                return node.value;
 
-        const baseKeyMatch = path.match(/^(\w+)/);
-        if (!baseKeyMatch) return null;
+            case 'Path':
+                return this.resolvePath(data, node.value);
 
-        const baseKey = baseKeyMatch[1];
-        const root = moduleData[baseKey];
-        if (!root) return null;
+            case 'Function':
+                const func = this.ExpressionFunctions[node.name];
+                if (!func) throw new Error(`Unknown '${node.name}'`);
+                const args = node.args.map(arg => this.evaluateExpressionTree(arg, data));
+                return func(...args);
 
-        const restPath = path.slice(baseKey.length);
+            default:
+                throw new Error(`Unsupported node type: ${node.type}`);
+        }
+    }
 
-        try {
-            if (typeof root === 'object') {
-                const wrapper = { [baseKey]: root };
-                return this.evalJsonPath(wrapper, `${baseKey}${restPath}`);
+    splitArgs(argStr) {
+        const args = [];
+        let depth = 0, current = '';
+
+        for (let i = 0; i < argStr.length; i++) {
+            const ch = argStr[i];
+
+            if (ch === ',' && depth === 0) {
+                args.push(current);
+                current = '';
+            } else {
+                if (ch === '(') depth++;
+                if (ch === ')') depth--;
+                current += ch;
             }
-            return null;
-        } catch (err) {
-            throw new Error(`Invalid expression: ${path}\n${err.message}`);
         }
+
+        if (current) args.push(current);
+        return args;
     }
 
-    isLiteral(expression) {
-        return /^["'].*["']$|^\d+(\.\d+)?$|^(true|false|null)$/i.test(expression);
-    }
-
-    parseLiteral(expression) {
-        try {
-            return JSON.parse(expression);
-        } catch {
-            return expression;
-        }
-    }
-
-    evalJsonPath(obj, path) {
-        // مثال ورودی: Courses[0].Trainer.FirstName
+    resolvePath(obj, path) {
         const segments = path.replace(/\[(\w+)\]/g, '.$1').split('.');
-
-        return segments.reduce((current, key) => {
-            if (current && Object.prototype.hasOwnProperty.call(current, key)) {
-                return current[key];
-            }
-            return undefined;
-        }, obj);
+        return segments.reduce((acc, key) => acc?.[key], obj);
     }
 }
+

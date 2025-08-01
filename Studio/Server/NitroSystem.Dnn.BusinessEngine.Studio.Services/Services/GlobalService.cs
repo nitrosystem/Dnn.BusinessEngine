@@ -18,6 +18,7 @@ using DotNetNuke.Security.Roles;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -156,7 +157,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<IEnumerable<ExplorerItemViewModel>> GetExplorerItemsViewModelAsync(Guid scenarioId)
         {
-            var items = await _repository.GetByScopeAsync<ExplorerItemView>(scenarioId,"ViewOrder");
+            var items = await _repository.GetByScopeAsync<ExplorerItemView>(scenarioId, "ViewOrder");
 
             return BaseMapping<ExplorerItemView, ExplorerItemViewModel>.MapViewModels(items);
         }
@@ -165,16 +166,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         #region Library & Resources
 
-        public async Task<IEnumerable<LibraryLiteDto>> GetLibrariesLiteDtoAsync()
+        public async Task<IEnumerable<LibraryDto>> GetLibrariesLiteDtoAsync()
         {
             var libraries = await _repository.GetAllAsync<LibraryInfo>();
+            var resources = await _repository.GetAllAsync<LibraryResourceInfo>();
 
             return libraries.Select(library =>
-             {
-                 var result = new LibraryLiteDto();
-                 PropertyCopier<LibraryInfo, LibraryLiteDto>.Copy(library, result);
-                 return result;
-             });
+                HybridMapper.MapWithConfig<LibraryInfo, LibraryDto>(library,
+                (src, dest) =>
+                {
+                    dest.Resources = resources.Where(r => r.LibraryId == library.Id).Select(resource =>
+                        HybridMapper.Map<LibraryResourceInfo, LibraryResourceDto>(resource)
+                    );
+                })
+            );
         }
 
         public async Task<IEnumerable<LibraryResourceViewModel>> GetLibraryResourcesViewModelAsync(Guid libraryId)

@@ -56,9 +56,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         #region Library & Resources
 
-        Task<IEnumerable<LibraryLiteDto>> GetLibrariesLiteDtoAsync();
-        
-        Task<IEnumerable<LibraryResourceViewModel>> GetLibraryResourcesViewModelAsync(Guid libraryId);
+        Task<IEnumerable<LibraryDto>> GetLibrariesLiteDtoAsync();
 
         #endregion
 

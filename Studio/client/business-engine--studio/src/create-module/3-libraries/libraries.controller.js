@@ -105,33 +105,6 @@ export class CreateModuleLibrariesController {
         this.$scope.$emit("onShowRightWidget", { controller: this });
     }
 
-    onLibraryChange() {
-        this.library = { ...this.library, ...(this.libraries.find(l => l.Id == this.library.LibraryId) ?? {}) }
-        const { Id, ...rest } = this.library;
-
-        this.running = "load-library-resources";
-        this.awaitAction = {
-            title: "Loading Library Resources",
-            subtitle: "Just a moment for loading the library resources...",
-        };
-
-        this.apiService.get("Module", "GetLibraryResources", { libraryId: this.library.LibraryId }).then((data) => {
-            this.library = this.globalService.deepClone(rest);
-            this.library.Resources = data;
-
-            delete this.awaitAction;
-            delete this.running;
-        }, (error) => {
-            this.awaitAction.isError = true;
-            this.awaitAction.subtitle = error.statusText;
-            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-            this.notifyService.error(error.data.Message);
-
-            delete this.running;
-        });
-    }
-
     onSaveLibraryClick() {
         this.running = "save-library";
         this.awaitAction = {
@@ -318,10 +291,6 @@ export class CreateModuleLibrariesController {
                 });
             }
         });
-    }
-
-    onCancelEditClick() {
-        this.disposeWorkingMode();
     }
 
     onPreviousStepClick() {

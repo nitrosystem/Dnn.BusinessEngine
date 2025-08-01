@@ -57,8 +57,6 @@
     <Compile Include="Entities\Tables\ActionConditionInfo.cs" />
     <Compile Include="Entities\Tables\ActionInfo.cs" />
     <Compile Include="Entities\Tables\ActionResultInfo.cs" />
-    <Compile Include="Entities\Tables\ExtensionImportExportItemInfo.cs" />
-    <Compile Include="Entities\Tables\ExtensionInstallTemporaryInfo.cs" />
     <Compile Include="Entities\Tables\ModuleInfo.cs" />
     <Compile Include="Entities\Tables\ScenarioInfo.cs" />
     <Compile Include="Entities\Tables\ServiceInfo.cs" />
@@ -85,8 +83,6 @@
     <Compile Include="Entities\Tables\EntityColumnInfo.cs" />
     <Compile Include="Entities\Tables\ModuleVariableInfo.cs" />
     <Compile Include="Entities\Tables\GroupInfo.cs" />
-    <Compile Include="Entities\Tables\PaymentInfo.cs" />
-    <Compile Include="Entities\Tables\PaymentMethodInfo.cs" />
     <Compile Include="Entities\Tables\ProviderInfo.cs" />
     <Compile Include="Entities\Tables\ModuleFieldTypeInfo.cs" />
     <Compile Include="Entities\Tables\GlobalSettingsInfo.cs" />

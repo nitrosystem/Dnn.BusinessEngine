@@ -32,7 +32,6 @@ using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto.Module;
 using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
@@ -477,7 +476,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return objModuleCustomResourceInfo.Id;
         }
 
-        public async Task SortModuleCustomLibraries(LibraryOrResource target, IEnumerable<SortModuleCustomLibrariesDto> items)
+        public async Task SortModuleCustomLibraries(LibraryOrResource target, IEnumerable<SortDto> items)
         {
             if (target == LibraryOrResource.Library)
                 await _repository.ExecuteStoredProcedureAsync("BusinessEngine_SortModuleCustomLibraries",
