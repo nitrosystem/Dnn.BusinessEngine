@@ -1234,14 +1234,6 @@ export class CreateModuleModuleBuilderController {
         this.$scope.$emit("onShowRightWidget", { controller: this });
     }
 
-    onShowVariablesClick() {
-        this.$scope.$emit('onCreateModuleChangeStep', { step: 3 })
-    }
-
-    onChangeTemplateClick() {
-        this.$scope.$emit('onCreateModuleChangeStep', { step: 2 })
-    }
-
     /*------------------------------------*/
     /* Common Methods */
     /*------------------------------------*/

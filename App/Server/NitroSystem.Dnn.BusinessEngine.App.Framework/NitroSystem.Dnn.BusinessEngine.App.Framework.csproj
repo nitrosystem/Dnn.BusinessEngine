@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contracts\ActionTree.cs" />
+    <Compile Include="Contracts\Delegates.cs" />
     <Compile Include="Contracts\IActionResult.cs" />
     <Compile Include="Contracts\IExpressionService.cs" />
     <Compile Include="Contracts\IModuleData.cs" />

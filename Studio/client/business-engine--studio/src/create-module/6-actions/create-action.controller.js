@@ -28,12 +28,12 @@ export class CreateModuleCreateActionController {
         this.notifyService = notificationService;
         this.$deferredBroadcast = $deferredBroadcast;
 
-        this.stepsCallback = { 4: this.initActionBuilder };
+        this.stepsCallback = { 3: this.initActionBuilder };
         this.actionBuilder = {};
         this.events = [];
 
-        $scope.serverSideFilter = (item) => {
-            return !item.Scope || item.Scope == (this.action.IsServerSide ? 2 : 1);
+        $scope.clientSideFilter = (item) => {
+            return !item.ExecutionScope || item.ExecutionScope == (this.action.ExecuteInClientSide ? 1 : 2);
         };
 
         $scope.$on("onSyncActionParamsWithServiceParams", (e, args) => {
@@ -56,6 +56,7 @@ export class CreateModuleCreateActionController {
 
     onPageLoad() {
         const moduleId = this.globalService.getParameterByName("module");
+        const fieldId = this.globalService.getParameterByName("field");
         const fieldType = this.globalService.getParameterByName("type");
         const actionId = this.globalService.getParameterByName("id");
 
@@ -71,6 +72,7 @@ export class CreateModuleCreateActionController {
 
         this.apiService.get("Module", "GetAction", {
             moduleId: moduleId,
+            fieldId: fieldId,
             actionId: actionId,
             fieldType: fieldType,
         }).then((data) => {
@@ -85,15 +87,15 @@ export class CreateModuleCreateActionController {
                 this.isNewAction = true;
                 this.action = {
                     ModuleId: moduleId,
-                    FieldId: this.globalService.getParameterByName("field"),
+                    FieldId: fieldId,
                     Options: {},
                 };
 
                 this.step = 1;
             } else {
-                if (!step) this.step = 4;
+                if (!step) this.step = 3;
 
-                this.stepsValid = 6;
+                this.stepsValid = 4;
 
                 _.filter(this.actionTypes, (st) => {
                     return st.ActionType == this.action.ActionType;
@@ -169,30 +171,10 @@ export class CreateModuleCreateActionController {
                 },
                 required: true,
             },
-            ParentResultStatus: {
-                id: "drpParentResultStatus" + (this.action.Id ? this.action.Id : ""),
+            ParentActionTriggerCondition: {
+                id: "drpParentActionTriggerCondition" + (this.action.Id ? this.action.Id : ""),
                 rule: (value) => {
                     if (this.step > 1 && this.action.Event == "OnActionCompleted" && (value == undefined || value == null))
-                        return false;
-
-                    return true;
-                },
-                required: true,
-            },
-            PaymentMethodId: {
-                id: "drpPaymentMethodId" + (this.action.Id ? this.action.Id : ""),
-                rule: (value) => {
-                    if (this.step > 1 && this.action.Event == "OnPaymentCompleted" && !value)
-                        return false;
-
-                    return true;
-                },
-                required: true,
-            },
-            PaymentResultStatus: {
-                id: "drpPaymentResultStatus" + (this.action.Id ? this.action.Id : ""),
-                rule: (value) => {
-                    if (this.step > 1 && this.action.Event == "OnPaymentCompleted" && (value == undefined || value == null))
                         return false;
 
                     return true;
@@ -207,7 +189,7 @@ export class CreateModuleCreateActionController {
     }
 
     gotoStep(step) {
-        if (this.step < step && this.step < 6) {
+        if (this.step < step && this.step < 4) {
             // goto next step
             this.form.validated = true;
             this.form.validator(this.action);
@@ -241,21 +223,11 @@ export class CreateModuleCreateActionController {
     }
 
     onPrevStepClick() {
-        var inc = 1;
-
-        if (this.step == 4 && !this.action.HasPreScript) inc = 2;
-        if (this.step == 6 && !this.action.HasPostScript) inc = 2;
-
-        this.gotoStep(this.step - inc);
+        this.gotoStep(this.step - 1);
     }
 
     onNextStepClick() {
-        var inc = 1;
-
-        if (this.step == 2 && !this.action.HasPreScript) inc = 2;
-        if (this.step == 4 && !this.action.HasPostScript) inc = 2;
-
-        this.gotoStep(this.step + inc);
+        this.gotoStep(this.step + 1);
     }
 
     onSelectActionTypeClick(actionType) {
@@ -272,30 +244,6 @@ export class CreateModuleCreateActionController {
         }
 
         delete this.isActionLoaded;
-    }
-
-    onAddActionParamClick(name) {
-        var source = $parse(name)($scope);
-
-        source.push({});
-    }
-
-    onDeleteActionParamClick(name, $index) {
-        var source = $parse(name)($scope);
-
-        source.splice($index, 1);
-    }
-
-    onShowVariablesClick() {
-        this.$scope.$broadcast("onLoadVariablesWindow");
-
-        $("#wnVariables").modal("show");
-    }
-
-    onAddActionParamClick() {
-        $scope.action.Params = $scope.action.Params || [];
-
-        $scope.action.Params.push({});
     }
 
     initActionBuilder() {

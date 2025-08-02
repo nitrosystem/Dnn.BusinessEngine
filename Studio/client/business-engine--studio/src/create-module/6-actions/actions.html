@@ -55,7 +55,7 @@
                     </div>
                     <div class="g-col-3">Action Name</div>
                     <div class="g-col-2">Action Type</div>
-                    <div class="g-col-2">Server Side</div>
+                    <div class="g-col-2">Client Side</div>
                     <div class="g-col-2">
                         <i class="codicon codicon-arrow-up d-inline-block"></i>
                         <i class="codicon codicon-arrow-down d-inline-block"></i>
@@ -79,8 +79,8 @@
                         <span class="subtext"> {{action.Event}} </span>
                     </div>
                     <div class="g-col-2">
-                        <i ng-if="!action.IsServerSide" class="codicon codicon-chrome-maximize fs-4 text-start"></i>
-                        <i ng-if="action.IsServerSide" class="codicon codicon-check fs-4 text-start"></i>
+                        <i ng-if="!action.ExecuteInClientSide" class="codicon codicon-chrome-maximize fs-4 text-start"></i>
+                        <i ng-if="action.ExecuteInClientSide" class="codicon codicon-check fs-4 text-start"></i>
                     </div>
                     <div class="g-col-2">
                         <button type="button" class="b-clean text-light p-0"
@@ -199,32 +199,20 @@
                         {{action.Event}}
                         <span class="small" ng-if="action.Event=='OnActionCompleted'"> 
                                 -
-                                <span ng-if="action.ParentResultStatus==0">All Mode</span>
-                        <span ng-if="action.ParentResultStatus==1">On Completed Success</span>
-                        <span ng-if="action.ParentResultStatus==2">On Completed Error</span>
+                                <span ng-if="action.ParentActionTriggerCondition==0">Always Execute</span>
+                        <span ng-if="action.ParentActionTriggerCondition==1">Execute On Success</span>
+                        <span ng-if="action.ParentActionTriggerCondition==2">Execute On Error</span>
                         </span>
                     </p>
                     <p class="text-white-50 mb-0">Created by {{action.CreatedUserDisplayName}} in <span b-custom-date="{{action.CreatedOnDate}}" data-relative="true"></span></p>
                     <p class="text-white-50 mb-0">Last Modified by {{action.LastModifiedByUserDisplayName}} in <span b-custom-date="{{action.LastModifiedOnDate}}" data-relative="true"></span></p>
                 </div>
                 <div class="col-2 b-splitter border-end small">
-                    <div ng-if="!action.IsServerSide" class="d-flex align-items-center mb-3">
+                    <div ng-if="action.ExecuteInClientSide" class="d-flex align-items-center mb-3">
                         <i class="codicon codicon-references me-2 b-icon-1_5"></i> Client Side Action
                     </div>
-                    <div ng-if="action.IsServerSide" class="d-flex align-items-center mb-3">
-                        <i class="codicon codicon-workspace-trusted me-2 b-icon-1_5"></i> Server Side Action
-                    </div>
-                    <div ng-if="!action.HasPreScript" class="d-flex align-items-center mb-3">
-                        <i class="codicon codicon-chrome-maximize me-2 b-icon-1_5"></i> Pre Script
-                    </div>
-                    <div ng-if="action.HasPreScript" class="d-flex align-items-center mb-3">
-                        <i class="codicon codicon-check me-2 b-icon-1_5"></i> Pre Script
-                    </div>
-                    <div ng-if="!action.HasPostScript" class="d-flex align-items-center mb-3">
-                        <i class="codicon codicon-chrome-maximize me-2 b-icon-1_5"></i> Post Script
-                    </div>
-                    <div ng-if="action.HasPostScript" class="d-flex align-items-center mb-3">
-                        <i class="codicon codicon-check me-2 b-icon-1_5"></i> Post Script
+                    <div ng-if="!action.ExecuteInClientSide" class="d-flex align-items-center mb-3">
+                        <i class="codicon codicon-workspace-trusted me-2 b-icon-1_5"></i> Client Side Action
                     </div>
                 </div>
                 <div class="col-1 small pe-0">
@@ -263,24 +251,8 @@
                         <label class="item-label">Service Id:</label>
                         <a class="item-label" href="" ng-click="$.onEditServiceClick(action.ServiceId)">{{action.ServiceId}}</a>
                     </div>
-                    <div class="option-item" ng-if="action.PaymentMethodId">
-                        <label class="item-label">Payment Method Id:</label>
-                        <label class="item-label">{{action.PaymentMethodId}}</label>
-                    </div>
                 </div>
                 <div class="action-options" ng-if="action.Conditions.length">
-                    <div class="option-item" ng-if="action.DisableConditionForPreScript">
-                        <label class="item-label">
-                            <i class="codicon codicon-check me-2 b-icon-1_5"></i> 
-                            Disable conditions for prescript
-                        </label>
-                    </div>
-                    <div class="option-item" ng-if="action.CheckConditionsInClientSide">
-                        <label class="item-label">
-                            <i class="codicon codicon-check me-2 b-icon-1_5"></i> 
-                            Check conditions in clientside
-                        </label>
-                    </div>
                     <h5 class="option-name">Conditions: </h5>
                     <div class="option-item" ng-repeat="condition in action.Conditions">
                         <label class="item-label">{{condition.LeftExpression}}</label>

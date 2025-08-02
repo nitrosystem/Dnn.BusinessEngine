@@ -22,6 +22,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -31,6 +33,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
         private readonly IServiceLocator _serviceLocator;
+
+        private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> _serviceLocks = new ConcurrentDictionary<Guid, SemaphoreSlim>();
 
         public ServiceFactory(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository, IServiceLocator serviceLocator)
         {
@@ -123,6 +127,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<(Guid ServiceId, Guid? ExtensionServiceId)> SaveServiceAsync(ServiceViewModel service, string extensionServiceJson, bool isNew)
         {
+            var lockKey = service.Id == Guid.Empty ? Guid.NewGuid() : service.Id;
+            var semaphore = _serviceLocks.GetOrAdd(lockKey, _ => new SemaphoreSlim(1, 1));
+
             Guid? extensionServiceId = null;
 
             var objServiceInfo = HybridMapper.MapWithConfig<ServiceViewModel, ServiceInfo>(
@@ -131,43 +138,54 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 dest.Settings = JsonConvert.SerializeObject(service.Settings);
             });
 
-            _unitOfWork.BeginTransaction();
+            await semaphore.WaitAsync();
 
             try
             {
-                if (isNew)
-                    objServiceInfo.Id = service.Id = await _repository.AddAsync<ServiceInfo>(objServiceInfo);
-                else
+                _unitOfWork.BeginTransaction();
+
+                try
                 {
-                    var isUpdated = await _repository.UpdateAsync<ServiceInfo>(objServiceInfo);
-                    if (!isUpdated) ErrorService.ThrowUpdateFailedException(objServiceInfo);
+                    if (isNew)
+                        objServiceInfo.Id = service.Id = await _repository.AddAsync<ServiceInfo>(objServiceInfo);
+                    else
+                    {
+                        var isUpdated = await _repository.UpdateAsync<ServiceInfo>(objServiceInfo);
+                        if (!isUpdated) ErrorService.ThrowUpdateFailedException(objServiceInfo);
 
-                    await _repository.DeleteByScopeAsync<ServiceParamInfo>(objServiceInfo.Id);
+                        await _repository.DeleteByScopeAsync<ServiceParamInfo>(objServiceInfo.Id);
+                    }
+
+                    foreach (var objServiceParamInfo in service.Params ?? Enumerable.Empty<ServiceParamInfo>())
+                    {
+                        objServiceParamInfo.ServiceId = objServiceInfo.Id;
+
+                        await _repository.AddAsync<ServiceParamInfo>(objServiceParamInfo);
+                    }
+
+                    var type = await _repository.GetColumnValueAsync<ServiceTypeInfo, string>("BusinessControllerClass", "ServiceType", service.ServiceType);
+                    if (!string.IsNullOrEmpty(type))
+                    {
+                        var extensionController = _serviceLocator.CreateInstance<IExtensionServiceFactory>(type, _unitOfWork, _cacheService, _repository);
+                        extensionServiceId = await extensionController.SaveService(service, extensionServiceJson);
+                    }
+
+                    _unitOfWork.Commit();
                 }
-
-                foreach (var objServiceParamInfo in service.Params ?? Enumerable.Empty<ServiceParamInfo>())
+                catch (Exception ex)
                 {
-                    objServiceParamInfo.ServiceId = objServiceInfo.Id;
+                    _unitOfWork.Rollback();
 
-                    await _repository.AddAsync<ServiceParamInfo>(objServiceParamInfo);
+                    throw ex;
                 }
-
-                var type = await _repository.GetColumnValueAsync<ServiceTypeInfo, string>("BusinessControllerClass", "ServiceType", service.ServiceType);
-                if (!string.IsNullOrEmpty(type))
-                {
-                    var extensionController = _serviceLocator.CreateInstance<IExtensionServiceFactory>(type, _unitOfWork, _cacheService, _repository);
-                    extensionServiceId = await extensionController.SaveService(service, extensionServiceJson);
-                }
-
-                _unitOfWork.Commit();
             }
-            catch (Exception ex)
+            finally
             {
-                _unitOfWork.Rollback();
-                throw ex;
+                semaphore.Release();
+                _serviceLocks.TryRemove(lockKey, out _);
             }
 
-            return (objServiceInfo.Id, extensionServiceId);
+            return (service.Id, extensionServiceId);
         }
 
         public async Task<bool> UpdateGroupColumn(Guid serviceId, Guid? groupId)

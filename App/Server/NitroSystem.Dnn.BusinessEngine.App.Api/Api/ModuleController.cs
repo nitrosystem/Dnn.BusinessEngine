@@ -29,6 +29,7 @@ using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Framework.Contracts;
 using System.IO.Compression;
+using NitroSystem.Dnn.BusinessEngine.App.Api.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {
@@ -504,20 +505,63 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                 if (module == null) throw new Exception("Module Not Config");
 
                 var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, module.Id);
+                moduleData.SetPageParams(pageUrl);
 
-                await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad", true);
+                await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad");
 
                 var data = _userDataStore.GetDataForClients(moduleId, moduleData);
 
                 var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
-                var actions = await _actionService.GetActionsDtoAsync(moduleId);
+                var actions = await _actionService.GetActionsDtoForClientAsync(moduleId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
-                    mf = ProtectPayload(fields),
-                    ma = ProtectPayload(actions),
-                    md = ProtectPayload(data)
+                    fields,
+                    actions,
+                    data
                 });
+
+                //return Request.CreateResponse(HttpStatusCode.OK, new
+                //{
+                //    mf = ProtectPayload(fields),
+                //    ma = ProtectPayload(actions),
+                //    md = ProtectPayload(data)
+                //});
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<HttpResponseMessage> CallAction(ActionDto action)
+        {
+            try
+            {
+                var moduleData = _userDataStore.UpdateModuleData(
+                    action.ConnectionId,
+                    action.ModuleId,
+                    (existingModule, incomingData) =>
+                    {
+                        var existing = existingModule.GetAsJobject();
+                        existing.Merge(incomingData, new JsonMergeSettings
+                        {
+                            MergeArrayHandling = MergeArrayHandling.Replace,
+                            MergeNullValueHandling = MergeNullValueHandling.Merge
+                        });
+                        return existing;
+                    },
+                    action.Data
+                );
+
+                moduleData.SetPageParams(action.PageUrl);
+
+                await _actionWorker.CallActions(action.ActionIds, moduleData);
+
+                var data = _userDataStore.GetDataForClients(action.ModuleId, moduleData);
+
+                return Request.CreateResponse(HttpStatusCode.OK, data);
             }
             catch (Exception ex)
             {

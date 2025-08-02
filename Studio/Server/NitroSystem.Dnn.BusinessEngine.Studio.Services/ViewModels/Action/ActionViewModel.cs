@@ -13,22 +13,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
     public class ActionViewModel
     {
         public Guid Id { get; set; }
-        public Guid? ParentId { get; set; }
         public Guid ModuleId { get; set; }
-        public Guid? FieldId { get; set; }
+        public Guid? ParentId { get; set; }
         public Guid? ServiceId { get; set; }
-        public string ActionName { get; set; }
+        public Guid? FieldId { get; set; }
         public string ActionType { get; set; }
+        public string ActionName { get; set; }
         public string Event { get; set; }
         public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
-        public bool IsServerSide { get; set; }
-        public bool RunChildsInServerSide { get; set; }
-        public bool HasPreScript { get; set; }
-        public bool HasPostScript { get; set; }
-        public bool DisableConditionForPreScript { get; set; }
-        public bool CheckConditionsInClientSide { get; set; }
-        public string PreScript { get; set; }
-        public string PostScript { get; set; }
+        public bool ExecuteInClientSide { get; set; }
         public IEnumerable<string> AuthorizationRunAction { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }

@@ -59,9 +59,12 @@ export class ModuleController {
             connectionId: this.module.connectionId,
             pageUrl: document.URL
         }).then((data) => {
-            this.fields = this.decodeProtectedData(data.mf) ?? [];
+            // this.fields = this.decodeProtectedData(data.mf) ?? [];
+            this.fields = data.fields ?? [];
 
-            _.forEach(this.decodeProtectedData(data.md) ?? {}, (value, key) => {
+            // const data=this.decodeProtectedData(data.md) ?? {};
+            const moduleData = data.data ?? {};
+            _.forEach(moduleData, (value, key) => {
                 this.data[key] = value;
             });
 
@@ -110,18 +113,12 @@ export class ModuleController {
 
             this.raiseWatches();
 
-            this.actions = this.decodeProtectedData(data.ma);
+            // this.actions = this.decodeProtectedData(data.ma);
+            this.actions = data.actions;
 
             this.$timeout(() => {
-                let clientActions = _.filter(this.actions, (a) => { return !a.IsServerSide });
-                this.actionService.callActions(
-                    clientActions,
-                    this.module.moduleId,
-                    null,
-                    "OnPageLoad",
-                    this.$scope)
-                    .then((data) => {
-                    });
+                const moduleActions = _.filter(this.actions, (a) => { return a.ExecuteInClientSide && !a.FieldId });
+                if (moduleActions.length) this.actionService.callActions(moduleActions, "OnPageLoad", this);
 
                 $('.b-engine-module').addClass('is-loaded');
             });
@@ -157,7 +154,7 @@ export class ModuleController {
             }, 200);
 
             if (field.Actions && field.Actions.length)
-                this.callActionByEvent(this.actions, fieldId, "OnFieldValueChange");
+                this.callActionByEvent(fieldId, "OnFieldValueChange");
         } else
             console.warn(
                 "Field not found. Method: onFieldValueChange, FieldId: " + fieldId
@@ -397,47 +394,9 @@ export class ModuleController {
         });
     }
 
-    callActionsByEvent(target, eventName, includeServerSide, sender) {
-        var moduleId;
-        var fieldId;
-        var actions;
-
-        if (includeServerSide)
-            actions = this.actions;
-        else
-            actions = _.filter(this.actions, (a) => { return !a.IsServerSide });
-
-        if (target == 'module') {
-            moduleId = sender ? sender : this.module.moduleId;
-        }
-
-        if (target == 'field') {
-            fieldId = sender;
-        }
-
-        return this.actionService.callActions(
-            actions,
-            moduleId,
-            fieldId,
-            eventName,
-            this.$scope
-        );
-    }
-
-    callActionByEvent(actions, fieldId, eventName) {
-        const defer = this.$q.defer();
-
-        this.actionService.callActions(
-            actions,
-            this.module.moduleId,
-            fieldId,
-            eventName,
-            this.$scope
-        ).then(() => {
-            defer.resolve();
-        });
-
-        return defer.promise;
+    callActionsByEvent(fieldId, event) {
+        const actions = _.filter(this.actions, (a) => { return a.FieldId == fieldId });
+        return this.actionService.callActions(actions, event, this);
     }
 
     /*------------------------------------*/

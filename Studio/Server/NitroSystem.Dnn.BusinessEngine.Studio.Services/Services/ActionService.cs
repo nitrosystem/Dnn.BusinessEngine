@@ -117,21 +117,34 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
             try
             {
-                if (isNew)
-                    objActionInfo.Id = await _repository.AddAsync<ActionInfo>(objActionInfo);
-                else
+                _unitOfWork.BeginTransaction();
+
+                try
                 {
-                    var isUpdated = await _repository.UpdateAsync<ActionInfo>(objActionInfo);
-                    if (!isUpdated) ErrorService.ThrowUpdateFailedException(objActionInfo);
+                    if (isNew)
+                        objActionInfo.Id = action.Id = await _repository.AddAsync<ActionInfo>(objActionInfo);
+                    else
+                    {
+                        var isUpdated = await _repository.UpdateAsync<ActionInfo>(objActionInfo);
+                        if (!isUpdated) ErrorService.ThrowUpdateFailedException(objActionInfo);
 
-                    await _repository.DeleteByScopeAsync<ActionResultInfo>(objActionInfo.Id);
-                    await _repository.DeleteByScopeAsync<ActionConditionInfo>(objActionInfo.Id);
-                    await _repository.DeleteByScopeAsync<ActionParamInfo>(objActionInfo.Id);
+                        await _repository.DeleteByScopeAsync<ActionResultInfo>(objActionInfo.Id);
+                        await _repository.DeleteByScopeAsync<ActionConditionInfo>(objActionInfo.Id);
+                        await _repository.DeleteByScopeAsync<ActionParamInfo>(objActionInfo.Id);
+                    }
+
+                    await _repository.BulkInsertAsync<ActionResultInfo>(actionResults.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
+                    await _repository.BulkInsertAsync<ActionConditionInfo>(actionConditions.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
+                    await _repository.BulkInsertAsync<ActionParamInfo>(actionParams.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
+
+                    _unitOfWork.Commit();
                 }
+                catch (Exception ex)
+                {
+                    _unitOfWork.Rollback();
 
-                await _repository.BulkInsertAsync<ActionResultInfo>(actionResults.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
-                await _repository.BulkInsertAsync<ActionConditionInfo>(actionConditions.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
-                await _repository.BulkInsertAsync<ActionParamInfo>(actionParams.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
+                    throw ex;
+                }
             }
             finally
             {
@@ -139,7 +152,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 _actionLocks.TryRemove(lockKey, out _);
             }
 
-            return objActionInfo.Id;
+            return action.Id;
         }
 
         public async Task<bool> DeleteActionAsync(Guid id)

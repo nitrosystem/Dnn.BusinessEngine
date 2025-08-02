@@ -18,13 +18,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public Guid Id { get; set; }
         public Guid ModuleId { get; set; }
         public Guid? ParentId { get; set; }
-        public Guid? FieldId { get; set; }
         public Guid? ServiceId { get; set; }
-        public string ActionName { get; set; }
+        public Guid? FieldId { get; set; }
         public string ActionType { get; set; }
+        public string ActionName { get; set; }
         public string Event { get; set; }
         public int? ParentActionTriggerCondition { get; set; }
-        public bool IsClientSide { get; set; }
+        public bool ExecuteInClientSide { get; set; }
         public string AuthorizationRunAction { get; set; }
         public string Settings { get; set; }
         public string Description { get; set; }

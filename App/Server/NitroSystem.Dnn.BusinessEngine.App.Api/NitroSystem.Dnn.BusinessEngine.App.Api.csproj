@@ -81,6 +81,7 @@
   <ItemGroup>
     <Compile Include="Contracts\IJWTAttribute.cs" />
     <Compile Include="Api\ModuleController.cs" />
+    <Compile Include="Dto\ActionDto.cs" />
     <Compile Include="Enums\ModuleCustomResourcesType.cs" />
     <Compile Include="Models\FieldDataSourceResult.cs" />
     <Compile Include="Models\FieldValueInfo.cs" />

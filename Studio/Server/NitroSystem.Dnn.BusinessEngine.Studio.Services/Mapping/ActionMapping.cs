@@ -68,6 +68,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
         public static ActionViewModel MapActionViewModel(ActionView action, IEnumerable<ActionResultInfo> actionResults, IEnumerable<ActionConditionInfo> conditions, IEnumerable<ActionParamInfo> actionParams)
         {
             var mapper = new ExpressionMapper<ActionView, ActionViewModel>();
+            mapper.AddCustomMapping(src => src, dest => dest.ParentActionTriggerCondition, src => (ActionExecutionCondition?)src.ParentActionTriggerCondition);
             mapper.AddCustomMapping(src => src, dest => dest.ActionTypeIcon, src => src.ActionTypeIcon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
             mapper.AddCustomMapping(src => src, dest => dest.Params, src => actionParams);
             mapper.AddCustomMapping(src => src, dest => dest.Conditions, src => conditions);
@@ -100,6 +101,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
             MapActionInfoWithChilds(ActionViewModel action)
         {
             var actionMapper = new ExpressionMapper<ActionViewModel, ActionInfo>();
+            actionMapper.AddCustomMapping(src => src.ParentActionTriggerCondition, dest => dest.ParentActionTriggerCondition, src => (int?)src.ParentActionTriggerCondition);
             actionMapper.AddCustomMapping(src => src.Settings, dest => dest.Settings, src => JsonConvert.SerializeObject(src.Settings));
             var objActionInfo = actionMapper.Map(action);
 

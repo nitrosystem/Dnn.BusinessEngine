@@ -23,7 +23,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
         public string ComponentSubParams { get; set; }
         public string BusinessControllerClass { get; set; }
         public string Icon { get; set; }
-        public bool IsEnabled { get; set; }
         public string Description { get; set; }
         public int GroupViewOrder { get; set; }
         public int ViewOrder { get; set; }

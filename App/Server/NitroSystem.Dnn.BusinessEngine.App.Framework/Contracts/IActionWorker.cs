@@ -8,12 +8,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Contracts
 {
     public interface IActionWorker
     {
-        Task<object> CallActions(IModuleData moduleData, Guid moduleId, Guid? fieldId, string eventName, bool isServerSide);
+        Task CallActions(IModuleData moduleData, Guid moduleId, Guid? fieldId, string eventName);
 
-        //Task<object> CallAction(Guid actionID);
-        
-        Task<object> CallAction(IModuleData moduleData, Queue<ActionTree> buffer);
+        Task CallActions(IEnumerable<Guid> actionIds, IModuleData moduleData);
 
-        //void SetActionResults(ActionDto action, dynamic data);
+        Task CallAction(IModuleData moduleData, Queue<ActionTree> buffer);
     }
 }

@@ -508,38 +508,47 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         [HttpGet]
         public async Task<HttpResponseMessage> GetAction(Guid moduleId)
         {
-            return await GetAction(moduleId, Guid.Empty);
+            return await GetAction(moduleId, Guid.Empty, string.Empty);
         }
 
         [HttpGet]
         public async Task<HttpResponseMessage> GetAction(Guid moduleId, string fieldType)
         {
-            return await GetAction(moduleId, Guid.Empty, fieldType);
+            return await GetAction(moduleId, null, Guid.Empty, fieldType);
         }
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid actionId, string fieldType = null)
+        public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid? fieldId, string fieldType)
+        {
+            return await GetAction(moduleId, fieldId, Guid.Empty, fieldType);
+        }
+
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid? fieldId, Guid actionId, string fieldType)
         {
             try
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
                 var actionTypes = await _actionService.GetActionTypesViewModelAsync();
-                var actions = await _actionService.GetActionsViewModelAsync(moduleId, null, 1, 1000, null, null, "ActionName");
+                var actions = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, 1, 1000, null, null, "ActionName");
                 var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
 
-                var events = GetDefaultCustomEvents(fieldType);
-                if (!string.IsNullOrEmpty(fieldType))
-                    events = events.Concat(await _moduleService.GetFieldTypesGetCustomEventsAsync(fieldType));
+                var events = Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
+
+                if (string.IsNullOrEmpty(fieldType))
+                    events = GetDefaultCustomEvents();
+                else
+                    events = GetDefaultCustomEvents(fieldType).Concat(await _moduleService.GetFieldTypesGetCustomEventsAsync(fieldType));
 
                 var action = actionId != Guid.Empty
-                    ? await _actionService.GetActionViewModelAsync(actionId)
-                    : null;
+                        ? await _actionService.GetActionViewModelAsync(actionId)
+                        : null;
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     ActionTypes = actionTypes,
-                    Actions = actions,
+                    Actions = actions.Items,
                     Variables = variables,
                     Events = events,
                     Action = action,
@@ -583,7 +592,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             }
         }
 
-        private IEnumerable<ModuleFieldTypeCustomEventListItem> GetDefaultCustomEvents(string fieldType)
+        private IEnumerable<ModuleFieldTypeCustomEventListItem> GetDefaultCustomEvents(string fieldType = "")
         {
             return !string.IsNullOrEmpty(fieldType)
                 ? new[]

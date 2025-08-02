@@ -19,9 +19,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
 {
     public interface IActionService
     {
-        Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId);
+        Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId, Guid? fieldId, bool executeInClientSide);
 
-        Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId, Guid? fieldId, string eventName, bool isServerSide);
+        Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId, Guid? fieldId = null);
+
+        Task<IEnumerable<ActionDto>> GetActionsDtoForServerAsync(IEnumerable<Guid> actionIds);
 
         Task<string> GetBusinessControllerClass(string actionType);
 
