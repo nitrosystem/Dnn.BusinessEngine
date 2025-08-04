@@ -14,6 +14,7 @@ import { DeferredBroadcast, DeferredEmit, DeferredEvent } from "./providers/defe
 
 //Services
 import { GlobalService } from "./services/global.service";
+import { UrlService } from "./services/url.service";
 import { ApiService } from "./services/api.service";
 import { ExpressionService } from "./services/expression.service";
 import { ActionService } from "./services/action.service";
@@ -38,6 +39,7 @@ const app = angular
     .provider("$deferredEvent", DeferredEvent)
     .provider("$deferredEmit", DeferredEmit)
     .provider("$deferredBroadcast", DeferredBroadcast)
+    .service("urlService", UrlService)
     .service("globalService", GlobalService)
     .service("apiService", ApiService)
     .service("expressionService", ExpressionService)
