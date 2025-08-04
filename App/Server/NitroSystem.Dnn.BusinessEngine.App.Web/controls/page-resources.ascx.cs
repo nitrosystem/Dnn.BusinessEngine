@@ -107,6 +107,18 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
 									}
 								};
 
+								const ActionRegistry = {
+									controllers: {},
+
+									register: function (type, controllerClass) {
+										this.controllers[type] = controllerClass;
+									},
+
+									resolve: function (type) {
+										return this.controllers[type];
+									}
+								};
+
                                 window.bEngineGlobalSettings = {
                                     siteRoot: '" + this.SiteRoot + @"',
                                     apiBaseUrl: '" + this.ApiBaseUrl + @"',

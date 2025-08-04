@@ -30,7 +30,6 @@
                 {{column.Content}}
                 <div ng-repeat="item in column.ContentItems">{{item.Content}}</div>
                 <div ng-if="column.ColumnType=='ActionButton'">{{column.TooltipTitle}}</div>
-                <div ng-if="column.ColumnType=='DashboardPageLink'">{{column.PageName}}</div>
             </div>
             <div class="col-1 my-auto"> {{column.Width}}</div>
             <div class="col-1 my-auto">

@@ -30,9 +30,9 @@ using System.Web;
 using System.Web.UI;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -268,20 +268,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         {
             var task1 = _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId, sortBy);
             var task2 = _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("ModuleId", moduleId);
+            var task3 = _repository.GetByScopeAsync<ActionInfo>(moduleId, "ParentId", "ViewOrder");
 
-            await Task.WhenAll(task1, task2);
+            await Task.WhenAll(task1, task2, task3);
 
-            return ModuleMapping.MapModuleFieldsViewModel(await task1, await task2);
+            return ModuleMapping.MapModuleFieldsViewModel(await task1, await task2, await task3);
         }
 
         public async Task<ModuleFieldViewModel> GetFieldViewModelAsync(Guid fieldId)
         {
             var task1 = _repository.GetAsync<ModuleFieldInfo>(fieldId);
             var task2 = _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("FieldId", fieldId);
+            var task3 = _repository.GetItemsByColumnAsync<ActionInfo>("FieldId", fieldId);
 
-            await Task.WhenAll(task1, task2);
+            await Task.WhenAll(task1, task2, task3);
 
-            return ModuleMapping.MapModuleFieldViewModel(await task1, await task2);
+            return ModuleMapping.MapModuleFieldViewModel(await task1, await task2, await task3);
         }
 
         public async Task<Guid> SaveFieldAsync(ModuleFieldViewModel field, bool isNew)

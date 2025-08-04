@@ -119,7 +119,7 @@
                         </h5>
                         <div class="action-buttons">
                             <button type="button" class="b-btn btn-sm btn-action mb-2"
-                                ng-click="$.onEditActionClick(action)">
+                                ng-click="$.onEditActionClick(action.Id,action.FieldType,action.FieldId)">
                                 <i class="codicon codicon-edit me-0"></i>
                             </button>
                             <button type="button" class="b-btn btn-sm btn-action mb-2"
@@ -141,7 +141,7 @@
                         New Action
                     </button>
                     <button type="button" ng-if="$.fieldActionsFilter" class="b-btn btn-text-icon btn-action btn-sm"
-                        ng-click="$.onAddActionClick($.currentField.Id,$.currentField.FieldType)">
+                        ng-click="$.onAddActionClick($.currentField.FieldType,$.currentField.Id)">
                         <i class="codicon codicon-plus"></i>
                         New Field Action
                     </button>

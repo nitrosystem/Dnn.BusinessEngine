@@ -96,7 +96,7 @@
                     <div class="g-col-2">
                         <div class="b-multi-btns">
                             <button type="button"
-                                ng-click="$.onEditActionClick(action.Id,action.ActionName,action.FieldId)">
+                                ng-click="$.onEditActionClick(action.Id,action.FieldType,action.FieldId)">
                                 <i class="codicon codicon-edit"></i>
                             </button>
                             <button type="button" ng-click="$.onDeleteActionClick(action.Id,$index)">
@@ -221,7 +221,7 @@
                     <p class="text-white-50" ng-if="action.Conditions.length">{{action.Conditions.length}} Conditions</p>
                 </div>
                 <div class="col-1">
-                    <button type="button" class="b-btn mb-2" ng-click="$.onEditActionClick(action.Id,action.ActionName,action.FieldId)">
+                    <button type="button" class="b-btn mb-2" ng-click="$.onEditActionClick(action.Id,action.FieldType,action.FieldId)">
                         <i class="codicon codicon-edit me-0"></i>
                     </button>
                     <button type="button" class="b-btn mb-2" ng-click="$.onDeleteActionClick(action.Id,$index)">

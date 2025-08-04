@@ -386,7 +386,7 @@ export class ModuleDesignerService {
                 ng-if="$.field.${field.FieldName}.Actions && $.field.${field.FieldName}.Actions.length">
                 <label class="form-label">Field Actions</label>
                 <div ng-repeat="action in $.field.${field.FieldName}.Actions" role="button"
-                    ng-click="$.onEditFieldActionClick(action)">
+                    ng-click="$.onEditActionClick(action.Id,'${field.FieldType}','${field.Id}')">
                     <div class="b-notify notify mb-3">
                         <i class="codicon codicon-github-action icon-sm"></i>
                         <div class="text">

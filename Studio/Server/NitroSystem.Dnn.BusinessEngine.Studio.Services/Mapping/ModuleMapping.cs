@@ -23,6 +23,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
 {
@@ -155,19 +156,24 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
 
         #region Module Field Mapping
 
-        public static IEnumerable<ModuleFieldViewModel> MapModuleFieldsViewModel(IEnumerable<ModuleFieldInfo> fields, IEnumerable<ModuleFieldSettingView> settings)
+        public static IEnumerable<ModuleFieldViewModel> MapModuleFieldsViewModel(IEnumerable<ModuleFieldInfo> fields, IEnumerable<ModuleFieldSettingView> settings, IEnumerable<ActionInfo> actions)
         {
             var settingsDict = settings.GroupBy(c => c.FieldId)
                                      .ToDictionary(g => g.Key, g => g.AsEnumerable());
 
+            var actionsDict = actions.Where(a => a.FieldId != null).GroupBy(c => c.FieldId)
+                                     .ToDictionary(g => g.Key, g => g.AsEnumerable());
+
             return fields.Select(field =>
             {
-                var items = settingsDict.TryGetValue(field.Id, out var fieldSettings) ? fieldSettings : Enumerable.Empty<ModuleFieldSettingView>();
-                return MapModuleFieldViewModel(field, items);
+                settingsDict.TryGetValue(field.Id, out var fieldSettings);
+                actionsDict.TryGetValue(field.Id, out var fieldActions);
+
+                return MapModuleFieldViewModel(field, fieldSettings ?? Enumerable.Empty<ModuleFieldSettingView>(), fieldActions ?? Enumerable.Empty<ActionInfo>());
             });
         }
 
-        public static ModuleFieldViewModel MapModuleFieldViewModel(ModuleFieldInfo field, IEnumerable<ModuleFieldSettingView> settings)
+        public static ModuleFieldViewModel MapModuleFieldViewModel(ModuleFieldInfo field, IEnumerable<ModuleFieldSettingView> settings, IEnumerable<ActionInfo> actions)
         {
             var mapper = new ExpressionMapper<ModuleFieldInfo, ModuleFieldViewModel>();
             mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
@@ -176,6 +182,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.ShowConditions));
             mapper.AddCustomMapping(src => src.FieldValues, dest => dest.FieldValues, src => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(src.FieldValues));
             mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, src => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(src.DataSource));
+            mapper.AddCustomMapping(src => src, dest => dest.Actions, src => actions.Select(action => HybridMapper.Map<ActionInfo, ActionListItem>(action)));
             mapper.AddCustomMapping(src => src, dest => dest.Settings, src => MapModuleFieldSettingsToDictionary(settings));
 
             var result = mapper.Map(field);

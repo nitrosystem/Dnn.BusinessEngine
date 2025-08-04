@@ -21,6 +21,7 @@ using DotNetNuke.Entities.Users;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 using DotNetNuke.UI.UserControls;
 using NitroSystem.Dnn.BusinessEngine.App.Framework.ModuleData;
+using DotNetNuke.Abstractions.Portals;
 
 namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
 {
@@ -43,7 +44,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             _serviceLocator = serviceLocator;
         }
 
-        public async Task CallActions(IModuleData moduleData, Guid moduleId, Guid? fieldId, string eventName)
+        public async Task CallActions(IModuleData moduleData, Guid moduleId, Guid? fieldId, string eventName, IPortalSettings portalSettings)
         {
             var actionIds = Enumerable.Empty<Guid>();
 
@@ -57,20 +58,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
                 actionIds = CollectActionsOptimized(action, lookup, new List<Guid>());
             }
 
-            await CallActions(actionIds, moduleData);
+            await CallActions(actionIds, moduleData, portalSettings);
         }
 
-        public async Task CallActions(IEnumerable<Guid> actionIds, IModuleData moduleData)
+        public async Task CallActions(IEnumerable<Guid> actionIds, IModuleData moduleData, IPortalSettings portalSettings)
         {
             var actions = await _actionService.GetActionsDtoForServerAsync(actionIds);
 
-            var buffer = CreateBuffer(new Queue<ActionTree>(), actions);
-            if (buffer.Any())
-                await CallAction(moduleData, buffer);
+            var buffer = BuildActionTree(actions);
+            await CallAction(moduleData, buffer, portalSettings);
         }
 
-        public async Task CallAction(IModuleData moduleData, Queue<ActionTree> buffer)
+        private async Task CallAction(IModuleData moduleData, Queue<ActionTree> buffer, IPortalSettings portalSettings)
         {
+            if (buffer == null || buffer.Count == 0) return;
+
             IActionResult result = null;
 
             var node = buffer.Dequeue();
@@ -83,7 +85,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
 
                 foreach (var item in action.Params)
                 {
-                    var value = _expressionService.Evaluate(moduleData, item.ParamValue) as string;
+                    var value = _expressionService.Evaluate(moduleData, item.ParamValue as string);
                     item.ParamValue = value;
 
                     actionParams.Add(item);
@@ -91,11 +93,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
 
                 action.Params = actionParams;
 
+
                 IAction actionController = await GetActionExtensionInstance(action.ActionType);
 
                 try
                 {
-                    result = await actionController.ExecuteAsync(action);
+                    result = await actionController.ExecuteAsync(action, portalSettings);
 
                     if (action.ServiceId.HasValue && result.Data != null) moduleData.Set("_ServiceResult", result.Data);
 
@@ -104,30 +107,29 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
                     var method = actionController.GetType().GetMethod("OnActionSuccessEvent");
                     if (method != null) method.Invoke(actionController, null);
 
-                    if (node.SuccessActions.Any()) await CallAction(moduleData, node.SuccessActions);
+                    await CallAction(moduleData, node.SuccessActions, portalSettings);
                 }
                 catch (Exception)
                 {
                     var method = actionController.GetType().GetMethod("OnActionErrorEvent");
                     if (method != null) method.Invoke(actionController, null);
 
-                    if (node.ErrorActions.Any()) await CallAction(moduleData, node.ErrorActions);
+                    await CallAction(moduleData, node.ErrorActions, portalSettings);
                 }
                 finally
                 {
                     var method = actionController.GetType().GetMethod("OnActionCompleted");
                     if (method != null) method.Invoke(actionController, null);
 
-                    if (node.CompletedActions.Any()) await CallAction(moduleData, node.CompletedActions);
+                    await CallAction(moduleData, node.CompletedActions, portalSettings);
                 }
 
-                if (buffer.Any())
-                    await CallAction(moduleData, buffer);
+                await CallAction(moduleData, buffer, portalSettings);
             }
             else
             {
                 if (buffer.Any())
-                    await CallAction(moduleData, buffer);
+                    await CallAction(moduleData, buffer, portalSettings);
             }
         }
 
@@ -165,26 +167,50 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             return _serviceLocator.GetInstance<IAction>(businessControllerClass);
         }
 
-        private Queue<ActionTree> CreateBuffer(Queue<ActionTree> buffer, IEnumerable<ActionDto> actions)
+        private Queue<ActionTree> BuildActionTree(IEnumerable<ActionDto> actions)
         {
-            foreach (var action in actions ?? Enumerable.Empty<ActionDto>())
+            // ساخت دیکشنری lookup برای دسترسی سریع به ActionTreeها
+            var lookup = actions.ToDictionary(a => a.Id, a => new ActionTree
             {
-                var node = new ActionTree()
+                Action = a,
+                CompletedActions = new Queue<ActionTree>(),
+                SuccessActions = new Queue<ActionTree>(),
+                ErrorActions = new Queue<ActionTree>()
+            });
+
+            // نگهداری ریشه‌ها
+            var roots = new Queue<ActionTree>();
+
+            foreach (var action in actions)
+            {
+                if (action.ParentId == null)
                 {
-                    Action = action,
-                    CompletedActions = new Queue<ActionTree>(),
-                    SuccessActions = new Queue<ActionTree>(),
-                    ErrorActions = new Queue<ActionTree>()
-                };
+                    // ریشه‌ها
+                    roots.Enqueue(lookup[action.Id]);
+                }
+                else
+                {
+                    var parentTree = lookup[action.ParentId.Value];
+                    var childTree = lookup[action.Id];
 
-                GetActionChilds(actions, node.CompletedActions, action.Id, ActionExecutionCondition.AlwaysExecute);
-                GetActionChilds(actions, node.SuccessActions, action.Id, ActionExecutionCondition.ExecuteOnSuccess);
-                GetActionChilds(actions, node.ErrorActions, action.Id, ActionExecutionCondition.ExecuteOnError);
+                    switch (action.ParentActionTriggerCondition)
+                    {
+                        case ActionExecutionCondition.AlwaysExecute:
+                            parentTree.CompletedActions.Enqueue(childTree);
+                            break;
 
-                buffer.Enqueue(node);
+                        case ActionExecutionCondition.ExecuteOnSuccess:
+                            parentTree.SuccessActions.Enqueue(childTree);
+                            break;
+
+                        case ActionExecutionCondition.ExecuteOnError:
+                            parentTree.ErrorActions.Enqueue(childTree);
+                            break;
+                    }
+                }
             }
 
-            return buffer;
+            return roots;
         }
 
         private Queue<ActionTree> GetActionChilds(IEnumerable<ActionDto> actions, Queue<ActionTree> buffer, Guid parentId, ActionExecutionCondition parentResultStatus)

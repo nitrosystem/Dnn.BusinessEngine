@@ -12,8 +12,6 @@ import CheckboxListOptions from "./field-types/checkbox-list/checkbox-list-optio
 import RadioButtonListOptions from "./field-types/radio-button-list/radio-button-list-options.html";
 import UploadFileOptions from "./field-types/upload-file/upload-file-options.html";
 import UploadImageOptions from "./field-types/upload-image/upload-image-options.html";
-import DashboardMenuOptions from "./field-types/dashboard-menu/dashboard-menu-options.html";
-import DashboardBreadcrumbOptions from "./field-types/dashboard-breadcrumb/dashboard-breadcrumb-options.html";
 
 //database services
 import SubmitEntityService from "./services-types/database/submit-entity/submit-entity.component";
@@ -55,12 +53,9 @@ import DropdownListFieldComponent from "./field-types/dropdown-list/dropdown-lis
 import CheckboxFieldComponent from "./field-types/checkbox/checkbox.component";
 import CheckboxListFieldComponent from "./field-types/checkbox-list/checkbox-list.component";
 import RadioButtonListFieldComponent from "./field-types/radio-button-list/radio-button-list.component";
-import DashboardMenuFieldComponent from "./field-types/dashboard-menu/dashboard-menu.component";
-import DashboardLinkFieldComponent from "./field-types/dashboard-link/dashboard-link.component";
 import MessageBoxFieldComponent from "./field-types/message-box/message-box.component";
 import UploadFileFieldComponent from "./field-types/upload-file/upload-file.component";
 import UploadImageFieldComponent from "./field-types/upload-image/upload-image.component";
-import DashboardBreadcrumbFieldComponent from "./field-types/dashboard-breadcrumb/dashboard-breadcrumb.component";
 
 const app = window["app"];
 
@@ -77,7 +72,7 @@ app.component("bRegisterUser", RegisterUserService);
 app.component("bApproveUser", ApproveUserService);
 app.component("bResetPassword", ResetPasswordService);
 app.component("bActionRunService", RunServiceAction);
-app.component("bActionRunJavascript", JavascriptAction);
+app.component("bActionJavascript", JavascriptAction);
 app.component("bActionSetVariable", SetVariableAction);
 app.component("bActionCallAction", CallAction);
 app.component("bActionUpdateFieldDataSource", UpdateFieldDataSource);
@@ -96,9 +91,6 @@ app.component("bFieldUploadFile", UploadFileFieldComponent);
 app.component("bFieldUploadImage", UploadImageFieldComponent);
 app.component("bFieldMessageBox", MessageBoxFieldComponent);
 app.component("bFieldGrid", GridFieldComponent);
-app.component("bFieldDashboardMenu", DashboardMenuFieldComponent);
-app.component("bFieldDashboardLink", DashboardLinkFieldComponent);
-app.component("bFieldDashboardBreadcrumb", DashboardBreadcrumbFieldComponent);
 app.component("bFieldButton", ButtonFieldComponent);
 
 // set base options when add field
@@ -113,7 +105,5 @@ window['CheckboxListOptions'] = CheckboxListOptions;
 window['RadioButtonListOptions'] = RadioButtonListOptions;
 window['UploadFileOptions'] = UploadFileOptions;
 window['UploadImageOptions'] = UploadImageOptions;
-window['DashboardMenuOptions'] = DashboardMenuOptions;
-window['DashboardBreadcrumbOptions'] = DashboardBreadcrumbOptions;
 
 

@@ -15,18 +15,16 @@ class ConditionListController {
             { Text: "<", Value: "<" },
             { Text: "<=", Value: "<=" },
             { Text: "In", Value: "in" },
-            { Text: "Not In", Value: "not in" },
+            { Text: "Not In", Value: "not-in" },
             { Text: "Containts", Value: "like" },
-            { Text: "Not Containts", Value: "not like" },
+            { Text: "Not Containts", Value: "not-like" },
             { Text: "Starts With", Value: "=:" },
             { Text: "Ends With", Value: ":=" },
-            { Text: "Is Filled", Value: "isfilled" },
-            { Text: "Is Null", Value: "isnull" },
+            { Text: "Is Null", Value: "is-null" },
+            { Text: "Not Null", Value: "not-null" },
             { Text: "Date Is Equal", Value: "date=" },
             { Text: "Time Is Equal", Value: "time=" },
             { Text: "Range", Value: "<=>" },
-            { Text: "Is Error", Value: "iserror" },
-            { Text: "Is Completed", Value: "iscompleted" },
         ];
 
         $scope.$watch("$.conditions", (newVal, oldVal) => {

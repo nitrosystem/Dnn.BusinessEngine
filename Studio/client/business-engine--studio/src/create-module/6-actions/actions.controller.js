@@ -122,28 +122,31 @@ export class CreateModuleActionsController {
         });
     }
 
-    onAddActionClick() {
-        var subParams = {};
-        if (this.isFieldActions) subParams.type = "field";
-
-        this.$scope.$emit("onGotoPage", {
+    onAddActionClick(fieldType, fieldId) {
+        const page = {
             page: "create-action",
-            parentId: this.parentId,
-            subParams: subParams,
-        });
+            subParams: {
+                module: this.module.Id,
+                ...(fieldType && { type: fieldType }),
+                ...(fieldId && { field: fieldId }),
+            }
+        };
+
+        this.$scope.$emit("onGotoPage", page);
     }
 
-    onEditActionClick(id, title, fieldId) {
-        var subParams = {};
-        if (fieldId) subParams.type = "field";
-
-        this.$scope.$emit("onGotoPage", {
+    onEditActionClick(actionId, fieldType, fieldId) {
+        const page = {
             page: "create-action",
-            parentId: fieldId || this.module.Id,
-            id: id,
-            title: title,
-            subParams: subParams,
-        });
+            id: actionId,
+            subParams: {
+                module: this.module.Id,
+                ...(fieldType && { type: fieldType }),
+                ...(fieldId && { field: fieldId }),
+            }
+        };
+
+        this.$scope.$emit("onGotoPage", page);
     }
 
     onEditServiceClick(serviceId) {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Caching;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field
 {
@@ -40,7 +41,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field
         public IEnumerable<string> AuthorizationViewField { get; set; }
         public IEnumerable<ExpressionInfo> ShowConditions { get; set; }
         public IEnumerable<FieldValueInfo> FieldValues { get; set; }
-        public IEnumerable<ActionViewModel> Actions { get; set; }
+        public IEnumerable<ActionListItem> Actions { get; set; }
         public FieldDataSourceInfo DataSource { get; set; }
         public IDictionary<string, object> Settings { get; set; }
     }

@@ -1,7 +1,7 @@
 import template from "./run-service.component.html";
 import _ from "lodash";
 
-class DatabaseActionController {
+class RunServiceActionController {
     constructor(
         $scope,
         $q,
@@ -29,7 +29,7 @@ class DatabaseActionController {
     onPageLoad() {}
 }
 
-const DatabaseAction = {
+const RunServiceAction = {
     bindings: {
         controller: "<",
         action: "<",
@@ -42,9 +42,9 @@ const DatabaseAction = {
         fields: "<",
         viewModels: "<",
     },
-    controller: DatabaseActionController,
+    controller: RunServiceActionController,
     controllerAs: "$",
     templateUrl: template,
 };
 
-export default DatabaseAction;
+export default RunServiceAction;

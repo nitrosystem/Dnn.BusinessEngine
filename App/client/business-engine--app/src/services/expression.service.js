@@ -55,13 +55,13 @@ export class ExpressionService {
             case 'in':
                 return isArray(right) ? right.includes(left) : isEqual(left, right);
 
-            case 'not in':
+            case 'not-in':
                 return isArray(right) ? !right.includes(left) : !isEqual(left, right);
 
             case 'like':
                 return typeof right === 'string' && String(right).includes(String(left));
 
-            case 'not like':
+            case 'not-like':
                 return typeof right === 'string' && !String(right).includes(String(left));
 
             case '>':
@@ -92,11 +92,11 @@ export class ExpressionService {
                     return Number(left) <= Number(right);
                 return left <= right;
 
-            case 'isfilled':
-                return !isEmpty(left);
-
-            case 'isnull':
+            case 'is-null':
                 return isEmpty(left);
+
+            case 'not-null':
+                return !isEmpty(left);
 
             default:
                 throw new Error(`Unknown operator: ${op}`);
@@ -104,6 +104,8 @@ export class ExpressionService {
     }
 
     parseExpression(expression) {
+        if (expression === undefined || expression === null) return expression;
+
         expression = expression.trim();
 
         // اگر literal باشه

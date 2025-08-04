@@ -1174,7 +1174,7 @@ export class CreateModuleModuleBuilderController {
         this.currentField.FieldValues.push({ Conditions: [] });
     }
 
-    onAddActionClick(fieldId, fieldType) {
+    onAddActionClick(fieldType, fieldId) {
         const page = {
             page: "create-action",
             subParams: {
@@ -1184,31 +1184,21 @@ export class CreateModuleModuleBuilderController {
             }
         };
 
-
         this.$scope.$emit("onGotoPage", page);
     }
 
-    onEditActionClick(action) {
-        var subParams = {};
-        if (action.FieldId) subParams.type = "field";
-
-        this.$scope.$emit("onGotoPage", {
+    onEditActionClick(actionId, fieldType, fieldId) {
+        const page = {
             page: "create-action",
-            parentId: actionId || action.ModuleId,
-            id: action.Id,
-            title: action.ActionName,
-            subParams: subParams,
-        });
-    }
+            id: actionId,
+            subParams: {
+                module: this.module.Id,
+                ...(fieldType && { type: fieldType }),
+                ...(fieldId && { field: fieldId }),
+            }
+        };
 
-    onEditFieldActionClick(action) {
-        this.$scope.$emit("onGotoPage", {
-            page: "create-action",
-            parentId: action.FieldId,
-            id: action.Id,
-            title: action.ActionName,
-            subParams: { type: 'field' },
-        });
+        this.$scope.$emit("onGotoPage", page);
     }
 
     onGotoActionsPageClick() {

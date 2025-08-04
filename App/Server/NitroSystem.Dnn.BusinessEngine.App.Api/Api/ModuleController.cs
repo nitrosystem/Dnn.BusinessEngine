@@ -507,7 +507,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                 var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, module.Id);
                 moduleData.SetPageParams(pageUrl);
 
-                await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad");
+                await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad", this.PortalSettings);
 
                 var data = _userDataStore.GetDataForClients(moduleId, moduleData);
 
@@ -534,6 +534,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
             }
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<HttpResponseMessage> CallAction(ActionDto action)
         {
@@ -557,7 +558,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
 
                 moduleData.SetPageParams(action.PageUrl);
 
-                await _actionWorker.CallActions(action.ActionIds, moduleData);
+                await _actionWorker.CallActions(action.ActionIds, moduleData, this.PortalSettings);
 
                 var data = _userDataStore.GetDataForClients(action.ModuleId, moduleData);
 

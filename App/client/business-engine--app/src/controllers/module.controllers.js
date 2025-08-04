@@ -98,7 +98,6 @@ export class ModuleController {
                 this.field[field.FieldName] = field;
 
                 let controllerInstance = this.controllerCache[field.FieldType];
-
                 if (!controllerInstance) {
                     const ControllerClass = ComponentRegistry.resolve(field.FieldType);
                     if (typeof ControllerClass === 'function') {
