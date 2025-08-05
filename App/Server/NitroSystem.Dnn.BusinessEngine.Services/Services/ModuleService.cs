@@ -120,11 +120,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                         Scope = scope,
                     },
                     grid => grid.Read<ModuleVariableInfo>(),
-                    grid => grid.Read<ViewModelPropertyInfo>()
+                    grid => grid.Read<AppModelPropertyInfo>()
                 );
 
             var variables = results[0] as IEnumerable<ModuleVariableInfo>;
-            var viewModelsProperties = results[1] as IEnumerable<ViewModelPropertyInfo>;
+            var viewModelsProperties = results[1] as IEnumerable<AppModelPropertyInfo>;
 
             return variables.Select(variable =>
             {
@@ -132,9 +132,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                 (src, dest) =>
                 {
                     dest.Scope = (ModuleVariableScope)variable.Scope;
-                    dest.Properties = viewModelsProperties.Where(p => p.ViewModelId == variable.ViewModelId).Select(prop =>
+                    dest.Properties = viewModelsProperties.Where(p => p.AppModelId == variable.ViewModelId).Select(prop =>
                     {
-                        return HybridMapper.Map<ViewModelPropertyInfo, PropertyInfo>(prop);
+                        return HybridMapper.Map<AppModelPropertyInfo, PropertyInfo>(prop);
                     });
                 });
             });

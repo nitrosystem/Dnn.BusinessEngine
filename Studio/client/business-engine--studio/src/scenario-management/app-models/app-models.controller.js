@@ -1,5 +1,5 @@
 
-export class ViewModelsController {
+export class AppModelsController {
     constructor(
         $scope,
         $rootScope,
@@ -25,29 +25,29 @@ export class ViewModelsController {
     }
 
     onPageLoad() {
-        this.getViewModels()
+        this.getAppModels()
     }
 
-    getViewModels() {
-        this.running = "get-view-models";
+    getAppModels() {
+        this.running = "get-app-models";
         this.awaitAction = {
-            title: "Loading View Models",
+            title: "Loading App Models",
             subtitle: "Just a moment for loading view models...",
         };
 
-        this.apiService.get("Studio", "GetViewModels", {
+        this.apiService.get("Studio", "GetAppModels", {
             pageIndex: this.filter.pageIndex,
             pageSize: this.filter.pageSize,
             searchText: this.filter.searchText,
             sortBy: this.filter.sortBy
         }).then((data) => {
-            this.viewModels = data.ViewModels;
+            this.appModels = data.AppModels;
 
             let $this = this;
             this.paging = {
                 visiblePages: 10, totalPages: data.Page.PageCount, onPageClick: (e, pageIndex) => {
                     $this.filter.pageIndex = pageIndex;
-                    $this.getViewModels();
+                    $this.getAppModels();
                 }
             }
 
@@ -59,8 +59,8 @@ export class ViewModelsController {
     }
 
     onFocusModule() {
-        this.$rootScope.explorerExpandedItems.push(...["view-models"]);
-        this.$rootScope.explorerCurrentItem = "view-models";
+        this.$rootScope.explorerExpandedItems.push(...["app-models"]);
+        this.$rootScope.explorerCurrentItem = "app-models";
     }
 
     onSortingClick(sortBy) {
@@ -69,10 +69,10 @@ export class ViewModelsController {
     }
 
     onApplyFilter() {
-        delete this.viewModels;
+        delete this.appModels;
 
         this.filter.pageIndex = 1;
-        this.$timeout(() => this.getViewModels());
+        this.$timeout(() => this.getAppModels());
     }
 
     onClearFilterClick() {
@@ -80,19 +80,19 @@ export class ViewModelsController {
         this.onApplyFilter();
     }
 
-    onAddViewModelClick() {
-        this.$scope.$emit("onGotoPage", { page: "create-view-model" });
+    onAddAppModelClick() {
+        this.$scope.$emit("onGotoPage", { page: "create-app-model" });
     }
 
-    onEditViewModelClick(id, title) {
+    onEditAppModelClick(id, title) {
         this.$scope.$emit("onGotoPage", {
-            page: "create-view-model",
+            page: "create-app-model",
             id: id,
             title: title,
         });
     }
 
-    onDeleteViewModelClick(id, index) {
+    onDeleteAppModelClick(id, index) {
         swal({
             title: "Are you sure?",
             text: "Once deleted, you will not be able to recover this imaginary view model!",
@@ -101,16 +101,16 @@ export class ViewModelsController {
             dangerMode: true,
         }).then((willDelete) => {
             if (willDelete) {
-                this.running = "get-viewModels";
+                this.running = "get-appModels";
                 this.awaitAction = {
-                    title: "Remove ViewModel",
-                    subtitle: "Just a moment for removing viewModel...",
+                    title: "Remove AppModel",
+                    subtitle: "Just a moment for removing App Model...",
                 };
 
-                this.apiService.post("Studio", "DeleteViewModel", { Id: id }).then((data) => {
-                    this.viewModels.splice(index, 1);
+                this.apiService.post("Studio", "DeleteAppModel", { Id: id }).then((data) => {
+                    this.appModels.splice(index, 1);
 
-                    this.notifyService.success("ViewModel deleted has been successfully");
+                    this.notifyService.success("AppModel deleted has been successfully");
 
                     this.$rootScope.refreshSidebarExplorerItems();
 

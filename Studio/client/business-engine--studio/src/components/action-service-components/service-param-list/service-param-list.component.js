@@ -105,7 +105,7 @@ const ServiceParamListComponent = {
         datasource: "@",
         variables: "<",
         fields: "<",
-        viewModels: "<",
+        appModels: "<",
         actionParams: "<",
     },
     controller: ServiceParamListController,

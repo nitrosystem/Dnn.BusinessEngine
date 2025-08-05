@@ -249,7 +249,7 @@ export class CreateModuleCreateActionController {
     initActionBuilder() {
         const defer = this.$q.defer();
 
-        const actionComponent = `<${this.actionType.ActionComponent} controller="$" action="$.action" services="$.services" actions="$.actions" module-actions="$.moduleActions" variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields" ${this.actionType.ComponentSubParams}></${this.actionType.ActionComponent}>`;
+        const actionComponent = `<${this.actionType.ActionComponent} controller="$" action="$.action" services="$.services" actions="$.actions" module-actions="$.moduleActions" variables="$.variables" data-app-models="$.appModels" data-fields="$.fields" ${this.actionType.ComponentSubParams}></${this.actionType.ActionComponent}>`;
 
         this.$timeout(() => {
             $("#pnlActionBuilder" + (this.action.Id ? this.action.Id : "")).html(this.$compile(actionComponent)(this.$scope));

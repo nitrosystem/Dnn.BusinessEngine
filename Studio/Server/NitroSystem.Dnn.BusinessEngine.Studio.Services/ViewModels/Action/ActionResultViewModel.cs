@@ -1,5 +1,4 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
-using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;

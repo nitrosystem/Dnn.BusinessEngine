@@ -42,14 +42,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     {
         private readonly IGlobalService _globalService;
         private readonly IEntityService _entityService;
-        private readonly IViewModelService _viewModelService;
+        private readonly IAppModelService _viewModelService;
         private readonly IServiceFactory _serviceFactory;
         private readonly IDefinedListService _definedListService;
 
         public StudioController(
             IGlobalService globalService,
             IEntityService entityService,
-            IViewModelService viewModelService,
+            IAppModelService viewModelService,
             IServiceFactory serviceFactory,
             IDefinedListService definedListService
         )
@@ -384,10 +384,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         #endregion
 
-        #region View Models
+        #region App Models
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetViewModels(int pageIndex, int pageSize, string searchText = null,
+        public async Task<HttpResponseMessage> GetAppModels(int pageIndex, int pageSize, string searchText = null,
             string sortBy = "Newest")
         {
             try
@@ -395,7 +395,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
                 var viewModels =
-                    await _viewModelService.GetViewModelsAsync(scenarioId, pageIndex, pageSize, searchText, sortBy);
+                    await _viewModelService.GetAppModelsAsync(scenarioId, pageIndex, pageSize, searchText, sortBy);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -410,20 +410,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         }
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetViewModel()
+        public async Task<HttpResponseMessage> GetAppModel()
         {
-            return await GetViewModel(Guid.Empty);
+            return await GetAppModel(Guid.Empty);
         }
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetViewModel(Guid viewModelId)
+        public async Task<HttpResponseMessage> GetAppModel(Guid viewModelId)
         {
             try
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                var viewModels = await _viewModelService.GetViewModelsAsync(scenarioId, 1, 1000, null, "Title");
-                var viewModel = await _viewModelService.GetViewModelAsync(viewModelId);
+                var viewModels = await _viewModelService.GetAppModelsAsync(scenarioId, 1, 1000, null, "Title");
+                var viewModel = await _viewModelService.GetAppModelAsync(viewModelId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -439,13 +439,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveViewModel(ViewModelViewModel viewModel)
+        public async Task<HttpResponseMessage> SaveAppModel(AppModelViewModel viewModel)
         {
             try
             {
-                viewModel.Id = await _viewModelService.SaveViewModelAsync(viewModel, viewModel.Id == Guid.Empty);
+                viewModel.Id = await _viewModelService.SaveAppModelAsync(viewModel, viewModel.Id == Guid.Empty);
 
-                viewModel = await _viewModelService.GetViewModelAsync(viewModel.Id);
+                viewModel = await _viewModelService.GetAppModelAsync(viewModel.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, viewModel);
             }
@@ -457,11 +457,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteViewModel(GuidDto postData)
+        public async Task<HttpResponseMessage> DeleteAppModel(GuidDto postData)
         {
             try
             {
-                var isDeleted = await _viewModelService.DeleteViewModelAsync(postData.Id);
+                var isDeleted = await _viewModelService.DeleteAppModelAsync(postData.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }

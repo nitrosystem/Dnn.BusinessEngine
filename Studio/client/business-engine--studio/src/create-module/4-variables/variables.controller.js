@@ -45,7 +45,7 @@ export class CreateModuleVariablesController {
         this.apiService.get("Module", "GetModuleVariables", { moduleId: id }).then((data) => {
             this.variableTypes = data.VariableTypes;
             this.variables = data.Variables ?? [];
-            this.viewModels = data.ViewModels;
+            this.appModels = data.AppModels;
 
             delete this.awaitAction;
             delete this.running;
@@ -76,11 +76,11 @@ export class CreateModuleVariablesController {
                 id: "drpVariableScope",
                 required: true,
             },
-            ViewModelId: {
-                id: "drpViewModel",
+            AppModelId: {
+                id: "drpAppModel",
                 rule: (value) => {
-                    if ((this.variable.VariableType == 'ViewModel' ||
-                        this.variable.VariableType == 'ViewModelList') &&
+                    if ((this.variable.VariableType == 'AppModel' ||
+                        this.variable.VariableType == 'AppModelList') &&
                         !value)
                         return false;
 

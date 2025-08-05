@@ -40,7 +40,7 @@ const RunServiceAction = {
         datasource: "@",
         variables: "<",
         fields: "<",
-        viewModels: "<",
+        appModels: "<",
     },
     controller: RunServiceActionController,
     controllerAs: "$",

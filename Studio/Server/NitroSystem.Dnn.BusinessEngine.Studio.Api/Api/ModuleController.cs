@@ -33,7 +33,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     {
         private readonly IGlobalService _globalService;
         private readonly IServiceFactory _serviceFactory;
-        private readonly IViewModelService _viewModelService;
+        private readonly IAppModelService _viewModelService;
         private readonly IModuleService _moduleService;
         private readonly IActionService _actionService;
         private readonly ITemplateService _templateService;
@@ -41,7 +41,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         public ModuleController(
             IGlobalService globalService,
             IServiceFactory serviceFactory,
-            IViewModelService viewModelService,
+            IAppModelService viewModelService,
             IModuleService moduleService,
             IActionService actionService,
             ITemplateService templateService
@@ -271,7 +271,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
                 var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
-                var viewModels = await _viewModelService.GetViewModelsAsync(scenarioId, 1, 1000, "", "Title");
+                var viewModels = await _viewModelService.GetAppModelsAsync(scenarioId, 1, 1000, "", "Title");
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {

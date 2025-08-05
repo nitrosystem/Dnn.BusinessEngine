@@ -106,8 +106,8 @@
     <Compile Include="Entities\Tables\GlobalSettingsInfo.cs" />
     <Compile Include="Entities\Tables\EntityInfo.cs" />
     <Compile Include="Entities\Tables\ModuleFieldSettingInfo.cs" />
-    <Compile Include="Entities\Tables\ViewModelInfo.cs" />
-    <Compile Include="Entities\Tables\ViewModelPropertyInfo.cs" />
+    <Compile Include="Entities\Tables\AppModelInfo.cs" />
+    <Compile Include="Entities\Tables\AppModelPropertyInfo.cs" />
     <Compile Include="Entities\Views\ActionView.cs" />
     <Compile Include="Entities\Views\ExplorerItemView.cs" />
     <Compile Include="Entities\Views\ModuleActionTypeView.cs" />

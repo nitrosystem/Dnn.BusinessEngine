@@ -23,7 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
         {
             services.AddScoped<IGlobalService, GlobalService>();
             services.AddScoped<IEntityService, EntityService>();
-            services.AddScoped<IViewModelService, ViewModelService>();
+            services.AddScoped<IAppModelService, AppModelService>();
             services.AddScoped<IServiceFactory, ServiceFactory>();
             services.AddScoped<IDefinedListService, DefinedListService>();
 

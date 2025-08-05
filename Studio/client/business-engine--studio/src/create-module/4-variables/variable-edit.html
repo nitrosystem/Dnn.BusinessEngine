@@ -18,12 +18,12 @@
                     </div>
                 </div>
                 <div class="b-field">
-                    <label class="form-label">View Model</label>
+                    <label class="form-label">App Model</label>
                     <div class="b-input-group">
-                        <select id="drpViewModel"
-                            ng-if="$.variable.VariableType=='ViewModel' || $.variable.VariableType=='ViewModelList'"
-                            ng-model="$.variable.ViewModelId" class="b-input form-select"
-                            ng-options="vm.Id as vm.ViewModelName for vm in $.viewModels" required>
+                        <select id="drpAppModel"
+                            ng-if="$.variable.VariableType=='AppModel' || $.variable.VariableType=='AppModelList'"
+                            ng-model="$.variable.AppModelId" class="b-input form-select"
+                            ng-options="vm.Id as vm.ModelName for vm in $.appModels" required>
                             <option value="">Select view model</option>
                         </select>
                         <span><i class="codicon codicon-activate-breakpoints"></i></span>

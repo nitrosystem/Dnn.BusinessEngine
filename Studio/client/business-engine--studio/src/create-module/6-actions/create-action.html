@@ -187,7 +187,7 @@
                         <div id="grpActionResults{{$.action.Id}}" class="group-content collapse show">
                             <b-property-list ng-model="$.action.Results"
                                 data-datasource="['fields','form','variables','actionParams']"
-                                data-variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields"
+                                data-variables="$.variables" data-app-models="$.appModels" data-fields="$.fields"
                                 data-action-params="$.action.Params">
                             </b-property-list>
                         </div>
@@ -207,7 +207,7 @@
                         <div id="grpActionConditions{{$.action.Id}}" class="group-content collapse show">
                             <b-condition-list ng-model="$.action.Conditions"
                                 data-datasource="['fields','form','variables','actionParams']"
-                                data-variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields"
+                                data-variables="$.variables" data-app-models="$.appModels" data-fields="$.fields"
                                 data-action-params="$.action.Params">
                             </b-condition-list>
                         </div>

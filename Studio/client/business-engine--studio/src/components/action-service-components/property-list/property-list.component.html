@@ -50,7 +50,7 @@
                         <div class="col-5">
                             <div class="d-flex">
                                 <div class="col-10">
-                                    <div monaco-editor ng-model="$.property.LeftExpression" data-language="bProperties" data-one-line="true" data-datasource="$.datasource" data-variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields" b-custom-focus="onEditProperty"
+                                    <div monaco-editor ng-model="$.property.LeftExpression" data-language="bProperties" data-one-line="true" data-datasource="$.datasource" data-variables="$.variables" data-app-models="$.appModels" data-fields="$.fields" b-custom-focus="onEditProperty"
                                         required></div>
                                 </div>
                                 <div class="col-1">
@@ -76,7 +76,7 @@
                         <div class="col-5">
                             <div class="d-flex">
                                 <div class="col-10">
-                                    <div monaco-editor ng-model="$.property.RightExpression" data-language="bProperties" data-one-line="true" data-datasource="$.datasource" data-variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields" data-service-result="true" required></div>
+                                    <div monaco-editor ng-model="$.property.RightExpression" data-language="bProperties" data-one-line="true" data-datasource="$.datasource" data-variables="$.variables" data-app-models="$.appModels" data-fields="$.fields" data-service-result="true" required></div>
                                 </div>
                                 <div class="col-1">
                                     <button type="button" class="bg-dark text-light border-1 pt-1 pb-1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -120,7 +120,7 @@
             </div>
             <div class="row">
                 <div class="col-12 my-auto">
-                    <b-condition-list ng-model="$.property.Conditions" class="m-b-0" data-datasource="$.datasource" data-variables="$.variables" data-view-models="$.viewModels" data-fields="$.fields"></b-condition-list>
+                    <b-condition-list ng-model="$.property.Conditions" class="m-b-0" data-datasource="$.datasource" data-variables="$.variables" data-app-models="$.appModels" data-fields="$.fields"></b-condition-list>
                 </div>
             </div>
         </div>

@@ -1,6 +1,6 @@
 import { GlobalSettings } from "../../angular-configs/global.settings";
 
-export class CreateViewModelController {
+export class CreateAppModelController {
     constructor(
         $scope,
         $rootScope,
@@ -21,129 +21,7 @@ export class CreateViewModelController {
         this.validationService = validationService;
         this.notifyService = notificationService;
 
-        this.groups = _.filter(this.$rootScope.groups, (g) => { return g.ObjectType == 'ViewModel' });
-        this.propertyTypes = [{
-            Value: "string",
-            Text: "String",
-            Type: 0,
-        },
-        {
-            Value: "bool",
-            Text: "Boolean",
-            Type: 0,
-        },
-        {
-            Value: "byte",
-            Text: "Byte",
-            Type: 0,
-        },
-        {
-            Value: "char",
-            Text: "Char",
-            Type: 0,
-        },
-        {
-            Value: "datetime",
-            Text: "Date Time",
-            Type: 0,
-        },
-        {
-            Value: "decimal",
-            Text: "Decimal",
-            Type: 0,
-        },
-        {
-            Value: "double",
-            Text: "Double",
-            Type: 0,
-        },
-        {
-            Value: "short",
-            Text: "Short",
-            Type: 0,
-        },
-        {
-            Value: "int",
-            Text: "Int",
-            Type: 0,
-        },
-        {
-            Value: "long",
-            Text: "Long",
-            Type: 0,
-        },
-        {
-            Value: "sbyte",
-            Text: "Sbyte",
-            Type: 0,
-        },
-        {
-            Value: "float",
-            Text: "Float",
-            Type: 0,
-        },
-        {
-            Value: "ushort",
-            Text: "Ushort",
-            Type: 0,
-        },
-        {
-            Value: "uint",
-            Text: "Uint",
-            Type: 0,
-        },
-        {
-            Value: "ulong",
-            Text: "Ulong",
-            Type: 0,
-        },
-        {
-            Value: "datetime",
-            Text: "Date Time",
-            Type: 0,
-        },
-        {
-            Value: "timespan",
-            Text: "Time Span",
-            Type: 0,
-        },
-        {
-            Value: "guid",
-            Text: "Guid",
-            Type: 0,
-        },
-        {
-            Value: "imageUrl",
-            Text: "Image Url",
-            Type: 0,
-        },
-        {
-            Value: "imageFile",
-            Text: "Image File",
-            Type: 0,
-        },
-        {
-            Value: "file",
-            Text: "File",
-            Type: 0,
-        },
-        {
-            Value: "customObject",
-            Text: "Custom Object",
-        },
-        {
-            Value: "customList",
-            Text: "Custom List",
-        },
-        {
-            Value: "viewModel",
-            Text: "View Model",
-        },
-        {
-            Value: "listOfViewModel",
-            Text: "List Of View Model",
-        },
-        ];
+        this.groups = _.filter(this.$rootScope.groups, (g) => { return g.ObjectType == 'AppModel' });
 
         studioService.setFocusModuleDelegate(this, this.onFocusModule);
 
@@ -153,23 +31,23 @@ export class CreateViewModelController {
     onPageLoad() {
         const id = this.globalService.getParameterByName("id");
 
-        this.running = "get-viewModel";
+        this.running = "get-appModel";
         this.awaitAction = {
-            title: "Loading ViewModel",
+            title: "Loading AppModel",
             subtitle: "Just a moment for loading view model...",
         };
 
-        this.apiService.get("Studio", "GetViewModel", { viewModelId: id || null }).then((data) => {
-            this.viewModels = data.ViewModels;
-            this.viewModel = data.ViewModel;
-            if (!this.viewModel) {
-                this.viewModel = {
+        this.apiService.get("Studio", "GetAppModel", { appModelId: id || null }).then((data) => {
+            this.appModels = data.AppModels;
+            this.appModel = data.AppModel;
+            if (!this.appModel) {
+                this.appModel = {
                     ScenarioId: GlobalSettings.scenarioId,
                 };
             } else {
                 this.$scope.$emit("onUpdateCurrentTab", {
-                    id: this.viewModel.Id,
-                    title: this.viewModel.ViewModelName,
+                    id: this.appModel.Id,
+                    title: this.appModel.ModelName,
                 });
             }
 
@@ -191,10 +69,10 @@ export class CreateViewModelController {
     }
 
     onFocusModule() {
-        this.$rootScope.explorerExpandedItems.push(...["view-models", "create-view-model"]);
-        this.$rootScope.explorerCurrentItem = !this.viewModel || !this.viewModel.Id ?
-            "create-view-model" :
-            this.viewModel.Id;
+        this.$rootScope.explorerExpandedItems.push(...["app-models", "create-app-model"]);
+        this.$rootScope.explorerCurrentItem = !this.appModel || !this.appModel.Id ?
+            "create-app-model" :
+            this.appModel.Id;
     }
 
     setForm() {
@@ -204,22 +82,22 @@ export class CreateViewModelController {
                 id: "drpScenarioId",
                 required: true,
             },
-            ViewModelName: {
-                id: "txtViewModelName",
+            ModelName: {
+                id: "txtModelName",
                 required: true,
             },
             Properties: {
                 rule: (value) => {
                     if (value && value.length >= 1) return true;
 
-                    return "View Model must have properties";
+                    return "App Model must have properties";
                 },
                 required: true,
             },
         },
             true,
             this.$scope,
-            "$.viewModel"
+            "$.appModel"
         );
 
         this.propertyForm = this.validationService.init({
@@ -234,8 +112,8 @@ export class CreateViewModelController {
             PropertyTypeId: {
                 rule: (value) => {
                     if (
-                        (this.property.PropertyType == "viewModel" ||
-                            this.property.PropertyType == "listOfViewModel") &&
+                        (this.property.PropertyType == "appModel" ||
+                            this.property.PropertyType == "listOfAppModel") &&
                         !value
                     ) {
                         return "Select a view model for property type";
@@ -247,14 +125,14 @@ export class CreateViewModelController {
     }
 
     /*------------------------------------
-           ViewModel Property
+           AppModel Property
           ------------------------------------*/
     onAddPropertyClick() {
         if (this.property) return;
 
-        this.viewModel.Properties = this.viewModel.Properties || [];
+        this.appModel.Properties = this.appModel.Properties || [];
 
-        const propertyIndex = this.viewModel.Properties.length;
+        const propertyIndex = this.appModel.Properties.length;
         const property = {
             IsEdited: true,
             IsNew: true,
@@ -262,7 +140,7 @@ export class CreateViewModelController {
             ViewOrder: propertyIndex + 1,
         };
 
-        this.viewModel.Properties.push(property);
+        this.appModel.Properties.push(property);
 
         this.property = _.clone(property);
 
@@ -291,7 +169,7 @@ export class CreateViewModelController {
     }
 
     onPropertySwapClick(index, swappedIndex) {
-        const properties = this.viewModel.Properties;
+        const properties = this.appModel.Properties;
 
         if (swappedIndex > -1 && swappedIndex < properties.length) {
             [properties[index], properties[swappedIndex]] = [
@@ -300,7 +178,7 @@ export class CreateViewModelController {
             ];
 
             properties.map(
-                (c) => (c.ViewOrder = this.viewModel.Properties.indexOf(c) + 1)
+                (c) => (c.ViewOrder = this.appModel.Properties.indexOf(c) + 1)
             );
         }
     }
@@ -310,7 +188,7 @@ export class CreateViewModelController {
         this.propertyForm.validator(this.property);
         if (this.propertyForm.valid) {
             this.property.IsEdited = false;
-            this.viewModel.Properties[this.propertyIndex] = _.clone(this.property);
+            this.appModel.Properties[this.propertyIndex] = _.clone(this.property);
 
             delete this.property;
             delete this.propertyIndex;
@@ -319,34 +197,34 @@ export class CreateViewModelController {
 
     onCancelPropertyClick() {
         if (this.property.IsNew)
-            this.viewModel.Properties.splice(this.propertyIndex, 1);
-        else this.viewModel.Properties[this.propertyIndex].IsEdited = false;
+            this.appModel.Properties.splice(this.propertyIndex, 1);
+        else this.appModel.Properties[this.propertyIndex].IsEdited = false;
 
         delete this.property;
         delete this.propertyIndex;
     }
 
-    onSaveViewModelClick() {
+    onSaveAppModelClick() {
         this.form.validated = true;
-        this.form.validator(this.viewModel);
+        this.form.validator(this.appModel);
 
         if (this.form.valid) {
-            this.running = "save-viewModel";
+            this.running = "save-appModel";
             this.awaitAction = {
-                title: "Creating ViewModel",
-                subtitle: "Just a moment for creating viewModel...",
+                title: "Creating AppModel",
+                subtitle: "Just a moment for creating appModel...",
             };
 
             this.currentTabKey = this.$rootScope.currentTab.key;
 
-            this.apiService.post("Studio", "SaveViewModel", this.viewModel).then((data) => {
-                this.viewModel = data;
+            this.apiService.post("Studio", "SaveAppModel", this.appModel).then((data) => {
+                this.appModel = data;
 
-                this.notifyService.success("ViewModel updated has been successfully");
+                this.notifyService.success("AppModel updated has been successfully");
 
                 this.$scope.$emit("onUpdateCurrentTab", {
-                    id: this.viewModel.Id,
-                    title: this.viewModel.ViewModelName,
+                    id: this.appModel.Id,
+                    title: this.appModel.ModelName,
                     key: this.currentTabKey,
                 });
 
@@ -361,11 +239,11 @@ export class CreateViewModelController {
 
                 if (error.data.HResult == "-2146232060")
                     this.notifyService.error(
-                        `ViewModel name must be unique.${this.viewModel.ViewModelName} is already in the scenario viewModels`
+                        `AppModel name must be unique.${this.appModel.ModelName} is already in the scenario appModels`
                     );
                 else if (error.data.HResult == "-2146233088")
                     this.notifyService.error(
-                        `Table name must be unique.${this.viewModel.TableName} is already in the database`
+                        `Table name must be unique.${this.appModel.TableName} is already in the database`
                     );
                 else this.notifyService.error(error.data.Message);
 
@@ -375,7 +253,7 @@ export class CreateViewModelController {
         }
     }
 
-    onDeleteViewModelClick() {
+    onDeleteAppModelClick() {
         swal({
             title: "Are you sure?",
             text: "Once deleted, you will not be able to recover this imaginary view model!",
@@ -384,14 +262,14 @@ export class CreateViewModelController {
             dangerMode: true,
         }).then((willDelete) => {
             if (willDelete) {
-                this.running = "get-viewModels";
+                this.running = "get-appModels";
                 this.awaitAction = {
-                    title: "Remove ViewModel",
-                    subtitle: "Just a moment for removing viewModel...",
+                    title: "Remove AppModel",
+                    subtitle: "Just a moment for removing appModel...",
                 };
 
-                this.apiService.post("Studio", "DeleteViewModel", { Id: this.viewModel.Id }).then((data) => {
-                    if (data) this.notifyService.success("ViewModel deleted has been successfully");
+                this.apiService.post("Studio", "DeleteAppModel", { Id: this.appModel.Id }).then((data) => {
+                    if (data) this.notifyService.success("AppModel deleted has been successfully");
 
                     this.onCloseWindow();
 

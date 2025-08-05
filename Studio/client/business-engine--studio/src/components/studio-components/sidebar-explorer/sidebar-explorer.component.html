@@ -88,52 +88,52 @@
                 </ul>
             </li>
             <!------------------------------------>
-            <!--View Models-->
+            <!--App Models-->
             <!------------------------------------>
-            <li class="exp-item exp-has-childs exp-view-models">
-                <a class="exp-label collapsed" data-bs-toggle="collapse" data-bs-target="#expViewModelItems"
-                    ng-class="{'collapsed':!$.isExpanded('view-models','create-view-model')}" data-drop="true"
+            <li class="exp-item exp-has-childs exp-app-models">
+                <a class="exp-label collapsed" data-bs-toggle="collapse" data-bs-target="#expAppModelItems"
+                    ng-class="{'collapsed':!$.isExpanded('app-models','create-app-model')}" data-drop="true"
                     jqyoui-droppable="{onOver:'$.onItemDragOver()',onOut:'$.onItemDragOut()',onDrop:'$.onItemDrop(null)'}"
-                    data-type="ViewModel">
+                    data-type="AppModel">
                     <i class="codicon codicon-chevron-down exp-arrow-icon"></i>
-                    <i class="codicon codicon-references"></i> View Models
+                    <i class="codicon codicon-references"></i> App Models
                 </a>
                 <span class="hover-wrapper">
-                    <i class="codicon codicon-plus" ng-click="$.onItemClick($event,'create-view-model')"></i>
+                    <i class="codicon codicon-plus" ng-click="$.onItemClick($event,'create-app-model')"></i>
                     <i class="codicon codicon-collapse-all" data-bs-toggle="collapse"
-                        data-bs-target="#expViewModelItems"></i>
+                        data-bs-target="#expAppModelItems"></i>
                 </span>
-                <ul class="exp-sub-items collapse" id="expViewModelItems" data-items="'view-models','create-view-model'"
-                    ng-class="{'show':$.searchItem || $.isExpanded('view-models','create-view-model')}">
+                <ul class="exp-sub-items collapse" id="expAppModelItems" data-items="'app-models','create-app-model'"
+                    ng-class="{'show':$.searchItem || $.isExpanded('app-models','create-app-model')}">
                     <li class="exp-item">
-                        <a class="exp-label" ng-click="$.onItemClick($event,'view-models')"
-                            ng-class="{'active':$.$rootScope.explorerCurrentItem=='view-models'}">
-                            <i class="codicon codicon-table"></i> View Models
+                        <a class="exp-label" ng-click="$.onItemClick($event,'app-models')"
+                            ng-class="{'active':$.$rootScope.explorerCurrentItem=='app-models'}">
+                            <i class="codicon codicon-table"></i> App Models
                         </a>
                     </li>
                     <li class="exp-item">
-                        <a class="exp-label" ng-click="$.onItemClick($event,'create-view-model')"
-                            ng-class="{'active':$.$rootScope.explorerCurrentItem=='create-view-model'}">
-                            <i class="codicon codicon-new-file"></i> New View Model
+                        <a class="exp-label" ng-click="$.onItemClick($event,'create-app-model')"
+                            ng-class="{'active':$.$rootScope.explorerCurrentItem=='create-app-model'}">
+                            <i class="codicon codicon-new-file"></i> New App Model
                         </a>
                     </li>
                     <!------------------------------------>
-                    <!--View Model Groups-->
+                    <!--App Model Groups-->
                     <!------------------------------------>
                     <li class="exp-item exp-has-childs exp-group"
-                        ng-repeat="group in $.$rootScope.groups | orderBy:'ViewOrder' | filter:{ObjectType:'ViewModel'}"
+                        ng-repeat="group in $.$rootScope.groups | orderBy:'ViewOrder' | filter:{ObjectType:'AppModel'}"
                         ng-include="'sidebarExplorerGroup.html'"></li>
                     <!------------------------------------>
-                    <!--View Model noGroup Items-->
+                    <!--App Model noGroup Items-->
                     <!------------------------------------>
                     <li class="exp-item" id="{{item.ItemId}}"
-                        ng-repeat="item in $.viewModels | fuzzyBy: 'Title': $.searchItem | filter:{GroupId:null}">
+                        ng-repeat="item in $.appModels | fuzzyBy: 'Title': $.searchItem | filter:{GroupId:null}">
                         <a class="exp-label"
-                            ng-click="$.onItemClick($event,'create-view-model',null,item.ItemId,item.Title)"
+                            ng-click="$.onItemClick($event,'create-app-model',null,item.ItemId,item.Title)"
                             ng-class="{'active':$.$rootScope.explorerCurrentItem==item.ItemId}"
                             jqyoui-draggable="{animate:true,onDrag:'$.onDrag()',onStop:'$.onStopDrag($index)'}"
                             jqyoui-options="{revert: 'invalid'}" data-drag="true" data-item="{{item.ItemId}}"
-                            data-type="ViewModel">
+                            data-type="AppModel">
                             <i class="codicon codicon-output"></i> {{item.Title}}
                         </a>
                     </li>
@@ -284,7 +284,7 @@
                             ng-disabled="$.group.Id || $.running" chosen inherit-select-classes="true"
                             placeholder-text-single="'Select group type'" required>
                             <option value="Entity">Entity</option>
-                            <option value="ViewModel">View Model</option>
+                            <option value="AppModel">App Model</option>
                             <option value="Service">Service</option>
                         </select>
                         <span><i class="codicon codicon-activate-breakpoints"></i></span>

@@ -1,12 +1,12 @@
-<div ng-controller="createViewModelController as $" class="create-view-model"
+<div ng-controller="createAppModelController as $" class="create-app-model"
     ng-class="{'was-validated':$.form.validated}">
-    <b-content-widget data-title="Create View Model" data-icon="output" data-module-type="create-view-model"
+    <b-content-widget data-title="Create App Model" data-icon="output" data-module-type="create-app-model"
         data-subtitle="Add or edit scenario view model" data-await-action="$.awaitAction" data-module="$"
         data-reload-method="onPageLoad" data-close-method="onCloseWindow">
         <!------------------------------------>
-        <!--View Model-->
+        <!--App Model-->
         <!------------------------------------>
-        <div class="view-model">
+        <div class="app-model">
             <!------------------------------------>
             <!--Left Side-->
             <!------------------------------------>
@@ -14,10 +14,10 @@
                 <div class="b-field">
                     <label class="form-label">Scenario</label>
                     <div class="b-input-group">
-                        <select id="drpScenarioId" ng-model="$.viewModel.ScenarioId" class="b-input form-select"
+                        <select id="drpScenarioId" ng-model="$.appModel.ScenarioId" class="b-input form-select"
                             ng-options="scenario.Id as scenario.ScenarioTitle for scenario in $.$rootScope.scenarios"
                             ng-disabled="true" chosen inherit-select-classes="true"
-                            placeholder-text-single="'Select viewModel scenario'" required>
+                            placeholder-text-single="'Select appModel scenario'" required>
                         </select>
                         <span><i class="codicon codicon-activate-breakpoints"></i></span>
                     </div>
@@ -25,7 +25,7 @@
                 <div class="b-field">
                     <label class="form-label">Group</label>
                     <div class="b-input-group">
-                        <select ng-model="$.viewModel.GroupId" class="b-input form-select"
+                        <select ng-model="$.appModel.GroupId" class="b-input form-select"
                             ng-options="group.Id as group.GroupName for group in $.groups" chosen
                             inherit-select-classes="true" placeholder-text-single="'Select a group(optional)'">
                             <option value=""></option>
@@ -34,19 +34,19 @@
                     </div>
                 </div>
                 <div class="b-field">
-                    <label class="form-label">View Model Name</label>
+                    <label class="form-label">App Model Name</label>
                     <div class="b-input-group">
-                        <input type="text" id="txtViewModelName" ng-model="$.viewModel.ViewModelName"
-                            class="b-input form-control" placeholder="Enter viewModel name" autocomplete="off"
+                        <input type="text" id="txtModelName" ng-model="$.appModel.ModelName"
+                            class="b-input form-control" placeholder="Enter appModel name" autocomplete="off"
                             required />
                         <span><i class="codicon codicon-account"></i></span>
                     </div>
-                    <p class="b-invalid">{{$.form.error.ViewModelName}}</p>
+                    <p class="b-invalid">{{$.form.error.ModelName}}</p>
                 </div>
                 <div class="b-field">
                     <label class="form-label">View Order</label>
                     <div class="b-input-group">
-                        <input type="number" ng-model="$.viewModel.ViewOrder" class="b-input form-control"
+                        <input type="number" ng-model="$.appModel.ViewOrder" class="b-input form-control"
                             placeholder="Enter table view order" autocomplete="off" />
                         <span><i class="codicon codicon-list-ordered"></i></span>
                     </div>
@@ -59,7 +59,7 @@
                 <div class="b-field">
                     <label class="form-label">Description</label>
                     <div class="b-input-group">
-                        <textarea ng-model="$.viewModel.Description" class="b-input form-control" rows="4"
+                        <textarea ng-model="$.appModel.Description" class="b-input form-control" rows="4"
                             placeholder="Enter view model description"></textarea>
                         <span class="my-auto"><i class="codicon codicon-debug-stackframe-active"></i></span>
                     </div>
@@ -67,13 +67,13 @@
             </div>
         </div>
         <!------------------------------------>
-        <!--View Model Properties-->
+        <!--App Model Properties-->
         <!------------------------------------>
-        <div class="view-model-properties">
+        <div class="app-model-properties">
             <div class="b-table theme-gray">
                 <div class="table-header">
                     <div class="header-label">
-                        <h4 class="header-title">View Model Properties</h4>
+                        <h4 class="header-title">App Model Properties</h4>
                         <span class="header-subtitle">Properties of the current view model</span>
                     </div>
                     <div class="header-tools">
@@ -109,7 +109,7 @@
                             <i class="codicon codicon-ellipsis"></i>
                         </div>
                     </div>
-                    <div class="d-flex table-row" ng-repeat="property in $.viewModel.Properties | orderBy : 'ViewOrder'"
+                    <div class="d-flex table-row" ng-repeat="property in $.appModel.Properties | orderBy : 'ViewOrder'"
                         ng-if="!property.IsEdited" ng-style="{'order':($index+1)}">
                         <div class="col-4 my-auto" ng-click="$.onRowItemClick(property,$index)">
                             {{property.PropertyName}}
@@ -123,14 +123,14 @@
                                     ng-click="$.onPropertySwapClick($index,$index-1)"></i>
                             </button>
                             <button type="button" class="b-clean text-light"
-                                ng-disabled="$.property || $index==$.viewModel.Properties.length-1">
+                                ng-disabled="$.property || $index==$.appModel.Properties.length-1">
                                 <i class="codicon codicon-arrow-down d-inline-block"
                                     ng-click="$.onPropertySwapClick($index,$index+1)"></i>
                             </button>
                         </div>
                         <div class=" col-2">
                             <div class="b-multi-btns">
-                                <button type="button" ng-click="$.viewModel.Properties.splice($index,1)"
+                                <button type="button" ng-click="$.appModel.Properties.splice($index,1)"
                                     ng-disabled="$.property" b-custom-tooltip data-bs-placement="bottom"
                                     title="Cancel Property">
                                     <i class="codicon codicon-trash"></i>
@@ -155,9 +155,9 @@
                                 inherit-select-classes="true" placeholder-text-single="'Select property type'" required>
                             </select>
                             <select
-                                ng-if="$.property.PropertyType=='viewModel' || $.property.PropertyType=='listOfViewModel'"
+                                ng-if="$.property.PropertyType=='appModel' || $.property.PropertyType=='listOfAppModel'"
                                 id="drpPropertyTypeId" ng-model="$.property.PropertyTypeId" class="b-input form-select"
-                                ng-options="vm.Id as vm.ViewModelName for vm in $.viewModels" chosen
+                                ng-options="vm.Id as vm.ModelName for vm in $.appModels" chosen
                                 inherit-select-classes="true" placeholder-text-single="'Select view model'">
                             </select>
                             <p class="b-invalid">{{$.propertyForm.error.PropertyType}}</p>
@@ -183,10 +183,10 @@
                         ng-disabled="$.property">
                         <i class="codicon codicon-plus me-0" ng-disabled="$.running"></i>
                     </button>
-                    <div ng-if="!$.viewModel.Properties.length" class="b-notify notify-info mb-4">
+                    <div ng-if="!$.appModel.Properties.length" class="b-notify notify-info mb-4">
                         <i class="codicon codicon-info b-icon-2"></i>
                         <div class="text">
-                            <h4 class="label">ViewModel has no properties.</h4>
+                            <h4 class="label">AppModel has no properties.</h4>
                             <span class="subtext">
                                 Click
                                 Add Property
@@ -198,20 +198,20 @@
                     <div class="mb-1 d-flex">
                         <div class="me-auto" ng-if="$.service.Id">
                             <button type="button" class="b-btn btn-text-icon btn-danger"
-                                ng-click="$.onDeleteViewModelClick()" ng-disabled="$.running">
+                                ng-click="$.onDeleteAppModelClick()" ng-disabled="$.running">
                                 <i class="codicon codicon-trash"></i>
-                                Remove View Model
+                                Remove App Model
                             </button>
                         </div>
                         <div class="ms-auto d-flex">
                             <button type="button" class="b-btn btn-text-icon btn-submit me-2"
-                                ng-click="$.onSaveViewModelClick()" ng-disabled="$.running || $.property">
+                                ng-click="$.onSaveAppModelClick()" ng-disabled="$.running || $.property">
                                 <i class="codicon codicon-save"
-                                    ng-class="{'loading-circle mini':$.running=='save-viewModel'}"></i>
-                                Save View Model
+                                    ng-class="{'loading-circle mini':$.running=='save-appModel'}"></i>
+                                Save App Model
                             </button>
                             <button type="button" class="b-btn btn-text-icon btn-cancel"
-                                ng-click="$.onCancelViewModelClick()" ng-disabled="$.running || $.property">
+                                ng-click="$.onCancelAppModelClick()" ng-disabled="$.running || $.property">
                                 <i class="codicon codicon-circle-slash"></i>
                                 Cancel
                             </button>

@@ -84,7 +84,7 @@
         <!------------------------------------>
         <div class="col-8 b-splitter border-end pe-2">
             <div class="b-group">
-                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpMapToViewModel">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpMapToAppModel">
                     <h3 class="group-label">
                         <span class="group-icon">
                             <i class="codicon codicon-server-process"></i>
@@ -94,7 +94,7 @@
                         <i class="codicon codicon-chevron-up"></i>
                     </span>
                 </div>
-                <div id="grpMapToViewModel" class="group-content collapse show">
+                <div id="grpMapToAppModel" class="group-content collapse show">
                     <div class="b-table theme-gray">
                         <div class="table-header">
                             <div class="header-label">
@@ -103,17 +103,17 @@
                             </div>
                             <div class="header-tools">
                                 <div class="col-11">
-                                    <select id="drpViewModelId" ng-model="$.dataSourceService.ViewModelId"
+                                    <select id="drpAppModelId" ng-model="$.dataSourceService.AppModelId"
                                         class="b-input form-select b-btn btn-action text-start"
-                                        ng-options="vm.Id as vm.ViewModelName for vm in $.viewModels"
-                                        ng-change="$.onSelectedViewModelChange()" chosen inherit-select-classes="true"
+                                        ng-options="vm.Id as vm.AppModelName for vm in $.appModels"
+                                        ng-change="$.onSelectedAppModelChange()" chosen inherit-select-classes="true"
                                         placeholder-text-single="'Select view model'" 
                                         ng-disabled="!$.dataSourceService.Entities.length || $.running" required>
                                     </select>
                                 </div>
                                 <div class="col-1">
                                     <i role="button" class="codicon codicon-refresh text-light ms-2 mt-2"
-                                        ng-click="$.onRefreshViewModelClick()"></i>
+                                        ng-click="$.onRefreshAppModelClick()"></i>
                                 </div>
                             </div>
                         </div>
@@ -124,7 +124,7 @@
                                 <div class="g-col-3">Value Type</div>
                                 <div class="g-col-5">Value</div>
                             </div>
-                            <div class="grid table-row" ng-repeat="prop in $.dataSourceService.ViewModelProperties">
+                            <div class="grid table-row" ng-repeat="prop in $.dataSourceService.AppModelProperties">
                                 <div class="g-col-1">
                                     <label class="b-checkbox">
                                         <input type="checkbox" ng-model="prop.IsSelected" />
@@ -180,7 +180,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <div ng-if="$.dataSourceService.Entities.length && !$.dataSourceService.ViewModelId"
+                            <div ng-if="$.dataSourceService.Entities.length && !$.dataSourceService.AppModelId"
                                 class="b-notify notify-note mb-4">
                                 <i class="codicon codicon-info b-icon-2"></i>
                                 <div class="text">
@@ -190,7 +190,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <p class="b-invalid">{{$.form.error.ViewModelProperties}}</p>
+                            <p class="b-invalid">{{$.form.error.AppModelProperties}}</p>
                         </div>
                     </div>
                 </div>

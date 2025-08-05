@@ -266,7 +266,7 @@
     color: #f55385;
 }
 
-.b-sidebar-explorer .exp-items .exp-item.exp-view-models>.exp-sub-items i {
+.b-sidebar-explorer .exp-items .exp-item.exp-app-models>.exp-sub-items i {
     color: #e37933;
 }
 
@@ -2406,8 +2406,8 @@ ul.b-custom-star-rating>li>i.is-fill {
     color: #f55385;
 }
 
-.b-create-view-model-icon,
-.b-view-models-icon {
+.b-create-app-model-icon,
+.b-app-models-icon {
     color: #e37933;
 }
 

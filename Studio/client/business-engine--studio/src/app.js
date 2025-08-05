@@ -58,8 +58,8 @@ import { StudioController } from "./studio.controller";
 import { CreateScenarioController } from "./scenario-management/scenarios/create-scenario.controller";
 import { EntitiesController } from "./scenario-management/entities/entities.controller";
 import { CreateEntityController } from "./scenario-management/entities/create-entity.controller";
-import { ViewModelsController } from "./scenario-management/view-models/view-models.controller";
-import { CreateViewModelController } from "./scenario-management/view-models/create-view-model.controller";
+import { AppModelsController } from "./scenario-management/app-models/app-models.controller";
+import { CreateAppModelController } from "./scenario-management/app-models/create-app-model.controller";
 import { ServicesController } from "./scenario-management/services/services.controller";
 import { CreateServiceController } from "./scenario-management/services/create-service.controller";
 
@@ -129,8 +129,8 @@ const app = angular
     .controller("createScenarioController", CreateScenarioController)
     .controller("entitiesController", EntitiesController)
     .controller("createEntityController", CreateEntityController)
-    .controller("viewModelsController", ViewModelsController)
-    .controller("createViewModelController", CreateViewModelController)
+    .controller("appModelsController", AppModelsController)
+    .controller("createAppModelController", CreateAppModelController)
     .controller("servicesController", ServicesController)
     .controller("createServiceController", CreateServiceController)
 

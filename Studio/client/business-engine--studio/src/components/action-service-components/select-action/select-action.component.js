@@ -104,7 +104,7 @@ const SelectActionComponent = {
         datasource: "@",
         variables: "<",
         fields: "<",
-        viewModels: "<",
+        appModels: "<",
     },
     controller: SelectActionController,
     controllerAs: "$",

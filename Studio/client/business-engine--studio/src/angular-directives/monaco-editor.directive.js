@@ -13,7 +13,7 @@ export function MonacoEditor($rootScope, $filter, $timeout) {
         scope: {
             datasource: "=",
             variables: "=",
-            viewModels: "=",
+            appModels: "=",
             fields: "=",
             serviceResult: "="
         },
@@ -243,22 +243,22 @@ export function MonacoEditor($rootScope, $filter, $timeout) {
 
                 if (dataSource.indexOf("variables") >= 0 && scope.variables) {
                     _.forEach(scope.variables, function (varb) {
-                        if (varb.VariableType == "viewModel" && scope.viewModels) {
+                        if (varb.VariableType == "appModel" && scope.appModels) {
                             result[varb.VariableName] = {};
-                            $filter("filter")(scope.viewModels, function (vm) {
-                                return vm.ViewModelId == varb.ViewModelId;
+                            $filter("filter")(scope.appModels, function (vm) {
+                                return vm.Id == varb.AppModelId;
                             }).map(function (vm) {
                                 _.forEach(vm.Properties, function (prop) {
                                     result[varb.VariableName][prop.PropertyName] = "";
                                 });
                             });
                         } else if (
-                            varb.VariableType == "listOfViewModel" &&
-                            scope.viewModels
+                            varb.VariableType == "listOfAppModel" &&
+                            scope.appModels
                         ) {
                             result[varb.VariableName] = [];
-                            $filter("filter")(scope.viewModels, function (vm) {
-                                return vm.ViewModelId == varb.ViewModelId;
+                            $filter("filter")(scope.appModels, function (vm) {
+                                return vm.Id == varb.AppModelId;
                             }).map(function (vm) {
                                 var obj = {};
                                 _.forEach(vm.Properties, function (prop) {

@@ -41,11 +41,11 @@ class BindEntityServiceController {
 
     onPageLoad() {
         this.entities = this.serviceController.extensionDependency.Entities;
-        this.viewModels = this.serviceController.extensionDependency.ViewModels;
+        this.appModels = this.serviceController.extensionDependency.AppModels;
         this.bindEntityService = this.serviceController.extensionService ??
         {
             BaseQuery: this.baseQueryTemplate,
-            ViewModelProperties: [],
+            AppModelProperties: [],
             Filters: [],
             Settings: {
                 StoredProcedurePrefixName: this.$rootScope.scenario.DatabaseObjectPrefix,
@@ -88,29 +88,29 @@ class BindEntityServiceController {
         })
     }
 
-    onSelectedViewModelChange() {
-        this.onRefreshViewModelClick();
+    onSelectedAppModelChange() {
+        this.onRefreshAppModelClick();
     }
 
-    onRefreshViewModelClick() {
+    onRefreshAppModelClick() {
         var result = [];
 
-        const viewModel = _.find(this.viewModels, (v) => {
-            return v.Id == this.bindEntityService.ViewModelId;
+        const appModel = _.find(this.appModels, (v) => {
+            return v.Id == this.bindEntityService.AppModelId;
         });
 
-        _.forEach(viewModel.Properties, (prop) => {
+        _.forEach(appModel.Properties, (prop) => {
             var property = {
                 Id: prop.Id,
                 PropertyName: prop.PropertyName
             };
 
-            if (!this.bindEntityService.ViewModelProperties || !this.bindEntityService.ViewModelProperties.length) {
+            if (!this.bindEntityService.AppModelProperties || !this.bindEntityService.AppModelProperties.length) {
                 property.IsSelected = true;
                 property.ColumnName = prop.PropertyName;
             }
             else {
-                _.filter(this.bindEntityService.ViewModelProperties, (p) => {
+                _.filter(this.bindEntityService.AppModelProperties, (p) => {
                     return p.Id == prop.Id;
                 }).map((p) => {
                     property.ColumnName = p.Value ?? prop.PropertyName;
@@ -120,7 +120,7 @@ class BindEntityServiceController {
             result.push(property);
         });
 
-        this.bindEntityService.ViewModelProperties = result;
+        this.bindEntityService.AppModelProperties = result;
     }
 
     onAddFilterClick() {

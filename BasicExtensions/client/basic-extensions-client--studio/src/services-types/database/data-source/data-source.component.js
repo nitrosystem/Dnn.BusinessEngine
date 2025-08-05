@@ -41,7 +41,7 @@ class DataSourceServiceController {
 
     onPageLoad() {
         this.entities = this.serviceController.extensionDependency.Entities;
-        this.viewModels = this.serviceController.extensionDependency.ViewModels;
+        this.appModels = this.serviceController.extensionDependency.AppModels;
         this.dataSourceService = this.serviceController.extensionService ??
         {
             BaseQuery: this.baseQueryTemplate,
@@ -75,7 +75,7 @@ class DataSourceServiceController {
             });
         });
 
-        (this.dataSourceService.ViewModelProperties || []).forEach((prop) => {
+        (this.dataSourceService.AppModelProperties || []).forEach((prop) => {
             this.onSelectedEntityAliasChange(prop);
         });
 
@@ -94,11 +94,11 @@ class DataSourceServiceController {
                 },
                 required: true,
             },
-            ViewModelId: {
-                id: "drpViewModelId",
+            AppModelId: {
+                id: "drpAppModelId",
                 required: true,
             },
-            ViewModelProperties: {
+            AppModelProperties: {
                 rule: (value) => {
                     if (value && value.length) {
                         return true;
@@ -164,18 +164,18 @@ class DataSourceServiceController {
         this.dataSourceService.BaseQuery = this.baseQueryTemplate;
     }
 
-    onSelectedViewModelChange() {
-        this.onRefreshViewModelClick();
+    onSelectedAppModelChange() {
+        this.onRefreshAppModelClick();
     }
 
-    onRefreshViewModelClick() {
+    onRefreshAppModelClick() {
         var result = [];
 
-        const viewModel = _.find(this.viewModels, (v) => {
-            return v.Id == this.dataSourceService.ViewModelId;
+        const appModel = _.find(this.appModels, (v) => {
+            return v.Id == this.dataSourceService.AppModelId;
         });
 
-        _.forEach(viewModel.Properties, (prop) => {
+        _.forEach(appModel.Properties, (prop) => {
             var property = {
                 Id: prop.Id,
                 PropertyName: prop.PropertyName,
@@ -183,7 +183,7 @@ class DataSourceServiceController {
             };
 
 
-            _.filter(this.dataSourceService.ViewModelProperties, (p) => {
+            _.filter(this.dataSourceService.AppModelProperties, (p) => {
                 return p.Id == prop.Id;
             }).map((p) => {
                 property.IsSelected = p.IsSelected;
@@ -208,7 +208,7 @@ class DataSourceServiceController {
             result.push(property);
         });
 
-        this.dataSourceService.ViewModelProperties = result;
+        this.dataSourceService.AppModelProperties = result;
     }
 
     onSelectedEntityAliasChange(prop) {

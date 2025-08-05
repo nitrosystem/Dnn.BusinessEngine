@@ -86,7 +86,7 @@ const PropertyListComponent = {
         datasource: "@",
         variables: "<",
         fields: "<",
-        viewModels: "<",
+        appModels: "<",
         actionProperties: "<",
     },
     controller: PropertyListController,

@@ -42,45 +42,45 @@
 
 
 /* --------------------------------------------------------
-        Create View Model
+        Create App Model
     -----------------------------------------------------------*/
 
-.create-view-model {
+.create-app-model {
     position: relative;
 }
 
-.create-view-model .view-model {
+.create-app-model .app-model {
     display: flex;
     border-bottom: solid 0.1rem #636469 !important;
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
 }
 
-.create-view-model .view-model-properties {
+.create-app-model .app-model-properties {
     margin-bottom: 1rem;
 }
 
-.create-view-model .view-model-properties .b-table .b-input {
+.create-app-model .app-model-properties .b-table .b-input {
     background-color: #444446;
     border: solid 0.1rem #939393;
 }
 
-.create-view-model .view-model-properties .b-table i.codicon {
+.create-app-model .app-model-properties .b-table i.codicon {
     cursor: pointer;
 }
 
-.create-view-model .view-model-properties .table-row {
+.create-app-model .app-model-properties .table-row {
     border-bottom: solid 0.1rem #57585c;
     padding-bottom: 0.7rem;
     margin-bottom: 0.7rem;
 }
 
-.create-view-model .view-model-properties .table-row:not(.edit-row):hover {
+.create-app-model .app-model-properties .table-row:not(.edit-row):hover {
     cursor: pointer;
     border-bottom: solid 0.1rem #444;
 }
 
-.create-view-model .view-model-properties .table-row.edit-row {
+.create-app-model .app-model-properties .table-row.edit-row {
     border-bottom-color: #ccc;
 }
 

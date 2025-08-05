@@ -4,8 +4,8 @@ import { activityBarItems } from "./angular-configs/activity-bar.config";
 import createScenarioTemplate from "./scenario-management/scenarios/create-scenario.html";
 import entitiesTemplate from "./scenario-management/entities/entities.html";
 import createEntityTemplate from "./scenario-management/entities/create-entity.html";
-import viewModelsTemplate from "./scenario-management/view-models/view-models.html";
-import createViewModelTemplate from "./scenario-management/view-models/create-view-model.html";
+import appModelsTemplate from "./scenario-management/app-models/app-models.html";
+import createAppModelTemplate from "./scenario-management/app-models/create-app-model.html";
 import servicesTemplate from "./scenario-management/services/services.html";
 import createServiceTemplate from "./scenario-management/services/create-service.html";
 import createModuleTemplate from "./create-module/create-module.html";
@@ -386,15 +386,15 @@ export class StudioController {
                 result.icon = "table";
                 result.content = createEntityTemplate;
                 break;
-            case "view-models":
-                result.title = "View Models";
+            case "app-models":
+                result.title = "App Models";
                 result.icon = "references";
-                result.content = viewModelsTemplate;
+                result.content = appModelsTemplate;
                 break;
-            case "create-view-model":
-                result.title = "New View Model";
+            case "create-app-model":
+                result.title = "New App Model";
                 result.icon = "table";
-                result.content = createViewModelTemplate;
+                result.content = createAppModelTemplate;
                 break;
             case "services":
                 result.title = "Services";

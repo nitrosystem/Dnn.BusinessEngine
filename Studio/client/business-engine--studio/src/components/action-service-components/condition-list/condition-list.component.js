@@ -112,7 +112,7 @@ const ConditionListComponent = {
         datasource: "@",
         variables: "<",
         fields: "<",
-        viewModels: "<",
+        appModels: "<",
         actionConditions: "<",
     },
     controller: ConditionListController,

@@ -86,8 +86,8 @@ class SidebarExplorerController {
             return i.Type == "Entity";
         });
 
-        this.viewModels = _.filter(items, function (i) {
-            return i.Type == "ViewModel";
+        this.appModels = _.filter(items, function (i) {
+            return i.Type == "AppModel";
         });
 
         this.services = _.filter(items, function (i) {
@@ -126,8 +126,8 @@ class SidebarExplorerController {
         switch (moduleType) {
             case 'Entity':
                 return 'create-entity';
-            case 'ViewModel':
-                return 'create-view-model';
+            case 'AppModel':
+                return 'create-app-model';
             case 'Service':
                 return 'create-service';
             default:

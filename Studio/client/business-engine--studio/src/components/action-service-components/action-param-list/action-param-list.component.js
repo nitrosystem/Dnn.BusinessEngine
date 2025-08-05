@@ -98,7 +98,7 @@ const ActionParamListComponent = {
         datasource: "@",
         variables: "<",
         fields: "<",
-        viewModels: "<",
+        appModels: "<",
         actionParams: "<",
     },
     controller: ActionParamListController,

@@ -360,7 +360,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         public async Task<IEnumerable<ModuleVariableViewModel>> GetModuleVariablesViewModelAsync(Guid moduleId)
         {
             var task1 = _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId, "ViewOrder");
-            var task2 = _repository.ExecuteStoredProcedureAsListAsync<ViewModelInfo>("BusinessEngine_GetVariablesViewModels",
+            var task2 = _repository.ExecuteStoredProcedureAsListAsync<AppModelInfo>("BusinessEngine_GetVariablesViewModels",
                 new { ModuleId = moduleId });
 
             await Task.WhenAll(task1, task2);
@@ -371,15 +371,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         public async Task<IEnumerable<ModuleVariableDto>> GetModuleVariablesDtoAsync(Guid moduleId)
         {
             var variables = await _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId, "VariableName");
-            var viewModelProperties = await _repository.GetAllAsync<ViewModelPropertyInfo>();
+            var viewModelProperties = await _repository.GetAllAsync<AppModelPropertyInfo>();
 
             return variables.Select(variable =>
                 HybridMapper.MapWithConfig<ModuleVariableInfo, ModuleVariableDto>(variable,
                 (src, dest) =>
                 {
                     dest.Scope = (ModuleVariableScope)variable.Scope;
-                    dest.Properties = viewModelProperties.Where(p => p.ViewModelId == variable.ViewModelId).Select(property =>
-                        HybridMapper.Map<ViewModelPropertyInfo, PropertyInfo>(property)
+                    dest.Properties = viewModelProperties.Where(p => p.AppModelId == variable.ViewModelId).Select(property =>
+                        HybridMapper.Map<AppModelPropertyInfo, PropertyInfo>(property)
                     );
                 })
             );

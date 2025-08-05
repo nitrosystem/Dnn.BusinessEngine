@@ -81,7 +81,7 @@
     <Compile Include="Contracts\ITemplateService.cs" />
     <Compile Include="Contracts\IGlobalService.cs" />
     <Compile Include="Contracts\IModuleService.cs" />
-    <Compile Include="Contracts\IViewModelService.cs" />
+    <Compile Include="Contracts\IAppModelService.cs" />
     <Compile Include="Dto\LibraryResourceDto.cs" />
     <Compile Include="Dto\LibraryDto.cs" />
     <Compile Include="Dto\ModuleTemplateDto.cs" />
@@ -109,9 +109,9 @@
     <Compile Include="Mapping\EntityMapping.cs" />
     <Compile Include="Mapping\ModuleMapping.cs" />
     <Compile Include="Mapping\ServiceMapping.cs" />
-    <Compile Include="Mapping\ViewModelMapping.cs" />
+    <Compile Include="Mapping\AppModelMapping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\ViewModelService.cs" />
+    <Compile Include="Services\AppModelService.cs" />
     <Compile Include="Services\ServiceFactory .cs" />
     <Compile Include="Services\GlobalService.cs" />
     <Compile Include="ViewModels\Action\ActionResultViewModel.cs" />
@@ -143,7 +143,7 @@
     <Compile Include="ViewModels\Service\ServiceViewModel.cs" />
     <Compile Include="ViewModels\Template\TemplateFieldTypeViewModel.cs" />
     <Compile Include="ViewModels\Template\TemplateViewModel.cs" />
-    <Compile Include="ViewModels\ViewModel\ViewModelViewModel.cs" />
+    <Compile Include="ViewModels\AppModel\AppModelViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\" />

@@ -22,6 +22,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
-        public ViewModelViewModel ViewModel { get; set; }
+        public AppModelViewModel ViewModel { get; set; }
     }
 }

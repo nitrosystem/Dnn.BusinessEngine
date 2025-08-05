@@ -144,7 +144,7 @@ const SelectServiceComponent = {
         datasource: "@",
         variables: "<",
         fields: "<",
-        viewModels: "<",
+        appModels: "<",
         actionParams: "<",
     },
     controller: SelectServiceController,
