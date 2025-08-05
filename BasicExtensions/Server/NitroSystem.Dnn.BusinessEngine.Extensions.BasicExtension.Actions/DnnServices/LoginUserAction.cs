@@ -28,7 +28,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.DnnS
 
         public async Task<IActionResult> ExecuteAsync(ActionDto action, IPortalSettings portalSettings)
         {
-            //await Task.Yield();
+            await Task.Yield();
 
             var username = action.Params.FirstOrDefault(p => p.ParamName == "@Username").ParamValue;
             var password = action.Params.FirstOrDefault(p => p.ParamName == "@Password").ParamValue;
