@@ -23,19 +23,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
         public bool ExecuteInClientSide { get; set; }
         public IEnumerable<string> AuthorizationRunAction { get; set; }
+        public IDictionary<string, object> Settings { get; set; }
+        public IEnumerable<ActionResultViewModel> Results { get; set; }
+        public IEnumerable<ActionConditionInfo> Conditions { get; set; }
+        public IEnumerable<ActionParamInfo> Params { get; set; }
+        public string ActionTypeIcon { get; set; }
+        public string ActionTypeTitle { get; set; }
+        public string FieldType { get; set; }
+        public string FieldName { get; set; }
+        public string CreatedByUserDisplayName { get; set; }
+        public string LastModifiedByUserDisplayName { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
-        public IDictionary<string, object> Settings { get; set; }
-        public IEnumerable<ActionResultViewModel> Results { get; set; }
-        public IEnumerable<ActionConditionInfo> Conditions { get; set; }
-        public IEnumerable<ActionParamInfo> Params { get; set; }
-        public string FieldName { get; set; }
-        public string CreatedByUserDisplayName { get; set; }
-        public string LastModifiedByUserDisplayName { get; set; }
-        public string ActionTypeIcon { get; set; }
     }
 }

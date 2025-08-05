@@ -84,10 +84,10 @@
     <Compile Include="Contracts\IViewModelService.cs" />
     <Compile Include="Dto\LibraryResourceDto.cs" />
     <Compile Include="Dto\LibraryDto.cs" />
-    <Compile Include="Dto\ModuleFieldAtionDto.cs" />
     <Compile Include="Dto\ModuleTemplateDto.cs" />
     <Compile Include="Dto\ModuleVariableDto.cs" />
-    <Compile Include="Dto\ServiceTypeDto.cs" />
+    <Compile Include="ListItems\ActionTypeListItem.cs" />
+    <Compile Include="ListItems\ServiceTypeListItem.cs" />
     <Compile Include="Dto\SortDto.cs" />
     <Compile Include="Dto\SortPaneFieldsDto.cs" />
     <Compile Include="Dto\UpdateModuleFieldDto.cs" />

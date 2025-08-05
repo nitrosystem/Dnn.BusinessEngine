@@ -25,8 +25,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
     {
         Task<IEnumerable<ActionTypeViewModel>> GetActionTypesViewModelAsync(string sortBy = "ViewOrder");
 
-        Task<IEnumerable<ModuleFieldActionDto>> GetModuleFieldActions(Guid fieldId, string sortBy = "ViewOrder");
-
         Task<(IEnumerable<ActionViewModel> Items, int TotalCount)> GetActionsViewModelAsync(Guid moduleId, Guid? fieldId, int pageIndex, int pageSize, string searchText, string actionType, string sortBy);
 
         Task<ActionViewModel> GetActionViewModelAsync(Guid actionId);

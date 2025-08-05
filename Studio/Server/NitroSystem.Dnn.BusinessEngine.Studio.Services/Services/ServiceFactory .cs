@@ -24,6 +24,7 @@ using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Threading;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -52,12 +53,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return BaseMapping<ServiceTypeView, ServiceTypeViewModel>.MapViewModels(serviceTypes);
         }
 
-        public async Task<IEnumerable<ServiceTypeDto>> GetServiceTypesDtoAsync()
+        public async Task<IEnumerable<ServiceTypeListItem>> GetServiceTypesListItemAsync()
         {
             var serviceTypes = await _repository.GetAllAsync<ServiceTypeView>("GroupViewOrder", "ViewOrder");
             return serviceTypes.Select(serviceType =>
             {
-                return HybridMapper.MapWithConfig<ServiceTypeView, ServiceTypeDto>(
+                return HybridMapper.MapWithConfig<ServiceTypeView, ServiceTypeListItem>(
                    serviceType, (src, dest) =>
                    {
                        dest.Icon = (serviceType.Icon ?? string.Empty).ReplaceFrequentTokens();

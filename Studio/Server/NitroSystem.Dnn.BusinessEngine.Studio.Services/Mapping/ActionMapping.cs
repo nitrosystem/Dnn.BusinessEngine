@@ -18,37 +18,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
 {
     public static class ActionMapping
     {
-        //#region Action Type Mapping
-
-        //public static IEnumerable<ActionTypeViewModel> GetActionTypesViewModel()
-        //{
-        //    var serviceTypes = ActionTypeRepository.Instance.GetActionTypes();
-
-        //    return GetActionTypesViewModel(serviceTypes);
-        //}
-
-        //public static IEnumerable<ActionTypeViewModel> GetActionTypesViewModel(IEnumerable<ActionTypeView> serviceTypes)
-        //{
-        //    var result = new List<ActionTypeViewModel>();
-
-        //    foreach (var objActionTypeView in serviceTypes ?? Enumerable.Empty<ActionTypeView>())
-        //    {
-        //        var serviceType = GetActionTypeViewModel(objActionTypeView);
-        //        result.Add(serviceType);
-        //    }
-
-        //    return result;
-        //}
-
-        //public static ActionTypeViewModel GetActionTypeViewModel(ActionTypeView objActionTypeView)
-        //{
-
-        //}
-
-        //#endregion
-
-        #region Action Mapping
-
         public static IEnumerable<ActionViewModel> MapActionsViewModel(IEnumerable<ActionView> actions, IEnumerable<ActionParamInfo> actionParams, IEnumerable<ActionConditionInfo> conditions)
         {
             var paramsDict = actionParams.GroupBy(c => c.ActionId)
@@ -117,7 +86,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
 
             return (objActionInfo, actionResults, actionConditions, actionParams);
         }
-
-        #endregion
     }
 }

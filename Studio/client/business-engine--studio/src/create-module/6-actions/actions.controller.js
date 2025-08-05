@@ -45,16 +45,15 @@ export class CreateModuleActionsController {
         }).then((data) => {
             this.actions = data.Actions;
             this.fields = data.Fields;
+            this.module = { Id: id }
 
-            // if (!this.filter.fieldId) {
-            //     var items = {};
-            //     var groups = _.groupBy(_.filter(this.actions, (a) => { return a.FieldId }), 'FieldName');
-            //     for (var key in groups) {
-            //         items[key] = this.populateActions(groups[key]);
-            //     }
-            //     this.fieldActions = items;
-            // }
-            //this.onFocusModule();
+            debugger
+            var items = {};
+            var groups = _.groupBy(_.filter(this.actions, (a) => { return a.FieldId }), 'FieldName');
+            for (var key in groups) {
+                items[key] = this.populateActions(groups[key]);
+            }
+            this.fieldActions = items;
 
             delete this.running;
             delete this.awaitAction;
@@ -78,38 +77,42 @@ export class CreateModuleActionsController {
     }
 
     populateActions(actions) {
-        var result = [];
+        const actionMap = new Map();
+        const roots = [];
 
-        const findChildActions = (parent) => {
-            parent.Childs = [];
-            let childActions = _.filter(actions, (a) => { return a.ParentId == parent.ActionId; });
-            let index = 0;
-            _.forEach(_.sortBy(childActions, ["ViewOrder"]), (action) => {
-                if (index == 0) action.IsFirst = true;
-                if (index == childActions.length - 1) action.IsLast = true;
-
-                parent.Childs.push(action);
-
-                index++;
-
-                findChildActions(action);
-            });
-        }
-
-        let parentActions = _.filter(actions, (a) => { return !a.ParentId; });
-        let index = 0;
-        _.forEach(_.sortBy(parentActions, ["ViewOrder"]), (action) => {
-            if (index == 0) action.IsFirst = true;
-            if (index == parentActions.length - 1) action.IsLast = true;
-
-            result.push(action);
-
-            index++;
-
-            findChildActions(action);
+        // آماده‌سازی: map کردن به ازای id
+        actions.forEach(action => {
+            action.Childs = [];
+            actionMap.set(action.Id, action);
         });
 
-        return result;
+        // رابطه پدر-فرزندی
+        actions.forEach(action => {
+            if (action.ParentId) {
+                const parent = actionMap.get(action.ParentId);
+                if (parent) {
+                    parent.Childs.push(action);
+                }
+            } else {
+                roots.push(action);
+            }
+        });
+
+        // علامت‌گذاری first/last بر اساس ViewOrder
+        const markFirstLast = (items) => {
+            const sorted = [...items].sort((a, b) => (a.ViewOrder ?? 0) - (b.ViewOrder ?? 0));
+            sorted.forEach((item, index) => {
+                item.IsFirst = index === 0;
+                item.IsLast = index === sorted.length - 1;
+                if (item.Childs?.length) {
+                    markFirstLast(item.Childs);
+                }
+            });
+        };
+
+        markFirstLast(roots);
+
+        return roots;
     }
 
     validateStep(task, args) {
@@ -136,6 +139,7 @@ export class CreateModuleActionsController {
     }
 
     onEditActionClick(actionId, fieldType, fieldId) {
+        debugger
         const page = {
             page: "create-action",
             id: actionId,

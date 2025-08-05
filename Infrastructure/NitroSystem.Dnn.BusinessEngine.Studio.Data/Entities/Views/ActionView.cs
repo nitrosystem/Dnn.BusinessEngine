@@ -27,6 +27,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
         public string Settings { get; set; }
         public string ActionTypeIcon { get; set; }
         public string ActionTypeTitle { get; set; }
+        public string FieldType { get; set; }
+        public string FieldName { get; set; }
+        public string CreatedByUserDisplayName { get; set; }
+        public string LastModifiedByUserDisplayName { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }

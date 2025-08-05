@@ -61,16 +61,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         #region Action Services
 
-        public async Task<IEnumerable<ModuleFieldActionDto>> GetModuleFieldActions(Guid fieldId, string sortBy = "ViewOrder")
-        {
-            var actions = await _repository.GetItemsByColumnAsync<ActionInfo>("FieldId", fieldId, sortBy);
-
-            return actions.Select(action =>
-            {
-                return HybridMapper.Map<ActionInfo, ModuleFieldActionDto>(action);
-            });
-        }
-
         public async Task<(IEnumerable<ActionViewModel> Items, int TotalCount)> GetActionsViewModelAsync(
             Guid moduleId, Guid? fieldId, int pageIndex, int pageSize, string searchText, string actionType, string sortBy)
         {

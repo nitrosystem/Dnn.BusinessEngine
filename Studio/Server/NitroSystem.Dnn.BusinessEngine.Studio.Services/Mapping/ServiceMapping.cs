@@ -19,37 +19,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
 {
     public static class ServiceMapping
     {
-        //#region Service Type Mapping
-
-        //public static IEnumerable<ServiceTypeViewModel> GetServiceTypesViewModel()
-        //{
-        //    var serviceTypes = ServiceTypeRepository.Instance.GetServiceTypes();
-
-        //    return GetServiceTypesViewModel(serviceTypes);
-        //}
-
-        //public static IEnumerable<ServiceTypeViewModel> GetServiceTypesViewModel(IEnumerable<ServiceTypeView> serviceTypes)
-        //{
-        //    var result = new List<ServiceTypeViewModel>();
-
-        //    foreach (var objServiceTypeView in serviceTypes ?? Enumerable.Empty<ServiceTypeView>())
-        //    {
-        //        var serviceType = GetServiceTypeViewModel(objServiceTypeView);
-        //        result.Add(serviceType);
-        //    }
-
-        //    return result;
-        //}
-
-        //public static ServiceTypeViewModel GetServiceTypeViewModel(ServiceTypeView objServiceTypeView)
-        //{
-
-        //}
-
-        //#endregion
-
-        #region Service Mapping
-
         public static IEnumerable<ServiceViewModel> MapServicesViewModel(IEnumerable<ServiceView> services, IEnumerable<ServiceParamInfo> serviceParams)
         {
             var itemsDict = serviceParams.GroupBy(c => c.ServiceId)
@@ -74,7 +43,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             var result = mapper.Map(service);
             return result;
         }
-
-        #endregion
     }
 }

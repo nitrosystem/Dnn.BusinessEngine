@@ -79,7 +79,8 @@
                         <span class="subtext"> {{action.Event}} </span>
                     </div>
                     <div class="g-col-2">
-                        <i ng-if="!action.ExecuteInClientSide" class="codicon codicon-chrome-maximize fs-4 text-start"></i>
+                        <i ng-if="!action.ExecuteInClientSide"
+                            class="codicon codicon-chrome-maximize fs-4 text-start"></i>
                         <i ng-if="action.ExecuteInClientSide" class="codicon codicon-check fs-4 text-start"></i>
                     </div>
                     <div class="g-col-2">
@@ -134,7 +135,7 @@
             <!------------------------------------>
             <!--Module Actions-->
             <!------------------------------------>
-            <div class="b-group mb-4">
+            <div class="b-group mb-5">
                 <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpModuleActions">
                     <h3 class="group-label">
                         <span class="group-icon">
@@ -146,7 +147,7 @@
                     </span>
                 </div>
                 <div id="grpModuleActions" class="group-content collapse show">
-                    <div class="action-item" ng-repeat="action in $.actions | orderBy: 'ViewOrder'"
+                    <div class="action-item" ng-repeat="action in $.actions | filter: {FieldId: null}"
                         ng-class="{'action-has-childs':action.Childs.length}" ng-include="'actionItem.html'"></div>
                 </div>
             </div>
@@ -165,7 +166,7 @@
                     </span>
                 </div>
                 <div id="grp{{key}}Actions" class="group-content collapse show">
-                    <div class="action-item" ng-repeat="action in actions | orderBy: 'ViewOrder'"
+                    <div class="action-item" ng-repeat="action in actions"
                         ng-class="{'action-has-childs':action.Childs.length}" ng-include="'actionItem.html'"></div>
                 </div>
             </div>
@@ -212,13 +213,12 @@
                         <i class="codicon codicon-references me-2 b-icon-1_5"></i> Client Side Action
                     </div>
                     <div ng-if="!action.ExecuteInClientSide" class="d-flex align-items-center mb-3">
-                        <i class="codicon codicon-workspace-trusted me-2 b-icon-1_5"></i> Client Side Action
+                        <i class="codicon codicon-workspace-trusted me-2 b-icon-1_5"></i> Server Side Action
                     </div>
-                </div>
-                <div class="col-1 small pe-0">
-                    <p class="text-white-50" ng-if="action.Params.length">{{action.Params.length}} Params</p>
-                    <p class="text-white-50" ng-if="action.Results.length">{{action.Results.length}} Results</p>
-                    <p class="text-white-50" ng-if="action.Conditions.length">{{action.Conditions.length}} Conditions</p>
+                    <div ng-if="action.FieldType" class="d-flex align-items-center mb-3">
+                        <i class="codicon codicon-archive me-2 b-icon-1_5"></i> 
+                        {{action.FieldType}}
+                    </div>
                 </div>
                 <div class="col-1">
                     <button type="button" class="b-btn mb-2" ng-click="$.onEditActionClick(action.Id,action.FieldType,action.FieldId)">
@@ -279,7 +279,7 @@
             </div>
         </div>
         <div class="action-sub-items collapse show ms-3" id="actionSubItems{{action.Id}}" ng-if="action.Childs.length">
-            <div class="sub-item action-item" ng-repeat="action in action.Childs | orderBy: 'ViewOrder'" ng-class="{'action-has-childs':action.Childs.length}" ng-include="'actionItem.html'"></div>
+            <div class="sub-item action-item" ng-repeat="action in action.Childs" ng-class="{'action-has-childs':action.Childs.length}" ng-include="'actionItem.html'"></div>
         </div>
     </script>
     <!------------------------------------>

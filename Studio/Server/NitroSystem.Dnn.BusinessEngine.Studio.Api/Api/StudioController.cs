@@ -478,7 +478,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         [HttpGet]
         public async Task<HttpResponseMessage> GetServiceTypesListItem()
         {
-            var serviceTypes = await _serviceFactory.GetServiceTypesDtoAsync();
+            var serviceTypes = await _serviceFactory.GetServiceTypesListItemAsync();
 
             return Request.CreateResponse(HttpStatusCode.OK, serviceTypes);
         }
