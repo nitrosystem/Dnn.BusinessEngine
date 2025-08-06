@@ -24,16 +24,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
     public class GlobalService : IGlobalService
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
 
         private static Dictionary<Guid, ScenarioViewModel> _cachedScenarios;
         private static Dictionary<string, ScenarioViewModel> _cachedNameScenarios;
 
-        public GlobalService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
+        public GlobalService(ICacheService cacheService, IRepositoryBase repository)
         {
-            _unitOfWork = unitOfWork;
             _cacheService = cacheService;
             _repository = repository;
         }

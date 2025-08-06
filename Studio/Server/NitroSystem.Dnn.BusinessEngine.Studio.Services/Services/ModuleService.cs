@@ -219,47 +219,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 : Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
         }
 
-        private async Task<string> GetFieldTypeGeneratePanesBusinessControllerClass(string fieldType)
-        {
-            return await _repository.GetColumnValueAsync<ModuleFieldTypeInfo, string>("GeneratePanesBusinessControllerClass",
-                "FieldType", fieldType);
-        }
-
-        private async Task<string> GetFieldTypeScript(string fieldType, HttpContext context)
-        {
-            string cacheKey = $"BE_ModuleFieldTypes_Script_{fieldType}";
-
-            var result = _cacheService.Get<string>(cacheKey);
-            if (string.IsNullOrEmpty(result))
-            {
-                var scripts = new StringBuilder();
-                scripts.AppendLine("//Start Field Type : " + fieldType);
-
-                var objModuleFieldTypeInfo = await _repository.GetByColumnAsync<ModuleFieldTypeInfo>("FieldType", fieldType);
-
-                string fieldJsMapPath = context.Server.MapPath($"~{(objModuleFieldTypeInfo?.FieldJsPath ?? string.Empty).Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions")}");
-                scripts.AppendLine(await FileUtil.GetFileContentAsync(fieldJsMapPath));
-
-                scripts.AppendLine("//End Field Type : " + fieldType);
-
-                if (!string.IsNullOrEmpty(objModuleFieldTypeInfo?.DirectiveJsPath))
-                {
-                    scripts.AppendLine("//Start Directive of Field Type : " + fieldType);
-
-                    string directiveJsMapPath = context.Server.MapPath($"~{(objModuleFieldTypeInfo?.DirectiveJsPath ?? string.Empty).Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions")}");
-                    scripts.AppendLine(await FileUtil.GetFileContentAsync(directiveJsMapPath));
-
-                    scripts.AppendLine("//End Directive of Field Type : " + fieldType);
-                }
-
-                result = scripts.ToString();
-
-                _cacheService.Set(cacheKey, result);
-            }
-
-            return result;
-        }
-
         #endregion
 
         #region Module Field Services
@@ -290,35 +249,48 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         {
             var objModuleFieldInfo = ModuleMapping.MapModuleFieldInfo(field);
 
-            if (isNew)
-            {
-                objModuleFieldInfo.Id = await _repository.AddAsync<ModuleFieldInfo>(objModuleFieldInfo, true);
-            }
-            else
-            {
-                var isUpdated = await _repository.UpdateAsync<ModuleFieldInfo>(objModuleFieldInfo);
-                if (!isUpdated) ErrorService.ThrowUpdateFailedException(objModuleFieldInfo);
+            _unitOfWork.BeginTransaction();
 
-                await _repository.DeleteByScopeAsync<ModuleFieldSettingInfo>(field.Id);
-            }
-
-            if (field.Settings != null)
+            try
             {
-                foreach (var setting in field.Settings)
+                if (isNew)
                 {
-                    var value = setting.Value != null && setting.Value.GetType().IsClass && !(setting.Value is string)
-                        ? JsonConvert.SerializeObject(setting.Value)
-                        : setting.Value?.ToString();
-
-                    var objModuleFieldSettingInfo = new ModuleFieldSettingInfo()
-                    {
-                        FieldId = objModuleFieldInfo.Id,
-                        SettingName = setting.Key,
-                        SettingValue = value
-                    };
-
-                    await _repository.AddAsync(objModuleFieldSettingInfo);
+                    objModuleFieldInfo.Id = await _repository.AddAsync<ModuleFieldInfo>(objModuleFieldInfo, true);
                 }
+                else
+                {
+                    var isUpdated = await _repository.UpdateAsync<ModuleFieldInfo>(objModuleFieldInfo);
+                    if (!isUpdated) ErrorService.ThrowUpdateFailedException(objModuleFieldInfo);
+
+                    await _repository.DeleteByScopeAsync<ModuleFieldSettingInfo>(field.Id);
+                }
+
+                if (field.Settings != null)
+                {
+                    foreach (var setting in field.Settings)
+                    {
+                        var value = setting.Value != null && setting.Value.GetType().IsClass && !(setting.Value is string)
+                            ? JsonConvert.SerializeObject(setting.Value)
+                            : setting.Value?.ToString();
+
+                        var objModuleFieldSettingInfo = new ModuleFieldSettingInfo()
+                        {
+                            FieldId = objModuleFieldInfo.Id,
+                            SettingName = setting.Key,
+                            SettingValue = value
+                        };
+
+                        await _repository.AddAsync(objModuleFieldSettingInfo);
+                    }
+                }
+
+                _unitOfWork.Commit();
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+
+                throw ex;
             }
 
             return objModuleFieldInfo.Id;
@@ -332,12 +304,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         public async Task SortFieldsAsync(SortPaneFieldsDto data)
         {
             await _repository.ExecuteStoredProcedureAsync("BusinessEngine_SortModuleFields",
-            new
-            {
-                ModuleId = data.ModuleId,
-                PaneName = data.PaneName,
-                FieldIds = JsonConvert.SerializeObject(data.PaneFieldIds)
-            });
+                new
+                {
+                    ModuleId = data.ModuleId,
+                    PaneName = data.PaneName,
+                    FieldIds = JsonConvert.SerializeObject(data.PaneFieldIds)
+                }
+            );
 
             var cacheKey = AttributeCache.Instance.GetCache<ModuleFieldInfo>().key;
             _cacheService.RemoveByPrefix(cacheKey);
@@ -345,12 +318,25 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<bool> DeleteFieldAsync(Guid moduleId)
         {
-            var task1 = _repository.DeleteByScopeAsync<ModuleFieldSettingInfo>(moduleId);
-            var task2 = _repository.DeleteAsync<ModuleFieldInfo>(moduleId);
+            _unitOfWork.BeginTransaction();
 
-            await Task.WhenAll(task1, task2);
+            try
+            {
+                var task1 = _repository.DeleteByScopeAsync<ModuleFieldSettingInfo>(moduleId);
+                var task2 = _repository.DeleteAsync<ModuleFieldInfo>(moduleId);
 
-            return await task1 && await task2;
+                await Task.WhenAll(task1, task2);
+
+                _unitOfWork.Commit();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+
+                throw ex;
+            }
         }
 
         #endregion

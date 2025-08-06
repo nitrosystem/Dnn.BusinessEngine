@@ -36,46 +36,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
     public class DefinedListService : IDefinedListService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
 
-        public DefinedListService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
+        public DefinedListService(IUnitOfWork unitOfWork, IRepositoryBase repository)
         {
             _unitOfWork = unitOfWork;
-            _cacheService = cacheService;
             _repository = repository;
         }
 
         #region DefinedList Services
-
-        //public async Task<IEnumerable<DefinedListViewModel>> GetDefinedListsViewModelAsync(ModuleType moduleType)
-        //{
-        //    var task1 = _repository.GetByScopeAsync<DefinedListInfo>(moduleType);
-        //    var task2 = _repository.GetAllAsync<DefinedListThemeInfo>();
-        //    var task3 = _repository.ExecuteStoredProcedureAsListAsync<ModuleFieldTypeDefinedListInfo>("BusinessEngine_GetDefinedListFieldTypes", null);
-
-        //    await Task.WhenAll(task1, task2);
-
-        //    var templates = await task1;
-        //    var themes = await task2;
-        //    var fieldTypes = await task3;
-
-        //    return templates.Select(source =>
-        //    {
-        //        return HybridMapper.MapWithConfig<DefinedListInfo, DefinedListViewModel>(
-        //            source, (src, dest) =>
-        //            {
-        //                dest.Themes = themes.Where(t => t.DefinedListId == source.Id).Select(theme =>
-        //                {
-        //                    theme.ThemeCssPath = theme.ThemeCssPath.ReplaceFrequentTokens();
-        //                    return theme;
-        //                });
-        //                dest.DefinedListImage = dest.DefinedListImage.ReplaceFrequentTokens();
-        //                dest.DefinedListPath = dest.DefinedListPath.ReplaceFrequentTokens();
-        //                dest.PreviewImages = dest.PreviewImages.ReplaceFrequentTokens();
-        //            });
-        //    });
-        //}
 
         public async Task<DefinedListViewModel> GetDefinedListByFieldId(Guid fieldId)
         {
@@ -109,27 +78,39 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 childAssigner: (info, columns) => items = columns
             );
 
-            if (isNew)
-                objDefinedListInfo.Id = await _repository.AddAsync<DefinedListInfo>(objDefinedListInfo);
-            else
+            _unitOfWork.BeginTransaction();
+
+            try
             {
-                var isUpdated = await _repository.UpdateAsync<DefinedListInfo>(objDefinedListInfo);
-                if (!isUpdated) ErrorService.ThrowUpdateFailedException(objDefinedListInfo);
-            }
-
-            if (definedList.Id != Guid.Empty) await _repository.DeleteAsync<DefinedListItemInfo>(definedList.Id);
-
-            foreach (var objDefinedListItemInfo in items)
-            {
-                objDefinedListItemInfo.ListId = objDefinedListInfo.Id;
-
-                if (objDefinedListItemInfo.Id == Guid.Empty)
-                    await _repository.AddAsync<DefinedListItemInfo>(objDefinedListItemInfo);
+                if (isNew)
+                    objDefinedListInfo.Id = await _repository.AddAsync<DefinedListInfo>(objDefinedListInfo);
                 else
                 {
-                    var isUpdated = await _repository.UpdateAsync<DefinedListItemInfo>(objDefinedListItemInfo);
-                    if (!isUpdated) ErrorService.ThrowUpdateFailedException(objDefinedListItemInfo);
+                    var isUpdated = await _repository.UpdateAsync<DefinedListInfo>(objDefinedListInfo);
+                    if (!isUpdated) ErrorService.ThrowUpdateFailedException(objDefinedListInfo);
                 }
+
+                if (definedList.Id != Guid.Empty) await _repository.DeleteAsync<DefinedListItemInfo>(definedList.Id);
+
+                foreach (var objDefinedListItemInfo in items)
+                {
+                    objDefinedListItemInfo.ListId = objDefinedListInfo.Id;
+
+                    if (objDefinedListItemInfo.Id == Guid.Empty)
+                        await _repository.AddAsync<DefinedListItemInfo>(objDefinedListItemInfo);
+                    else
+                    {
+                        var isUpdated = await _repository.UpdateAsync<DefinedListItemInfo>(objDefinedListItemInfo);
+                        if (!isUpdated) ErrorService.ThrowUpdateFailedException(objDefinedListItemInfo);
+                    }
+                }
+                _unitOfWork.Commit();
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+
+                throw ex;
             }
 
             return objDefinedListInfo.Id;

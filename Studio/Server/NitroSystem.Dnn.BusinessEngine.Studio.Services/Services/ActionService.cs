@@ -34,15 +34,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
     public class ActionService : IActionService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
 
         private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> _actionLocks = new ConcurrentDictionary<Guid, SemaphoreSlim>();
 
-        public ActionService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
+        public ActionService(IUnitOfWork unitOfWork, IRepositoryBase repository)
         {
             _unitOfWork = unitOfWork;
-            _cacheService = cacheService;
             _repository = repository;
         }
 
@@ -105,14 +103,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
             await semaphore.WaitAsync();
 
+            _unitOfWork.BeginTransaction();
+
             try
             {
-                _unitOfWork.BeginTransaction();
-
                 try
                 {
                     if (isNew)
-                        objActionInfo.Id = action.Id = await _repository.AddAsync<ActionInfo>(objActionInfo);
+                        objActionInfo.Id = await _repository.AddAsync<ActionInfo>(objActionInfo);
                     else
                     {
                         var isUpdated = await _repository.UpdateAsync<ActionInfo>(objActionInfo);
@@ -142,12 +140,27 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 _actionLocks.TryRemove(lockKey, out _);
             }
 
-            return action.Id;
+            return objActionInfo.Id;
         }
 
         public async Task<bool> DeleteActionAsync(Guid id)
         {
-            return await _repository.DeleteAsync<ActionInfo>(id);
+            _unitOfWork.BeginTransaction();
+
+            try
+            {
+                var result = await _repository.DeleteAsync<ActionInfo>(id);
+
+                _unitOfWork.Commit();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+
+                throw ex;
+            }
         }
 
         #endregion

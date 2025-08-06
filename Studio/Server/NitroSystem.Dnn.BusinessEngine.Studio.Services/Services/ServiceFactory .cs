@@ -141,14 +141,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
             await semaphore.WaitAsync();
 
+            _unitOfWork.BeginTransaction();
+
             try
             {
-                _unitOfWork.BeginTransaction();
-
                 try
                 {
                     if (isNew)
-                        objServiceInfo.Id = service.Id = await _repository.AddAsync<ServiceInfo>(objServiceInfo);
+                        objServiceInfo.Id =  await _repository.AddAsync<ServiceInfo>(objServiceInfo);
                     else
                     {
                         var isUpdated = await _repository.UpdateAsync<ServiceInfo>(objServiceInfo);
@@ -186,7 +186,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 _serviceLocks.TryRemove(lockKey, out _);
             }
 
-            return (service.Id, extensionServiceId);
+            return (objServiceInfo.Id, extensionServiceId);
         }
 
         public async Task<bool> UpdateGroupColumn(Guid serviceId, Guid? groupId)

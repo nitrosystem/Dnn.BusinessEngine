@@ -33,14 +33,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
     public class SubmitEntityService : IExtensionServiceFactory
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
+        private readonly IEntityService _entityService;
 
-        public SubmitEntityService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
+        public SubmitEntityService(IUnitOfWork unitOfWork, IRepositoryBase repository, IEntityService entityService)
         {
             _unitOfWork = unitOfWork;
-            _cacheService = cacheService;
             _repository = repository;
+            _entityService = entityService;
         }
 
         public async Task<IExtensionServiceViewModel> GetService(Guid serviceId)
@@ -60,8 +60,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
 
         public async Task<IDictionary<string, object>> GetDependencyList(Guid scenarioId)
         {
-            var entityService = new EntityService(_unitOfWork, _cacheService, _repository);
-            var entities = await entityService.GetEntitiesViewModelAsync(scenarioId, 1, 1000, null, null, null, "EntityName");
+            var entities = await _entityService.GetEntitiesViewModelAsync(scenarioId, 1, 1000, null, null, null, "EntityName");
 
             return new Dictionary<string, object>
             {
