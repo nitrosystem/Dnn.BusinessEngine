@@ -38,20 +38,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
         private readonly IEntityService _entityService;
-        private readonly IAppModelService _viewModelService;
+        private readonly IAppModelService _appModelServices;
 
         public BindEntityService(
             IUnitOfWork unitOfWork,
             ICacheService cacheService,
             IRepositoryBase repository,
             IEntityService entityService,
-            IAppModelService viewModelService)
+            IAppModelService appModelService)
         {
             _unitOfWork = unitOfWork;
             _cacheService = cacheService;
             _repository = repository;
             _entityService = entityService;
-            _viewModelService = viewModelService;
+            _appModelServices = appModelService;
         }
 
         public async Task<IExtensionServiceViewModel> GetService(Guid serviceId)
@@ -62,7 +62,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
                 ? HybridMapper.MapWithConfig<BindEntityServiceInfo, BindEntityServiceViewModel>(bindEntityService,
                 (src, dest) =>
                 {
-                    dest.ViewModelProperties = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.ViewModelPropertyInfo>>(bindEntityService.ViewModelProperties);
+                    dest.ModelProperties = TypeCasting.TryJsonCasting<IEnumerable<ModelPropertyInfo>>(bindEntityService.ModelProperties);
                     dest.Filters = TypeCasting.TryJsonCasting<IEnumerable<FilterItemInfo>>(bindEntityService.Filters);
                     dest.Settings = TypeCasting.TryJsonCasting<IDictionary<string, object>>(bindEntityService.Settings);
                 })
@@ -72,12 +72,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
         public async Task<IDictionary<string, object>> GetDependencyList(Guid scenarioId)
         {
             var entities = await _entityService.GetEntitiesViewModelAsync(scenarioId, 1, 1000, null, null, null, "EntityName");
-            var viewModels = await _viewModelService.GetAppModelsAsync(scenarioId, 1, 1000, null, "AppModelName");
+            var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, null, "ModelName");
 
             return new Dictionary<string, object>
             {
                 { "Entities", entities.Items },
-                { "ViewModels", viewModels.Items }
+                { "AppModels", appModels.Items }
             };
         }
 
@@ -92,7 +92,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             var selectedColumns = new List<string>();
             var filters = new List<string>();
 
-            foreach (var property in bindEntityService.ViewModelProperties)
+            foreach (var property in bindEntityService.ModelProperties)
             {
                 if (!property.IsSelected) continue;
 
@@ -103,7 +103,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             {
                 foreach (var serviceParam in service.Params)
                 {
-                    spParams.Add(string.Format("{0} {1} {2}", serviceParam.ParamName, serviceParam.ParamType, !string.IsNullOrEmpty(serviceParam.DefaultValue) ? (" = " + serviceParam.DefaultValue) : ""));
+                    spParams.Add(string.Format("{0} {1}", serviceParam.ParamName, serviceParam.ParamType));
                 }
             }
 
@@ -138,7 +138,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             var objBindEntityServiceInfo = HybridMapper.MapWithConfig<BindEntityServiceViewModel, BindEntityServiceInfo>(
                 bindEntityService, (src, dest) =>
                 {
-                    dest.ViewModelProperties = JsonConvert.SerializeObject(bindEntityService.ViewModelProperties);
+                    dest.ModelProperties = JsonConvert.SerializeObject(bindEntityService.ModelProperties);
                     dest.Filters = JsonConvert.SerializeObject(bindEntityService.Filters);
                     dest.Settings = JsonConvert.SerializeObject(bindEntityService.Settings);
                 });

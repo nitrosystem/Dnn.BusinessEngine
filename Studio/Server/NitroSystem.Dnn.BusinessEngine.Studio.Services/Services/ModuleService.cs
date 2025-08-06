@@ -371,14 +371,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         public async Task<IEnumerable<ModuleVariableDto>> GetModuleVariablesDtoAsync(Guid moduleId)
         {
             var variables = await _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId, "VariableName");
-            var viewModelProperties = await _repository.GetAllAsync<AppModelPropertyInfo>();
+            var appModelProperties = await _repository.GetAllAsync<AppModelPropertyInfo>();
 
             return variables.Select(variable =>
                 HybridMapper.MapWithConfig<ModuleVariableInfo, ModuleVariableDto>(variable,
                 (src, dest) =>
                 {
                     dest.Scope = (ModuleVariableScope)variable.Scope;
-                    dest.Properties = viewModelProperties.Where(p => p.AppModelId == variable.ViewModelId).Select(property =>
+                    dest.Properties = appModelProperties.Where(p => p.AppModelId == variable.AppModelId).Select(property =>
                         HybridMapper.Map<AppModelPropertyInfo, PropertyInfo>(property)
                     );
                 })

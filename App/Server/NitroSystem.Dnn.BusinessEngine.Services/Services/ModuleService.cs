@@ -124,7 +124,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                 );
 
             var variables = results[0] as IEnumerable<ModuleVariableInfo>;
-            var viewModelsProperties = results[1] as IEnumerable<AppModelPropertyInfo>;
+            var appModelsProperties = results[1] as IEnumerable<AppModelPropertyInfo>;
 
             return variables.Select(variable =>
             {
@@ -132,7 +132,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                 (src, dest) =>
                 {
                     dest.Scope = (ModuleVariableScope)variable.Scope;
-                    dest.Properties = viewModelsProperties.Where(p => p.AppModelId == variable.ViewModelId).Select(prop =>
+                    dest.Properties = appModelsProperties.Where(p => p.AppModelId == variable.AppModelId).Select(prop =>
                     {
                         return HybridMapper.Map<AppModelPropertyInfo, PropertyInfo>(prop);
                     });

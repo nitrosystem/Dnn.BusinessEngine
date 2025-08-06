@@ -1,7 +1,7 @@
-import template from "./data-source.html";
+import template from "./data-row.html";
 import { baseQuery } from './sql-query-template.js';
 
-class DataSourceServiceController {
+class DataRowServiceController {
     constructor(
         $scope,
         $rootScope,
@@ -28,8 +28,8 @@ class DataSourceServiceController {
         });
 
         $scope.$watch('$.service.ServiceName', (newVal, oldVal) => {
-            if (newVal != oldVal && !this.dataSourceService.Settings.StoredProcedureNameModified)
-                this.dataSourceService.Settings.StoredProcedurePostfixName = newVal;
+            if (newVal != oldVal && !this.dataRowService.Settings.StoredProcedureNameModified)
+                this.dataRowService.Settings.StoredProcedurePostfixName = newVal;
         });
 
         this.setForm();
@@ -42,28 +42,18 @@ class DataSourceServiceController {
     onPageLoad() {
         this.entities = this.serviceController.extensionDependency.Entities;
         this.appModels = this.serviceController.extensionDependency.AppModels;
-        this.dataSourceService = this.serviceController.extensionService ??
+        this.dataRowService = this.serviceController.extensionService ??
         {
             BaseQuery: this.baseQueryTemplate,
             Entities: [],
             Filters: [],
-            SortItems: [],
             Settings: {
                 StoredProcedurePrefixName: this.$rootScope.scenario.DatabaseObjectPrefix,
                 ...(this.service && { StoredProcedurePostfixName: this.service.ServiceName })
-            },
-            EnablePaging: true,
-            PageIndexParam: "@PageIndex",
-            PageSizeParam: "@PageSize",
+            }
         };
 
-        if (!service.Id)
-            service.Params = [
-                { ParamName: "@PageIndex", ParamType: "int" },
-                { ParamName: "@PageSize", ParamType: "int" },
-            ];
-
-        (this.dataSourceService.Entities || []).forEach((e) => {
+        (this.dataRowService.Entities || []).forEach((e) => {
             _.filter(this.entities, (ee) => {
                 return ee.Id == e.Id;
             }).map((ee) => {
@@ -71,13 +61,10 @@ class DataSourceServiceController {
             });
         });
 
-        (this.dataSourceService.ModelProperties || []).forEach((prop) => {
+        (this.dataRowService.ModelProperties || []).forEach((prop) => {
             this.onSelectedEntityAliasChange(prop);
         });
 
-        (this.dataSourceService.SortItems || []).forEach((s) => {
-            this.onSortItemSelectedEntityAliasChange(s);
-        });
     }
 
     setForm() {
@@ -101,16 +88,6 @@ class DataSourceServiceController {
                     }
                 },
             },
-            SortItems: {
-                required: true,
-            },
-            TotalCountColumnName: {
-                rule: (value) => {
-                    if (this.dataSourceService.EnablePaging && value) {
-                        return true;
-                    }
-                },
-            },
             "Settings.StoredProcedurePostfixName": {
                 id: "txtSpPostfix",
                 required: true,
@@ -118,7 +95,7 @@ class DataSourceServiceController {
         },
             true,
             this.$scope,
-            "$.dataSourceService"
+            "$.dataRowService"
         );
 
         this.selectedEntityForm = this.validationService.init({
@@ -158,7 +135,7 @@ class DataSourceServiceController {
     }
 
     onResetBaseQueryClick() {
-        this.dataSourceService.BaseQuery = this.baseQueryTemplate;
+        this.dataRowService.BaseQuery = this.baseQueryTemplate;
     }
 
     onSelectedAppModelChange() {
@@ -169,7 +146,7 @@ class DataSourceServiceController {
         var result = [];
 
         const appModel = _.find(this.appModels, (v) => {
-            return v.Id == this.dataSourceService.AppModelId;
+            return v.Id == this.dataRowService.AppModelId;
         });
 
         _.forEach(appModel.Properties, (prop) => {
@@ -180,7 +157,7 @@ class DataSourceServiceController {
             };
 
 
-            _.filter(this.dataSourceService.ModelProperties, (p) => {
+            _.filter(this.dataRowService.ModelProperties, (p) => {
                 return p.Id == prop.Id;
             }).map((p) => {
                 property.IsSelected = p.IsSelected;
@@ -191,7 +168,7 @@ class DataSourceServiceController {
             });
 
             if (!property.IsSelected && !property.Value) {
-                _.forEach(this.dataSourceService.Entities, (entity) => {
+                _.forEach(this.dataRowService.Entities, (entity) => {
                     _.filter(entity.Columns ?? [], (c) => { return c.ColumnName == property.PropertyName }).map((column) => {
                         property.IsSelected = true;
                         property.ValueType = 'DataSource';
@@ -205,11 +182,11 @@ class DataSourceServiceController {
             result.push(property);
         });
 
-        this.dataSourceService.ModelProperties = result;
+        this.dataRowService.ModelProperties = result;
     }
 
     onSelectedEntityAliasChange(prop) {
-        _.filter(this.dataSourceService.Entities, (e) => {
+        _.filter(this.dataRowService.Entities, (e) => {
             return e.AliasName == prop.EntityAliasName;
         }).map((e) => {
             _.filter(this.entities, (en) => { return en.EntityName == e.EntityName; }).map((en) => {
@@ -252,12 +229,12 @@ class DataSourceServiceController {
         this.selectedEntityForm.validator(this.selectedEntity);
         if (this.selectedEntityForm.valid) {
             if (
-                _.filter(this.dataSourceService.Entities, (e) => {
+                _.filter(this.dataRowService.Entities, (e) => {
                     return e.AliasName == this.selectedEntity.AliasName;
                 }).length == 0
             ) {
-                this.dataSourceService.Entities = this.dataSourceService.Entities || [];
-                this.dataSourceService.Entities.push(angular.copy(this.selectedEntity));
+                this.dataRowService.Entities = this.dataRowService.Entities || [];
+                this.dataRowService.Entities.push(angular.copy(this.selectedEntity));
 
                 delete this.selectedEntity;
             }
@@ -275,7 +252,7 @@ class DataSourceServiceController {
     }
 
     onDeleteEntityClick(entity, $index) {
-        this.dataSourceService.Entities.splice($index, 1);
+        this.dataRowService.Entities.splice($index, 1);
     }
 
     onAddJoinRelationshipClick(entity) {
@@ -284,13 +261,13 @@ class DataSourceServiceController {
     }
 
     onAddJoinRelationshipClick2() {
-        this.dataSourceService.JoinRelationships =
-            this.dataSourceService.JoinRelationships || [];
-        this.dataSourceService.JoinRelationships.push({});
+        this.dataRowService.JoinRelationships =
+            this.dataRowService.JoinRelationships || [];
+        this.dataRowService.JoinRelationships.push({});
     }
 
     onJoinRelationshipEntityChange(relationship, type) {
-        _.filter(this.dataSourceService.Entities, (e) => {
+        _.filter(this.dataRowService.Entities, (e) => {
             return (
                 (type == 1 && e.AliasName == relationship.LeftEntityAliasName) ||
                 (type == 2 && e.AliasName == relationship.RightEntityAliasName)
@@ -302,60 +279,11 @@ class DataSourceServiceController {
     }
 
     onAddFilterClick() {
-        this.dataSourceService.Filters = this.dataSourceService.Filters || [];
-        this.dataSourceService.Filters.push({
+        this.dataRowService.Filters = this.dataRowService.Filters || [];
+        this.dataRowService.Filters.push({
             Type: 1,
-            ConditionGroupName: "ConditionGroup" + (this.dataSourceService.Filters.length + 1),
+            ConditionGroupName: "ConditionGroup" + (this.dataRowService.Filters.length + 1),
         });
-    }
-
-    onAddSortItemClick() {
-        this.dataSourceService.SortItems = this.dataSourceService.SortItems || [];
-        this.dataSourceService.SortItems.push({ Type: 0, SortType: "Asc" });
-    }
-
-    onSortItemSelectedEntityAliasChange(sortItem) {
-        _.filter(this.dataSourceService.Entities, (e) => {
-            return e.AliasName == sortItem.EntityAliasName;
-        }).map((e) => {
-            sortItem.Columns = e.Columns;
-        });
-    }
-
-    onEnablePagingChange() {
-        if (this.dataSourceService.EnablePaging) {
-            if (
-                _.filter(this.service.Params, (p) => {
-                    return p.ParamName.toLowerCase() == "@pageindex";
-                }).length == 0
-            )
-                this.service.Params.push({
-                    ParamName: "@PageIndex",
-                    ParamType: "int"
-                });
-
-            if (
-                _.filter(this.service.Params, (p) => {
-                    return p.ParamName.toLowerCase() == "@pagesize";
-                }).length == 0
-            )
-                this.service.Params.push({
-                    ParamName: "@PageSize",
-                    ParamType: "int"
-                });
-        } else {
-            _.filter(this.service.Params, (p) => {
-                return p.ParamName.toLowerCase() == "@pageindex";
-            }).map((p) => {
-                this.service.Params.splice(this.service.Params.indexOf(p), 1);
-            });
-
-            _.filter(this.service.Params, (p) => {
-                return p.ParamName.toLowerCase() == "@pagesize";
-            }).map((p) => {
-                this.service.Params.splice(this.service.Params.indexOf(p), 1);
-            });
-        }
     }
 
     validationJoinRelationship() {
@@ -363,7 +291,7 @@ class DataSourceServiceController {
 
         var existsEntities = [];
 
-        (this.dataSourceService.Entities || []).forEach((e) => {
+        (this.dataRowService.Entities || []).forEach((e) => {
             e.JoinRelationships || [].forEach((r) => {
                 this.entityJoinRelationshipForm.validated = true;
                 this.entityJoinRelationshipForm.validator(r);
@@ -388,13 +316,13 @@ class DataSourceServiceController {
             var defer = this.$q.defer();
 
             this.form.validated = true;
-            this.form.validator(this.dataSourceService);
+            this.form.validator(this.dataRowService);
             if (this.form.valid && this.validationJoinRelationship()) {
-                this.dataSourceService.StoredProcedureName =
-                    this.dataSourceService.Settings.StoredProcedurePrefixName +
-                    this.dataSourceService.Settings.StoredProcedurePostfixName;
+                this.dataRowService.StoredProcedureName =
+                    this.dataRowService.Settings.StoredProcedurePrefixName +
+                    this.dataRowService.Settings.StoredProcedurePostfixName;
 
-                this.serviceController.extensionService = this.dataSourceService;
+                this.serviceController.extensionService = this.dataRowService;
 
                 defer.resolve(true);
             }
@@ -404,14 +332,14 @@ class DataSourceServiceController {
     }
 }
 
-const DataSourceService = {
+const DataRowService = {
     bindings: {
         serviceController: "<",
         service: "<",
     },
-    controller: DataSourceServiceController,
+    controller: DataRowServiceController,
     controllerAs: "$",
     templateUrl: template,
 };
 
-export default DataSourceService;
+export default DataRowService;

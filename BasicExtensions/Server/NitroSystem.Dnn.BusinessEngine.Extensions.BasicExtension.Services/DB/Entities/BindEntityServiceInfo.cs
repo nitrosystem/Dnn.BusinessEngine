@@ -17,11 +17,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DB.
         public Guid Id { get; set; }
         public Guid ServiceId { get; set; }
         public Guid EntityId { get; set; }
-        public Guid ViewModelId { get; set; }
+        public Guid AppModelId { get; set; }
         public string EntityTableName { get; set; }
         public string StoredProcedureName { get; set; }
         public string BaseQuery { get; set; }
-        public string ViewModelProperties { get; set; }
+        public string ModelProperties { get; set; }
         public string Filters { get; set; }
         public string Settings { get; set; }
     }

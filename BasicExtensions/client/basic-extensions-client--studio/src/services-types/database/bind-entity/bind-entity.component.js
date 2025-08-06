@@ -45,7 +45,7 @@ class BindEntityServiceController {
         this.bindEntityService = this.serviceController.extensionService ??
         {
             BaseQuery: this.baseQueryTemplate,
-            AppModelProperties: [],
+            ModelProperties: [],
             Filters: [],
             Settings: {
                 StoredProcedurePrefixName: this.$rootScope.scenario.DatabaseObjectPrefix,
@@ -105,12 +105,12 @@ class BindEntityServiceController {
                 PropertyName: prop.PropertyName
             };
 
-            if (!this.bindEntityService.AppModelProperties || !this.bindEntityService.AppModelProperties.length) {
+            if (!this.bindEntityService.ModelProperties || !this.bindEntityService.ModelProperties.length) {
                 property.IsSelected = true;
                 property.ColumnName = prop.PropertyName;
             }
             else {
-                _.filter(this.bindEntityService.AppModelProperties, (p) => {
+                _.filter(this.bindEntityService.ModelProperties, (p) => {
                     return p.Id == prop.Id;
                 }).map((p) => {
                     property.ColumnName = p.Value ?? prop.PropertyName;
@@ -120,7 +120,7 @@ class BindEntityServiceController {
             result.push(property);
         });
 
-        this.bindEntityService.AppModelProperties = result;
+        this.bindEntityService.ModelProperties = result;
     }
 
     onAddFilterClick() {

@@ -33,7 +33,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     {
         private readonly IGlobalService _globalService;
         private readonly IServiceFactory _serviceFactory;
-        private readonly IAppModelService _viewModelService;
+        private readonly IAppModelService _appModelServices;
         private readonly IModuleService _moduleService;
         private readonly IActionService _actionService;
         private readonly ITemplateService _templateService;
@@ -41,7 +41,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         public ModuleController(
             IGlobalService globalService,
             IServiceFactory serviceFactory,
-            IAppModelService viewModelService,
+            IAppModelService appModelService,
             IModuleService moduleService,
             IActionService actionService,
             ITemplateService templateService
@@ -49,7 +49,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             _globalService = globalService;
             _serviceFactory = serviceFactory;
-            _viewModelService = viewModelService;
+            _appModelServices = appModelService;
             _moduleService = moduleService;
             _actionService = actionService;
             _templateService = templateService;
@@ -271,13 +271,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
                 var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
-                var viewModels = await _viewModelService.GetAppModelsAsync(scenarioId, 1, 1000, "", "Title");
+                var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, "", "Title");
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     VariableTypes = GlobalItems.VariableTypes.Append("ViewModel").Append("ViewModelList"),
                     Variables = variables,
-                    ViewModels = viewModels.Items
+                    ViewModels = appModels.Items
                 });
             }
             catch (Exception ex)

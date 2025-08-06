@@ -82,7 +82,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             {
                 foreach (var serviceParam in service.Params)
                 {
-                    spParams.Add(string.Format("{0} {1} {2}", serviceParam.ParamName, serviceParam.ParamType, !string.IsNullOrEmpty(serviceParam.DefaultValue) ? (" = " + serviceParam.DefaultValue) : ""));
+                    spParams.Add(string.Format("{0} {1} {2}", serviceParam.ParamName, serviceParam.ParamType));
                 }
             }
 

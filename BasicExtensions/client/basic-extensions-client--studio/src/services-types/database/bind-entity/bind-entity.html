@@ -96,7 +96,7 @@
     <div ng-if="$.bindEntityService.EntityId">
         <hr />
         <!------------------------------------>
-        <!-- Map To View Model-->
+        <!-- Map To App Model-->
         <!------------------------------------>
         <div class="col-8 b-splitter border-end pe-2">
             <div class="b-group">
@@ -104,7 +104,7 @@
                     <h3 class="group-label">
                         <span class="group-icon">
                             <i class="codicon codicon-server-process"></i>
-                        </span> Map To View Model
+                        </span> Map To App Model
                     </h3>
                     <span class="group-collapse">
                         <i class="codicon codicon-chevron-up"></i>
@@ -114,16 +114,16 @@
                     <div class="b-table theme-gray">
                         <div class="table-header">
                             <div class="header-label">
-                                <h4 class="header-title">View Model</h4>
-                                <span class="header-subtitle">This service must mapped to a view model</span>
+                                <h4 class="header-title">App Model</h4>
+                                <span class="header-subtitle">This service must mapped to a app model</span>
                             </div>
                             <div class="header-tools">
                                 <div class="col-11">
                                     <select id="drpAppModelId" ng-model="$.bindEntityService.AppModelId"
                                         class="b-input form-select b-btn btn-action text-start"
-                                        ng-options="vm.Id as vm.AppModelName for vm in $.appModels"
+                                        ng-options="vm.Id as vm.ModelName for vm in $.appModels"
                                         ng-change="$.onSelectedAppModelChange()" chosen inherit-select-classes="true"
-                                        placeholder-text-single="'Select view model'" required>
+                                        placeholder-text-single="'Select app model'" required>
                                     </select>
                                 </div>
                                 <div class="col-1">
@@ -138,7 +138,7 @@
                                 <div class="g-col-3">Property Name</div>
                                 <div class="g-col-5">Value</div>
                             </div>
-                            <div class="grid table-row" ng-repeat="prop in $.bindEntityService.AppModelProperties">
+                            <div class="grid table-row" ng-repeat="prop in $.bindEntityService.ModelProperties">
                                 <div class="g-col-1">
                                     <label class="b-checkbox">
                                         <input type="checkbox" ng-model="prop.IsSelected" />
@@ -161,13 +161,13 @@
                             <div ng-if="!$.bindEntityService.AppModelId" class="b-notify notify-note mb-4">
                                 <i class="codicon codicon-info b-icon-2"></i>
                                 <div class="text">
-                                    <h4 class="label">No view model selected.</h4>
+                                    <h4 class="label">No app model selected.</h4>
                                     <span class="subtext">
-                                        Data source service must mapped to a view model.
+                                        Data source service must mapped to a app model.
                                     </span>
                                 </div>
                             </div>
-                            <p class="b-invalid">{{$.form.error.AppModelProperties}}</p>
+                            <p class="b-invalid">{{$.form.error.ModelProperties}}</p>
                         </div>
                     </div>
                 </div>

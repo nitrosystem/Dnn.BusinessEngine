@@ -11,7 +11,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
     {
         public Guid Id { get; set; }
         public Guid ModuleId { get; set; }
-        public Guid? ViewModelId { get; set; }
+        public Guid? AppModelId { get; set; }
         public string VariableType { get; set; }
         public string VariableName { get; set; }
         public ModuleVariableScope Scope { get; set; }

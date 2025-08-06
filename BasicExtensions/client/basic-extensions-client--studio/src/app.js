@@ -15,9 +15,10 @@ import UploadImageOptions from "./field-types/upload-image/upload-image-options.
 
 //database services
 import SubmitEntityService from "./services-types/database/submit-entity/submit-entity.component";
-import DataSourceService from "./services-types/database/data-source/data-source.component";
-import CustomQueryService from "./services-types/database/custom-qeury/custom-query.component";
 import BindEntityService from "./services-types/database/bind-entity/bind-entity.component";
+import DataSourceService from "./services-types/database/data-source/data-source.component";
+import DataRowService from "./services-types/database/data-row/data-row.component";
+import CustomQueryService from "./services-types/database/custom-qeury/custom-query.component";
 import DeleteEntityRowService from "./services-types/database/delete-entity-row/delete-entity-row.component";
 
 //dnn services
@@ -63,6 +64,7 @@ const app = window["app"];
 app.component("bServiceCustomQuery", CustomQueryService);
 app.component("bServiceSubmitEntity", SubmitEntityService);
 app.component("bServiceDataSource", DataSourceService);
+app.component("bServiceDataRow", DataRowService);
 app.component("bServiceDeleteEntityRow", DeleteEntityRowService);
 app.component("bServiceBindEntity", BindEntityService);
 app.component("bServiceSendSms", SendSmsService);

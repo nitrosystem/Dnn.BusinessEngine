@@ -31,10 +31,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             return entities.Select(entity => mapper.Map(entity));
         }
 
-        public static TEntity MapEntity(TViewModel viewModel)
+        public static TEntity MapEntity(TViewModel appModel)
         {
             var mapper = new ExpressionMapper<TViewModel, TEntity>();
-            return mapper.Map(viewModel);
+            return mapper.Map(appModel);
         }
     }
 }

@@ -99,6 +99,7 @@
     <Compile Include="Contracts\ILoginUserService.cs" />
     <Compile Include="Database\DataSourceService.cs" />
     <Compile Include="Database\DbShared.cs" />
+    <Compile Include="DB\Entities\DataRowServiceInfo.cs" />
     <Compile Include="DB\Entities\DeleteEntityRowServiceInfo.cs" />
     <Compile Include="DB\Entities\BindEntityServiceInfo.cs" />
     <Compile Include="DB\Entities\CustomQueryServiceInfo.cs" />
@@ -115,7 +116,7 @@
     <Compile Include="Models\Database\SubmitEntity\ColumnInfo.cs" />
     <Compile Include="Models\Database\SubmitEntity\ConditionInfo.cs" />
     <Compile Include="Models\Database\SubmitEntity\EntityInfo.cs" />
-    <Compile Include="Models\Database\ViewModelPropertyInfo.cs" />
+    <Compile Include="Models\Database\ModelPropertyInfo.cs" />
     <Compile Include="Models\DnnService\UserLoginInfo.cs" />
     <Compile Include="Models\DnnService\UserLoginOptions.cs" />
     <Compile Include="Models\DnnService\UserRegisterInfo.cs" />
@@ -124,9 +125,11 @@
     <Compile Include="Startup\Startup.cs" />
     <Compile Include="StudioServices\BindEntityService.cs" />
     <Compile Include="StudioServices\CustomQueryService.cs" />
+    <Compile Include="StudioServices\DataRowService.cs" />
     <Compile Include="StudioServices\DataSourceService.cs" />
     <Compile Include="StudioServices\DeleteEntityRowService.cs" />
     <Compile Include="StudioServices\SubmitEntityService.cs" />
+    <Compile Include="ViewModels\DataRowServiceViewModel.cs" />
     <Compile Include="ViewModels\DeleteEntityRowServiceViewModel.cs" />
     <Compile Include="ViewModels\BindEntityServiceViewModel.cs" />
     <Compile Include="ViewModels\CustomQueryServiceViewModel.cs" />

@@ -138,7 +138,6 @@
     <Compile Include="Common\ProgressMonitoring.cs" />
     <Compile Include="Contracts\TokenBase.cs" />
     <Compile Include="Enums\Scope.cs" />
-    <Compile Include="General\General.cs" />
     <Compile Include="ClientResources\ClientResourceManager.cs" />
     <Compile Include="Security\Encryptor.cs" />
     <Compile Include="Security\Models\EncryptedModel.cs" />

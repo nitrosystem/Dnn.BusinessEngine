@@ -54,7 +54,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
                 {
                     dest.Entities = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.EntityInfo>>(dataSourceService.Entities);
                     dest.JoinRelationships = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.EntityJoinRelationInfo>>(dataSourceService.JoinRelationships);
-                    dest.ViewModelProperties = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.ViewModelPropertyInfo>>(dataSourceService.ViewModelProperties);
+                    dest.ModelProperties = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.ModelPropertyInfo>>(dataSourceService.ModelProperties);
                     dest.Filters = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.FilterItemInfo>>(dataSourceService.Filters);
                     dest.SortItems = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.SortItemInfo>>(dataSourceService.SortItems);
                     dest.Settings = TypeCasting.TryJsonCasting<IDictionary<string, object>>(dataSourceService.Settings);
@@ -67,13 +67,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             var entityService = new EntityService(_unitOfWork, _cacheService, _repository);
             var entities = await entityService.GetEntitiesViewModelAsync(scenarioId, 1, 1000, null, null, null, "EntityName");
 
-            var viewModelService = new AppModelService(_unitOfWork, _cacheService, _repository);
-            var viewModels = await viewModelService.GetAppModelsAsync(scenarioId, 1, 1000, null, "AppModelName");
+            var appModelService = new AppModelService(_unitOfWork, _cacheService, _repository);
+            var appModels = await appModelService.GetAppModelsAsync(scenarioId, 1, 1000, null, "ModelName");
 
             return new Dictionary<string, object>
             {
                 { "Entities", entities.Items },
-                { "ViewModels", viewModels.Items},
+                { "AppModels", appModels.Items},
             };
         }
 
@@ -94,7 +94,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
 
             dataSourceQuery = dataSourceService.EnablePaging ? pagingRegex.Replace(dataSourceQuery, "\t$2") : pagingRegex.Replace(dataSourceQuery, "");
 
-            foreach (var property in dataSourceService.ViewModelProperties)
+            foreach (var property in dataSourceService.ModelProperties)
             {
                 if (!property.IsSelected) continue;
 
@@ -112,7 +112,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             {
                 foreach (var serviceParam in service.Params)
                 {
-                    spParams.Add(string.Format("{0} {1} {2}", serviceParam.ParamName, serviceParam.ParamType, !string.IsNullOrEmpty(serviceParam.DefaultValue) ? (" = " + serviceParam.DefaultValue) : ""));
+                    spParams.Add(string.Format("{0} {1} {2}", serviceParam.ParamName, serviceParam.ParamType));
                 }
             }
 
@@ -182,8 +182,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             dataSourceQuery = dataSourceQuery.Replace("{Entities}", string.Join(",\n", entities));
             dataSourceQuery = dataSourceQuery.Replace("{Filters}", filters.Any() ? "WHERE \n\t\t" + string.Join(" and\n\t\t", filters) : string.Empty);
             dataSourceQuery = dataSourceQuery.Replace("{SortingQuery}", "ORDER BY \n\t\t" + string.Join(",", sortItems));
-            dataSourceQuery = dataSourceQuery.Replace("{TotalCountColumnName}", "[bEngine_TotalCount]");
-            dataSourceQuery = dataSourceQuery.Replace("{TotalCountAliasName}", "bEngine_tc");
+            dataSourceQuery = dataSourceQuery.Replace("{TotalCountColumnName}", dataSourceService.TotalCountColumnName);
 
             var sqlCommand = new ExecuteSqlCommand(_unitOfWork);
 
@@ -197,7 +196,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
                 {
                     dest.Entities = JsonConvert.SerializeObject(dataSourceService.Entities);
                     dest.JoinRelationships = JsonConvert.SerializeObject(dataSourceService.JoinRelationships);
-                    dest.ViewModelProperties = JsonConvert.SerializeObject(dataSourceService.ViewModelProperties);
+                    dest.ModelProperties = JsonConvert.SerializeObject(dataSourceService.ModelProperties);
                     dest.Filters = JsonConvert.SerializeObject(dataSourceService.Filters);
                     dest.SortItems = JsonConvert.SerializeObject(dataSourceService.SortItems);
                     dest.Settings = JsonConvert.SerializeObject(dataSourceService.Settings);

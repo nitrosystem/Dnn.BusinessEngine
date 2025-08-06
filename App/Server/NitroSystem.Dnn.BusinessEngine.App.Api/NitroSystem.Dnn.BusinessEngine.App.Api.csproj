@@ -84,7 +84,6 @@
     <Compile Include="Dto\ActionDto.cs" />
     <Compile Include="Enums\ModuleCustomResourcesType.cs" />
     <Compile Include="Models\FieldDataSourceResult.cs" />
-    <Compile Include="Models\FieldValueInfo.cs" />
     <Compile Include="Models\UploadFileInfo.cs" />
     <Compile Include="Models\UploadImageInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

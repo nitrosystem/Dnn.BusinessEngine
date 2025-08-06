@@ -16,15 +16,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Vie
     {
         public Guid Id { get; set; }
         public Guid? ServiceId { get; set; }
-        public Guid ViewModelId { get; set; }
+        public Guid AppModelId { get; set; }
         public string StoredProcedureName { get; set; }
         public string BaseQuery { get; set; }
         public bool EnablePaging { get; set; }
         public string PageIndexParam { get; set; }
         public string PageSizeParam { get; set; }
+        public string TotalCountColumnName { get; set; }
         public IEnumerable<EntityInfo> Entities { get; set; }
         public IEnumerable<EntityJoinRelationInfo> JoinRelationships { get; set; }
-        public IEnumerable<ViewModelPropertyInfo> ViewModelProperties { get; set; }
+        public IEnumerable<ModelPropertyInfo> ModelProperties { get; set; }
         public IEnumerable<FilterItemInfo> Filters { get; set; }
         public IEnumerable<SortItemInfo> SortItems { get; set; }
         public IDictionary<string, object> Settings { get; set; }

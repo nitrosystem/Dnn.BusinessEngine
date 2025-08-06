@@ -15,7 +15,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public string EvalType { get; set; }
         public string RightExpression { get; set; }
         public string GroupName { get; set; }
-        public string ExpressionParsingType { get; set; }
         public IEnumerable<ExpressionInfo> Conditions { get; set; }
     }
 }
