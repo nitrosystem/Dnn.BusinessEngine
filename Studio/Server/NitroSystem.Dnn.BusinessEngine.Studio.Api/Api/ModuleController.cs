@@ -532,7 +532,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
                 var actionTypes = await _actionService.GetActionTypesViewModelAsync();
                 var actions = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, 1, 1000, null, null, "ActionName");
-                var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
+                var variables = await _moduleService.GetModuleVariablesDtoAsync(moduleId);
 
                 var events = Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
 

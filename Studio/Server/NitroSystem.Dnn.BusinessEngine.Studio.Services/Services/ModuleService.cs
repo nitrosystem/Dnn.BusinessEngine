@@ -360,7 +360,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         public async Task<IEnumerable<ModuleVariableViewModel>> GetModuleVariablesViewModelAsync(Guid moduleId)
         {
             var task1 = _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId, "ViewOrder");
-            var task2 = _repository.ExecuteStoredProcedureAsListAsync<AppModelInfo>("BusinessEngine_GetVariablesViewModels",
+            var task2 = _repository.ExecuteStoredProcedureAsListAsync<AppModelInfo>("BusinessEngine_GetVariablesAsAppModels",
                 new { ModuleId = moduleId });
 
             await Task.WhenAll(task1, task2);

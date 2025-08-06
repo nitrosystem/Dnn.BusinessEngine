@@ -95,11 +95,7 @@ const ActionParamListComponent = {
         params: "<",
         actionId: "<",
         actions: "<",
-        datasource: "@",
-        variables: "<",
-        fields: "<",
-        appModels: "<",
-        actionParams: "<",
+        objects: "<"
     },
     controller: ActionParamListController,
     controllerAs: "$",

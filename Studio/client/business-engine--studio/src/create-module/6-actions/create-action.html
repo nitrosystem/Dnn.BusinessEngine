@@ -185,11 +185,7 @@
                             </span>
                         </div>
                         <div id="grpActionResults{{$.action.Id}}" class="group-content collapse show">
-                            <b-property-list ng-model="$.action.Results"
-                                data-datasource="['fields','form','variables','actionParams']"
-                                data-variables="$.variables" data-app-models="$.appModels" data-fields="$.fields"
-                                data-action-params="$.action.Params">
-                            </b-property-list>
+                            <b-property-list ng-model="$.action.Results" data-objects="$.objects"></b-property-list>
                         </div>
                     </div>
                     <div class="b-group">

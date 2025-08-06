@@ -109,11 +109,7 @@ const ConditionListComponent = {
     },
     bindings: {
         conditions: "=ngModel",
-        datasource: "@",
-        variables: "<",
-        fields: "<",
-        appModels: "<",
-        actionConditions: "<",
+        objects: "<",
     },
     controller: ConditionListController,
     controllerAs: "$",

@@ -59,6 +59,10 @@ class PropertyListController {
         this.property.IsNew = false;
         this.property.IsEdited = true;
         this.property.OrderId = $index + 1;
+
+         this.$timeout(() => {
+            this.$scope.$broadcast("onEditProperty");
+        }, 500);
     }
 
     onDoneClick() {
@@ -83,11 +87,7 @@ const PropertyListComponent = {
     },
     bindings: {
         properties: "=ngModel",
-        datasource: "@",
-        variables: "<",
-        fields: "<",
-        appModels: "<",
-        actionProperties: "<",
+        objects: "<"
     },
     controller: PropertyListController,
     controllerAs: "$",

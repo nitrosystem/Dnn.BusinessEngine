@@ -111,6 +111,12 @@ export class CreateModuleCreateActionController {
                 });
             }
 
+            let objects = {};
+            _.forEach(data.Variables, (variable) => {
+                objects[variable.VariableName] = {};
+            });
+            this.objects = objects;
+
             this.onFocusModule();
             this.setForm();
 

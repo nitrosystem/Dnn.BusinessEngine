@@ -1,4 +1,5 @@
 import { monacoDefaultOptions } from "../angular-configs/monac-editor.config";
+import { globalFunctions } from "../angular-configs/monac-editor.config";
 
 var bMonacoEditorLanguageBuffer = [];
 var bMonacoEditorBuffer = [];
@@ -11,11 +12,7 @@ export function MonacoEditor($rootScope, $filter, $timeout) {
         require: "?ngModel",
         priority: 10,
         scope: {
-            datasource: "=",
-            variables: "=",
-            appModels: "=",
-            fields: "=",
-            serviceResult: "="
+            objects: "="
         },
         link: function (scope, element, attrs, ngModel) {
             var readOnly = attrs.readOnly ? JSON.parse(attrs.readOnly) : false;
@@ -43,274 +40,217 @@ export function MonacoEditor($rootScope, $filter, $timeout) {
                 language: language,
                 automaticLayout: true,
                 readOnly: readOnly,
-                theme: "vs-dark",
+                theme: "vs-dark"
             });
 
-            var monacoEditor = monaco.editor.create(element[0], options);
+            var editor = monaco.editor.create(element[0], options);
 
-            bMonacoEditorBuffer.push(monacoEditor);
+            if (language == 'bProperties') {
+                const node = editor.getDomNode();
+                if (node) node.tabIndex = 1;
+            }
+
+            bMonacoEditorBuffer.push(editor);
 
             ngModel.$render = function () {
-                if (monacoEditor) {
+                if (editor) {
                     var safeViewValue = ngModel.$viewValue || "";
-                    monacoEditor.setValue(safeViewValue);
+                    editor.setValue(safeViewValue);
                 }
             };
 
             scope.$on(attrs.bCustomFocus, (e, args) => {
-                monacoEditor.focus();
+                editor.focus();
             });
 
             // set code in one line after value change
-            var isChanged = false;
-            monacoEditor.onDidChangeModelContent(function (e) {
-                var newValue = monacoEditor.getValue();
+            editor.onDidChangeModelContent(function (e) {
+                var newValue = editor.getValue();
                 if (newValue !== ngModel.$viewValue) {
                     scope.$evalAsync(function () {
                         ngModel.$setViewValue(newValue);
                     });
                 }
 
-                if (attrs.oneLine == "true") {
-                    //detect tab key
-                    monacoEditor.addCommand(
-                        monaco.KeyCode.Tab,
-                        function (e, d) {
-                            if (bMonacoEditorBuffer.length > 1) bMonacoEditorBuffer[1].focus();
-                        },
-                        ""
-                    );
+                if (language === 'bProperties' && e.changes.length > 0 && e.changes[0].text.match(/[a-zA-Z0-9_.\[\]]/)) {
+                    editor.trigger('keyboard', 'editor.action.triggerSuggest', {});
+                }
+            });
 
-                    // set editor in one line
-                    let lineCount = monacoEditor.getModel().getLineCount();
-                    if (newValue && !isChanged && lineCount > 1) {
-                        monacoEditor.setValue(newValue.replace(/[\r\n]+/g, " "));
+            editor.onKeyDown((e) => {
+                if (language !== 'bProperties') return;
 
-                        isChanged = true;
-                        $timeout(function () {
-                            isChanged = false;
-                        });
+                const isTab = e.keyCode === monaco.KeyCode.Tab;
+                const isShift = e.shiftKey;
+
+                // اگر Tab یا Shift+Tab زده شد
+                if (isTab) {
+                    const suggestController = editor.getContribution('editor.contrib.suggestController');
+
+                    const isSuggestOpen = suggestController.model?.state === 'Open';
+                    if (!isSuggestOpen) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const editorDom = editor.getDomNode();
+                        const target = isShift
+                            ? findPreviousFocusable(editorDom)
+                            : findNextFocusable(editorDom);
+
+                        if (target) target.focus();
                     }
                 }
             });
 
-            showAutocompletion(getItems(scope.datasource));
+            function findNextFocusable(current) {
+                const focusables = Array.from(document.querySelectorAll(
+                    'input, button, select, textarea, [tabindex]:not([tabindex="-1"])'
+                )).filter(el => !el.disabled && el.offsetParent !== null);
+
+                let index = focusables.indexOf(current);
+
+                // اگر عنصر فعلی داخل ادیتور بود، textarea بعدی رو هم رد کن
+                const isMonaco = current.closest?.(".monaco-editor");
+
+                if (index >= 0 && isMonaco) {
+                    // رد شو از textarea داخلی موناکو
+                    while (index + 1 < focusables.length && focusables[index + 1].classList.contains("inputarea")) {
+                        index++;
+                    }
+                    index++; // برو به بعدی واقعی
+                } else {
+                    index++; // عادی
+                }
+
+                return focusables[index] ?? null;
+            }
+
+            function findPreviousFocusable(current) {
+                const focusables = Array.from(document.querySelectorAll(
+                    'input, button, select, textarea, [tabindex]:not([tabindex="-1"])'
+                )).filter(el => !el.disabled && el.offsetParent !== null);
+
+                let index = focusables.indexOf(current);
+
+                // اگر در موناکو هستیم، textarea‌اش رو هم رد کن
+                const isMonaco = current.closest?.(".monaco-editor");
+
+                if (index >= 0 && isMonaco) {
+                    while (index - 1 >= 0 && focusables[index - 1].classList.contains("inputarea")) {
+                        index--;
+                    }
+                    index--; // برو به قبلی واقعی
+                } else {
+                    index--;
+                }
+
+                return focusables[index] ?? null;
+            }
+
+            showAutocompletion(scope.objects);
 
             if (bMonacoEditorLanguageBuffer.indexOf(language) >= 0) return;
 
             bMonacoEditorLanguageBuffer.push(language);
 
             function showAutocompletion(obj) {
-                // Helper function to return the monaco completion item type of a thing
-                function getType(thing, isMember) {
-                    isMember =
-                        isMember == undefined ?
-                            typeof isMember == "boolean" ?
-                                isMember :
-                                false :
-                            false; // Give isMember a default value of false
-
-                    switch ((typeof thing).toLowerCase()) {
-                        case "object":
-                            return monaco.languages.CompletionItemKind.Class;
-
-                        case "function":
-                            return isMember ?
-                                monaco.languages.CompletionItemKind.Method :
-                                monaco.languages.CompletionItemKind.Function;
-
-                        default:
-                            return isMember ?
-                                monaco.languages.CompletionItemKind.Property :
-                                monaco.languages.CompletionItemKind.Variable;
-                    }
-                }
-
                 if (!!completionItemProvider) completionItemProvider.dispose();
 
-                // Register object that will return autocomplete items
-                completionItemProvider =
-                    monaco.languages.registerCompletionItemProvider(language, {
-                        // Run this function when the period or open parenthesis is typed (and anything after a space)
-                        triggerCharacters: [".", "("],
+                completionItemProvider = monaco.languages.registerCompletionItemProvider("bProperties", {
+                    triggerCharacters: ['.', '['],
 
-                        // Function to generate autocompletion results
-                        provideCompletionItems: function (model, position, token) {
-                            // Split everything the user has typed on the current line up at each space, and only look at the last word
-                            var last_chars = model.getValueInRange({
-                                startLineNumber: position.lineNumber,
-                                startColumn: 0,
-                                endLineNumber: position.lineNumber,
-                                endColumn: position.column,
-                            });
-                            var words = last_chars
-                                .replace("\t", "")
-                                .replace(/(\[(\w+)\])/g, ".0")
-                                .split(" ");
-                            var active_typing = words[words.length - 1]; // What the user is currently typing (everything after the last space)
+                    provideCompletionItems: function (model, position) {
+                        const textUntilPosition = model.getValueInRange({
+                            startLineNumber: position.lineNumber,
+                            startColumn: 1,
+                            endLineNumber: position.lineNumber,
+                            endColumn: position.column
+                        });
 
-                            // If the last character typed is a period then we need to look at member objects of the obj object
-                            var is_member =
-                                active_typing.charAt(active_typing.length - 1) == ".";
+                        const lastToken = extractLastToken(textUntilPosition);
+                        const isMemberAccess = /[.\]]$/.test(lastToken);
 
-                            // Array of autocompletion results
-                            var result = [];
+                        let contextObject = obj;
+                        const pathParts = parsePath(lastToken.replace(/[.\[]$/, ""));
 
-                            // Used for generic handling between member and non-member objects
-                            var last_token = obj;
-                            var prefix = "";
+                        // تشخیص واژه ناقص (آخرین بخش)
+                        let incomplete = null;
+                        if (pathParts.length > 0 && typeof pathParts[pathParts.length - 1] === "string") {
+                            incomplete = pathParts.pop(); // حذفش می‌کنیم چون هنوز کامل نشده
+                        }
 
-                            if (is_member) {
-                                // Is a member, get a list of all members, and the prefix
-                                var parents = active_typing
-                                    .substring(0, active_typing.length - 1)
-                                    .split(".");
-                                last_token = obj[parents[0]];
-                                prefix = parents[0];
+                        // resolve مسیر تا parent
+                        for (const part of pathParts) {
+                            if (contextObject == null) return { suggestions: [] };
 
-                                if (last_token) {
-                                    // Loop through all the parents the current one will have (to generate prefix)
-                                    for (var i = 1; i < parents.length; i++) {
-                                        if (last_token.hasOwnProperty(parents[i])) {
-                                            prefix += "." + parents[i];
-                                            last_token = last_token[parents[i]];
-                                        } else {
-                                            // Not valid
-                                            return result;
-                                        }
-                                    }
-                                }
-
-                                prefix += ".";
+                            if (typeof part === "number" && Array.isArray(contextObject)) {
+                                contextObject = contextObject[part];
+                            } else if (typeof part === "string" && contextObject.hasOwnProperty(part)) {
+                                contextObject = contextObject[part];
+                            } else {
+                                return { suggestions: [] };
                             }
+                        }
 
-                            // Get all the child properties of the last token
-                            for (var prop in last_token) {
-                                // Do not show properites that begin with "__"
-                                if (last_token.hasOwnProperty(prop) && !prop.startsWith("__")) {
-                                    // Get the detail type (try-catch) incase object does not have prototype
-                                    var details = "";
-                                    try {
-                                        details = last_token[prop].__proto__.constructor.name;
-                                    } catch (e) {
-                                        details = typeof last_token[prop];
+                        if (typeof contextObject !== "object" || contextObject == null) return { suggestions: [] };
+
+                        let suggestions = Object.keys(contextObject)
+                            .filter(key =>
+                                !key.startsWith("__") &&
+                                (!incomplete || key.toLowerCase().startsWith(incomplete.toLowerCase()))
+                            )
+                            .map(key => {
+                                const value = contextObject[key];
+                                const type = typeof value;
+                                const isFunction = type === "function";
+                                const detail = isFunction ? "Function" : value?.constructor?.name || type;
+
+                                return {
+                                    label: key,
+                                    kind: isFunction ? monaco.languages.CompletionItemKind.Function : monaco.languages.CompletionItemKind.Property,
+                                    insertText: isFunction ? `${key}()` : key,
+                                    documentation: isFunction
+                                        ? (value.toString().split("{")[0] || "")
+                                        : `Type: ${detail}`,
+                                    range: {
+                                        startLineNumber: position.lineNumber,
+                                        startColumn: position.column - (incomplete?.length ?? 0),
+                                        endLineNumber: position.lineNumber,
+                                        endColumn: position.column
                                     }
-
-                                    var insertText = prop;
-                                    if (last_token instanceof Array && !isNaN(parseInt(prop))) {
-                                        continue;
-                                        //in ro felan natonestam...
-                                        //insertText = '[' + prop + ']';
-                                    }
-
-                                    // Create completion object
-                                    var to_push = {
-                                        label: prop,
-                                        kind: monaco.languages.CompletionItemKind.Variable,
-                                        detail: details,
-                                        insertText: insertText,
-                                        documentation: "...",
-                                    };
-
-                                    // Change insertText and documentation for functions
-                                    if (to_push.detail.toLowerCase() == "function") {
-                                        to_push.insertText += "(";
-                                        to_push.documentation = last_token[prop]
-                                            .toString()
-                                            .split("{")[0]; // Show function prototype in the documentation popup
-                                    }
-
-                                    // Add to final results
-                                    result.push(to_push);
-                                }
-                            }
-
-                            return {
-                                suggestions: result,
-                            };
-                        },
-                    });
-            }
-
-            function focusNextElement(nextElem) {
-                $('#' + nextElem).focus();
-            }
-
-            function getItems(dataSource) {
-                if (!dataSource) return {};
-
-                var result = {};
-
-                if (dataSource.indexOf("variables") >= 0 && scope.variables) {
-                    _.forEach(scope.variables, function (varb) {
-                        if (varb.VariableType == "appModel" && scope.appModels) {
-                            result[varb.VariableName] = {};
-                            $filter("filter")(scope.appModels, function (vm) {
-                                return vm.Id == varb.AppModelId;
-                            }).map(function (vm) {
-                                _.forEach(vm.Properties, function (prop) {
-                                    result[varb.VariableName][prop.PropertyName] = "";
-                                });
+                                };
                             });
-                        } else if (
-                            varb.VariableType == "listOfAppModel" &&
-                            scope.appModels
-                        ) {
-                            result[varb.VariableName] = [];
-                            $filter("filter")(scope.appModels, function (vm) {
-                                return vm.Id == varb.AppModelId;
-                            }).map(function (vm) {
-                                var obj = {};
-                                _.forEach(vm.Properties, function (prop) {
-                                    obj[prop.PropertyName] = "";
-                                });
-                                result[varb.VariableName].push(obj);
-                            });
-                        } else result[varb.VariableName] = "";
-                    });
+
+                        //parse global functions
+                        const functionSuggestions = Object.entries(globalFunctions).map(([name, meta]) => ({
+                            label: name,
+                            kind: monaco.languages.CompletionItemKind.Function,
+                            insertText: `${name}(`,
+                            documentation: `${meta.description}\n\nArguments: (${meta.args.join(", ")})`,
+                            detail: "Global Function"
+                        }));
+
+                        suggestions.push(...functionSuggestions);
+
+                        return { suggestions };
+                    }
+                });
+
+                function extractLastToken(text) {
+                    const match = text.match(/([\w\d_\.\[\]]+)$/);
+                    return match ? match[0] : "";
                 }
 
-                if (dataSource.indexOf("fields") >= 0 && scope.fields && scope.fields.length) {
-                    result.Field = {};
-                    result.Form = {};
-                    _.forEach(scope.fields, function (field) {
-                        result.Field[field.FieldName] = field;
-
-                        result.Form[field.FieldName] = "";
-                    });
+                function parsePath(path) {
+                    const parts = [];
+                    const regex = /([a-zA-Z_][\w]*)|\[(\d+)\]/g;
+                    let match;
+                    while ((match = regex.exec(path)) !== null) {
+                        if (match[1]) parts.push(match[1]);
+                        else if (match[2]) parts.push(parseInt(match[2], 10));
+                    }
+                    return parts;
                 }
-
-                if (dataSource.indexOf("actionParams") >= 0 && scope.actionParams && scope.actionParams.length) {
-                    result.ActionParms = {};
-
-                    _.forEach(scope.actionParams, function (param) {
-                        result.ActionParms[param.ParamName] = "";
-                    });
-                }
-
-                if (scope.serviceResult) {
-                    result._ServiceResult = {
-                        Data: {},
-                        DataRow: {},
-                        DataList: [],
-                        TotalCount: 0
-                    };
-                }
-
-                result._PageParam = {};
-
-                if (language == "javascript") {
-                    var moduleController = {};
-                    moduleController.callAction = function (actionName, params, ignoreChildActions) { };
-
-                    return {
-                        $scope: result,
-                        moduleController: moduleController,
-                        action: {},
-                        _ActionParam: {}
-                    };
-                } else
-                    return result;
             }
         },
     };
