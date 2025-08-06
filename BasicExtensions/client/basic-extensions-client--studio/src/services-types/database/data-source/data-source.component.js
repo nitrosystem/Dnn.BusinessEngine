@@ -57,8 +57,8 @@ class DataSourceServiceController {
             PageSizeParam: "@PageSize",
         };
 
-        if (!service.Id)
-            service.Params = [
+        if (!this.service.Id)
+            this.service.Params = [
                 { ParamName: "@PageIndex", ParamType: "int" },
                 { ParamName: "@PageSize", ParamType: "int" },
             ];

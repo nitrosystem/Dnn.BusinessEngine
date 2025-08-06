@@ -34,12 +34,10 @@
                         ng-click="$.onPropertySwapClick($index,$index+1)"></i>
                 </button>
             </div>
-            <div class=" col-1">
-                <div class="b-multi-btns">
-                    <button type="button" ng-click="$.onDeleteItemClick($index,$event)">
-                        <i class="codicon codicon-trash"></i>
-                    </button>
-                </div>
+            <div class="col-1">
+                <button type="button" class="b-btn btn-action" ng-click="$.onDeleteItemClick($index,$event)">
+                    <i class="codicon codicon-trash"></i>
+                </button>
             </div>
         </div>
         <!------------------------------------>
@@ -67,16 +65,15 @@
                     </div>
                 </div>
                 <div class="col-1 my-auto">
-                    <div class="b-multi-btns">
-                        <button type="button" class="p-0" ng-click="$.onDoneClick()">
-                            <i class="codicon codicon-check"></i>
-                        </button>
-                    </div>
+                    <button type="button" class="b-btn btn-action" ng-click="$.onDoneClick()">
+                        <i class="codicon codicon-check"></i>
+                    </button>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 my-auto">
-                    <b-condition-list ng-model="$.property.Conditions" class="m-b-0" data-objects="$.objects"></b-condition-list>
+                    <b-condition-list ng-model="$.property.Conditions" class="m-b-0"
+                        data-objects="$.objects"></b-condition-list>
                 </div>
             </div>
         </div>

@@ -51,12 +51,10 @@
             <div class="col-5 my-auto">
                 {{param.ParamValue}}
             </div>
-            <div class=" col-1">
-                <div class="b-multi-btns">
-                    <button type="button" class="p-0" ng-click="$.onDeleteItemClick($index,$event)">
-                        <i class="codicon codicon-trash"></i>
-                    </button>
-                </div>
+            <div class=" col-1 my-auto">
+                <button type="button" class="b-btn btn-action" ng-click="$.onDeleteItemClick($index,$event)">
+                    <i class="codicon codicon-trash"></i>
+                </button>
             </div>
         </div>
         <!------------------------------------>
@@ -69,11 +67,9 @@
                     b-custom-focus="onEditParam" data-objects="$.objects" required></div>
             </div>
             <div class="col-2 my-auto">
-                <div class="b-multi-btns">
-                    <button type="button" class="p-0" ng-click="$.onDoneClick()">
-                        <i class="codicon codicon-check"></i>
-                    </button>
-                </div>
+                <button type="button" class="b-btn btn-action" ng-click="$.onDoneClick()">
+                    <i class="codicon codicon-check"></i>
+                </button>
             </div>
         </div>
     </div>

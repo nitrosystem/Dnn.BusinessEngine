@@ -3,7 +3,6 @@
         <tr>
             <th>Param Name</th>
             <th ng-hide="$.hideParamType">Param Type</th>
-            <th ng-hide="$.hideDefaultValue">Default Value</th>
             <th>View Order</th>
             <th></th>
         </tr>
@@ -15,9 +14,6 @@
             </td>
             <td ng-hide="$.hideParamType">
                 <input type="text" ng-model="param.ParamType"  class="b-input form-control" />
-            </td>
-            <td ng-hide="$.hideDefaultValue">
-                <input type="text" ng-model="param.DefaultValue"  class="b-input form-control" />
             </td>
             <td>
                 <input type="number" ng-model="param.ViewOrder" class="b-input form-control" />

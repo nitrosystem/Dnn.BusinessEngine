@@ -44,7 +44,6 @@ import SidebarExplorerComponent from "./components/studio-components/sidebar-exp
 import ContentWidgetComponent from "./components/studio-components/content-widget/content-widget.component";
 import RightWidgetComponent from "./components/studio-components/right-widget/right-widget.component";
 import FieldValidationComponent from "./components/studio-components/field-validation/field-validation.js";
-import ServiceParamListComponent from "./components/action-service-components/service-param-list/service-param-list.component";
 import ServiceParamsComponent from "./components/action-service-components/service-params/service-params.component.js";
 import ActionParamListComponent from "./components/action-service-components/action-param-list/action-param-list.component";
 import ConditionListComponent from "./components/action-service-components/condition-list/condition-list.component";
@@ -116,7 +115,6 @@ const app = angular
     .component("bRightWidget", RightWidgetComponent)
     
     .component("bFieldValidation", FieldValidationComponent)
-    .component("bServiceParamList", ServiceParamListComponent)
     .component("bServiceParams", ServiceParamsComponent)
     .component("bActionParamList", ActionParamListComponent)
     .component("bConditionList", ConditionListComponent)

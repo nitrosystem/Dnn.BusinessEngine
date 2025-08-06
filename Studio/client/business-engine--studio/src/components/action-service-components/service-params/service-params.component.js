@@ -21,8 +21,7 @@ class ServiceParamsController {
 const ServiceParamsComponent = {
     bindings: {
         service: "<",
-        hideParamType: "<",
-        hideDefaultValue: "<"
+        hideParamType: "<"
     },
     controller: ServiceParamsController,
     controllerAs: "$",

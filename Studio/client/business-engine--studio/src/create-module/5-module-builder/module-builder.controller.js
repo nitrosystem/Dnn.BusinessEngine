@@ -1239,10 +1239,6 @@ export class CreateModuleModuleBuilderController {
         this.currentSidebarTab = tab;
     }
 
-    onExpressionParsingTypeChange(item, type) {
-        item.ExpressionParsingType = type;
-    }
-
     onSearchTextChange() {
         this.fieldsBackup = this.fieldsBackup ?? angular.copy(this.fields);
 
