@@ -1,53 +1,48 @@
-﻿using Newtonsoft.Json.Linq;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Actions.Models;
+﻿using DotNetNuke.Abstractions.Portals;
+using Newtonsoft.Json.Linq;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Framework.Dto;
 using NitroSystem.Dnn.BusinessEngine.Framework.Enums;
 using NitroSystem.Dnn.BusinessEngine.Framework.Models;
-using NitroSystem.Dnn.BusinessEngine.Framework.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Actions.Database
+namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.Database
 {
-    public class BindEntityAction : ActionBase<DatabaseInfo>, IAction
+    public class BindEntityAction : IAction
     {
-        public BindEntityAction()
+        private readonly IBindEntityService _service;
+
+        public BindEntityAction(IBindEntityService service)
         {
-            this.OnActionCompletedEvent += BindEntityAction_OnActionCompletedEvent;
+            _service = service;
         }
 
-        public BindEntityAction(IServiceWorker serviceWorker, IActionWorker actionWorker, ActionDto action)
+        public async Task<IActionResult> ExecuteAsync(ActionDto action, IPortalSettings portalSettings)
         {
-            this.ServiceWorker = serviceWorker;
-            this.ActionWorker = actionWorker;
-            this.Action = action;
+            IActionResult result = new ActionResult();
 
-            this.OnActionCompletedEvent += BindEntityAction_OnActionCompletedEvent;
-        }
+            try
+            {
+                var data = await _service.GetBindEntityService(action);
 
-        public override async Task<object> ExecuteAsync<T>(bool isServerSide)
-        {
-            var actionResult = await this.ServiceWorker.RunServiceByAction<ServiceResult>(this.Action);
+                result.Data = data != null
+                    ? JToken.FromObject(data)
+                    : null;
 
-            object data = null;
+                result.ResultStatus = ActionResultStatus.Successful;
+            }
+            catch (Exception ex)
+            {
+                result.ResultStatus = ActionResultStatus.Error;
+                result.ErrorException = ex;
+            }
 
-            this.ActionWorker.SetActionResults(this.Action, actionResult);
-
-            return actionResult;
-        }
-
-        public override bool TryParseModel(string actionDetails)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void BindEntityAction_OnActionCompletedEvent(object sender, ActionEventArgs e)
-        {
-
+            return result;
         }
     }
 }

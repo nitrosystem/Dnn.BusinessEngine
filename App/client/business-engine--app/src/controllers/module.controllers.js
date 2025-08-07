@@ -35,17 +35,17 @@ export class ModuleController {
         this.$scope.$rootScope = $rootScope;
     }
 
-    onInitModule(dnnModuleId, moduleId, connectionId) {
+    async onInitModule(dnnModuleId, moduleId, connectionId) {
         this.module = {
             dnnModuleId: dnnModuleId,
             moduleId: moduleId,
             connectionId: connectionId,
         };
 
-        this.onPageLoad();
+        await this.onPageLoad();
     }
 
-    onPageLoad() {
+    async onPageLoad() {
         this.form = {};
         this.field = {};
         this.pane = {};
@@ -66,7 +66,9 @@ export class ModuleController {
             const moduleData = data.data ?? {};
             _.forEach(moduleData, (value, key) => {
                 this.data[key] = value;
+                //this.$scope[key] = value;
             });
+
 
             _.forEach(this.fields, (field) => {
                 field.Actions = [];
@@ -75,19 +77,25 @@ export class ModuleController {
                 // this.appendWatches("field." + field.FieldName + ".IsShow", "onFieldShowChange", field.Id);
 
                 if (field.IsValuable) {
-                    this.setFieldValue(field.Id);
+                    field.ignoreWatchForChangingValue = true;
 
                     this.appendWatches("$.field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
-                    this.appendWatches("$.data." + field.FieldValueProperty, "onVariableValueChange", field.FieldValueProperty);
 
+                    if (field.FieldValueProperty)
+                        this.appendWatches("$.data." + field.FieldValueProperty, "onVariableValueChange", field.Id, field.FieldValueProperty);
+                    else if (field.FieldValues && field.FieldValues.length) {
+                        this.setFieldConditionalValue(field.Id);
 
-                    _.forEach(field.FieldValues, (fv) => {
-                        this.appendWatches(fv.ValueExpression, "setFieldValue", field.Id);
+                        _.forEach(field.FieldValues, (fv) => {
+                            this.appendWatches(fv.ValueExpression, "setFieldConditionalValue", field.Id);
 
-                        _.forEach(fv.Conditions, (c) => {
-                            this.appendWatches(c.LeftExpression, "setFieldValue", field.Id);
+                            _.forEach(fv.Conditions, (c) => {
+                                this.appendWatches(c.LeftExpression, "setFieldConditionalValue", field.Id);
+                            });
                         });
-                    });
+                    }
+
+                    this.$timeout(() => delete field.ignoreWatchForChangingValue);
                 }
 
                 if (field.DataSource && field.DataSource.Type == 2 && field.DataSource.VariableName)
@@ -124,52 +132,44 @@ export class ModuleController {
                 $('.b-engine-module').addClass('is-loaded');
             });
         });
+
+        await this.pingConnection();
     }
 
     onFieldValueChange(fieldId) {
-        var field = this.getFieldById(fieldId);
-        if (field) {
-            if (field.Settings.SaveValueIn) {
-                var match = /(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm.exec(
-                    field.Settings.SaveValueIn
-                );
-                if (match) {
-                    var model = this.$parse(match[0]);
-                    model.assign(this.$scope, field.Value);
-                }
-            } else {
-                this.field[field.FieldName].Value = field.Value;
+        const field = this.getFieldById(fieldId);
+        if (field.IsValuable && field.FieldValueProperty && !field.ignoreWatchForChangingValue) {
+            _.set(this.data, field.FieldValueProperty, field.Value);
 
-                const key = this.field?.[field.FieldName]?.DataProperty;
-                if (key) this.data[key] = newVal;
-            }
-
-            if (field.BeValidate) {
-                const fields = !field.IsGroup ? [field] : this.getFieldChilds(field);
-                this.validateFields(fields);
-            }
-
-            this.$timeout(() => {
-                if (field.Value !== field.OldValue) this.$scope.$broadcast(`onFieldValueChange_${field.Id}`, { field: field });
-                field.OldValue = angular.copy(field.Value);
-            }, 200);
+            // if (field.BeValidate) {
+            //     const fields = !field.IsGroup ? [field] : this.getFieldChilds(field);
+            //     this.validateFields(fields);
+            // }
 
             if (field.Actions && field.Actions.length)
                 this.callActionByEvent(fieldId, "OnFieldValueChange");
-        } else
-            console.warn(
-                "Field not found. Method: onFieldValueChange, FieldId: " + fieldId
-            );
+
+            this.$timeout(() => {
+                this.$scope.$broadcast(`onFieldValueChange_${field.Id}`, { field: field });
+            });
+        }
     }
 
-    onVariableValueChange(property) {
-        debugger
-        let aa = this.data[property];
+    onVariableValueChange(fieldId, property) {
+        const field = this.getFieldById(fieldId);
+        if (field.IsValuable) {
+            const value = _.get(this.data, property);
+
+            field.ignoreWatchForChangingValue = true;
+            field.Value = value;
+
+            this.$timeout(() => delete field.ignoreWatchForChangingValue);
+        }
     }
 
-    setFieldValue(fieldId) {
-        var field = this.getFieldById(fieldId);
-        if (field) {
+    setFieldConditionalValue(fieldId) {
+        const field = this.getFieldById(fieldId);
+        if (field.IsValuable) {
             _.forEach(field.FieldValues, (fv) => {
                 if (this.expressionService.checkConditions(fv.Conditions, this.data))
                     field.Value = this.expressionService.parseExpression(fv.ValueExpression, this.data);
@@ -178,20 +178,18 @@ export class ModuleController {
     }
 
     onFieldShowChange(fieldId) {
-        var field = this.getFieldById(fieldId);
-        if (field) {
-        }
+        const field = this.getFieldById(fieldId);
     }
 
     showHideField(fieldId) {
-        var field = this.getFieldById(fieldId);
-        if (field && field.ShowConditions && field.ShowConditions.length) {
+        const field = this.getFieldById(fieldId);
+        if (field.ShowConditions && field.ShowConditions.length) {
             field.IsShow = this.expressionService.checkConditions(field.ShowConditions, this.data);
         }
     }
 
     onFieldDataSourceChange(fieldId) {
-        var field = this.getFieldById(fieldId);
+        const field = this.getFieldById(fieldId);
 
         field.DataSource = { ...field.DataSource, ...this.data[field.DataSource.VariableName] };
 
@@ -411,7 +409,7 @@ export class ModuleController {
     appendWatches(expression, callback, ...params) {
         if (!expression || typeof expression != "string" || !callback) return;
 
-        const matches = expression.match(/(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm);
+        const matches = expression.match(/(\$\.)?(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm);
         _.forEach(matches, (match) => {
             const propertyPath = match;
             const watch = _.find(this.watches, (w) => {
@@ -449,6 +447,7 @@ export class ModuleController {
         const field = _.find(this.fields, (f) => {
             return f.Id == fieldId;
         });
+
         return field;
     }
 
@@ -456,6 +455,7 @@ export class ModuleController {
         const field = _.find(this.fields, (f) => {
             return f.FieldName == fieldName;
         });
+
         return field;
     }
 
@@ -481,6 +481,18 @@ export class ModuleController {
         return fields;
     }
 
+    async pingConnection() {
+        const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+        try {
+            await this.apiService.post("Module", "PingConnection", { ConnectionId: this.module.connectionId });
+        } catch (error) {
+            console.error(error);
+        }
+
+        await delay(40000);
+        await this.pingConnection();
+    }
 
     decodeProtectedData(base64String) {
         if (!base64String) return null;

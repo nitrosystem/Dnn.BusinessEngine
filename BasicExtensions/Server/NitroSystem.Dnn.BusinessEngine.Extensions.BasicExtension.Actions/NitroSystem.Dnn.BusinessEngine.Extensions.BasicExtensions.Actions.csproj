@@ -81,6 +81,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\BindEntityAction.cs" />
     <Compile Include="Database\DataSourceAction.cs" />
     <Compile Include="DnnServices\LoginUserAction.cs" />
     <Compile Include="Form\SetVariableAction.cs" />

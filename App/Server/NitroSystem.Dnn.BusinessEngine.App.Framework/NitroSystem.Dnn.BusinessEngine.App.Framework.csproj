@@ -81,6 +81,7 @@
     <Compile Include="Models\ActionResult.cs" />
     <Compile Include="ModuleData\ExpressionFunctions.cs" />
     <Compile Include="ModuleData\ExpressionService.cs" />
+    <Compile Include="ModuleData\GarbageCollector.cs" />
     <Compile Include="ModuleData\InMemoryUserDataStore.cs" />
     <Compile Include="ModuleData\ModuleData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

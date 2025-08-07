@@ -25,6 +25,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Sta
             foreach (var type in actionTypes)
                 services.AddScoped(type);
 
+            services.AddTransient<IBindEntityService, BindEntityService>();
             services.AddTransient<IDataSourceService, DataSourceService>();
             services.AddTransient<ILoginUserService, LoginUserService>();
         }

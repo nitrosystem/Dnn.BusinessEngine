@@ -540,7 +540,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
         {
             try
             {
-                var moduleData = _userDataStore.UpdateModuleData(
+                var moduleData = await _userDataStore.UpdateModuleData(
                     action.ConnectionId,
                     action.ModuleId,
                     (existingModule, incomingData) =>
@@ -563,6 +563,22 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                 var data = _userDataStore.GetDataForClients(action.ModuleId, moduleData);
 
                 return Request.CreateResponse(HttpStatusCode.OK, data);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public HttpResponseMessage PingConnection(ActionDto user)
+        {
+            try
+            {
+                _userDataStore.Ping(user.ConnectionId);
+
+                return Request.CreateResponse(HttpStatusCode.OK, true);
             }
             catch (Exception ex)
             {
