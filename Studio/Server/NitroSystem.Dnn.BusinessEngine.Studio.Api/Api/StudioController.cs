@@ -398,7 +398,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
 				return Request.CreateResponse(HttpStatusCode.OK, new
 				{
-					ViewModels = appModels.Items,
+					AppModels = appModels.Items,
 					Page = new PagingInfo(appModels.TotalCount, pageSize, pageIndex)
 				});
 			}

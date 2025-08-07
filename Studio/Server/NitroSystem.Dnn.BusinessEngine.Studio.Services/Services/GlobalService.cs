@@ -73,12 +73,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return BaseMapping<ScenarioInfo, ScenarioViewModel>.MapViewModels(scenarios);
         }
 
-        public async Task<ScenarioViewModel> GetScenarioViewModelAsync(Guid id)
+        public async Task<ScenarioViewModel> GetScenarioViewModelAsync(Guid scenarioId)
         {
             var scenarios = await GetScenariosViewModelAsync();
             _cachedScenarios = scenarios.ToDictionary(s => s.Id);
 
-            return _cachedScenarios.TryGetValue(id, out var scenario) ? scenario : null;
+            return _cachedScenarios.TryGetValue(scenarioId, out var scenario) ? scenario : null;
         }
 
         public async Task<ScenarioViewModel> GetScenarioByNameViewModelAsync(string name)
@@ -144,9 +144,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return objGroupInfo.Id;
         }
 
-        public async Task<bool> DeleteGroupAsync(Guid id)
+        public async Task<bool> DeleteGroupAsync(Guid groupId)
         {
-            return await _repository.DeleteAsync<GroupInfo>(id);
+            return await _repository.DeleteAsync<GroupInfo>(groupId);
         }
 
         #endregion

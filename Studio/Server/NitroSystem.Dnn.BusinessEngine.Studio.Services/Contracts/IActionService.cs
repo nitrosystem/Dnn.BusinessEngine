@@ -31,6 +31,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task<Guid> SaveActionAsync(ActionViewModel action, bool isNew);
 
-        Task<bool> DeleteActionAsync(Guid id);
+        Task<bool> DeleteActionAsync(Guid actionId);
     }
 }

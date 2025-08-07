@@ -71,7 +71,7 @@
                     <div class="b-input-group">
                         <select ng-model="$.currentField.DataSource.VariableName" class="b-input form-select" chosen
                             inherit-select-classes="true"
-                            ng-options="variable.VariableName as variable.VariableName for variable in $.variablesAsList"
+                            ng-options="variable.VariableName as variable.VariableName for variable in $.variablesAsDataSource"
                             ng-change="$.onDataSourceVariableChange()" ng-disabled="$.running"
                             placeholder-text-single="'Select a list'">
                             <option value=""></option>

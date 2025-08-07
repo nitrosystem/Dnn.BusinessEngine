@@ -77,7 +77,9 @@ export class ModuleController {
                 if (field.IsValuable) {
                     this.setFieldValue(field.Id);
 
-                    this.appendWatches("field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
+                    this.appendWatches("$.field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
+                    this.appendWatches("$.data." + field.FieldValueProperty, "onVariableValueChange", field.FieldValueProperty);
+
 
                     _.forEach(field.FieldValues, (fv) => {
                         this.appendWatches(fv.ValueExpression, "setFieldValue", field.Id);
@@ -158,6 +160,11 @@ export class ModuleController {
             console.warn(
                 "Field not found. Method: onFieldValueChange, FieldId: " + fieldId
             );
+    }
+
+    onVariableValueChange(property) {
+        debugger
+        let aa = this.data[property];
     }
 
     setFieldValue(fieldId) {

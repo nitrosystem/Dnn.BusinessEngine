@@ -41,13 +41,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             _repository = repository;
         }
 
-        public async Task<EntityViewModel> GetEntityViewModelAsync(Guid id)
+        public async Task<EntityViewModel> GetEntityViewModelAsync(Guid entityId)
         {
-            var entityTask = _repository.GetAsync<EntityInfo>(id);
+            var entityTask = _repository.GetAsync<EntityInfo>(entityId);
             var entityColumnsTask = _repository.ExecuteStoredProcedureAsListAsync<EntityColumnInfo>("BusinessEngine_GetEntityColumns",
                 new
                 {
-                    EntityId = id
+                    EntityId = entityId
                 });
 
             await Task.WhenAll(entityTask, entityColumnsTask);
@@ -234,18 +234,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return await _repository.UpdateColumnAsync<EntityInfo>("GroupId", groupId, entityId);
         }
 
-        public async Task<bool> DeleteEntityAsync(Guid id)
+        public async Task<bool> DeleteEntityAsync(Guid entityId)
         {
             _unitOfWork.BeginTransaction();
 
             try
             {
-                string tableName = await _repository.GetColumnValueAsync<EntityInfo, string>(id, "TableName");
+                string tableName = await _repository.GetColumnValueAsync<EntityInfo, string>(entityId, "TableName");
                 string token = TokenGenerator.GenerateToken(tableName);
 
                 string query = $"DROP TABLE {tableName};";
 
-                var task1 = _repository.DeleteAsync<EntityInfo>(id);
+                var task1 = _repository.DeleteAsync<EntityInfo>(entityId);
                 var task2 = _repository.ExecuteQueryByToken(token, tableName, query);
 
                 await Task.WhenAll(task1, task2);

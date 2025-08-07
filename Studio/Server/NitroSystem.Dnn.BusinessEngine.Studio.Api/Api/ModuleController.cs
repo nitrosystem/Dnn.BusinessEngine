@@ -275,9 +275,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
-                    VariableTypes = GlobalItems.VariableTypes.Append("ViewModel").Append("ViewModelList"),
+                    VariableTypes = GlobalItems.VariableTypes.Append("AppModel").Append("AppModelList"),
                     Variables = variables,
-                    ViewModels = appModels.Items
+                    AppModels = appModels.Items
                 });
             }
             catch (Exception ex)
@@ -339,7 +339,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     Module = module,
                     FieldTypes = fieldTypes,
                     Fields = fields,
-                    VariablesAsList = variables.Where(v => v.Scope != ModuleVariableScope.ServerSide && v.VariableType == "ViewModelList")
+                    VariablesAsDataSource = variables.Where(v => v.Scope != ModuleVariableScope.ServerSide && v.VariableType == "AppModelList"),
+                    VariablesAsFieldValueProperty = variables.Where(v => v.Scope != ModuleVariableScope.ServerSide && v.VariableType != "AppModelList")
                 });
             }
             catch (Exception ex)
@@ -521,6 +522,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid? fieldId, string fieldType)
         {
             return await GetAction(moduleId, fieldId, Guid.Empty, fieldType);
+        }
+
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid actionId)
+        {
+            return await GetAction(moduleId, null, actionId, string.Empty);
         }
 
         [HttpGet]

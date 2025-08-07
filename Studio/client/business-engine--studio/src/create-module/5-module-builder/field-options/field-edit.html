@@ -23,13 +23,21 @@
             </div>
         </div>
         <div class="col-5 ps-3">
-            <div class="b-field">
-                <label class="form-label d-block">Is Required</label>
-                <div class="field-component">
-                    <label class="b-switch d-block">
-                        <input type="checkbox" ng-model="$.currentField.IsRequired">
-                        <span class="slider"></span>
-                    </label>
+            <div ng-if="$.currentField.IsValuable">
+                <div class="b-field">
+                    <label class="form-label d-block">Data Property</label>
+                    <div id="monacoFieldValueProperty" monaco-editor ng-model="$.currentField.FieldValueProperty"
+                        data-language="bProperties" data-one-line="true" data-objects="$.variablesAsFieldValueProperty" required>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label d-block">Is Required</label>
+                    <div class="field-component">
+                        <label class="b-switch d-block">
+                            <input type="checkbox" ng-model="$.currentField.IsRequired">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
             <div class="b-field">
@@ -134,7 +142,8 @@
             <i class="codicon codicon-save" ng-class="{'loading-circle mini':$.running=='save-action'}"></i>
             Save Field
         </button>
-        <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelFieldClick()" ng-disabled="$.running">
+        <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelFieldClick()"
+            ng-disabled="$.running">
             <i class="codicon codicon-circle-slash"></i>
             Cancel
         </button>

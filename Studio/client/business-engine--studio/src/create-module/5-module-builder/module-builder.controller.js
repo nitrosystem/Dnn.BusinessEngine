@@ -190,10 +190,22 @@ export class CreateModuleModuleBuilderController {
 
         this.apiService.get("Module", "GetModuleBuilder", { moduleId: id || null }).then((data) => {
             this.module = data.Module;
+            this.fieldTypes = data.FieldTypes;
             this.fields = data.Fields;
-            this.variablesAsList = data.VariablesAsList;
+            this.variablesAsDataSource = data.VariablesAsDataSource;
 
-            this.fieldTypes = this.parseFieldTypes(data.FieldTypes);
+            let variablesAsFieldValueProperty = {};
+
+            _.forEach(data.VariablesAsFieldValueProperty, (variable) => {
+                variablesAsFieldValueProperty[variable.VariableName] = {};
+                let obj = variablesAsFieldValueProperty[variable.VariableName];
+
+                _.forEach(variable.Properties, (prop) => {
+                    obj[prop.PropertyName] = {};
+                });
+            });
+
+            this.variablesAsFieldValueProperty = variablesAsFieldValueProperty;
 
             this.module.PreloadingTemplateBackup = this.module.PreloadingTemplate;
             this.module.LayoutTemplateBackup = this.module.LayoutTemplate;
@@ -295,17 +307,6 @@ export class CreateModuleModuleBuilderController {
             this.$scope,
             "$.module"
         );
-    }
-
-    parseFieldTypes(fieldTypes) {
-        fieldTypes.forEach(ft => {
-            ft.Icon = (ft.Icon || '').replace('[EXTPATH]', GlobalSettings.modulePath + "extensions");
-
-            _.forEach(ft.Templates, (t) => { return t.TemplateImage = (t.TemplateImage || '').replace('[EXTPATH]', GlobalSettings.modulePath + "extensions"); })
-            _.forEach(ft.Themes, (t) => { return t.ThemeImage = (t.ThemeImage || '').replace('[EXTPATH]', GlobalSettings.modulePath + "extensions"); })
-        });
-
-        return fieldTypes;
     }
 
     validateStep(task, args) {
@@ -465,14 +466,12 @@ export class CreateModuleModuleBuilderController {
     /*------------------------------------*/
     onSelectFieldTemplate(template) {
         this.currentField.Template = template.TemplateName;
-        this.currentField.IsSkinTemplate = template.IsSkinTemplate;
 
         delete this.currentField.Theme;
     }
 
     onSelectFieldTheme(theme) {
         this.currentField.Theme = theme.ThemeName;
-        this.currentField.IsSkinTheme = theme.IsSkinTheme;
         this.currentField.ThemeCssClass = theme.ThemeCssClass
     }
 
@@ -1136,7 +1135,7 @@ export class CreateModuleModuleBuilderController {
     onDataSourceVariableChange() {
         const variableName = this.currentField.DataSource.VariableName;
         this.currentFieldVariableProperties =
-            _.find(this.variablesAsList, (v) => { return v.VariableName == variableName }).Properties;
+            _.find(this.variablesAsDataSource, (v) => { return v.VariableName == variableName }).Properties;
     }
 
     /*------------------------------------*/

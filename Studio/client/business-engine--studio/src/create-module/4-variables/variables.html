@@ -37,14 +37,14 @@
             </div>
         </div>
         <div class="variables mb-2">
-            <div class="variable-item" ng-repeat="variable in $.variables">
+            <div class="variable-item" ng-repeat="variable in $.variables | orderBy : 'ViewOrder'">
                 <div class="vi-content">
                     <div class="vi-row">
                         <div class="variable-icon-wrapper">
                             <i class="codicon codicon-variable-group"></i>
                         </div>
-                        <h5 class="variable-type">{{variable.VariableType}}</h5>
                         <h3 class="variable-name">{{variable.VariableName}}</h3>
+                        <h5 class="variable-type">{{variable.VariableType}}</h5>
                         <h3 class="variable-scope">{{variable.ScopeName}}</h3>
                     </div>
                 </div>

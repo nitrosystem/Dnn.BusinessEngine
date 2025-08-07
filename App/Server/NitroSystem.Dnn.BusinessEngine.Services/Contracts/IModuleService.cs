@@ -24,7 +24,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
     {
         #region Module Services
 
-        Task<ModuleViewModel> GetModuleViewModelAsync(Guid id);
+        Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId);
 
         #endregion
 

@@ -112,9 +112,19 @@ export class CreateModuleCreateActionController {
             }
 
             let objects = {};
+
             _.forEach(data.Variables, (variable) => {
                 objects[variable.VariableName] = {};
+                let obj = objects[variable.VariableName];
+
+                _.forEach(variable.Properties, (prop) => {
+                    obj[prop.PropertyName] = {};
+                });
+
+                 if (variable.VariableType == 'AppModelList')
+                    objects[variable.VariableName] = [obj];
             });
+
             this.objects = objects;
 
             this.onFocusModule();

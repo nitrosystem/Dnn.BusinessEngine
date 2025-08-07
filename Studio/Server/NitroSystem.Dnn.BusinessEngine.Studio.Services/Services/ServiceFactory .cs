@@ -209,9 +209,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return true;
         }
 
-        public async Task<bool> DeleteServiceAsync(Guid id)
+        public async Task<bool> DeleteServiceAsync(Guid serviceId)
         {
-            return await _repository.DeleteAsync<ServiceInfo>(id);
+            return await _repository.DeleteAsync<ServiceInfo>(serviceId);
         }
 
         #endregion

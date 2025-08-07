@@ -143,13 +143,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return objActionInfo.Id;
         }
 
-        public async Task<bool> DeleteActionAsync(Guid id)
+        public async Task<bool> DeleteActionAsync(Guid actionId)
         {
             _unitOfWork.BeginTransaction();
 
             try
             {
-                var result = await _repository.DeleteAsync<ActionInfo>(id);
+                var result = await _repository.DeleteAsync<ActionInfo>(actionId);
 
                 _unitOfWork.Commit();
 

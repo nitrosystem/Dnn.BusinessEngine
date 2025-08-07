@@ -17,16 +17,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public Guid Id { get; set; }
         public Guid ModuleId { get; set; }
         public Guid? ParentId { get; set; }
+        public string FieldType { get; set; }
+        public string FieldName { get; set; }
+        public string FieldText { get; set; }
+        public string FieldValueProperty { get; set; }
         public string PaneName { get; set; }
-        public bool IsSkinTemplate { get; set; }
         public bool IsSkinTheme { get; set; }
         public string Template { get; set; }
         public string Theme { get; set; }
         public string ThemeCssClass { get; set; }
-        public string FieldType { get; set; }
-        public string FieldName { get; set; }
-        public string ViewModelProperty { get; set; }
-        public string FieldText { get; set; }
         public bool IsGroup { get; set; }
         public bool IsRequired { get; set; }
         public bool IsShow { get; set; }

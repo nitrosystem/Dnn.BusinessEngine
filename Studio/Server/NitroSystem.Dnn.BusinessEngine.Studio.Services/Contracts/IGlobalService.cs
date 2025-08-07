@@ -28,7 +28,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task<IEnumerable<ScenarioViewModel>> GetScenariosViewModelAsync();
         
-        Task<ScenarioViewModel> GetScenarioViewModelAsync(Guid id);
+        Task<ScenarioViewModel> GetScenarioViewModelAsync(Guid scenarioId);
 
         Task<ScenarioViewModel> GetScenarioByNameViewModelAsync(string name);
 
@@ -44,7 +44,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task<Guid> SaveGroupAsync(GroupViewModel group, bool isNew);
 
-        Task<bool> DeleteGroupAsync(Guid id);
+        Task<bool> DeleteGroupAsync(Guid groupId);
 
         #endregion
 
