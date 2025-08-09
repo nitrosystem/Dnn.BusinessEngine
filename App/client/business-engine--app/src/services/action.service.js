@@ -79,33 +79,14 @@ export class ActionService {
         return result;
     }
 
-    Temp(nodes, index, result) {
-        const node = nodes[index];
-
-        const dfs = n => {
-            if (!n.ExecuteInClientSide) {
-                result.push(n.Id);
-                if (n.children.length) this.Temp(n.children, 0, result);
-            }
-        };
-
-        dfs(node);
-
-        index++;
-
-        if (nodes.length > index) this.Temp(nodes, index, result);
-
-        return result;
-    }
-
     async callActions(actions, event, moduleController) {
         var nodes = this.buildActionTree(actions, event);
-        this.executeActionTree(nodes, 0, moduleController);
+        await this.executeActionTree(nodes, 0, moduleController);
     }
 
     async callClientAction(action, moduleController) {
         if (!this.expressionService.checkConditions(action.Conditions, moduleController.data))
-            return 3;
+            return await 3;
 
         let controllerInstance = this.controllerCache[action.ActionType];
         if (!controllerInstance) {
@@ -118,12 +99,10 @@ export class ActionService {
 
         if (controllerInstance && typeof controllerInstance.execute === 'function') {
             try {
-                await controllerInstance.execute(action)
-
-                return 1;
+                return await controllerInstance.execute(action)
             } catch (error) {
                 console.error(error);
-                return 2;
+                return await 2;
             }
         }
     }
@@ -140,11 +119,11 @@ export class ActionService {
 
             moduleController.data = _.merge(_.cloneDeep(moduleController.data), data);
 
-            return 1;
+            return await 1;
         }
         catch (error) {
             console.error(error);
-            return 2;
+            return await 2;
         }
     }
 }

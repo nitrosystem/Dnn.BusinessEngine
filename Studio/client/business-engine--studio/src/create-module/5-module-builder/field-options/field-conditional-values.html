@@ -8,19 +8,16 @@
                 data-objects="$.objects" required>
             </div>
         </div>
-
-    </div>
-    <div class="b-field">
-        <label class="form-label">Conditions</label>
-        <b-condition-list ng-model="item.Conditions" data-source="['fields','form','variables','actionParams']"
-            data-variables="variables" data-fields="fields" data-action-params="$.action.Params"></b-condition-list>
-    </div>
-    <div class="b-field">
-        <button type="button" class="b-btn btn-sm btn-action ms-auto d-flex"
-            ng-click="$.currentField.FieldValues.splice($index,1)">
-            <i class="codicon codicon-trash me-0"></i>
-        </button>
-    </div>
+        <div class="b-field">
+            <label class="form-label">Conditions</label>
+            <b-condition-list ng-model="item.Conditions" data-objects="$.objects"></b-condition-list>
+        </div>
+        <div class="b-field">
+            <button type="button" class="b-btn btn-sm btn-action ms-auto d-flex"
+                ng-click="$.currentField.FieldValues.splice($index,1)">
+                <i class="codicon codicon-trash me-0"></i>
+            </button>
+        </div>
     </div>
     <div class="b-field">
         <button type="button" class="b-btn btn-sm btn-action" ng-click="$.onAddFieldConditionalValueClick()">

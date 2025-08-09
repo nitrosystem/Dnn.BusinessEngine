@@ -22,17 +22,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public string FieldText { get; set; }
         public string FieldValueProperty { get; set; }
         public string PaneName { get; set; }
-        public bool IsSkinTheme { get; set; }
         public string Template { get; set; }
         public string Theme { get; set; }
         public string ThemeCssClass { get; set; }
-        public bool IsGroup { get; set; }
-        public bool IsRequired { get; set; }
-        public bool IsShow { get; set; }
-        public bool IsEnabled { get; set; }
-        public bool IsSelective { get; set; }
         public bool IsValuable { get; set; }
-        public bool IsJsonValue { get; set; }
+        public bool IsRequired { get; set; }
+        public bool IsGroup { get; set; }
+        public bool IsSelective { get; set; }
         public string ShowConditions { get; set; }
         public string FieldValues { get; set; }
         public string DataSource { get; set; }

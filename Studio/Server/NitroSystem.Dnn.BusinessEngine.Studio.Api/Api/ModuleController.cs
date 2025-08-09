@@ -339,8 +339,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     Module = module,
                     FieldTypes = fieldTypes,
                     Fields = fields,
-                    VariablesAsDataSource = variables.Where(v => v.Scope != ModuleVariableScope.ServerSide && v.VariableType == "AppModelList"),
-                    VariablesAsFieldValueProperty = variables.Where(v => v.Scope != ModuleVariableScope.ServerSide && v.VariableType != "AppModelList")
+                    Variables = variables.Where(v => v.Scope != ModuleVariableScope.ServerSide)
                 });
             }
             catch (Exception ex)

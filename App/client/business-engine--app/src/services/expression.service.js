@@ -22,7 +22,9 @@ export class ExpressionService {
                 const leftValue = this.evaluateExpressionTree(leftTree, data);
 
                 const rightTree = this.parseExpression(condition.RightExpression);
-                const rightValue = this.evaluateExpressionTree(rightTree, data);
+                const rightValue = rightTree
+                    ? this.evaluateExpressionTree(rightTree, data) :
+                    undefined;
 
                 const compareResult = this.compareValues(leftValue, rightValue, condition.EvalType);
 
@@ -104,7 +106,7 @@ export class ExpressionService {
     }
 
     parseExpression(expression) {
-        if (expression === undefined || expression === null) return expression;
+        if (expression === undefined || expression === null) return undefined;
 
         expression = expression.trim();
 

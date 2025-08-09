@@ -54,86 +54,78 @@ export class ModuleController {
 
         this.watches = [];
 
-        this.apiService.get("Module", "GetModuleData", {
+        const data = await this.apiService.get("Module", "GetModuleData", {
             moduleId: this.module.moduleId,
             connectionId: this.module.connectionId,
             pageUrl: document.URL
-        }).then((data) => {
-            // this.fields = this.decodeProtectedData(data.mf) ?? [];
-            this.fields = data.fields ?? [];
-
-            // const data=this.decodeProtectedData(data.md) ?? {};
-            const moduleData = data.data ?? {};
-            _.forEach(moduleData, (value, key) => {
-                this.data[key] = value;
-                //this.$scope[key] = value;
-            });
-
-
-            _.forEach(this.fields, (field) => {
-                field.Actions = [];
-                _.filter(this.actions, (a) => { return a.FieldId == field.Id; }).map((action) => { field.Actions.push(action); });
-
-                // this.appendWatches("field." + field.FieldName + ".IsShow", "onFieldShowChange", field.Id);
-
-                if (field.IsValuable) {
-                    field.ignoreWatchForChangingValue = true;
-
-                    this.appendWatches("$.field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
-
-                    if (field.FieldValueProperty)
-                        this.appendWatches("$.data." + field.FieldValueProperty, "onVariableValueChange", field.Id, field.FieldValueProperty);
-                    else if (field.FieldValues && field.FieldValues.length) {
-                        this.setFieldConditionalValue(field.Id);
-
-                        _.forEach(field.FieldValues, (fv) => {
-                            this.appendWatches(fv.ValueExpression, "setFieldConditionalValue", field.Id);
-
-                            _.forEach(fv.Conditions, (c) => {
-                                this.appendWatches(c.LeftExpression, "setFieldConditionalValue", field.Id);
-                            });
-                        });
-                    }
-
-                    this.$timeout(() => delete field.ignoreWatchForChangingValue);
-                }
-
-                if (field.DataSource && field.DataSource.Type == 2 && field.DataSource.VariableName)
-                    this.appendWatches(field.DataSource.VariableName, "onFieldDataSourceChange", field.Id);
-
-                _.forEach(field.ShowConditions ?? [], (c) => {
-                    this.appendWatches(c.LeftExpression, "showHideField", field.Id);
-                });
-
-                this.field[field.FieldName] = field;
-
-                let controllerInstance = this.controllerCache[field.FieldType];
-                if (!controllerInstance) {
-                    const ControllerClass = ComponentRegistry.resolve(field.FieldType);
-                    if (typeof ControllerClass === 'function') {
-                        controllerInstance = new ControllerClass(this); // فقط فرم رو پاس بده
-                        this.controllerCache[field.FieldType] = controllerInstance;
-                    }
-                }
-
-                if (controllerInstance && typeof controllerInstance.init === 'function')
-                    controllerInstance.init(field);
-            });
-
-            this.raiseWatches();
-
-            // this.actions = this.decodeProtectedData(data.ma);
-            this.actions = data.actions;
-
-            this.$timeout(() => {
-                const moduleActions = _.filter(this.actions, (a) => { return a.ExecuteInClientSide && !a.FieldId });
-                if (moduleActions.length) this.actionService.callActions(moduleActions, "OnPageLoad", this);
-
-                $('.b-engine-module').addClass('is-loaded');
-            });
         });
 
-        await this.pingConnection();
+        // this.fields = this.decodeProtectedData(data.mf) ?? [];
+        this.fields = data.fields ?? [];
+
+        // const data=this.decodeProtectedData(data.md) ?? {};
+        const moduleData = data.data ?? {};
+        _.forEach(moduleData, (value, key) => {
+            this.data[key] = value;
+        });
+
+        _.forEach(this.fields, (field) => {
+            field.Actions = [];
+            _.filter(this.actions, (a) => { return a.FieldId == field.Id; }).map((action) => { field.Actions.push(action); });
+
+            // this.appendWatches("field." + field.FieldName + ".IsShow", "onFieldShowChange", field.Id);
+
+            if (field.IsValuable) {
+                field.ignoreWatchForChangingValue = true;
+
+                if (field.FieldValueProperty) {
+                    this.appendWatches("$.field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
+                    this.appendWatches("$.data." + field.FieldValueProperty, "onVariableValueChange", field.Id, field.FieldValueProperty);
+                }
+                else if (field.FieldValues && field.FieldValues.length) {
+                    _.forEach(field.FieldValues, (fv) => {
+                        this.appendWatches(fv.ValueExpression, "setFieldConditionalValue", field.Id);
+
+                        _.forEach(fv.Conditions, (c) => {
+                            this.appendWatches(c.LeftExpression, "setFieldConditionalValue", field.Id);
+                        });
+                    });
+                }
+
+                this.$timeout(() => delete field.ignoreWatchForChangingValue);
+            }
+
+            if (field.DataSource && field.DataSource.Type == 2 && field.DataSource.VariableName)
+                this.appendWatches(field.DataSource.VariableName, "onFieldDataSourceChange", field.Id);
+
+            _.forEach(field.ShowConditions ?? [], (c) => {
+                this.appendWatches(c.LeftExpression, "showHideField", field.Id);
+            });
+
+            this.field[field.FieldName] = field;
+
+            let controllerInstance = this.controllerCache[field.FieldType];
+            if (!controllerInstance) {
+                const ControllerClass = ComponentRegistry.resolve(field.FieldType);
+                if (typeof ControllerClass === 'function') {
+                    controllerInstance = new ControllerClass(this); // فقط فرم رو پاس بده
+                    this.controllerCache[field.FieldType] = controllerInstance;
+                }
+            }
+
+            if (controllerInstance && typeof controllerInstance.init === 'function')
+                controllerInstance.init(field);
+        });
+
+        this.raiseWatches();
+
+        // this.actions = this.decodeProtectedData(data.ma);
+        this.actions = data.actions;
+
+        const moduleActions = _.filter(this.actions, (a) => { return a.ExecuteInClientSide && !a.FieldId });
+        if (moduleActions.length) await this.actionService.callActions(moduleActions, "OnPageLoad", this);
+
+        $('.b-engine-module').addClass('is-loaded');
     }
 
     onFieldValueChange(fieldId) {
@@ -171,8 +163,11 @@ export class ModuleController {
         const field = this.getFieldById(fieldId);
         if (field.IsValuable) {
             _.forEach(field.FieldValues, (fv) => {
-                if (this.expressionService.checkConditions(fv.Conditions, this.data))
-                    field.Value = this.expressionService.parseExpression(fv.ValueExpression, this.data);
+                debugger
+                if (this.expressionService.checkConditions(fv.Conditions, this.data)) {
+                    const expressionTree = this.expressionService.parseExpression(fv.ValueExpression, this.data);
+                    field.Value = this.expressionService.evaluateExpressionTree(expressionTree, this.data);
+                }
             });
         }
     }
@@ -398,9 +393,9 @@ export class ModuleController {
         });
     }
 
-    callActionsByEvent(fieldId, event) {
+    async callActionsByEvent(fieldId, event) {
         const actions = _.filter(this.actions, (a) => { return a.FieldId == fieldId });
-        return this.actionService.callActions(actions, event, this);
+        await this.actionService.callActions(actions, event, this);
     }
 
     /*------------------------------------*/
@@ -411,6 +406,9 @@ export class ModuleController {
 
         const matches = expression.match(/(\$\.)?(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm);
         _.forEach(matches, (match) => {
+            const expression = /(\$\.)?(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm.exec(match);
+            if (!expression[1]) match = '$.data.' + match;
+
             const propertyPath = match;
             const watch = _.find(this.watches, (w) => {
                 return w.property == propertyPath;

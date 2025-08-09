@@ -192,19 +192,29 @@ export class CreateModuleModuleBuilderController {
             this.module = data.Module;
             this.fieldTypes = data.FieldTypes;
             this.fields = data.Fields;
-            this.variablesAsDataSource = data.VariablesAsDataSource;
 
+            this.variablesAsDataSource = _.filter(data.Variables, v =>
+                v.Scope !== 'ServerSide' && v.VariableType === 'AppModelList'
+            );
+
+            let objects = {};
             let variablesAsFieldValueProperty = {};
 
-            _.forEach(data.VariablesAsFieldValueProperty, (variable) => {
-                variablesAsFieldValueProperty[variable.VariableName] = {};
-                let obj = variablesAsFieldValueProperty[variable.VariableName];
+            _.forEach(data.Variables, (variable) => {
+                const baseObject = _.reduce(variable.Properties, (acc, prop) => {
+                    acc[prop.PropertyName] = {};
+                    return acc;
+                }, {});
 
-                _.forEach(variable.Properties, (prop) => {
-                    obj[prop.PropertyName] = {};
-                });
+                if (variable.VariableType === 'AppModelList') {
+                    objects[variable.VariableName] = [baseObject];
+                } else {
+                    objects[variable.VariableName] = baseObject;
+                    variablesAsFieldValueProperty[variable.VariableName] = baseObject;
+                }
             });
 
+            this.objects = objects;
             this.variablesAsFieldValueProperty = variablesAsFieldValueProperty;
 
             this.module.PreloadingTemplateBackup = this.module.PreloadingTemplate;
