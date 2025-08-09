@@ -102,14 +102,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         {
             var module = await _repository.GetAsync<ModuleView>(moduleId);
 
-            var spResourceReaderTask = _repository.ExecuteStoredProcedureAsDataReaderAsync("BusinessEngine_GetBuildModulesAllResources",
+            var spResourceReaderTask = _repository.ExecuteStoredProcedureAsDataReaderAsync("BusinessEngine_GetBuildModuleAllResources",
             new
             {
                 ModuleId = module.Id
             });
 
             var spFieldsTask = _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                "BusinessEngine_GetBuildModulesFieldsAndSettings", "Studio_ModulesFields_",
+                "BusinessEngine_GetBuildModulesFieldAndSettings", "Studio_ModulesFields_",
                 new
                 {
                     ModuleId = module.Id
@@ -346,7 +346,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         public async Task<IEnumerable<ModuleVariableViewModel>> GetModuleVariablesViewModelAsync(Guid moduleId)
         {
             var task1 = _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId, "ViewOrder");
-            var task2 = _repository.ExecuteStoredProcedureAsListAsync<AppModelInfo>("BusinessEngine_GetVariablesAsAppModels",
+            var task2 = _repository.ExecuteStoredProcedureAsListAsync<AppModelInfo>("BusinessEngine_GetModuleVariablesAsAppModels",
                 new { ModuleId = moduleId });
 
             await Task.WhenAll(task1, task2);

@@ -651,13 +651,10 @@ export class CreateModuleModuleBuilderController {
             FieldType: fieldType.FieldType,
             FieldTypeObject: fieldType ?? {},
             FieldName: suggestFieldName,
+            CanHaveValue: fieldType.CanHaveValue,
             IsRequired: false,
-            IsShow: true,
-            IsEnabled: true,
-            IsGroup: fieldType.IsGroup,
-            IsValuable: fieldType.IsValuable,
-            IsSelective: fieldType.IsSelective,
-            IsJsonValue: fieldType.IsJsonValue,
+            IsGroupField: fieldType.IsGroupField,
+            HasDataSource: fieldType.HasDataSource,
             DataSource: {},
             Settings: defaultSettings,
         };
@@ -706,7 +703,7 @@ export class CreateModuleModuleBuilderController {
                             $boardPane.append($field);
                         }
 
-                        if (field.IsGroup) this.renderDesignForm();
+                        if (field.IsGroupField) this.renderDesignForm();
 
                         this.$timeout(() => {
                             this.disposeWorkingMode();

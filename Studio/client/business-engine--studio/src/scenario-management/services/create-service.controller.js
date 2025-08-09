@@ -36,8 +36,7 @@ export class CreateServiceController {
         };
         this.serviceBuilder = {};
         this.service = {
-            ScenarioId: GlobalSettings.scenarioId,
-            IsEnabled: true
+            ScenarioId: GlobalSettings.scenarioId
         };
 
         studioService.setFocusModuleDelegate(this, this.onFocusModule);
@@ -248,7 +247,6 @@ export class CreateServiceController {
         this.reloadService = true;
         this.service = {
             ScenarioId: GlobalSettings.scenarioId,
-            IsEnabled: true,
             ServiceType: serviceType.ServiceType,
             HasResult: serviceType.HasResult,
             ResultType: serviceType.ResultType,

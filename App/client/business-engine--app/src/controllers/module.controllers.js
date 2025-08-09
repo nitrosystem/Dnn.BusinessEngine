@@ -75,7 +75,7 @@ export class ModuleController {
 
             // this.appendWatches("field." + field.FieldName + ".IsShow", "onFieldShowChange", field.Id);
 
-            if (field.IsValuable) {
+            if (field.CanHaveValue) {
                 field.ignoreWatchForChangingValue = true;
 
                 if (field.FieldValueProperty) {
@@ -130,7 +130,7 @@ export class ModuleController {
 
     onFieldValueChange(fieldId) {
         const field = this.getFieldById(fieldId);
-        if (field.IsValuable && field.FieldValueProperty && !field.ignoreWatchForChangingValue) {
+        if (field.CanHaveValue && field.FieldValueProperty && !field.ignoreWatchForChangingValue) {
             _.set(this.data, field.FieldValueProperty, field.Value);
 
             // if (field.BeValidate) {
@@ -149,7 +149,7 @@ export class ModuleController {
 
     onVariableValueChange(fieldId, property) {
         const field = this.getFieldById(fieldId);
-        if (field.IsValuable) {
+        if (field.CanHaveValue) {
             const value = _.get(this.data, property);
 
             field.ignoreWatchForChangingValue = true;
@@ -161,7 +161,7 @@ export class ModuleController {
 
     setFieldConditionalValue(fieldId) {
         const field = this.getFieldById(fieldId);
-        if (field.IsValuable) {
+        if (field.CanHaveValue) {
             _.forEach(field.FieldValues, (fv) => {
                 debugger
                 if (this.expressionService.checkConditions(fv.Conditions, this.data)) {
@@ -198,7 +198,7 @@ export class ModuleController {
         const defer = this.$q.defer();
 
         const fields = _.filter(this.fields, (f) => {
-            return (f.IsValuable || f.IsGroup) && this.isFieldShow(f);
+            return (f.CanHaveValue || f.IsGroupField) && this.isFieldShow(f);
         });
 
         this.validateFields(fields).then((isValid) => {
@@ -234,7 +234,7 @@ export class ModuleController {
         });
 
         _.filter(fields, (f) => {
-            return f.IsGroup;
+            return f.IsGroupField;
         }).map((g) => {
             fields = fields.concat(this.getFieldChilds(g));
         });
@@ -268,7 +268,7 @@ export class ModuleController {
     validateGroup(group) {
         const defer = this.$q.defer();
 
-        const fields = !group.IsGroup ? [group] : this.getFieldChilds(group);
+        const fields = !group.IsGroupField ? [group] : this.getFieldChilds(group);
         this.validateFields(fields).then((isValid) => {
             group.IsValid = isValid;
 
@@ -302,7 +302,7 @@ export class ModuleController {
         field.BeValidate = true;
         field.Validated = true;
 
-        if (!field.IsValuable && !field.Settings.ValidationMethod) {
+        if (!field.CanHaveValue && !field.Settings.ValidationMethod) {
             field.IsValid = true;
             defer.resolve(field.IsValid);
         } else if (field.Settings.ValidationMethod) {
@@ -468,7 +468,7 @@ export class ModuleController {
             fields = fields.concat(childs);
 
             _.filter(childs, (f) => {
-                return f.IsGroup;
+                return f.IsGroupField;
             }).map((g) => {
                 findNestedFields(g);
             });

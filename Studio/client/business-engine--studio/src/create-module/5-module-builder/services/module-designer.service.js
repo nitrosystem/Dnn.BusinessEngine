@@ -164,7 +164,7 @@ export class ModuleDesignerService {
     const fieldTemplate = this.getBoardFieldItem(field);
     const $fieldItem = this.$compile(fieldTemplate)($scope);
     this.$timeout(() => {
-      if (!field.IsGroup) {
+        if (!field.IsGroupField) {
         $defer.resolve($fieldItem);
       } else {
         $($fieldItem).find("*[data-pane]").each((index, element) => {
@@ -299,7 +299,7 @@ export class ModuleDesignerService {
             </div>
             <div class="col">
                 <ul class="toolbar-items d-flex justify-content-end">
-                    <li class="toolbar-item" ng-if="$.currentField.IsValuable">
+                    <li class="toolbar-item" ng-if="$.currentField.CanHaveValue">
                         <label class="b-switch switch-sm me-3" b-custom-tooltip title="Is Required">
                             <input type="checkbox" ng-model="$.currentField.IsRequired">
                             <span class="slider"></span>
@@ -344,7 +344,7 @@ export class ModuleDesignerService {
         <!--Field content and options-->
         <!------------------------------------>
         <div class="field-body">
-            <div class="row mb-3" ng-if="!$.field.${field.FieldName}.FieldTypeObject.IsContent">
+            <div class="row mb-3" ng-if="!$.field.${field.FieldName}.FieldTypeObject.IsContentField">
                 <div class="col-6">
                     <div class="field-title-wrapper">
                         <label class="b-switch switch-sm" title="Show Field Text(Label)">
@@ -398,7 +398,7 @@ export class ModuleDesignerService {
             <!------------------------------------>
             <!--Field data source for slective fields-->
             <!------------------------------------>
-            <div ng-if="$.field.${field.FieldName}.IsSelective">
+            <div ng-if="$.field.${field.FieldName}.HasDataSource">
                 <div class="b-field mt-3" ng-if="$.field.${field.FieldName}.DataSource">
                     <label class="form-label">Data Source</label>
                     <div role="button" ng-click="$.onEditFieldDataSourceClick($event,'${field.Id}')">

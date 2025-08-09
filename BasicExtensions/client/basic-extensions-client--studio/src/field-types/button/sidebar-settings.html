@@ -43,7 +43,7 @@
     <label class="form-label">Validation Groups</label>
     <select ng-model="$.currentField.Settings.ValidationGroups" class="b-input form-select" chosen
         inherit-select-classes="true"
-        ng-options="field.Id as field.FieldName for field in $.fields | filter: {IsGroup:true}" multiple required>
+        ng-options="field.Id as field.FieldName for field in $.fields | filter: {IsGroupField:true}" multiple required>
         <option value=""></option>
     </select>
 </div>
