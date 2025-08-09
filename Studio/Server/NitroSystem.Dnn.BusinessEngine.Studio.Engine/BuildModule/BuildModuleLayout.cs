@@ -37,10 +37,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
         private readonly string _fieldLayout =
-            @"<div [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field]]"" [[IF:IsValuable==true:ng-class=""{'b-invalid':[FIELD].Validated && ([FIELD].RequiredError || ![FIELD].IsValid)}""]]>
+            @"<div [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field]]"" [[IF:CanHaveValue ==true:ng-class=""{'b-invalid':[FIELD].Validated && ([FIELD].RequiredError || ![FIELD].IsValid)}""]]>
                 [[IF:FieldText!=null:<label class=""[[Settings.FieldTextCssClass??b-form-label]]"">[[FieldText]]</label>]]
                 [FIELD-COMPONENT]
-                [[IF:IsValuable==true && IsRequired==true:<p ng-show=""[FIELD].Validated && ([FIELD].Value==null || [FIELD].Value==undefined || [FIELD].Value=='') && [FIELD].RequiredError"" 
+                [[IF:CanHaveValue ==true && IsRequired==true:<p ng-show=""[FIELD].Validated && ([FIELD].Value==null || [FIELD].Value==undefined || [FIELD].Value=='') && [FIELD].RequiredError"" 
                     class=""[[Settings.RequiredMessageCssClass??b-invlid-message]]"">[[Settings.RequiredMessage]]</p>]]
                 [[IF:GlobalSettings.EnableValidationPattern==true&&Settings.ValidationPattern!=null:<p ng-show=""[FIELD].IsPatternValidate && ![FIELD].IsValid && [FIELD].Value!==undefined && [FIELD].Value!==null && [FIELD].Value!==''"" 
                     class=""[[Settings.ValidationMessageCssClass??b-pattern-message]]"">[[Settings.ValidationMessage]]</p>]]
@@ -130,7 +130,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             try
             {
                 //اگر فیلد از نوع گروه بود و برای ایجاد پین های فیلد نیاز به فراخوانی کد اکسیتن لازم می باشد
-                if (field.IsParent && field.IsGroup && !string.IsNullOrEmpty(field.FieldTypeGeneratePanesBusinessControllerClass))
+                if (field.IsParent && field.IsGroupField && !string.IsNullOrEmpty(field.FieldTypeGeneratePanesBusinessControllerClass))
                 {
                     var serviceLocator = CreateInstance(field.FieldTypeGeneratePanesBusinessControllerClass);
                     if (serviceLocator != null)

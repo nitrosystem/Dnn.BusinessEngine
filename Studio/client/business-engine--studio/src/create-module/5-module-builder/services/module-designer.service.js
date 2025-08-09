@@ -219,7 +219,7 @@ export class ModuleDesignerService {
     <!------------------------------------>
     <div class="field-drag-panel" data-drop="true" jqyoui-droppable="{onOver:'$.onFieldDragOver()',onOut:'$.onFieldDragOut()',onDrop:'$.onFieldDrop($.field.${field.FieldName}.PaneName,$.field.${field.FieldName}.ParentId,$.field.${field.FieldName}.Id)'}"></div>
     <div data-field="${field.Id}" class="b-field-item" 
-         ng-class="{'active':$.currentField.Id=='${field.Id}','field-hide':$.currentField.Id!=='${field.Id}' && (!$.field.${field.FieldName}.IsShow || ($.field.${field.FieldName}.ShowConditions && $.field.${field.FieldName}.ShowConditions.length))}"
+         ng-class="{'active':$.currentField.Id=='${field.Id}','field-show-conditional':$.currentField.Id!=='${field.Id}' && ($.field.${field.FieldName}.ShowConditions && $.field.${field.FieldName}.ShowConditions.length)}"
          ng-click="$.onFieldItemClick($event,'${field.Id}')" tabindex="-1" ng-blur="$.onFieldItemBlur($event,$.field.${field.FieldName})">
         <div class="field-deleted-wrapper" ng-if="$.field.${field.FieldName}.isDeleted">
             <button type="button" class="shine2" ng-click="$.onUndoDeleteFieldClick($event,'${field.Id}','${field.FieldName}')"

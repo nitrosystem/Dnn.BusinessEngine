@@ -17,16 +17,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field
         public string FieldComponent { get; set; }
         public string ComponentParams { get; set; }
         public string FieldJsPath { get; set; }
-        public bool IsGroup { get; set; }
+        public bool IsGroupField { get; set; }
+        public bool IsContentField { get; set; }
+        public bool CanHaveValue  { get; set; }
+        public bool HasDataSource { get; set; }
         public string GeneratePanesBusinessControllerClass { get; set; }
-        public bool IsValuable { get; set; }
-        public bool IsSelective { get; set; }
-        public bool IsJsonValue { get; set; }
-        public bool IsContent { get; set; }
         public object DefaultSettings { get; set; }
         public string ValidationPattern { get; set; }
         public string Icon { get; set; }
-        public bool IsEnabled { get; set; }
         public string Description { get; set; }
         public int ViewOrder { get; set; }
         public int GroupViewOrder { get; set; }

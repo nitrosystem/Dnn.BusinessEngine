@@ -78,7 +78,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                         {
                             dest.ShowConditions = TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(field.ShowConditions);
                             dest.FieldValues = TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(field.FieldValues);
-                            dest.DataSource = field.IsSelective && !string.IsNullOrWhiteSpace(field.DataSource)
+                            dest.DataSource = field.HasDataSource && !string.IsNullOrWhiteSpace(field.DataSource)
                                 ? await GetFieldDataSource(field.DataSource)
                                 : null;
                             dest.Settings = settings != null && settings.Any()

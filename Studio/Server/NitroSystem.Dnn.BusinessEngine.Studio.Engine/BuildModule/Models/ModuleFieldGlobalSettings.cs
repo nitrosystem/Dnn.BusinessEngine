@@ -8,7 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models
 {
     public class ModuleFieldGlobalSettings
     {
-        public bool IsContent { get; set; }
+        public bool IsContentField { get; set; }
         public string Placeholder { get; set; }
         public string Subtext { get; set; }
         public bool EnableValidationPattern { get; set; }

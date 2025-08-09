@@ -1239,7 +1239,7 @@ body>.b-field-item .field-toolbar {
     border-color: rgb(14, 99, 156);
 }
 
-.b-field-item.field-hide {
+.b-field-item.field-show-conditional {
     opacity: .6;
 }
 

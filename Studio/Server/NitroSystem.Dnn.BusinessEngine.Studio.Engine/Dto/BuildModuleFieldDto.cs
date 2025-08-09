@@ -19,18 +19,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto
         public string Template { get; set; }
         public string Theme { get; set; }
         public string ThemeCssClass { get; set; }
-        public bool IsGroup { get; set; }
+        public bool CanHaveValue  { get; set; }
+        public bool IsGroupField { get; set; }
         public bool IsParent { get; set; }
-        public bool IsValuable { get; set; }
-        public bool IsEnabled { get; set; }
-        public bool IsDisabled { get { return !IsEnabled; } }
-        public int ViewOrder { get; set; }
+        public bool HasDataSource { get; set; }
+        public FieldDataSourceInfo DataSource { get; set; }
         public string FieldTypeGeneratePanesBusinessControllerClass { get; set; }
-        public IEnumerable<string> AuthorizationViewField { get; set; }
         public IEnumerable<ExpressionInfo> ShowConditions { get; set; }
         public IEnumerable<FieldValueInfo> FieldValues { get; set; }
-        public FieldDataSourceInfo DataSource { get; set; }
+        public IEnumerable<string> AuthorizationViewField { get; set; }
         public IDictionary<string, object> Settings { get; set; }
         public ModuleFieldGlobalSettings GlobalSettings { get; set; }
+        public int ViewOrder { get; set; }
     }
 }
