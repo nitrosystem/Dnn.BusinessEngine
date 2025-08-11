@@ -32,6 +32,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 
         Task<ScenarioViewModel> GetScenarioByNameViewModelAsync(string name);
 
+        Task<string> GetScenarioNameAsync(Guid scenarioId);
+
         Task<Guid> SaveScenarioAsync(ScenarioViewModel scenario, bool isNew);
 
         void DeleteScenarioAndChilds(Guid scenarioId);

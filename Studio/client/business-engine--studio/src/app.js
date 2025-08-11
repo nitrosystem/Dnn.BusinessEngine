@@ -61,6 +61,7 @@ import { AppModelsController } from "./scenario-management/app-models/app-models
 import { CreateAppModelController } from "./scenario-management/app-models/create-app-model.controller";
 import { ServicesController } from "./scenario-management/services/services.controller";
 import { CreateServiceController } from "./scenario-management/services/create-service.controller";
+import { ExtensionsController } from "./extensions/extensions.controller.js";
 
 //create module
 import { CreateModuleController } from "./create-module/create-module.controller.js";
@@ -131,6 +132,7 @@ const app = angular
     .controller("createAppModelController", CreateAppModelController)
     .controller("servicesController", ServicesController)
     .controller("createServiceController", CreateServiceController)
+    .controller("extensionsController", ExtensionsController)
 
     .controller("createModuleController", CreateModuleController)
     .controller("createModuleBasicOptionsController", CreateModuleBasicOptionsController)

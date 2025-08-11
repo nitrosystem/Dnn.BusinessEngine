@@ -75,6 +75,7 @@
     <Compile Include="Contracts\IActionService.cs" />
     <Compile Include="Contracts\IDefinedListService.cs" />
     <Compile Include="Contracts\IEntityService.cs" />
+    <Compile Include="Contracts\IExtensionService.cs" />
     <Compile Include="Contracts\IExtensionServiceFactory.cs" />
     <Compile Include="Contracts\IExtensionServiceViewModel.cs" />
     <Compile Include="Contracts\IServiceFactory.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Mapping\ActionMapping.cs" />
     <Compile Include="ListItems\ModuleFieldTypeCustomEventListItem.cs" />
     <Compile Include="Services\DefinedListService.cs" />
+    <Compile Include="Services\ExtensionService.cs" />
     <Compile Include="Services\TemplateService.cs" />
     <Compile Include="Services\ActionService.cs" />
     <Compile Include="Services\ModuleService.cs" />
@@ -117,6 +119,7 @@
     <Compile Include="ViewModels\Action\ActionResultViewModel.cs" />
     <Compile Include="ViewModels\Action\ActionTypeViewModel.cs" />
     <Compile Include="ViewModels\Action\ActionViewModel.cs" />
+    <Compile Include="ViewModels\Extension\ExtensionViewModel.cs" />
     <Compile Include="ViewModels\Global\DefinedListItemViewModel.cs" />
     <Compile Include="ViewModels\Global\DefinedListViewModel.cs" />
     <Compile Include="ViewModels\Entity\EntityColumnViewModel.cs" />

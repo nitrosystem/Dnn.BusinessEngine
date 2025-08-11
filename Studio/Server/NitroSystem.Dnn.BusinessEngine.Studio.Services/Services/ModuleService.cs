@@ -9,7 +9,6 @@ using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
@@ -33,6 +32,7 @@ using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -109,7 +109,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             });
 
             var spFieldsTask = _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                "BusinessEngine_GetBuildModulesFieldAndSettings", "Studio_ModulesFields_",
+                "BusinessEngine_GetBuildModuleFieldsAndSettings", "BE_ModuleFields_BuildModule",
                 new
                 {
                     ModuleId = module.Id

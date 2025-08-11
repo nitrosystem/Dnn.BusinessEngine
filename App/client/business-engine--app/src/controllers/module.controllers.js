@@ -163,7 +163,6 @@ export class ModuleController {
         const field = this.getFieldById(fieldId);
         if (field.CanHaveValue) {
             _.forEach(field.FieldValues, (fv) => {
-                debugger
                 if (this.expressionService.checkConditions(fv.Conditions, this.data)) {
                     const expressionTree = this.expressionService.parseExpression(fv.ValueExpression, this.data);
                     field.Value = this.expressionService.evaluateExpressionTree(expressionTree, this.data);

@@ -89,6 +89,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return _cachedNameScenarios.TryGetValue(name, out var scenario) ? scenario : null;
         }
 
+        public async Task<string> GetScenarioNameAsync(Guid scenarioId)
+        {
+            return await _repository.GetColumnValueAsync<ScenarioInfo, string>(scenarioId, "ScenarioName");
+        }
+
         public async Task<Guid> SaveScenarioAsync(ScenarioViewModel scenario, bool isNew)
         {
             var objScenarioInfo = BaseMapping<ScenarioInfo, ScenarioViewModel>.MapEntity(scenario);

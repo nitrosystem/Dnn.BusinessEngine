@@ -21,7 +21,6 @@ using System.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using DotNetNuke.Security.Roles;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;

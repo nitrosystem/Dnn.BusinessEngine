@@ -5,7 +5,7 @@ using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ExpressionService.ConditionParser;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
 using System;
 using System.Collections.Generic;

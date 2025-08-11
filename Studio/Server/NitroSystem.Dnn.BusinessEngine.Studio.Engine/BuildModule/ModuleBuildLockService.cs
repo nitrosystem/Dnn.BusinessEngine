@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
+﻿using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

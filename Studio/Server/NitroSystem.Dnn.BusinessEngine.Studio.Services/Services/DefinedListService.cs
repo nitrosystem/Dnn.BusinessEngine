@@ -104,6 +104,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                         if (!isUpdated) ErrorService.ThrowUpdateFailedException(objDefinedListItemInfo);
                     }
                 }
+
                 _unitOfWork.Commit();
             }
             catch (Exception ex)

@@ -50,33 +50,12 @@
                         </label>
                     </div>
                 </div>
-                <div ng-if="$.currentField.CanHaveValue && $.currentField.IsRequired">
+                <div ng-class="{'opacity-50':!$.currentField.IsRequired}">
                     <div class="b-field">
                         <label class="form-label">Required Message</label>
                         <input type="text" ng-model="$.currentField.Settings.RequiredMessage"
-                            class="b-input form-control" placeholder="Required message" />
-                    </div>
-                </div>
-                <div class="b-field">
-                    <label class="form-label">Enable Validation Pattern</label>
-                    <label class="b-switch d-block">
-                        <input type="checkbox" ng-model="$.currentField.Settings.EnableValidationPattern"
-                            ng-disabled="!$.currentField.CanHaveValue">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div ng-if="$.currentField.CanHaveValue && $.currentField.Settings.EnableValidationPattern">
-                    <div class="b-field">
-                        <label class="form-label">Validation Pattern</label>
-                        <textarea ng-model="$.currentField.Settings.ValidationPattern" class="b-input form-control"
-                            placeholder="Validation pattern"
-                            ng-disabled="!$.currentField.CanHaveValue || !$.currentField.Settings.EnableValidationPattern"
-                            ng-required="$.currentField.Settings.EnableValidationPattern"></textarea>
-                    </div>
-                    <div class="b-field">
-                        <label class="form-label">Validation Message</label>
-                        <textarea ng-model="$.currentField.Settings.ValidationMessage" class="b-input form-control"
-                            placeholder="Validation message"></textarea>
+                            class="b-input form-control" placeholder="Required message"
+                            ng-disabled="!$.currentField.IsRequired" />
                     </div>
                 </div>
             </div>

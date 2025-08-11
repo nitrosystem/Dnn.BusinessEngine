@@ -11,6 +11,7 @@ import createServiceTemplate from "./scenario-management/services/create-service
 import createModuleTemplate from "./create-module/create-module.html";
 import createActionTemplate from "./create-module/6-actions/create-action.html";
 import providerSettingsTemplate from "./providers/provider-settings.html";
+import extensionsTemplate from "./extensions/extensions.html";
 
 export class StudioController {
     constructor($scope, $rootScope, $timeout, $q, $compile, globalService, apiService, eventService, notificationService) {
@@ -420,6 +421,11 @@ export class StudioController {
                 result.title = "Provider Settings";
                 result.content = providerSettingsTemplate;
                 result.icon = "window";
+                break;
+            case "extensions":
+                result.title = "Extensions";
+                result.icon = "extensions";
+                result.content = extensionsTemplate;
                 break;
         }
 
