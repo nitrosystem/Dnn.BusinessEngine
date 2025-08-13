@@ -273,22 +273,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             {
                 if (entity.Id == Guid.Empty) entity.Id = Guid.NewGuid();
 
-                var lastModifiedDateProp = properties.FirstOrDefault(p => p.Name == "LastModifiedOnDate");
-                if (lastModifiedDateProp != null)
-                    lastModifiedDateProp.SetValue(entity, DateTime.Now);
+                var createdOnDateProp = properties.FirstOrDefault(p => p.Name == "CreatedOnDate");
+                if (createdOnDateProp != null)
+                    createdOnDateProp.SetValue(entity, DateTime.Now);
 
-                var lastModifiedByUserProp = properties.FirstOrDefault(p => p.Name == "LastModifiedByUserId");
-                if (lastModifiedByUserProp != null)
-                    lastModifiedByUserProp.SetValue(entity, userID);
+                var createdByUserProp = properties.FirstOrDefault(p => p.Name == "CreatedByUserId");
+                if (createdByUserProp != null)
+                    createdByUserProp.SetValue(entity, userID);
             }
 
-            var createdOnDateProp = properties.FirstOrDefault(p => p.Name == "CreatedOnDate");
-            if (createdOnDateProp != null)
-                createdOnDateProp.SetValue(entity, DateTime.Now);
+            var lastModifiedDateProp = properties.FirstOrDefault(p => p.Name == "LastModifiedOnDate");
+            if (lastModifiedDateProp != null)
+                lastModifiedDateProp.SetValue(entity, DateTime.Now);
 
-            var createdByUserProp = properties.FirstOrDefault(p => p.Name == "CreatedByUserId");
-            if (createdByUserProp != null)
-                createdByUserProp.SetValue(entity, userID);
+            var lastModifiedByUserProp = properties.FirstOrDefault(p => p.Name == "LastModifiedByUserId");
+            if (lastModifiedByUserProp != null)
+                lastModifiedByUserProp.SetValue(entity, userID);
 
             var columns = string.Join(", ", properties.Select(p => p.Name));
             var values = string.Join(", ", properties.Select(p => "@" + p.Name));

@@ -41,7 +41,7 @@ export class ExtensionsController {
         };
 
         this.apiService.get("Studio", "GetExtensions").then((data) => {
-            this.extensions =data ;
+            this.extensions = data;
             this.availableExtensions = data.AvailableExtensions;
 
             this.onFocusModule();
@@ -63,40 +63,6 @@ export class ExtensionsController {
         this.$scope.$emit('onChangeActivityBar', { name: 'extensions' })
     }
 
-    onInstallAvailableExtension(item, $index) {
-        this.running = "install-available-extensions";
-        this.awaitAction = {
-            title: `Unzip & Ready ${item.extensionFile}`,
-            subtitle: `Just a moment for unzip ${item.extensionName} file and ready to install...`,
-            extIndex: $index
-        };
-
-        this.apiService.post("Studio", "InstallAvailableExtensions", item).then((data) => {
-            this.extension = JSON.parse(data.ExtensionJson);
-            this.extensionInstallDto = {
-                ExtensionUnzipedPath: data.ExtensionUnzipedPath,
-                ManifestFilePath: data.ManifestFilePath
-            };
-
-            this.workingMode = "install-extension";
-            this.$scope.$emit("onShowRightWidget");
-            this.extInstalingStep = 2;
-
-            this.availableExtensions.splice($index, 1);
-
-            delete this.running;
-            delete this.awaitAction;
-        }, (error) => {
-            if (error.status == 401) this.$rootScope.$broadcast('onUnauthorized401', { error: error }); // if user is logoff then refresh page for redirect to login page
-
-            this.awaitAction.isError = true;
-            this.awaitAction.subtitle = error.statusText;
-            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-            delete this.running;
-        });
-    }
-
     onInstallExtensionClick() {
         this.workingMode = "install-extension";
         this.$scope.$emit("onShowRightWidget");
@@ -113,9 +79,8 @@ export class ExtensionsController {
                 showProgress: true
             };
 
-            this.apiService.upload('BusinessEngine/API/Studio/UploadExtensionPackage', $file).then((data) => {
-                this.extension = data;
-                this.extInstalingStep = 2;
+            this.apiService.uploadFile('Studio', 'InstallExtension', { files: $file }).then((data) => {
+                this.extInstalingStep = 4;
 
                 delete this.running;
                 delete this.awaitAction;

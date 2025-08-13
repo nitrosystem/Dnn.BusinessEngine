@@ -136,7 +136,7 @@ export class ApiService {
 
     uploadFile(controller, methodName, data, customHeaders) {
         const url = GlobalSettings.apiBaseUrl + 'BusinessEngineStudio/API/' + controller + "/" + methodName;
-        this.upload(url, data, customHeaders);
+        return this.upload(url, data, customHeaders);
     }
 
     upload(apiUrl, data, customHeaders) {
@@ -147,13 +147,11 @@ export class ApiService {
 
         this.uploadService.upload({
             url: apiUrl,
-            headers: headers || GlobalSettings.apiHeaders,
+            headers: headers,
             data: data,
         }).then((data) => {
             defer.resolve(data.data);
         }, (error) => {
-            if (error.status == 401) location.reload(); // if user is logoff then refresh page for redirect to login page
-
             defer.reject(error);
 
             this.notifyService.error(((error ?? {}).data || {}).Message);
@@ -165,27 +163,28 @@ export class ApiService {
         return defer.promise;
     }
 
-    uploadFileByAngular(file) {
+    uploadFileByAngular(controller, methodName, file, customHeaders) {
         const defer = this.$q.defer();
 
-        var formdata = new FormData();
-        angular.forEach([file], function (value, key) {
-            formdata.append(key, value);
-        });
+        const url = GlobalSettings.apiBaseUrl + 'BusinessEngineStudio/API/' + controller + "/" + methodName;
+
+        var headers = customHeaders ?? GlobalSettings.apiHeaders;
+        headers = { ...headers, ... { Requestverificationtoken: $('[name="__RequestVerificationToken"]').val() } };
+
+        const formData = new FormData();
+        formData.append("file", file);
 
         this.$http({
-            url: "/DesktopModules/BusinessEngineStudio/API/Common/UploadImage",
+            url: url,
             method: 'POST',
-            data: formdata,
-            headers: {
-                'Content-Type': undefined
-            }
+            headers: headers,
+            data: formData
         }).then((data) => {
             defer.resolve(data);
         }, (error) => {
-            if (error.status == 401) location.reload(); // if user is logoff then refresh page for redirect to login page
+            defer.reject(error);
 
-            defer.reject(error)
+            console.error(error);
         })
 
         return defer.promise;

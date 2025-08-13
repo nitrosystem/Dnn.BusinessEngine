@@ -663,23 +663,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
                 // Create temp upload folder
-                var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp");
+                var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
                 Directory.CreateDirectory(uploadPath);
 
-                var provider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
-                await Request.Content.ReadAsMultipartAsync(provider);
+                var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
+                await Request.Content.ReadAsMultipartAsync(streamProvider);
 
-                if (!provider.FileData.Any())
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("No file uploaded."));
-
-                var uploadedFile = provider.FileData[0].LocalFileName;
-                var fileExt = Path.GetExtension(uploadedFile)?.TrimStart('.').ToLowerInvariant();
+                var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
+                var fileExt = Path.GetExtension(filename);
 
                 // Extension whitelist check
                 if (!Host.AllowedExtensionWhitelist.AllowedExtensions.Contains(fileExt))
                     return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest($"File type '{fileExt}' is not allowed."));
 
-                var result = await _extensionService.InstallExtensionAsync(scenarioId, uploadedFile, PortalSettings);
+                var result = await _extensionService.InstallExtensionAsync(scenarioId, filename);
 
                 return Request.CreateResponse(HttpStatusCode.OK, result);
             }
