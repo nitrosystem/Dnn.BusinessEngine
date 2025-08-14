@@ -193,6 +193,8 @@ export class CreateModuleModuleBuilderController {
             this.fieldTypes = data.FieldTypes;
             this.fields = data.Fields;
 
+            this.globalService.parseJsonItems(this.fields);
+
             this.variablesAsDataSource = _.filter(data.Variables, v =>
                 v.Scope !== 'ServerSide' && v.VariableType === 'AppModelList'
             );

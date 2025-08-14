@@ -63,16 +63,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             Guid moduleId, Guid? fieldId, int pageIndex, int pageSize, string searchText, string actionType, string sortBy)
         {
             var results = await _repository.ExecuteStoredProcedureAsListWithPagingAsync<ActionView>("BusinessEngine_GetActions",
-                        new
-                        {
-                            ModuleId = moduleId,
-                            FieldId = fieldId,
-                            SearchText = searchText,
-                            ActionType = actionType,
-                            PageIndex = pageIndex,
-                            PageSize = pageSize,
-                            SortBy = sortBy
-                        });
+                new
+                {
+                    ModuleId = moduleId,
+                    FieldId = fieldId,
+                    SearchText = searchText,
+                    ActionType = actionType,
+                    PageIndex = pageIndex,
+                    PageSize = pageSize,
+                    SortBy = sortBy
+                });
 
             var actions = results.Item1;
             var totalCount = results.Item2;

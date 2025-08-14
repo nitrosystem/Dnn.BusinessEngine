@@ -20,6 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto
         public string Theme { get; set; }
         public string ThemeCssClass { get; set; }
         public bool CanHaveValue  { get; set; }
+        public bool IsRequired { get; set; }
         public bool IsGroupField { get; set; }
         public bool IsParent { get; set; }
         public bool HasDataSource { get; set; }

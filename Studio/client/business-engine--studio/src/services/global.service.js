@@ -95,54 +95,83 @@ export class GlobalService {
         this.$window.history.pushState({ pageTitle: _title }, _data, url);
     }
 
-    parseJsonItems(items) {
+    parseJsonItemsWithErrorHandling(items) {
         if (!items) return items;
 
-        if (typeof items == "object" && items instanceof Array == false) {
-            for (key in items) {
-                var value = items[key];
-                if (value && value instanceof Array) this.parseJsonItems();
-                else if (
-                    typeof key == "string" &&
-                    typeof value == "string" &&
-                    value &&
-                    /^[\],:{}\s]*$/.test(
-                        value
-                            .toLowerCase()
-                            .replace(/\\["\\\/bfnrtu]/g, "@")
-                            .replace(
-                                /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
-                                "]"
-                            )
-                            .replace(/(?:^|:|,)(?:\s*\[)+/g, "")
-                    )
-                ) {
-                    try {
-                        items[key] = JSON.parse(value);
-                        if (
-                            typeof items[key] == "object" &&
-                            items[key] instanceof Array == false
-                        )
-                            this.parseJsonItems(items[key]);
-                        else if (
-                            typeof items[key] == "object" &&
-                            items[key] instanceof Array == true
-                        )
-                            this.parseJsonItems(items[key]);
-                    } catch (e) {
-                        items[key] = value;
-                        console.log(e);
-                    }
-                }
-            }
-        } else if (items instanceof Array) {
-            _.forEach(items, (item) => {
-                if (typeof item == "object" && item instanceof Array == false)
-                    this.parseJsonItems(item);
-                if (typeof item == "object" && item instanceof Array == true)
-                    this.parseJsonItems(item);
-            });
+        // If items is an array
+        if (Array.isArray(items)) {
+            return items.map(item => this.parseJsonItems(item));
         }
+
+        // If items is an object
+        if (typeof items === 'object') {
+            for (const key in items) {
+                if (!Object.hasOwn(items, key)) continue;
+                items[key] = this.parseJsonItems(items[key]);
+            }
+            return items;
+        }
+
+        // If items is a string that looks like JSON
+        if (typeof items === 'string') {
+            try {
+                const parsed = JSON.parse(items);
+                // If parsing worked, parse deeper (in case nested JSON strings exist)
+                return this.parseJsonItems(parsed);
+            } catch {
+                return items; // not valid JSON
+            }
+        }
+
+        // Any other type (number, boolean, etc.) — return as-is
+        return items;
+    }
+
+    parseJsonItems(items) {
+        if (items == null) return items; // null or undefined
+
+        // If it's an array, parse each element
+        if (Array.isArray(items)) {
+            return items.map(item => this.parseJsonItems(item));
+        }
+
+        // If it's an object, parse each property
+        if (typeof items === 'object') {
+            for (const key in items) {
+                if (!Object.hasOwn(items, key)) continue;
+                items[key] = this.parseJsonItems(items[key]);
+            }
+            return items;
+        }
+
+        // If it's a string, check if it looks like JSON
+        if (typeof items === 'string') {
+            const trimmed = items.trim();
+
+            // Quick check to skip obvious non-JSON strings
+            if (
+                !(
+                    (trimmed.startsWith('{') && trimmed.endsWith('}')) || // object
+                    (trimmed.startsWith('[') && trimmed.endsWith(']')) || // array
+                    /^"(?:\\.|[^"\\])*"$/.test(trimmed) || // quoted string
+                    /^-?\d+(\.\d+)?([eE][+\-]?\d+)?$/.test(trimmed) || // number
+                    /^(true|false|null)$/.test(trimmed) // boolean/null
+                )
+            ) {
+                return items; // definitely not JSON
+            }
+
+            // Try parsing only if it passes the quick check
+            try {
+                const parsed = JSON.parse(items);
+                return this.parseJsonItems(parsed); // Recursively parse
+            } catch {
+                return items; // invalid JSON
+            }
+        }
+
+        // Primitive value (number, boolean, etc.)
+        return items;
     }
 
     isJsonString(str) {
@@ -380,56 +409,6 @@ export class GlobalService {
         return defer.promise;
     }
 
-    parseJsonItems(items) {
-        if (!items) return items;
-
-        if (typeof items == "object" && items instanceof Array == false) {
-            for (var key in items) {
-                var value = items[key];
-                if (value && value instanceof Array) this.parseJsonItems();
-                else if (
-                    typeof key == "string" &&
-                    typeof value == "string" &&
-                    value &&
-                    /^[\],:{}\s]*$/.test(
-                        value
-                            .toLowerCase()
-                            .replace(/\\["\\\/bfnrtu]/g, "@")
-                            .replace(
-                                /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
-                                "]"
-                            )
-                            .replace(/(?:^|:|,)(?:\s*\[)+/g, "")
-                    )
-                ) {
-                    try {
-                        items[key] = JSON.parse(value);
-                        if (
-                            typeof items[key] == "object" &&
-                            items[key] instanceof Array == false
-                        )
-                            this.parseJsonItems(items[key]);
-                        else if (
-                            typeof items[key] == "object" &&
-                            items[key] instanceof Array == true
-                        )
-                            this.parseJsonItems(items[key]);
-                    } catch (e) {
-                        items[key] = value;
-                        console.log(e);
-                    }
-                }
-            }
-        } else if (items instanceof Array) {
-            _.forEach(items, (item) => {
-                if (typeof item == "object" && item instanceof Array == false)
-                    this.parseJsonItems(item);
-                if (typeof item == "object" && item instanceof Array == true)
-                    this.parseJsonItems(item);
-            });
-        }
-    }
-
     capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
@@ -482,7 +461,7 @@ export class GlobalService {
         }, delay);
     }
 
-     compareTwoObject(sourceObject,destObject, ignoredFields = []) {
+    compareTwoObject(sourceObject, destObject, ignoredFields = []) {
         const changes = _.reduce(sourceObject, (result, value, key) => {
             const oldValue = destObject[key];
 

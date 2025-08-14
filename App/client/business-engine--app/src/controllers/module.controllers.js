@@ -35,6 +35,8 @@ export class ModuleController {
         this.$scope.$rootScope = $rootScope;
     }
 
+    //#region Event Methods
+
     async onInitModule(dnnModuleId, moduleId, connectionId) {
         this.module = {
             dnnModuleId: dnnModuleId,
@@ -63,6 +65,8 @@ export class ModuleController {
         // this.fields = this.decodeProtectedData(data.mf) ?? [];
         this.fields = data.fields ?? [];
 
+        this.globalService.parseJsonItems(this.fields);
+
         // const data=this.decodeProtectedData(data.md) ?? {};
         const moduleData = data.data ?? {};
         _.forEach(moduleData, (value, key) => {
@@ -79,8 +83,8 @@ export class ModuleController {
                 field.ignoreWatchForChangingValue = true;
 
                 if (field.FieldValueProperty) {
-                    this.appendWatches("$.field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
                     this.appendWatches("$.data." + field.FieldValueProperty, "onVariableValueChange", field.Id, field.FieldValueProperty);
+                    this.appendWatches("$.field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
                 }
                 else if (field.FieldValues && field.FieldValues.length) {
                     _.forEach(field.FieldValues, (fv) => {
@@ -128,18 +132,17 @@ export class ModuleController {
         $('.b-engine-module').addClass('is-loaded');
     }
 
-    onFieldValueChange(fieldId) {
+    async onFieldValueChange(fieldId) {
         const field = this.getFieldById(fieldId);
         if (field.CanHaveValue && field.FieldValueProperty && !field.ignoreWatchForChangingValue) {
             _.set(this.data, field.FieldValueProperty, field.Value);
 
-            // if (field.BeValidate) {
-            //     const fields = !field.IsGroup ? [field] : this.getFieldChilds(field);
-            //     this.validateFields(fields);
-            // }
+            if (field.isValidated) {
+                await this.validateField(field);
+            }
 
             if (field.Actions && field.Actions.length)
-                this.callActionByEvent(fieldId, "OnFieldValueChange");
+                await this.callActionByEvent(fieldId, "OnFieldValueChange");
 
             this.$timeout(() => {
                 this.$scope.$broadcast(`onFieldValueChange_${field.Id}`, { field: field });
@@ -159,27 +162,8 @@ export class ModuleController {
         }
     }
 
-    setFieldConditionalValue(fieldId) {
-        const field = this.getFieldById(fieldId);
-        if (field.CanHaveValue) {
-            _.forEach(field.FieldValues, (fv) => {
-                if (this.expressionService.checkConditions(fv.Conditions, this.data)) {
-                    const expressionTree = this.expressionService.parseExpression(fv.ValueExpression, this.data);
-                    field.Value = this.expressionService.evaluateExpressionTree(expressionTree, this.data);
-                }
-            });
-        }
-    }
-
     onFieldShowChange(fieldId) {
         const field = this.getFieldById(fieldId);
-    }
-
-    showHideField(fieldId) {
-        const field = this.getFieldById(fieldId);
-        if (field.ShowConditions && field.ShowConditions.length) {
-            field.IsShow = this.expressionService.checkConditions(field.ShowConditions, this.data);
-        }
     }
 
     onFieldDataSourceChange(fieldId) {
@@ -193,161 +177,102 @@ export class ModuleController {
         }, 200);
     }
 
-    validateForm() {
-        const defer = this.$q.defer();
+    //#endregion
 
+    //#region Validate Methods
+
+    async validateForm() {
         const fields = _.filter(this.fields, (f) => {
-            return (f.CanHaveValue || f.IsGroupField) && this.isFieldShow(f);
+            return f.CanHaveValue || f.IsGroupField
         });
 
-        this.validateFields(fields).then((isValid) => {
-            this.form.isValid = isValid;
+        this.form.isValid = await this.validateFields(fields);
 
-            defer.resolve(isValid);
-        });
-
-        return defer.promise;
+        return this.form.isValid;
     }
 
-    validatePanes(buffer, defer) {
-        if (!defer) defer = this.$q.defer();
+    async validatePanes(paneNames) {
+        if (!paneNames || !paneNames.length) return true;
 
-        if (!buffer.length) {
-            defer.resolve();
-        } else {
-            const paneName = buffer[0];
-            this.validatePane(paneName).then(() => {
-                buffer.shift();
-                this.validatePanes(buffer, defer);
-            });
+        const results = await Promise.all(paneNames.map(pane => this.validatePane(pane)));
+        return results.every(Boolean); // true if all are valid
+    }
+
+    async validatePane(paneName) {
+        let fields = _.filter(this.fields, (f) => {
+            return f.PaneName == paneName;
+        });
+
+        _.filter(fields, (f) => { return f.IsGroupField; }).map((group) => {
+            fields.push(...this.getGroupFields(group.Id));
+        });
+
+        this.pane[paneName] = this.pane[paneName] || {};
+        this.pane[paneName].isValid = await this.validateFields(fields);
+
+        return this.pane[paneName].isValid;
+    }
+
+    async validateGroups(groupIds) {
+        if (!groupIds || !groupIds.length) return true;
+
+        const results = await Promise.all(groupIds.map(groupId => this.validateGroup(groupId)));
+        return results.every(Boolean); // true if all are valid
+    }
+
+    async validateGroup(groupId) {
+        const fields = this.getGroupFields(groupId);
+
+        return await this.validateFields(fields);
+    }
+
+    async validateFields(fields) {
+        if (!fields || !fields.length) return true;
+
+        const results = await Promise.all(fields.map(field => this.validateField(field)));
+        return results.every(Boolean); // true if all are valid
+    }
+
+    async validateField(field) {
+        field.isValidated = true;
+        field.isValid = true;
+
+        if (field.CanHaveValue && field.IsRequired &&
+            (field.Value === null || field.Value === undefined || field.Value === "")
+        ) {
+            field.isValid = false;
+            field.requiredError = true;
         }
 
-        return defer.promise;
-    }
-
-    validatePane(paneName) {
-        const defer = this.$q.defer();
-
-        var fields = _.filter(this.fields, (f) => {
-            return f.PaneName == paneName && this.isFieldShow(f);
-        });
-
-        _.filter(fields, (f) => {
-            return f.IsGroupField;
-        }).map((g) => {
-            fields = fields.concat(this.getFieldChilds(g));
-        });
-
-        this.validateFields(fields).then((isValid) => {
-            this.pane[paneName] = this.pane[paneName] || {};
-            this.pane[paneName].IsValid = isValid;
-
-            defer.resolve(isValid);
-        });
-
-        return defer.promise;
-    }
-
-    validateGroups(buffer, defer) {
-        if (!defer) defer = this.$q.defer();
-
-        if (!buffer.length) {
-            defer.resolve();
-        } else {
-            const group = this.getFieldById(buffer[0]);
-            this.validateGroup(group).then(() => {
-                buffer.shift();
-                this.validateGroups(buffer, defer);
-            });
+        if (field.isValid && field.Settings.ValidationMethod) {
+            field.isValid = await his.$deferredBroadcast(this, field.Settings.ValidationMethod);
         }
 
-        return defer.promise;
+        field.isValid = field.isValid && this.validateFieldPattern(field);
+
+        return field.isValid;
     }
 
-    validateGroup(group) {
-        const defer = this.$q.defer();
+    validateFieldPattern(field) {
+        let patternIsValid = true;
 
-        const fields = !group.IsGroupField ? [group] : this.getFieldChilds(group);
-        this.validateFields(fields).then((isValid) => {
-            group.IsValid = isValid;
-
-            defer.resolve(isValid);
-        });
-
-        return defer.promise;
-    }
-
-    validateFields(buffer, defer, isNotValid) {
-        if (!defer) defer = this.$q.defer();
-
-        if (!buffer.length) {
-            defer.resolve(!isNotValid);
-        } else {
-            const field = buffer[0];
-            this.validateField(field).then((isValid) => {
-                if (!isValid) console.log(field);
-                buffer.shift();
-                this.validateFields(buffer, defer, !isValid ? true : isNotValid);
-            });
-        }
-
-        return defer.promise;
-    }
-
-    validateField(field) {
-        const defer = this.$q.defer();
-
-        field.IsPatternValidate = true;
-        field.BeValidate = true;
-        field.Validated = true;
-
-        if (!field.CanHaveValue && !field.Settings.ValidationMethod) {
-            field.IsValid = true;
-            defer.resolve(field.IsValid);
-        } else if (field.Settings.ValidationMethod) {
-            this.$deferredBroadcast(this.$scope, field.Settings.ValidationMethod).then((isValid) => {
-                field.IsValid = isValid && this.validateFieldValidationPattern(field);
-                field.RequiredError = !field.IsValid;
-
-                defer.resolve(field.IsValid);
-            });
-        } else if (field.IsRequired) {
-            field.IsValid = !(field.Value === null || field.Value === undefined || field.Value === "");
-            field.IsValid = field.IsValid && this.validateFieldValidationPattern(field);
-
-            field.RequiredError = !field.IsValid;
-
-            defer.resolve(field.IsValid);
-        } else {
-            field.IsValid = this.validateFieldValidationPattern(field);
-
-            defer.resolve(field.IsValid);
-        }
-
-        return defer.promise;
-    }
-
-    validateFieldValidationPattern(field) {
-        if (field.Value && field.Settings && field.Settings.ValidationPattern) {
+        if (field.CanHaveValue && field.Value && field.Settings.ValidationPattern) {
             try {
-                field.IsValid = new RegExp(field.Settings.ValidationPattern).test(
-                    field.Value
-                );
+                patternIsValid = new RegExp(field.Settings.ValidationPattern).test(field.Value);
             } catch (e) {
-                field.IsValid = false;
+                patternIsValid = false;
             }
-        } else field.IsValid = true;
+        }
 
-        return field.IsValid;
+        field.patternError = !patternIsValid;
+
+        return patternIsValid;
     }
 
-    isFieldShow(field) {
-        return field.IsShow && $(`*[data-field="${field.FieldName}"]`).length;
-    }
+    //#endregion
 
-    /*------------------------------------*/
-    /* Action Methods  */
-    /*------------------------------------*/
+    //#region Actions Methods
+
     callAction(actionName, params, ignoreChildActions) {
         const defer = this.$q.defer();
 
@@ -397,6 +322,70 @@ export class ModuleController {
         await this.actionService.callActions(actions, event, this);
     }
 
+    //#endregion
+
+    //#region Field Methods
+
+    getFieldById(fieldId) {
+        const field = _.find(this.fields, (f) => {
+            return f.Id == fieldId;
+        });
+
+        return field;
+    }
+
+    getFieldByName(fieldName) {
+        const field = _.find(this.fields, (f) => {
+            return f.FieldName == fieldName;
+        });
+
+        return field;
+    }
+
+    getGroupFields(groupId) {
+        let fields = [];
+
+        const findNestedFields = (groupId) => {
+            const childs = _.filter(this.fields, (f) => { return f.ParentId == groupId; });
+            fields.push(...childs);
+
+            _.filter(childs, (f) => { return f.IsGroupField; }).map((group) => {
+                findNestedFields(group.Id);
+            });
+        };
+
+        findNestedFields(groupId);
+
+        return fields;
+    }
+
+    setFieldConditionalValue(fieldId) {
+        const field = this.getFieldById(fieldId);
+        if (field.CanHaveValue) {
+            _.forEach(field.FieldValues, (fv) => {
+                if (this.expressionService.checkConditions(fv.Conditions, this.data)) {
+                    const expressionTree = this.expressionService.parseExpression(fv.ValueExpression, this.data);
+                    field.Value = this.expressionService.evaluateExpressionTree(expressionTree, this.data);
+                }
+            });
+        }
+    }
+
+    showHideField(fieldId) {
+        const field = this.getFieldById(fieldId);
+        if (field.ShowConditions && field.ShowConditions.length) {
+            field.IsShow = this.expressionService.checkConditions(field.ShowConditions, this.data);
+        }
+    }
+
+    isFieldShow(field) {
+        return field.IsShow && $(`*[data-field="${field.FieldName}"]`).length;
+    }
+
+    //#endregion
+
+    //#region Other Methods
+
     /*------------------------------------*/
     /* Watch Fields or Variables Changed   */
     /*------------------------------------*/
@@ -440,44 +429,6 @@ export class ModuleController {
         });
     }
 
-    getFieldById(fieldId) {
-        const field = _.find(this.fields, (f) => {
-            return f.Id == fieldId;
-        });
-
-        return field;
-    }
-
-    getFieldByName(fieldName) {
-        const field = _.find(this.fields, (f) => {
-            return f.FieldName == fieldName;
-        });
-
-        return field;
-    }
-
-    getFieldChilds(field) {
-        var fields = [];
-
-        const findNestedFields = (group) => {
-            const childs = _.filter(this.fields, (f) => {
-                return f.ParentId == group.FieldId && this.isFieldShow(f);
-            });
-
-            fields = fields.concat(childs);
-
-            _.filter(childs, (f) => {
-                return f.IsGroupField;
-            }).map((g) => {
-                findNestedFields(g);
-            });
-        };
-
-        findNestedFields(field);
-
-        return fields;
-    }
-
     async pingConnection() {
         const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
@@ -491,21 +442,5 @@ export class ModuleController {
         await this.pingConnection();
     }
 
-    decodeProtectedData(base64String) {
-        if (!base64String) return null;
-
-        // Base64 decode
-        const binaryString = atob(base64String);
-        const binaryData = new Uint8Array(binaryString.length);
-
-        for (let i = 0; i < binaryString.length; i++) {
-            binaryData[i] = binaryString.charCodeAt(i);
-        }
-
-        // GZip decompress
-        const decompressed = pako.inflate(binaryData, { to: 'string' });
-
-        // Parse JSON
-        return JSON.parse(decompressed);
-    }
+    //#endregion
 }

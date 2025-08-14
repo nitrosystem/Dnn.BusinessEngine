@@ -37,14 +37,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
         private readonly string _fieldLayout =
-            @"<div [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field]]"" [[IF:CanHaveValue ==true:ng-class=""{'b-invalid':[FIELD].Validated && ([FIELD].RequiredError || ![FIELD].IsValid)}""]]>
-                [[IF:FieldText!=null:<label class=""[[Settings.FieldTextCssClass??b-form-label]]"">[[FieldText]]</label>]]
+            @"<div [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field]]"" [[IF:CanHaveValue == true:ng-class=""{'b-invalid':[FIELD].isValidated && ([FIELD].requiredError || ![FIELD].patternError)}""]]>
+                [[IF:FieldText != null:
+                    <label class=""[[Settings.FieldTextCssClass??b-form-label]]"">[[FieldText]]</label>
+                ]]
                 [FIELD-COMPONENT]
-                [[IF:CanHaveValue ==true && IsRequired==true:<p ng-show=""[FIELD].Validated && ([FIELD].Value==null || [FIELD].Value==undefined || [FIELD].Value=='') && [FIELD].RequiredError"" 
-                    class=""[[Settings.RequiredMessageCssClass??b-invlid-message]]"">[[Settings.RequiredMessage]]</p>]]
-                [[IF:GlobalSettings.EnableValidationPattern==true&&Settings.ValidationPattern!=null:<p ng-show=""[FIELD].IsPatternValidate && ![FIELD].IsValid && [FIELD].Value!==undefined && [FIELD].Value!==null && [FIELD].Value!==''"" 
-                    class=""[[Settings.ValidationMessageCssClass??b-pattern-message]]"">[[Settings.ValidationMessage]]</p>]]
-                [[IF:GlobalSettings.Subtext!=null:<span class=""[[Settings.SubtextCssClass??b-subtext]]"">[[Settings.Subtext]]</span>]]
+                [[IF:CanHaveValue == true && IsRequired == true:
+                    <p ng-show=""[FIELD].isValidated && ![FIELD].isValid && [FIELD].requiredError"" class=""[[Settings.RequiredMessageCssClass??b-invalid-message]]"">[[Settings.RequiredMessage]]</p>
+                ]]
+                [[IF:CanHaveValue == true && GlobalSettings.EnableValidationPattern == true && Settings.ValidationPattern != null:
+                    <p ng-show=""[FIELD].isValidated && ![FIELD].isValid && [FIELD].patternError"" class=""[[Settings.ValidationMessageCssClass??b-pattern-message]]"">[[Settings.ValidationMessage]]</p>
+                ]]
+                [[IF:GlobalSettings.Subtext != null:
+                    <span class=""[[Settings.SubtextCssClass??b-subtext]]"">[[Settings.Subtext]]</span>
+                ]]
             </div>";
 
         #endregion
