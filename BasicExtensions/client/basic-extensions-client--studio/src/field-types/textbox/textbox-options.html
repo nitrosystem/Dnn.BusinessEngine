@@ -2,7 +2,8 @@
     <div class="col-7 border-end b-splitter pe-3">
         <div class="b-field">
             <label class="form-label">Input Type</label>
-            <select ng-model="$.field.Settings.InputType" class="b-input form-control" chosen inherit-select-classes="true" required>
+            <select ng-model="$.currentField.Settings.InputType" class="b-input form-control" chosen
+                inherit-select-classes="true" required>
                 <option value=""></option>
                 <option value="text">Text</option>
                 <option value="number">Number</option>
@@ -17,21 +18,39 @@
         </div>
         <div class="b-field">
             <label class="form-label">Placeholder</label>
-            <input type="text" ng-model="$.field.Settings.Placeholder" class="b-input form-control" />
-        </div>
-        <div class="b-field">
-            <label class="form-label">Input Css Class</label>
-            <input type="text" ng-model="$.field.Settings.InputCssClass" class="b-input form-control" placeholder="Input css class" />
+            <input type="text" ng-model="$.currentField.Settings.Placeholder" class="b-input form-control" />
         </div>
     </div>
     <div class="col ps-3">
         <div class="b-field">
-            <label class="form-label">Icon Position</label>
-            <input type="text" ng-model="$.field.Settings.IconPosition" class="b-input form-control" />
+            <label class="form-label">With Icon</label>
+            <label class="b-switch d-block">
+                <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.WithIcon" />
+                <div class="slider"></div>
+            </label>
         </div>
-        <div class="b-field">
-            <label class="form-label">Font Icon</label>
-            <input type="text" ng-model="$.field.Settings.FontIcon" class="b-input form-control" />
+        <div ng-class="{'opacity-25':!$.currentField.Settings.WithIcon}">
+            <div class="b-field">
+                <label class="form-label">Icon Position</label>
+                <div class="b-radio-list-inline">
+                    <div class="radio-item">
+                        <input type="radio" id="leftPosition" name="positionRadio" value="Left"
+                            ng-model="$.currentField.Settings.IconPosition"
+                            ng-disabled="!$.currentField.Settings.WithIcon">
+                        <label for="leftPosition">Left</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="rightPosition" name="positionRadio" value="Right"
+                            ng-model="$.currentField.Settings.IconPosition"
+                            ng-disabled="!$.currentField.Settings.WithIcon">
+                        <label for="rightPosition">Right</label>
+                    </div>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Font Icon</label>
+                <input type="text" ng-model="$.currentField.Settings.FontIcon" class="b-input form-control" />
+            </div>
         </div>
     </div>
 </div>

@@ -1,109 +1,61 @@
-import { GlobalSettings } from "../configs/global.settings";
-import pako from 'pako';
-
 export class ModuleController {
-    constructor(
-        $scope,
-        $rootScope,
-        $timeout,
-        $parse,
-        $q,
-        $compile,
-        Upload,
-        $deferredBroadcast,
-        globalService,
-        apiService,
-        expressionService,
-        actionService
-    ) {
-        this.$scope = $scope;
-        this.$rootScope = $rootScope;
-        this.$timeout = $timeout;
-        this.$parse = $parse;
-        this.$q = $q;
-        this.$compile = $compile;
-        this.uploadService = Upload;
-        this.$deferredBroadcast = $deferredBroadcast;
-        this.globalService = globalService;
+    constructor(app, apiService, expressionService, actionService, globalService) {
+        this.app = app;
         this.apiService = apiService;
         this.expressionService = expressionService;
         this.actionService = actionService;
-
-        this.globalSettings = GlobalSettings;
-
-        this.$scope.moduleController = this;
-        this.$scope.$rootScope = $rootScope;
+        this.globalService = globalService;
     }
 
     //#region Event Methods
 
-    async onInitModule(dnnModuleId, moduleId, connectionId) {
-        this.module = {
-            dnnModuleId: dnnModuleId,
-            moduleId: moduleId,
-            connectionId: connectionId,
-        };
+    async onLoad(moduleId, connectionId) {
+        this.moduleId = moduleId;
+        this.connectionId = connectionId;
 
-        await this.onPageLoad();
-    }
-
-    async onPageLoad() {
         this.form = {};
         this.field = {};
         this.pane = {};
-        this.data = {};
         this.controllerCache = {};
 
-        this.watches = [];
+        this.Data = {};
 
-        const data = await this.apiService.get("Module", "GetModuleData", {
-            moduleId: this.module.moduleId,
-            connectionId: this.module.connectionId,
+        const data = await this.apiService.getAsync("Module", "GetModuleData", {
+            moduleId: moduleId,
+            connectionId: connectionId,
             pageUrl: document.URL
         });
 
         // this.fields = this.decodeProtectedData(data.mf) ?? [];
         this.fields = data.fields ?? [];
-
         this.globalService.parseJsonItems(this.fields);
 
         // const data=this.decodeProtectedData(data.md) ?? {};
         const moduleData = data.data ?? {};
         _.forEach(moduleData, (value, key) => {
-            this.data[key] = value;
+            this.Data[key] = value;
         });
 
-        _.forEach(this.fields, (field) => {
-            field.Actions = [];
-            _.filter(this.actions, (a) => { return a.FieldId == field.Id; }).map((action) => { field.Actions.push(action); });
+        this.fields.forEach(field => {
+            field.actions = _.filter(this.actions, (a) => { return a.FieldId == field.Id; });
 
-            // this.appendWatches("field." + field.FieldName + ".IsShow", "onFieldShowChange", field.Id);
+            if (field.CanHaveValue && field.FieldValueProperty) {
+                _.forEach(field.ConditionalValues ?? [], (fv) => {
+                    this.app.listenTo(this, fv.ValueExpression, setFieldConditionalValue, { fieldId: field.Id });
 
-            if (field.CanHaveValue) {
-                field.ignoreWatchForChangingValue = true;
-
-                if (field.FieldValueProperty) {
-                    this.appendWatches("$.data." + field.FieldValueProperty, "onVariableValueChange", field.Id, field.FieldValueProperty);
-                    this.appendWatches("$.field." + field.FieldName + ".Value", "onFieldValueChange", field.Id);
-                }
-                else if (field.FieldValues && field.FieldValues.length) {
-                    _.forEach(field.FieldValues, (fv) => {
-                        this.appendWatches(fv.ValueExpression, "setFieldConditionalValue", field.Id);
-
-                        _.forEach(fv.Conditions, (c) => {
-                            this.appendWatches(c.LeftExpression, "setFieldConditionalValue", field.Id);
-                        });
+                    (fv.Conditions ?? []).forEach(condition => {
+                        this.app.listenTo(this, condition.LeftExpression, setFieldConditionalValue, { fieldId: field.Id });
+                        this.app.listenTo(this, condition.RightExpression, setFieldConditionalValue, { fieldId: field.Id });
                     });
-                }
-
-                this.$timeout(() => delete field.ignoreWatchForChangingValue);
+                });
             }
 
             if (field.DataSource && field.DataSource.Type == 2 && field.DataSource.VariableName)
-                this.appendWatches(field.DataSource.VariableName, "onFieldDataSourceChange", field.Id);
+                this.app.listenTo(this, field.DataSource.VariableName, onFieldDataSourceChange, { fieldId: field.Id });
 
-            _.forEach(field.ShowConditions ?? [], (c) => {
-                this.appendWatches(c.LeftExpression, "showHideField", field.Id);
+            (field.ShowConditions ?? []).forEach(condition => {
+                this.app.listenTo(this, condition.LeftExpression, showHideField, { fieldId: field.Id });
+                this.app.listenTo(this, condition.RightExpression, showHideField, { fieldId: field.Id });
             });
 
             this.field[field.FieldName] = field;
@@ -112,7 +64,7 @@ export class ModuleController {
             if (!controllerInstance) {
                 const ControllerClass = ComponentRegistry.resolve(field.FieldType);
                 if (typeof ControllerClass === 'function') {
-                    controllerInstance = new ControllerClass(this); // فقط فرم رو پاس بده
+                    controllerInstance = new ControllerClass(this);
                     this.controllerCache[field.FieldType] = controllerInstance;
                 }
             }
@@ -121,45 +73,15 @@ export class ModuleController {
                 controllerInstance.init(field);
         });
 
-        this.raiseWatches();
-
         // this.actions = this.decodeProtectedData(data.ma);
         this.actions = data.actions;
 
         const moduleActions = _.filter(this.actions, (a) => { return a.ExecuteInClientSide && !a.FieldId });
-        if (moduleActions.length) await this.actionService.callActions(moduleActions, "OnPageLoad", this);
+        if (moduleActions.length) await this.actionService.callActions(this, moduleActions, "OnPageLoad");
 
         $('.b-engine-module').addClass('is-loaded');
-    }
 
-    async onFieldValueChange(fieldId) {
-        const field = this.getFieldById(fieldId);
-        if (field.CanHaveValue && field.FieldValueProperty && !field.ignoreWatchForChangingValue) {
-            _.set(this.data, field.FieldValueProperty, field.Value);
-
-            if (field.isValidated) {
-                await this.validateField(field);
-            }
-
-            if (field.Actions && field.Actions.length)
-                await this.callActionByEvent(fieldId, "OnFieldValueChange");
-
-            this.$timeout(() => {
-                this.$scope.$broadcast(`onFieldValueChange_${field.Id}`, { field: field });
-            });
-        }
-    }
-
-    onVariableValueChange(fieldId, property) {
-        const field = this.getFieldById(fieldId);
-        if (field.CanHaveValue) {
-            const value = _.get(this.data, property);
-
-            field.ignoreWatchForChangingValue = true;
-            field.Value = value;
-
-            this.$timeout(() => delete field.ignoreWatchForChangingValue);
-        }
+        this.pingConnection();
     }
 
     onFieldShowChange(fieldId) {
@@ -169,7 +91,7 @@ export class ModuleController {
     onFieldDataSourceChange(fieldId) {
         const field = this.getFieldById(fieldId);
 
-        field.DataSource = { ...field.DataSource, ...this.data[field.DataSource.VariableName] };
+        field.DataSource = { ...field.DataSource, ...this.Data[field.DataSource.VariableName] };
 
         this.$timeout(() => {
             if (field.DataSource !== field.OldDataSource) this.$scope.$broadcast(`onFieldDataSourceChange_${field.Id}`, { field: field });
@@ -236,32 +158,35 @@ export class ModuleController {
     async validateField(field) {
         field.isValidated = true;
         field.isValid = true;
+        field.requiredError = false;
+        field.patternError = false;
 
-        if (field.CanHaveValue && field.IsRequired &&
-            (field.Value === null || field.Value === undefined || field.Value === "")
-        ) {
+        if (!field.CanHaveValue || !field.IsRequired || !field.FieldValueProperty) return true;
+
+        const value = this.expressionService.evaluateExpression(field.FieldValueProperty, this);
+        const isEmpty = value === null || value === undefined || value === "";
+
+        if (isEmpty) {
             field.isValid = false;
             field.requiredError = true;
         }
 
         if (field.isValid && field.Settings.ValidationMethod) {
-            field.isValid = await his.$deferredBroadcast(this, field.Settings.ValidationMethod);
+            field.isValid = await his.$deferredBroadcast(this, field.Settings.ValidationMethod, value);
         }
 
-        field.isValid = field.isValid && this.validateFieldPattern(field);
+        field.isValid = field.isValid && (isEmpty || this.validateFieldPattern(field, value));
 
         return field.isValid;
     }
 
-    validateFieldPattern(field) {
+    validateFieldPattern(field, value) {
         let patternIsValid = true;
 
-        if (field.CanHaveValue && field.Value && field.Settings.ValidationPattern) {
-            try {
-                patternIsValid = new RegExp(field.Settings.ValidationPattern).test(field.Value);
-            } catch (e) {
-                patternIsValid = false;
-            }
+        try {
+            patternIsValid = new RegExp(field.Settings.ValidationPattern).test(value);
+        } catch (e) {
+            patternIsValid = false;
         }
 
         field.patternError = !patternIsValid;
@@ -273,53 +198,9 @@ export class ModuleController {
 
     //#region Actions Methods
 
-    callAction(actionName, params, ignoreChildActions) {
-        const defer = this.$q.defer();
-
-        this.actionService.callActionByName(
-            actionName,
-            params,
-            this.actions,
-            this.$scope,
-            ignoreChildActions
-        ).then((data) => {
-            defer.resolve(data);
-        }, (error) => {
-            defer.reject(error);
-        })
-
-        return defer.promise;
-    }
-
-    callServerAction(actionName, params, ignoreChildActions) {
-        const defer = this.$q.defer();
-
-        this.actionService.callServerActionByName(
-            actionName,
-            params,
-            this.actions,
-            this.$scope,
-            ignoreChildActions
-        ).then((data) => {
-            defer.resolve(data);
-        }, (error) => {
-            defer.reject(error);
-        })
-
-        return defer.promise;
-    }
-
-    callActionByActionId(actionId, params, ignoreChildActions) {
-        _.filter(this.actions, (action) => {
-            return action.ActionId == actionId;
-        }).map((action) => {
-            return this.callAction(action.ActionName, params, ignoreChildActions);
-        });
-    }
-
     async callActionsByEvent(fieldId, event) {
         const actions = _.filter(this.actions, (a) => { return a.FieldId == fieldId });
-        await this.actionService.callActions(actions, event, this);
+        await this.actionService.callActions(this, actions, event);
     }
 
     //#endregion
@@ -362,10 +243,10 @@ export class ModuleController {
     setFieldConditionalValue(fieldId) {
         const field = this.getFieldById(fieldId);
         if (field.CanHaveValue) {
-            _.forEach(field.FieldValues, (fv) => {
-                if (this.expressionService.checkConditions(fv.Conditions, this.data)) {
-                    const expressionTree = this.expressionService.parseExpression(fv.ValueExpression, this.data);
-                    field.Value = this.expressionService.evaluateExpressionTree(expressionTree, this.data);
+            field.ConditionalValues.forEach(fv => {
+                if (this.expressionService.checkConditions(fv.Conditions, this.Data)) {
+                    const expressionTree = this.expressionService.parseExpression(fv.ValueExpression, this.Data);
+                    field.Value = this.expressionService.evaluateExpressionTree(expressionTree, this.Data);
                 }
             });
         }
@@ -374,7 +255,7 @@ export class ModuleController {
     showHideField(fieldId) {
         const field = this.getFieldById(fieldId);
         if (field.ShowConditions && field.ShowConditions.length) {
-            field.IsShow = this.expressionService.checkConditions(field.ShowConditions, this.data);
+            field.IsShow = this.expressionService.checkConditions(field.ShowConditions, this.Data);
         }
     }
 
@@ -392,11 +273,8 @@ export class ModuleController {
     appendWatches(expression, callback, ...params) {
         if (!expression || typeof expression != "string" || !callback) return;
 
-        const matches = expression.match(/(\$\.)?(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm);
-        _.forEach(matches, (match) => {
-            const expression = /(\$\.)?(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm.exec(match);
-            if (!expression[1]) match = '$.data.' + match;
-
+        const matches = expression.match(/(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm);
+        (matches ?? []).forEach(match => {
             const propertyPath = match;
             const watch = _.find(this.watches, (w) => {
                 return w.property == propertyPath;
@@ -430,16 +308,17 @@ export class ModuleController {
     }
 
     async pingConnection() {
-        const delay = (ms) => new Promise(res => setTimeout(res, ms));
+        await new Promise(res => setTimeout(res, 40000));
 
         try {
-            await this.apiService.post("Module", "PingConnection", { ConnectionId: this.module.connectionId });
+            await this.apiService.postAsync("Module", "PingConnection", {
+                ConnectionId: this.connectionId
+            });
         } catch (error) {
             console.error(error);
         }
 
-        await delay(40000);
-        await this.pingConnection();
+        this.pingConnection();
     }
 
     //#endregion

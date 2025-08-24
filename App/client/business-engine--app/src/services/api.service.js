@@ -1,202 +1,48 @@
-import { GlobalSettings } from "../configs/global.settings";
-
 export class ApiService {
-    constructor($http, $q, $templateCache, $rootScope, Upload) {
-        this.$http = $http;
-        this.uploadService = Upload;
-        this.$q = $q;
-        this.$templateCache = $templateCache;
-        this.$rootScope = $rootScope;
+    constructor() {
     }
 
-    get(controller, methodName, params, customHeaders) {
-        return this.getApi(
-            "BusinessEngine",
-            controller,
-            methodName,
-            params,
-            customHeaders
-        );
-    }
+    async getAsync(controller, methodName, params) {
+        const queryString = Object.entries(params ?? {})
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&');
 
-    getApi(module, controller, methodName, params, customHeaders) {
-        const defer = this.$q.defer();
+        const sf = $.ServicesFramework();
+        const apiUrl = sf.getServiceRoot(`BusinessEngine/${controller}/${methodName}`) +
+            (queryString ? `?${queryString}` : '');
 
-        const url =
-            GlobalSettings.apiBaseUrl +
-            module +
-            "/API/" +
-            controller +
-            "/" +
-            methodName;
-
-        var headers = customHeaders ? customHeaders : GlobalSettings.apiHeaders;
-        headers = {...headers, ... { Requestverificationtoken: $('[name="__RequestVerificationToken"]').val() } }
-
-        this.$http({
-            method: "GET",
-            url: url,
-            headers: headers,
-            params: params,
-        }).then(
-            (data) => {
-                defer.resolve(data.data);
-            },
-            (error) => {
-                if (error.status == 401) this.$rootScope.$broadcast('onUnauthorized401', { error: error }); // if user is logoff then refresh page for redirect to login page
-                defer.reject(error);
-            }
-        );
-
-        return defer.promise;
-    }
-
-    post(controller, methodName, data, params, customHeaders) {
-        return this.postApi(
-            "BusinessEngine",
-            controller,
-            methodName,
-            data,
-            params,
-            customHeaders
-        );
-    }
-
-    postApi(module, controller, methodName, data, params, customHeaders) {
-        const defer = this.$q.defer();
-
-        const url =
-            GlobalSettings.apiBaseUrl +
-            module +
-            "/API/" +
-            controller +
-            "/" +
-            methodName;
-
-        var headers = customHeaders ? customHeaders : GlobalSettings.apiHeaders;
-        headers = {...headers, ... { Requestverificationtoken: $('[name="__RequestVerificationToken"]').val() } }
-
-        this.$http({
-            method: "POST",
-            url: url,
-            headers: headers,
-            data: data,
-            params: params,
-        }).then(
-            (data) => {
-                defer.resolve(data.data);
-            },
-            (error) => {
-                if (error.status == 401) this.$rootScope.$broadcast('onUnauthorized401', { error: error }); // if user is logoff then refresh page for redirect to login page
-                defer.reject(error);
-            }
-        );
-
-        return defer.promise;
-    }
-
-    
-    uploadImage(params) {
-        const $defer = this.$q.defer();
-
-        this.uploadService.upload({
-            url: "/DesktopModules/BusinessEngine/API/Common/UploadImage",
+        const response = await fetch(apiUrl, {
+            method: 'GET',
             headers: {
-                'Content-Type': params.file.type,
-                Requestverificationtoken: $('[name="__RequestVerificationToken"]').val()
-            },
-            data: params,
-        }).then((data) => {
-            $defer.resolve(data.data);
-        }, (error) => {
-            $defer.reject(error);
-
-            console.error(error);
-        }, (evt) => {
-            $defer.notify(evt);
+                Requestverificationtoken: $('[name="__RequestVerificationToken"]').val(),
+                'Content-Type': 'application/json'
+            }
         });
 
-        return $defer.promise;
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return await response.json();
     }
 
-    uploadImageByAngular(file) {
-        const $defer = this.$q.defer();
-
-        var formdata = new FormData();
-        angular.forEach([file], function (value, key) {
-            formdata.append(key, value);
-        });
-
-        this.$http({
-            url: "/DesktopModules/BusinessEngine/API/Common/UploadImage",
+    async postAsync(controller, methodName, data) {
+        const sf = $.ServicesFramework();
+        const apiUrl = sf.getServiceRoot(`BusinessEngine/${controller}/${methodName}`);
+        const response = await fetch(apiUrl, {
             method: 'POST',
-            data: formdata,
             headers: {
-                'Content-Type': undefined
-            }
-        }).then((data) => {
-            $defer.resolve(data);
-        });
-
-        return $defer.promise;
-    }
-
-    uploadFile(file) {
-        const $defer = this.$q.defer();
-
-        this.uploadService.upload({
-            url: '/DesktopModules/BusinessEngine/API/Common/UploadFile',
-            headers: {
-                Requestverificationtoken: $('[name="__RequestVerificationToken"]').val()
+                Requestverificationtoken: $('[name="__RequestVerificationToken"]').val(),
+                'Content-Type': 'application/json'
             },
-            data: { file: file },
-        }).then((data) => {
-            $defer.resolve(data.data);
-        }, (error) => {
-            $defer.reject(error);
-
-            console.error(error);
-        }, (evt) => {
-            $defer.notify(evt);
+            body: JSON.stringify(data ?? {})
         });
 
-        return $defer.promise;
-    }
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-    getContent(url, isCache) {
-        const defer = this.$q.defer();
-        const cache = isCache ? { cache: this.$templateCache } : {};
-
-        this.$http.get(url, cache).then(
-            (content) => {
-                defer.resolve(content.data);
-            },
-            (error) => {
-                defer.reject(error);
-            }
-        );
-
-        return defer.promise;
-    }
-
-    async getAsync(controller, methodName, data) {
-        const url = GlobalSettings.apiBaseUrl + controller + '/' + methodName;
-        var headers = GlobalSettings.apiHeaders;
-
-        const ajaxPromise = await new Promise((resolve, reject) => {
-            this._$http({
-                method: 'GET',
-                url: url,
-                headers: headers,
-                params: data
-            }).then((data) => {
-                resolve(data.data);
-            }, (error) => {
-                reject(error);
-            });
-        });
-
-        return ajaxPromise;
+        return await response.json();
     }
 
     loadScript(FILE_URL, async = true, type = "text/javascript") {

@@ -37,16 +37,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
         private readonly string _fieldLayout =
-            @"<div [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field]]"" [[IF:CanHaveValue == true:ng-class=""{'b-invalid':[FIELD].isValidated && ([FIELD].requiredError || ![FIELD].patternError)}""]]>
+            @"<div [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field]]"" [[IF:CanHaveValue == true:b-class=""{'b-invalid':[FIELD].isValidated==true && ([FIELD].requiredError==true || [FIELD].patternError==true)}""]]>
                 [[IF:FieldText != null:
                     <label class=""[[Settings.FieldTextCssClass??b-form-label]]"">[[FieldText]]</label>
                 ]]
                 [FIELD-COMPONENT]
                 [[IF:CanHaveValue == true && IsRequired == true:
-                    <p ng-show=""[FIELD].isValidated && ![FIELD].isValid && [FIELD].requiredError"" class=""[[Settings.RequiredMessageCssClass??b-invalid-message]]"">[[Settings.RequiredMessage]]</p>
+                    <p b-show=""[FIELD].isValidated==true && [FIELD].isValid==false && [FIELD].requiredError==true"" class=""[[Settings.RequiredMessageCssClass??b-invalid-message]]"">[[Settings.RequiredMessage]]</p>
                 ]]
                 [[IF:CanHaveValue == true && GlobalSettings.EnableValidationPattern == true && Settings.ValidationPattern != null:
-                    <p ng-show=""[FIELD].isValidated && ![FIELD].isValid && [FIELD].patternError"" class=""[[Settings.ValidationMessageCssClass??b-pattern-message]]"">[[Settings.ValidationMessage]]</p>
+                    <p b-show=""[FIELD].isValidated && ![FIELD].isValid && [FIELD].patternError"" class=""[[Settings.ValidationMessageCssClass??b-pattern-message]]"">[[Settings.ValidationMessage]]</p>
                 ]]
                 [[IF:GlobalSettings.Subtext != null:
                     <span class=""[[Settings.SubtextCssClass??b-subtext]]"">[[Settings.Subtext]]</span>
@@ -152,7 +152,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                 // --------------------- PARSE Field Show Conditions --------------------------
                 if (field.ShowConditions != null && field.ShowConditions.Any())
                 {
-                    fieldTemplate = fieldTemplate.Replace("[FIELD-DISPLAY-EXPRESSION]", $@"ng-if=""$.field.{field.FieldName}.IsShow""");
+                    fieldTemplate = fieldTemplate.Replace("[FIELD-DISPLAY-EXPRESSION]", $@"b-if=""field.{field.FieldName}.IsShow""");
                 }
                 else
                 {
@@ -184,7 +184,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                     fieldTemplate = fieldTemplate.Replace(match.Value, value ?? "");
                 }
 
-                fieldTemplate = fieldTemplate.Replace("[FIELD]", $"$.field.{field.FieldName}");
+                fieldTemplate = fieldTemplate.Replace("[FIELD]", $"field.{field.FieldName}");
                 fieldTemplate = fieldTemplate.Replace("[FIELDNAME]", $"{field.FieldName}");
                 fieldTemplate = fieldTemplate.Replace("[FIELDID]", $"{field.Id}");
 

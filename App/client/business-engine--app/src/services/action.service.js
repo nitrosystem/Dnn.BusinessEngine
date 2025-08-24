@@ -38,7 +38,7 @@ export class ActionService {
         return rootActions;
     }
 
-    async executeActionTree(nodes, parentStatus, moduleController, executedServerIds = new Set()) {
+    async executeActionTree(controller, nodes, parentStatus, executedServerIds = new Set()) {
         let index = 0;
         for (const node of nodes ?? []) {
             if (!node.ExecuteInClientSide && executedServerIds.has(node.Id))
@@ -48,15 +48,15 @@ export class ActionService {
                 continue;
 
             if (node.ExecuteInClientSide) {
-                var status = await this.callClientAction(node, moduleController);
-                await this.executeActionTree(node.children, status, moduleController, executedServerIds);
+                var status = await this.callClientAction(controller, node);
+                await this.executeActionTree(controller, node.children, status, executedServerIds);
             }
             else {
-                const serverActionsId = this.collectServerSideActions(node, moduleController);
+                const serverActionsId = this.collectServerSideActions(controller, node);
                 serverActionsId.forEach(id => executedServerIds.add(id));
 
-                const status = await this.callServerActions(serverActionsId, moduleController);
-                await this.executeActionTree(node.children, status, moduleController, executedServerIds);
+                const status = await this.callServerActions(controller, serverActionsId);
+                await this.executeActionTree(controller, node.children, status, executedServerIds);
 
                 break;
             }
@@ -65,11 +65,11 @@ export class ActionService {
         }
     }
 
-    collectServerSideActions(node, moduleController) {
+    collectServerSideActions(controller, node) {
         const result = [];
 
         const dfs = n => {
-            if (!n.ExecuteInClientSide && this.expressionService.checkConditions(n.Conditions, moduleController.data)) {
+            if (!n.ExecuteInClientSide && this.expressionService.checkConditions(controller.Data, n.Conditions)) {
                 result.push(n.Id);
                 if (n.children && n.children.length) n.children.forEach(child => dfs(child));
             }
@@ -79,20 +79,20 @@ export class ActionService {
         return result;
     }
 
-    async callActions(actions, event, moduleController) {
+    async callActions(controller, actions, event) {
         var nodes = this.buildActionTree(actions, event);
-        await this.executeActionTree(nodes, 0, moduleController);
+        await this.executeActionTree(controller, nodes, 0);
     }
 
-    async callClientAction(action, moduleController) {
-        if (!this.expressionService.checkConditions(action.Conditions, moduleController.data))
+    async callClientAction(action, controller) {
+        if (!this.expressionService.checkConditions(action.Conditions, controller.Data))
             return await 3;
 
         let controllerInstance = this.controllerCache[action.ActionType];
         if (!controllerInstance) {
             const ControllerClass = ActionRegistry.resolve(action.ActionType);
             if (typeof ControllerClass === 'function') {
-                controllerInstance = new ControllerClass(moduleController, this);
+                controllerInstance = new ControllerClass(controller, this);
                 this.controllerCache[action.ActionType] = controllerInstance;
             }
         }
@@ -107,17 +107,17 @@ export class ActionService {
         }
     }
 
-    async callServerActions(actionIds, moduleController) {
+    async callServerActions(controller, actionIds) {
         try {
             const data = await this.apiService.post("Module", "CallAction", {
-                ConnectionId: moduleController.module.connectionId,
-                ModuleId: moduleController.module.moduleId,
-                Data: moduleController.data,
+                ConnectionId: controller.connectionId,
+                ModuleId: controller.moduleId,
+                Data: controller.Data,
                 PageUrl: document.URL,
                 ActionIds: actionIds,
             });
 
-            moduleController.data = _.merge(_.cloneDeep(moduleController.data), data);
+            controller.Data = _.merge(_.cloneDeep(controller.Data), data);
 
             return await 1;
         }

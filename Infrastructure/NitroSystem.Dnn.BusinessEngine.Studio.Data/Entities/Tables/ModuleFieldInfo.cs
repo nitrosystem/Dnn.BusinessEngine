@@ -31,7 +31,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public bool HasDataSource { get; set; }
         public string DataSource { get; set; }
         public string ShowConditions { get; set; }
-        public string FieldValues { get; set; }
+        public string ConditionalValues { get; set; }
         public string AuthorizationViewField { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }

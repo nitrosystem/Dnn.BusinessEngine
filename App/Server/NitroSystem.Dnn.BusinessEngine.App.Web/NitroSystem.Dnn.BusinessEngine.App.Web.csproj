@@ -108,7 +108,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dto\PageResourceInfo.cs" />
+    <Compile Include="Models\ModuleLiteData.cs" />
+    <Compile Include="Models\PageResourceInfo.cs" />
     <Compile Include="module\module.ascx.cs">
       <DependentUpon>module.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -149,9 +150,6 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="scripts\studio-setup.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

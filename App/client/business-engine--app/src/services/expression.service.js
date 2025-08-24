@@ -1,3 +1,5 @@
+import * as acorn from "acorn";
+
 export class ExpressionService {
     constructor() {
         this.ExpressionFunctions = {
@@ -50,6 +52,7 @@ export class ExpressionService {
 
         switch (op.toLowerCase()) {
             case '=':
+            case '==':
                 return isEqual(left, right);
             case '!=':
                 return !isEqual(left, right);
@@ -105,10 +108,157 @@ export class ExpressionService {
         }
     }
 
-    parseExpression(expression) {
-        if (expression === undefined || expression === null) return undefined;
+    extractIdentifiers(expression) {
+        const ast = acorn.parse(expression, { ecmaVersion: 2020 });
+        const identifiers = new Set();
 
-        expression = expression.trim();
+        function walk(node) {
+            switch (node.type) {
+                case "Identifier":
+                    identifiers.add(node.name);
+                    break;
+                case "MemberExpression":
+                    let parts = [];
+                    let current = node;
+                    while (current.type === "MemberExpression") {
+                        parts.unshift(current.property.name || current.property.value);
+                        current = current.object;
+                    }
+                    if (current.type === "Identifier") {
+                        parts.unshift(current.name);
+                        identifiers.add(parts.join("."));
+                    }
+                    break;
+            }
+
+            for (let key in node) {
+                if (node[key] && typeof node[key] === "object") {
+                    walk(node[key]);
+                }
+            }
+        }
+
+        walk(ast);
+
+        return Array.from(identifiers);
+    }
+
+    extractPropertyPaths(expression) {
+        const regex = /([a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*)+)/g;
+        const matches = expression.match(regex);
+        return [...new Set(matches)];
+    }
+
+    evaluateExpression(expr, scope) {
+        const expressionTree = this.parseExpression(expr, scope);
+        return this.evaluateExpressionTree(expressionTree, scope);
+    }
+
+    parseExpression(expression) {
+        expression = (expression ?? '').trim();
+
+        // اگر کل عبارت داخل پرانتز است → پرانتز بیرونی رو حذف کن
+        if (expression.startsWith("(") && expression.endsWith(")")) {
+            return this.parseExpression(expression.slice(1, -1).trim());
+        }
+
+        // کمکی: split با در نظر گرفتن پرانتز
+        const splitWithParens = (expr, op) => {
+            let depth = 0;
+            let parts = [];
+            let current = "";
+            for (let i = 0; i < expr.length; i++) {
+                let ch = expr[i];
+                if (ch === "(") depth++;
+                if (ch === ")") depth--;
+                if (depth === 0 && expr.slice(i, i + op.length) === op) {
+                    parts.push(current.trim());
+                    current = "";
+                    i += op.length - 1;
+                } else {
+                    current += ch;
+                }
+            }
+            if (current) parts.push(current.trim());
+            return parts.length > 1 ? parts : null;
+        };
+
+        // بررسی &&
+        let andParts = splitWithParens(expression, "&&");
+        if (andParts) {
+            return {
+                type: "Logical",
+                op: "&&",
+                parts: andParts.map(e => this.parseExpression(e))
+            };
+        }
+
+        // بررسی ||
+        let orParts = splitWithParens(expression, "||");
+        if (orParts) {
+            return {
+                type: "Logical",
+                op: "||",
+                parts: orParts.map(e => this.parseExpression(e))
+            };
+        }
+
+        // بررسی مقایسه
+        const compareMatch = expression.match(/^(.+?)(==|!=|>=|<=|>|<)(.+)$/);
+        if (compareMatch) {
+            return {
+                type: "Compare",
+                op: compareMatch[2],
+                left: this.parseExpression(compareMatch[1].trim()),
+                right: this.parseExpression(compareMatch[3].trim())
+            };
+        }
+
+        // literal
+        if (/^["'].*["']$|^\d+(\.\d+)?$|^(true|false|null)$/i.test(expression)) {
+            return { type: "Literal", value: JSON.parse(expression) };
+        }
+
+        // فانکشن
+        const funcMatch = expression.match(/^(\w+)\((.*)\)$/);
+        if (funcMatch) {
+            const name = funcMatch[1];
+            const args = this.splitArgs(funcMatch[2]).map(arg => this.parseExpression(arg.trim()));
+            return { type: "Function", name, args };
+        }
+
+        // مسیر (Path)
+        return { type: "Path", value: expression };
+    }
+
+    parseExpression1(expression) {
+        expression = (expression ?? '').trim();
+
+        if (expression.includes('&&')) {
+            return {
+                type: 'Logical',
+                op: '&&',
+                parts: expression.split('&&').map(e => this.parseExpression(e.trim()))
+            };
+        }
+
+        if (expression.includes('||')) {
+            return {
+                type: 'Logical',
+                op: '||',
+                parts: expression.split('||').map(e => this.parseExpression(e.trim()))
+            };
+        }
+
+        const compareMatch = expression.match(/^(.+?)(==|!=|>=|<=|>|<)(.+)$/);
+        if (compareMatch) {
+            return {
+                type: 'Compare',
+                op: compareMatch[2],
+                left: this.parseExpression(compareMatch[1].trim()),
+                right: this.parseExpression(compareMatch[3].trim())
+            };
+        }
 
         // اگر literal باشه
         if (/^["'].*["']$|^\d+(\.\d+)?$|^(true|false|null)$/i.test(expression)) {
@@ -123,7 +273,6 @@ export class ExpressionService {
             return { type: 'Function', name, args };
         }
 
-        // در غیر این صورت یک مسیر به داده‌ست
         return { type: 'Path', value: expression };
     }
 
@@ -140,6 +289,19 @@ export class ExpressionService {
                 if (!func) throw new Error(`Unknown '${node.name}'`);
                 const args = node.args.map(arg => this.evaluateExpressionTree(arg, data));
                 return func(...args);
+
+            case 'Logical':
+                if (node.op === '&&') {
+                    return node.parts.every(p => this.evaluateExpressionTree(p, data));
+                }
+                if (node.op === '||') {
+                    return node.parts.some(p => this.evaluateExpressionTree(p, data));
+                }
+
+            case 'Compare':
+                const leftVal = this.evaluateExpressionTree(node.left, data);
+                const rightVal = this.evaluateExpressionTree(node.right, data);
+                return this.compareValues(leftVal, rightVal, node.op);
 
             default:
                 throw new Error(`Unsupported node type: ${node.type}`);
@@ -172,4 +334,3 @@ export class ExpressionService {
         return segments.reduce((acc, key) => acc?.[key], obj);
     }
 }
-

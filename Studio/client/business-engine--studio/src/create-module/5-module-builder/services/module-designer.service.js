@@ -345,7 +345,7 @@ export class ModuleDesignerService {
         <!------------------------------------>
         <div class="field-body">
             <div class="row mb-3" ng-if="!$.field.${field.FieldName}.FieldTypeObject.IsContentField">
-                <div class="col-6">
+                <div class="col-3">
                     <div class="field-title-wrapper">
                         <label class="b-switch switch-sm" title="Show Field Text(Label)">
                             <input type="checkbox" ng-checked="!$.field.${field.FieldName}.Settings.IsHideFieldText"
@@ -353,7 +353,7 @@ export class ModuleDesignerService {
                             <span class="slider"></span>
                         </label>
                         <b ng-class="{'opacity-25':$.field.${field.FieldName}.Settings.IsHideFieldText}">
-                          Field Text(Label):
+                          Label:
                         </b>
                         <input type="text" ng-model="$.field.${field.FieldName}.FieldText" class="b-input-edit"
                             ng-class="{'opacity-25 text-decoration-line-through':$.field.${field.FieldName}.Settings.IsHideFieldText}"
@@ -361,7 +361,17 @@ export class ModuleDesignerService {
                             placeholder="Enter field text(label)" autocomplete="off" />
                     </div>
                 </div>
-                <div class="col-3">
+                <div class="col-4 pe-0">
+                    <span ng-class="{'opacity-25':!$.field.${field.FieldName}.CanHaveValue}">
+                      <b ng-if="!$.field.${field.FieldName}.FieldValueProperty" ng-click="$.onSetFieldPropertyValueClick('${field.Id}')">
+                        Not Property Set
+                      </b>
+                      <b ng-if="$.field.${field.FieldName}.FieldValueProperty" ng-click="$.onSetFieldPropertyValueClick('${field.Id}')">
+                        {{$.field.${field.FieldName}.FieldValueProperty}}
+                      </b>
+                    </span>
+                </div>
+                <div class="col-3 pe-0">
                     <div class="field-title-wrapper">
                         <b>Field Name:</b>
                         <input type="text" class="b-input-edit" ng-model="$.field.${field.FieldName}.FieldName"
@@ -369,11 +379,11 @@ export class ModuleDesignerService {
                             autocomplete="off" />
                     </div>
                 </div>
-                <div class="col-3">
-                    <div class="field-title-wrapper">
-                        <b>Field Type:</b>
+                <div class="col-2 pe-0">
+                    <div class="field-title-wrapper justify-content-end">
                         <span class="field-type-name"
-                            title="{{$.field.${field.FieldName}.FieldType}}">{{$.field.${field.FieldName}.FieldType}}</span>
+                            title="{{$.field.${field.FieldName}.FieldType}}">{{$.field.${field.FieldName}.FieldType}}
+                          </span>
                     </div>
                 </div>
             </div>

@@ -29,7 +29,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field
         public bool HasDataSource { get; set; }
         public FieldDataSourceInfo DataSource { get; set; }
         public IEnumerable<ExpressionInfo> ShowConditions { get; set; }
-        public IEnumerable<FieldValueInfo> FieldValues { get; set; }
+        public IEnumerable<FieldValueInfo> ConditionalValues { get; set; }
         public IEnumerable<ActionListItem> Actions { get; set; }
         public IEnumerable<string> AuthorizationViewField { get; set; }
         public IDictionary<string, object> Settings { get; set; }

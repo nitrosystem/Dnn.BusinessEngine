@@ -10,12 +10,13 @@ class TextboxFieldController {
   }
 
   $onInit() {
-    this.$scope.$on(
-      "onBindFieldSettings_" + this.field.FieldName,
-      (e, args) => {
-        this.field.CustomSettings = sidebarSettingsTemplate;
-      }
-    );
+    this.$scope.$on("onAddedTextboxField", (e, args) => {
+      debugger
+    });
+
+    this.$scope.$on("onBindFieldSettings_" + this.field.FieldName, (e, args) => {
+      this.field.CustomSettings = sidebarSettingsTemplate;
+    });
   }
 }
 

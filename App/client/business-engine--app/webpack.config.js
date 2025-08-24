@@ -8,7 +8,7 @@ module.exports = (env) => {
         mode: env.production ? "production" : "development",
         //mode: "production",
         devtool: env.production ? "source-map" : "eval-cheap-module-source-map",
-        entry: path.resolve(__dirname, "./src/app.js"),
+        entry: path.resolve(__dirname, "./src/startup.js"),
         output: {
             globalObject: "self",
             filename: "app.bundle.js",

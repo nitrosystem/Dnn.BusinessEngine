@@ -732,6 +732,7 @@
 
 .module-builder .mb-sidebar .field-type>img {
     margin-bottom: 0.5rem;
+    height: 32px;
 }
 
 .module-builder .mb-sidebar .field-type>i,
@@ -1362,7 +1363,7 @@ body>.b-field-item .field-toolbar {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    max-width: 10rem;
+    max-width: 100%;
 }
 
 .b-field-item .field-title-wrapper>.b-input-edit:focus {

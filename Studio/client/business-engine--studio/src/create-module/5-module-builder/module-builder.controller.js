@@ -199,8 +199,8 @@ export class CreateModuleModuleBuilderController {
                 v.Scope !== 'ServerSide' && v.VariableType === 'AppModelList'
             );
 
-            let objects = {};
-            let variablesAsFieldValueProperty = {};
+            let objects = { Data: {} };
+            let variablesAsFieldValueProperty = { Data: {} };
 
             _.forEach(data.Variables, (variable) => {
                 const baseObject = _.reduce(variable.Properties, (acc, prop) => {
@@ -209,10 +209,10 @@ export class CreateModuleModuleBuilderController {
                 }, {});
 
                 if (variable.VariableType === 'AppModelList') {
-                    objects[variable.VariableName] = [baseObject];
+                    objects.Data[variable.VariableName] = [baseObject];
                 } else {
-                    objects[variable.VariableName] = baseObject;
-                    variablesAsFieldValueProperty[variable.VariableName] = baseObject;
+                    objects.Data[variable.VariableName] = baseObject;
+                    variablesAsFieldValueProperty.Data[variable.VariableName] = baseObject;
                 }
             });
 
@@ -669,7 +669,7 @@ export class CreateModuleModuleBuilderController {
 
         this.fieldOptions = window[`${this.currentField.FieldType}Options`];
 
-        this.$deferredBroadcast(this.$scope, `onAdded${this.currentField.FieldType}Field`, { field: this.currentField, controller: this });
+        this.$deferredBroadcast(this.$scope, `onAdded${this.currentField.FieldType}Field`, { controller: this, field: this.currentField });
     }
 
     onSaveFieldClick($event, isNewField, changeEditStatus) {
@@ -1255,6 +1255,17 @@ export class CreateModuleModuleBuilderController {
         this.renderDesignForm();
     }
 
+    onSetFieldPropertyValueClick(fieldId) {
+        this.onSidebarTabClick("field-settings");
+        this.$timeout(() => {
+            $('.tab-contents').animate({
+                scrollTop: $('#monacoFieldValueProperty').position().top + 1100
+            }, 50);
+
+            this.$scope.$broadcast("onFocusFieldValueProperty");
+        }, 500);
+    }
+
     //#region Monitoring Methods
 
     monitorbuilding(hub, mode, content) {
@@ -1329,42 +1340,7 @@ export class CreateModuleModuleBuilderController {
         this.$scope.$emit('onCloseModule');
     }
 
-    //#region Dashboard Modules Methods
-
-    onShowModuleTemplateClick() {
-        this.workingMode = "module-template";
-        this.$scope.$emit("onShowRightWidget", { controller: this });
-
-        if (!this.templates) this.onReloadSkinsClick();
-    }
-
-    onReloadSkinsClick() {
-        this.running = "reloading-module-skins";
-        this.awaitAction = {
-            title: "Reloading Skins",
-            subtitle: "Just a moment for reloading the module skins...",
-        };
-
-        const dashboardModuleId = this.module.ParentId ? this.module.ParentId : this.module.Id;
-
-        this.apiService.get("Module", "GetModuleTemplates", {
-            dashboardModuleId: dashboardModuleId,
-            moduleType: this.module.ModuleType
-        }).then((data) => {
-            this.templates = data;
-
-            delete this.awaitAction;
-            delete this.running;
-        }, (error) => {
-            this.awaitAction.isError = true;
-            this.awaitAction.subtitle = error.statusText;
-            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-            this.notifyService.error(error.data.Message);
-
-            delete this.running;
-        });
-    }
+    //#region Module Template Methods
 
     onGetTemplateContent(template) {
         this.running = "get-template-content";
@@ -1389,28 +1365,6 @@ export class CreateModuleModuleBuilderController {
             this.notifyService.error(error.data.Message);
 
             delete this.running;
-        });
-    }
-
-    onApplyTemplateClick() {
-        Swal.fire({
-            title: 'Important Note!!',
-            html: '<p>after apply change the template, the layout of the module will change, and will losted the Panes then you must sort the fields based on the new layout.</p>',
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, change it!",
-            backdrop: false,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                this.module.LayoutTemplate = this.template.templatePreview;
-                this.$timeout(() => {
-                    this.disposeWorkingMode();
-                    $('#templatePreview').modal('hide');
-                    this.onSaveLayoutTemplateClick();
-                }, 1500);
-            }
         });
     }
 
@@ -1447,18 +1401,6 @@ export class CreateModuleModuleBuilderController {
         }
         else
             this.disposeWorkingMode();
-    }
-
-    onSelectSkinTemplateClick(template) {
-        if (this.module.skinIsEmpty || this.module.Template != template.TemplateName) this.isSkinOrTemplateChanged = true;
-
-        this.moduleTemplateBackup = this.module.Template;
-        this.module.Template = template.TemplateName;
-    }
-
-    onModuleChangeDetected() {
-        this.lastBuildActivity = moment();
-        this.scheduleBuild();
     }
 
     //#endregion

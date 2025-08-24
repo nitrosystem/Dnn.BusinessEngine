@@ -15,6 +15,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto
         public string FieldType { get; set; }
         public string FieldName { get; set; }
         public string FieldText { get; set; }
+        public string FieldValueProperty { get; set; }
         public string PaneName { get; set; }
         public string Template { get; set; }
         public string Theme { get; set; }
@@ -27,7 +28,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto
         public FieldDataSourceInfo DataSource { get; set; }
         public string FieldTypeGeneratePanesBusinessControllerClass { get; set; }
         public IEnumerable<ExpressionInfo> ShowConditions { get; set; }
-        public IEnumerable<FieldValueInfo> FieldValues { get; set; }
+        public IEnumerable<FieldValueInfo> ConditionalValues { get; set; }
         public IEnumerable<string> AuthorizationViewField { get; set; }
         public IDictionary<string, object> Settings { get; set; }
         public ModuleFieldGlobalSettings GlobalSettings { get; set; }
