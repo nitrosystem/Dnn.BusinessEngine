@@ -492,3 +492,4 @@ $RECYCLE.BIN/
 .ntvs_analysis.dat
 node_modules/
 dist/
+/Infrastructure/NitroSystem.Dnn.BusinessEngine.Studio.Core/NitroSystem.Dnn.BusinessEngine.Core.csproj
