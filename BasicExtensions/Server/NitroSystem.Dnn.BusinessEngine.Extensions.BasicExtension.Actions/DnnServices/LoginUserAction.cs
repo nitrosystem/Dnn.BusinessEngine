@@ -1,4 +1,5 @@
 ﻿using DotNetNuke.Abstractions.Portals;
+using DotNetNuke.Entities.Portals;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Actions.Models;
@@ -26,7 +27,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.DnnS
             _service = service;
         }
 
-        public async Task<IActionResult> ExecuteAsync(ActionDto action, IPortalSettings portalSettings)
+        public async Task<IActionResult> ExecuteAsync(ActionDto action, PortalSettings portalSettings)
         {
             await Task.Yield();
 

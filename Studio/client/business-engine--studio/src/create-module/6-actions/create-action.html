@@ -201,11 +201,20 @@
                             </span>
                         </div>
                         <div id="grpActionConditions{{$.action.Id}}" class="group-content collapse show">
-                            <b-condition-list ng-model="$.action.Conditions"
-                                data-datasource="['fields','form','variables','actionParams']"
-                                data-variables="$.variables" data-app-models="$.appModels" data-fields="$.fields"
-                                data-action-params="$.action.Params">
-                            </b-condition-list>
+                            <div class="b-field" ng-if="!$.action.ExecuteInClientSide && !$.action.ParentId">
+                                <label class="form-label">Preconditions(Checked on the client side)</label>
+                                <div monaco-editor ng-model="$.action.Preconditions" ng-if="$.objects"
+                                    data-language="bConditionalExpressions" data-height="100px" data-objects="$.objects"
+                                    required>
+                                </div>
+                            </div>
+                            <div class="b-field" ng-if="!$.action.ParentId">
+                                <label class="form-label">Conditions</label>
+                                <div monaco-editor ng-model="$.action.Conditions" ng-if="$.objects"
+                                    data-language="bConditionalExpressions" data-height="100px" data-objects="$.objects"
+                                    required>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

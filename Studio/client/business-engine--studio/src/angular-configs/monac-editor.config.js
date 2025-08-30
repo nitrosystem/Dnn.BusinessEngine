@@ -2,7 +2,7 @@ export const monacoDefaultOptions = {
     bProperties: {
         lineNumbers: "off",
         fontSize: "16px",
-        lineHeight: 2.2,
+        lineHeight: 1.9,
         glyphMargin: false,
         lineDecorationsWidth: 0,
         lineNumbersMinChars: 0,
@@ -19,6 +19,18 @@ export const monacoDefaultOptions = {
         wordWrap: "off",
         tabCompletion: 'off',       // مهم: نذار خودش تکمیل کنه
         tabFocusMode: false
+    },
+    bConditionalExpressions: {
+        lineNumbers: "off",
+        lineHeight: 1.8,
+        glyphMargin: false,
+        lineDecorationsWidth: 0,
+        lineNumbersMinChars: 0,
+        renderLineHighlight: "none",
+        minimap: {
+            enabled: false,
+        },
+        overviewRulerLanes: 0,
     },
 };
 
@@ -39,3 +51,4 @@ export const globalFunctions = {
         description: "Returns today's date."
     }
 };
+

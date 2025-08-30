@@ -24,6 +24,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
         public string Event { get; set; }
         public int? ParentActionTriggerCondition { get; set; }
         public bool ExecuteInClientSide { get; set; }
+        public string Preconditions { get; set; }
+        public string Conditions { get; set; }
         public string Settings { get; set; }
         public string ActionTypeIcon { get; set; }
         public string ActionTypeTitle { get; set; }

@@ -71,8 +71,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Views\ModuleVariableView.cs" />
     <Compile Include="Repository\ExecuteSqlCommand.cs" />
-    <Compile Include="Entities\Tables\ActionConditionInfo.cs" />
     <Compile Include="Entities\Tables\ActionInfo.cs" />
     <Compile Include="Entities\Tables\ActionResultInfo.cs" />
     <Compile Include="Entities\Tables\ModuleInfo.cs" />

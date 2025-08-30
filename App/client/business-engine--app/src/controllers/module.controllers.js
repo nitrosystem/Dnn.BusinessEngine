@@ -1,10 +1,10 @@
 export class ModuleController {
-    constructor(app, apiService, expressionService, actionService, globalService) {
+    constructor(app, globalService, apiService, expressionService, actionService) {
         this.app = app;
-        this.apiService = apiService;
-        this.expressionService = expressionService;
-        this.actionService = actionService;
         this.globalService = globalService;
+        this.apiService = apiService;
+        this.actionService = actionService;
+        this.expressionService = expressionService;
     }
 
     //#region Event Methods
@@ -13,52 +13,62 @@ export class ModuleController {
         this.moduleId = moduleId;
         this.connectionId = connectionId;
 
-        this.form = {};
-        this.field = {};
-        this.pane = {};
+        this.scope = {
+            moduleId: moduleId,
+            connectionId: connectionId,
+            form: {},
+            pane: {},
+            field: {}
+        };
+
         this.controllerCache = {};
 
-        this.Data = {};
-
-        const data = await this.apiService.getAsync("Module", "GetModuleData", {
+        const module = await this.apiService.getAsync("Module", "GetModule", {
             moduleId: moduleId,
             connectionId: connectionId,
             pageUrl: document.URL
         });
 
-        // this.fields = this.decodeProtectedData(data.mf) ?? [];
-        this.fields = data.fields ?? [];
-        this.globalService.parseJsonItems(this.fields);
+        this.scope.variables = module.variables;
 
         // const data=this.decodeProtectedData(data.md) ?? {};
-        const moduleData = data.data ?? {};
-        _.forEach(moduleData, (value, key) => {
-            this.Data[key] = value;
-        });
+        for (const key in module.data) {
+            const variable = module.variables.find(v => v.VariableName === key);
+
+            if (!variable) continue;
+
+            if (variable.VariableType == 'AppModel' && !module.data[key]) {
+                this.scope[key] = {};
+                variable.Properties.forEach(prop => {
+                    this.scope[key][prop.PropertyName] = this.globalService.getDefaultValueByType(undefined, prop.PropertyType);
+                });
+            }
+            else if (this.globalService.isSystemType(variable.VariableType))
+                this.scope[key] = this.globalService.convertToRealType(module.data[key], variable.VariableType);
+            else
+                this.scope[key] = module.data[key];
+        }
+
+        // this.fields = this.decodeProtectedData(module.mf) ?? [];
+        this.fields = module.fields ?? [];
+        this.globalService.parseJsonItems(this.fields);
 
         this.fields.forEach(field => {
-            field.actions = _.filter(this.actions, (a) => { return a.FieldId == field.Id; });
+            this.scope.field[field.FieldName] = field;
 
             if (field.CanHaveValue && field.FieldValueProperty) {
                 _.forEach(field.ConditionalValues ?? [], (fv) => {
-                    this.app.listenTo(this, fv.ValueExpression, setFieldConditionalValue, { fieldId: field.Id });
+                    this.app.listenTo(fv.ValueExpression, this.scope, setFieldConditionalValue, { fieldId: field.Id });
 
-                    (fv.Conditions ?? []).forEach(condition => {
-                        this.app.listenTo(this, condition.LeftExpression, setFieldConditionalValue, { fieldId: field.Id });
-                        this.app.listenTo(this, condition.RightExpression, setFieldConditionalValue, { fieldId: field.Id });
-                    });
+                    if (fv.Conditions)
+                        this.app.listenTo(fv.Conditions, this.scope, setFieldConditionalValue, { fieldId: field.Id });
                 });
             }
 
-            if (field.DataSource && field.DataSource.Type == 2 && field.DataSource.VariableName)
-                this.app.listenTo(this, field.DataSource.VariableName, onFieldDataSourceChange, { fieldId: field.Id });
-
-            (field.ShowConditions ?? []).forEach(condition => {
-                this.app.listenTo(this, condition.LeftExpression, showHideField, { fieldId: field.Id });
-                this.app.listenTo(this, condition.RightExpression, showHideField, { fieldId: field.Id });
-            });
-
-            this.field[field.FieldName] = field;
+            if (field.DataSource) {
+                if (field.DataSource.Type == 2 && field.DataSource.VariableName)
+                    this.app.listenTo(field.DataSource.VariableName, this.scope, onFieldDataSourceChange, { fieldId: field.Id });
+            }
 
             let controllerInstance = this.controllerCache[field.FieldType];
             if (!controllerInstance) {
@@ -73,15 +83,17 @@ export class ModuleController {
                 controllerInstance.init(field);
         });
 
-        // this.actions = this.decodeProtectedData(data.ma);
-        this.actions = data.actions;
+        // this.actions = this.decodeProtectedData(module.ma);
+        this.actions = module.actions;
 
         const moduleActions = _.filter(this.actions, (a) => { return a.ExecuteInClientSide && !a.FieldId });
-        if (moduleActions.length) await this.actionService.callActions(this, moduleActions, "OnPageLoad");
+        if (moduleActions.length) await this.actionService.callActions('OnPageLoad', moduleActions, this.scope);
 
         $('.b-engine-module').addClass('is-loaded');
 
         this.pingConnection();
+
+        return this.scope;
     }
 
     onFieldShowChange(fieldId) {
@@ -91,10 +103,10 @@ export class ModuleController {
     onFieldDataSourceChange(fieldId) {
         const field = this.getFieldById(fieldId);
 
-        field.DataSource = { ...field.DataSource, ...this.Data[field.DataSource.VariableName] };
+        field.DataSource = { ...field.DataSource, ...this.scope[field.DataSource.VariableName] };
 
         this.$timeout(() => {
-            if (field.DataSource !== field.OldDataSource) this.$scope.$broadcast(`onFieldDataSourceChange_${field.Id}`, { field: field });
+            if (field.DataSource !== field.OldDataSource) this.$this.scope.$broadcast(`onFieldDataSourceChange_${field.Id}`, { field: field });
             field.OldDataSource = angular.copy(field.DataSource);
         }, 200);
     }
@@ -108,9 +120,9 @@ export class ModuleController {
             return f.CanHaveValue || f.IsGroupField
         });
 
-        this.form.isValid = await this.validateFields(fields);
+        this.scope.form.isValid = await this.validateFields(fields);
 
-        return this.form.isValid;
+        return this.scope.form.isValid;
     }
 
     async validatePanes(paneNames) {
@@ -129,10 +141,10 @@ export class ModuleController {
             fields.push(...this.getGroupFields(group.Id));
         });
 
-        this.pane[paneName] = this.pane[paneName] || {};
-        this.pane[paneName].isValid = await this.validateFields(fields);
+        this.scope.pane[paneName] = this.scope.pane[paneName] || {};
+        this.scope.pane[paneName].isValid = await this.validateFields(fields);
 
-        return this.pane[paneName].isValid;
+        return this.scope.pane[paneName].isValid;
     }
 
     async validateGroups(groupIds) {
@@ -163,7 +175,7 @@ export class ModuleController {
 
         if (!field.CanHaveValue || !field.IsRequired || !field.FieldValueProperty) return true;
 
-        const value = this.expressionService.evaluateExpression(field.FieldValueProperty, this);
+        const value = this.expressionService.evaluateExpression(field.FieldValueProperty, this.scope);
         const isEmpty = value === null || value === undefined || value === "";
 
         if (isEmpty) {
@@ -200,7 +212,7 @@ export class ModuleController {
 
     async callActionsByEvent(fieldId, event) {
         const actions = _.filter(this.actions, (a) => { return a.FieldId == fieldId });
-        await this.actionService.callActions(this, actions, event);
+        await this.actionService.callActions(event, actions, this.scope);
     }
 
     //#endregion
@@ -244,10 +256,11 @@ export class ModuleController {
         const field = this.getFieldById(fieldId);
         if (field.CanHaveValue) {
             field.ConditionalValues.forEach(fv => {
-                if (this.expressionService.checkConditions(fv.Conditions, this.Data)) {
-                    const expressionTree = this.expressionService.parseExpression(fv.ValueExpression, this.Data);
-                    field.Value = this.expressionService.evaluateExpressionTree(expressionTree, this.Data);
-                }
+                const isTrue = expressionService.evaluateExpression(fv.Conditions, this.scope);
+                if (typeof isTrue == 'string') isTrue = JSON.parse(value);
+
+                if (isTrue)
+                    field.Value = this.expressionService.evaluateExpression(fv.ValueExpression, this.scope);
             });
         }
     }
@@ -255,7 +268,10 @@ export class ModuleController {
     showHideField(fieldId) {
         const field = this.getFieldById(fieldId);
         if (field.ShowConditions && field.ShowConditions.length) {
-            field.IsShow = this.expressionService.checkConditions(field.ShowConditions, this.Data);
+            const isTrue = expressionService.evaluateExpression(field.ShowConditions, this.scope);
+            if (typeof isTrue == 'string') isTrue = JSON.parse(value);
+
+            field.IsShow = isTrue;
         }
     }
 
@@ -293,17 +309,6 @@ export class ModuleController {
                     params: params,
                 });
             }
-        });
-    }
-
-    raiseWatches() {
-        _.forEach(this.watches, (w) => {
-            this.$scope.$watch(w.property, () => {
-                _.forEach(w.callbacks, (item) => {
-                    if (typeof this[item.callback] == "function")
-                        this[item.callback].apply(this, item.params);
-                });
-            }, true);
         });
     }
 

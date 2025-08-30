@@ -10,7 +10,9 @@
         </div>
         <div class="b-field">
             <label class="form-label">Conditions</label>
-            <b-condition-list ng-model="item.Conditions" data-objects="$.objects"></b-condition-list>
+            <div monaco-editor ng-model="item.Conditions" data-language="bConditionalExpressions" data-height="50px"
+                data-objects="$.objects" required>
+            </div>
         </div>
         <div class="b-field">
             <button type="button" class="b-btn btn-sm btn-action ms-auto d-flex"

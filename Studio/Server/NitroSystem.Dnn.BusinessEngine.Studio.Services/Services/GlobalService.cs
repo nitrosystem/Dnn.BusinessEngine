@@ -2,7 +2,7 @@
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
@@ -103,7 +103,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             else
             {
                 var isUpdated = await _repository.UpdateAsync<ScenarioInfo>(objScenarioInfo);
-                if (!isUpdated) ErrorService.ThrowUpdateFailedException(objScenarioInfo);
+                if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objScenarioInfo);
             }
 
             var cacheAttr = AttributeCache.Instance.GetCache<ScenarioInfo>();
@@ -143,7 +143,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             else
             {
                 var isUpdated = await _repository.UpdateAsync<GroupInfo>(objGroupInfo);
-                if (!isUpdated) ErrorService.ThrowUpdateFailedException(objGroupInfo);
+                if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objGroupInfo);
             }
 
             return objGroupInfo.Id;

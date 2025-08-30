@@ -1,20 +1,109 @@
 export class ActionService {
     constructor(
-        $timeout,
-        $q,
-        $window,
         globalService,
         apiService,
         expressionService
     ) {
-        this.$timeout = $timeout;
-        this.$q = $q;
-        this.$window = $window;
         this.globalService = globalService;
         this.apiService = apiService;
         this.expressionService = expressionService;
 
-        this.controllerCache = {};
+        this.scopeCache = {};
+    }
+
+    async callActions(event, actions, scope) {
+        const nodes = this.buildActionTree(actions, event);
+
+        await this.executeActionTree(nodes, 0, scope);
+    }
+
+    async executeActionTree(nodes, parentStatus, scope, executedServerIds = new Set()) {
+        let index = 0;
+        for (const node of nodes ?? []) {
+            if (!node.ExecuteInClientSide && executedServerIds.has(node.Id))
+                continue;
+
+            if (node.ParentId && node.ParentActionTriggerCondition && node.ParentActionTriggerCondition != parentStatus)
+                continue;
+
+            if (node.ExecuteInClientSide) {
+                const status = await this.callClientAction(node, scope);
+
+                await this.executeActionTree(node.children, status, scope, executedServerIds);
+            }
+            else {
+                const serverActionsId = this.collectServerSideActions(node, scope);
+                serverActionsId.forEach(id => executedServerIds.add(id));
+
+                const status = await this.callServerActions(serverActionsId, scope);
+                await this.executeActionTree(node.children, status, scope, executedServerIds);
+
+                break;
+            }
+
+            index++;
+        }
+    }
+
+    async callClientAction(action, scope) {
+        const isTrue = expressionService.evaluateExpression(action.Conditions, scope);
+        if (typeof isTrue == 'string') isTrue = JSON.parse(value);
+
+        if (!isTrue)
+            return 3;
+
+        let scopeInstance = this.scopeCache[action.ActionType];
+        if (!scopeInstance) {
+            const ControllerClass = ActionRegistry.resolve(action.ActionType);
+            if (typeof ControllerClass === 'function') {
+                scopeInstance = new ControllerClass(scope, this);
+                this.scopeCache[action.ActionType] = scopeInstance;
+            }
+        }
+
+        if (scopeInstance && typeof scopeInstance.execute === 'function') {
+            try {
+                return await scopeInstance.execute(action)
+            } catch (error) {
+                console.error(error);
+                return await 2;
+            }
+        }
+    }
+
+    async callServerActions(actionIds, scope) {
+        try {
+            const module = await this.apiService.postAsync("Module", "CallAction", {
+                ConnectionId: scope.connectionId,
+                ModuleId: scope.moduleId,
+                Data: scope,
+                PageUrl: document.URL,
+                ActionIds: actionIds,
+            });
+
+            for (const key in module.data) {
+                const variable = scope.variables.find(v => v.VariableName === key);
+
+                if (!variable) continue;
+
+                if (variable.VariableType == 'AppModel' && !module.data[key]) {
+                    scope[key] = {};
+                    variable.Properties.forEach(prop => {
+                        scope[key][prop.PropertyName] = this.globalService.getDefaultValueByType(undefined, prop.PropertyType);
+                    });
+                }
+                else if (this.globalService.isSystemType(variable.VariableType))
+                    scope[key] = this.globalService.convertToRealType(module.data[key], variable.VariableType);
+                else
+                    scope[key] = module.data[key];
+            }
+
+            return 1;
+        }
+        catch (error) {
+            console.error(error);
+            return 2;
+        }
     }
 
     buildActionTree(actions, event) {
@@ -38,38 +127,17 @@ export class ActionService {
         return rootActions;
     }
 
-    async executeActionTree(controller, nodes, parentStatus, executedServerIds = new Set()) {
-        let index = 0;
-        for (const node of nodes ?? []) {
-            if (!node.ExecuteInClientSide && executedServerIds.has(node.Id))
-                continue;
-
-            if (node.ParentId && node.ParentActionTriggerCondition && node.ParentActionTriggerCondition != parentStatus)
-                continue;
-
-            if (node.ExecuteInClientSide) {
-                var status = await this.callClientAction(controller, node);
-                await this.executeActionTree(controller, node.children, status, executedServerIds);
-            }
-            else {
-                const serverActionsId = this.collectServerSideActions(controller, node);
-                serverActionsId.forEach(id => executedServerIds.add(id));
-
-                const status = await this.callServerActions(controller, serverActionsId);
-                await this.executeActionTree(controller, node.children, status, executedServerIds);
-
-                break;
-            }
-
-            index++;
-        }
-    }
-
-    collectServerSideActions(controller, node) {
+    collectServerSideActions(node, scope) {
         const result = [];
 
         const dfs = n => {
-            if (!n.ExecuteInClientSide && this.expressionService.checkConditions(controller.Data, n.Conditions)) {
+            const isTrue = !n.ParentId && n.Preconditions ?
+                expressionService.evaluateExpression(n.Preconditions, scope)
+                : true;
+
+            if (typeof isTrue == 'string') isTrue = JSON.parse(value);
+
+            if (isTrue) {
                 result.push(n.Id);
                 if (n.children && n.children.length) n.children.forEach(child => dfs(child));
             }
@@ -77,53 +145,5 @@ export class ActionService {
 
         dfs(node);
         return result;
-    }
-
-    async callActions(controller, actions, event) {
-        var nodes = this.buildActionTree(actions, event);
-        await this.executeActionTree(controller, nodes, 0);
-    }
-
-    async callClientAction(action, controller) {
-        if (!this.expressionService.checkConditions(action.Conditions, controller.Data))
-            return await 3;
-
-        let controllerInstance = this.controllerCache[action.ActionType];
-        if (!controllerInstance) {
-            const ControllerClass = ActionRegistry.resolve(action.ActionType);
-            if (typeof ControllerClass === 'function') {
-                controllerInstance = new ControllerClass(controller, this);
-                this.controllerCache[action.ActionType] = controllerInstance;
-            }
-        }
-
-        if (controllerInstance && typeof controllerInstance.execute === 'function') {
-            try {
-                return await controllerInstance.execute(action)
-            } catch (error) {
-                console.error(error);
-                return await 2;
-            }
-        }
-    }
-
-    async callServerActions(controller, actionIds) {
-        try {
-            const data = await this.apiService.post("Module", "CallAction", {
-                ConnectionId: controller.connectionId,
-                ModuleId: controller.moduleId,
-                Data: controller.Data,
-                PageUrl: document.URL,
-                ActionIds: actionIds,
-            });
-
-            controller.Data = _.merge(_.cloneDeep(controller.Data), data);
-
-            return await 1;
-        }
-        catch (error) {
-            console.error(error);
-            return await 2;
-        }
     }
 }

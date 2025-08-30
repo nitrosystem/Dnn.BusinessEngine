@@ -1,4 +1,5 @@
-﻿using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
+﻿using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Framework.Models;
 using System;
@@ -11,6 +12,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Con
 {
     public interface IDataSourceService
     {
-        Task<DataSourceResultDto> GetDataSourceService(ActionDto action);
+        Task<(IEnumerable<object> Items, int? TotalCount)> GetDataSourceService(ActionDto action, PortalSettings portalSettings);
     }
 }

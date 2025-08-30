@@ -1,71 +1,42 @@
 ﻿using Dapper;
 using Newtonsoft.Json.Linq;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Services.DB.Repositories;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Framework.Models;
-using NitroSystem.Dnn.BusinessEngine.Framework.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
+using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
 
-namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Services.Database
+namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Database
 {
-    public class SubmitEntityService : ServiceBase<object>, IService
+    public class SubmitEntityService : ISubmitEntityService
     {
-        public override async Task<ServiceResult> ExecuteAsync<T>()
+        private readonly IDbConnection _connection;
+        private readonly IRepositoryBase _repository;
+
+        public SubmitEntityService(IDbConnection connection, IRepositoryBase repository)
         {
-            ServiceResult result = new ServiceResult();
+            _connection = connection;
+            if (_connection.State == ConnectionState.Closed)
+                _connection.Open();
 
-            try
-            {
-                var connection = new System.Data.SqlClient.SqlConnection(DotNetNuke.Data.DataProvider.Instance().ConnectionString);
-
-                var dbParams = this.ServiceWorker.FillSqlParams(this.Service.Params);
-
-                foreach (var item in dbParams.ParameterNames)
-                {
-                    result.Query += item + " = " + dbParams.Get<string>(item) + " ";
-                }
-
-                var submitEntityService = SubmitEntityServiceRepository.GetSubmitEntityService(this.Service.ServiceID);
-
-                if (this.Service.HasResult && this.Service.ResultType == Framework.Enums.ServiceResultType.List)
-                {
-                    var data = await SqlMapper.QueryAsync(connection, "[dbo]." + submitEntityService.StoredProcedureName, dbParams, commandTimeout: int.MaxValue, commandType: CommandType.StoredProcedure);
-                    result.DataList = JArray.FromObject(data).ToObject<JArray>();
-                }
-                else if (this.Service.HasResult && this.Service.ResultType == Framework.Enums.ServiceResultType.DataRow)
-                {
-                    var data = await SqlMapper.QueryAsync(connection, "[dbo]." + submitEntityService.StoredProcedureName, dbParams, commandTimeout: int.MaxValue, commandType: CommandType.StoredProcedure);
-                    result = data != null && data.Any() ? JObject.FromObject(data.First()) : default(T);
-                }
-                else if (this.Service.HasResult && this.Service.ResultType == Framework.Enums.ServiceResultType.Scaler)
-                {
-                    var data = await SqlMapper.ExecuteScalarAsync(connection, "[dbo]." + submitEntityService.StoredProcedureName, dbParams, commandTimeout: int.MaxValue, commandType: CommandType.StoredProcedure);
-                    result.Data = new JValue(data);
-                }
-                else
-                {
-                    await SqlMapper.ExecuteAsync(connection, "[dbo]." + submitEntityService.StoredProcedureName, dbParams, commandTimeout: int.MaxValue, commandType: CommandType.StoredProcedure);
-                }
-            }
-            catch (Exception ex)
-            {
-                result.IsError = true;
-                result.ErrorException = ex;
-            }
-
-            return result;
+            _repository = repository;
         }
 
-        public override bool TryParseModel(string serviceSettings)
+        public async Task<object> SaveEntityRow(ActionDto action, PortalSettings portalSettings)
         {
-            throw new NotImplementedException();
+            var spParams = DbShared.FillSqlParams(action.Params);
+            var storedProcedureName = await _repository.GetColumnValueAsync<SubmitEntityServiceInfo, string>("StoredProcedureName", "ServiceId", action.ServiceId.Value);
+
+            var result = await _connection.ExecuteScalarAsync(storedProcedureName, spParams,
+                commandType: CommandType.StoredProcedure, commandTimeout: int.MaxValue);
+
+            return result;
         }
     }
 }

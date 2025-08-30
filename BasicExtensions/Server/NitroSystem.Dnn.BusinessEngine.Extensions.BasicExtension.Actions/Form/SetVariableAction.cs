@@ -11,12 +11,13 @@ using NitroSystem.Dnn.BusinessEngine.Framework.Models;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Framework.Enums;
 using DotNetNuke.Abstractions.Portals;
+using DotNetNuke.Entities.Portals;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.Form
 {
     public class SetVariableAction : IAction
     {
-        public async Task<IActionResult> ExecuteAsync(ActionDto action, IPortalSettings portalSettings)
+        public async Task<IActionResult> ExecuteAsync(ActionDto action, PortalSettings portalSettings)
         {
             await Task.Yield();
 

@@ -103,6 +103,7 @@
     <Compile Include="Helpers\IO\ZipUtil.cs" />
     <Compile Include="Helpers\Reflection\PropertyCopier.cs" />
     <Compile Include="Helpers\Reflection\Type\TypeChecker.cs" />
+    <Compile Include="Models\PageParamInfo.cs" />
     <Compile Include="Models\Shared\ExpressionInfo.cs" />
     <Compile Include="Models\Shared\FieldDataSourceInfo.cs" />
     <Compile Include="Models\Shared\FieldDataSourceResult.cs" />

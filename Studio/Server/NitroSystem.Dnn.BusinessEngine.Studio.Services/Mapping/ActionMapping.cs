@@ -18,29 +18,24 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
 {
     public static class ActionMapping
     {
-        public static IEnumerable<ActionViewModel> MapActionsViewModel(IEnumerable<ActionView> actions, IEnumerable<ActionParamInfo> actionParams, IEnumerable<ActionConditionInfo> conditions)
+        public static IEnumerable<ActionViewModel> MapActionsViewModel(IEnumerable<ActionView> actions, IEnumerable<ActionParamInfo> actionParams)
         {
             var paramsDict = actionParams.GroupBy(c => c.ActionId)
-                         .ToDictionary(g => g.Key, g => g.AsEnumerable());
-
-            var conditionsDict = conditions.GroupBy(c => c.ActionId)
                          .ToDictionary(g => g.Key, g => g.AsEnumerable());
 
             return actions.Select(action =>
             {
                 var paramList = paramsDict.TryGetValue(action.Id, out var cols1) ? cols1 : Enumerable.Empty<ActionParamInfo>();
-                var conditionList = conditionsDict.TryGetValue(action.Id, out var cols2) ? cols2 : Enumerable.Empty<ActionConditionInfo>();
-                return MapActionViewModel(action, null, conditionList, paramList);
+                return MapActionViewModel(action, null, paramList);
             });
         }
 
-        public static ActionViewModel MapActionViewModel(ActionView action, IEnumerable<ActionResultInfo> actionResults, IEnumerable<ActionConditionInfo> conditions, IEnumerable<ActionParamInfo> actionParams)
+        public static ActionViewModel MapActionViewModel(ActionView action, IEnumerable<ActionResultInfo> actionResults, IEnumerable<ActionParamInfo> actionParams)
         {
             var mapper = new ExpressionMapper<ActionView, ActionViewModel>();
             mapper.AddCustomMapping(src => src, dest => dest.ParentActionTriggerCondition, src => (ActionExecutionCondition?)src.ParentActionTriggerCondition);
             mapper.AddCustomMapping(src => src, dest => dest.ActionTypeIcon, src => src.ActionTypeIcon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
             mapper.AddCustomMapping(src => src, dest => dest.Params, src => actionParams);
-            mapper.AddCustomMapping(src => src, dest => dest.Conditions, src => conditions);
             mapper.AddCustomMapping(src => src, dest => dest.Results, src => GetActionResultsViewModel(actionResults));
             mapper.AddCustomMapping(src => src.Settings, dest => dest.Settings,
                 src => TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.Settings),
@@ -65,7 +60,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
         public static (
             ActionInfo Action,
             IEnumerable<ActionResultInfo> Results,
-            IEnumerable<ActionConditionInfo> Conditions,
             IEnumerable<ActionParamInfo> Params)
             MapActionInfoWithChilds(ActionViewModel action)
         {
@@ -82,9 +76,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
                 });
 
             var actionParams = action.Params ?? Enumerable.Empty<ActionParamInfo>();
-            var actionConditions = action.Conditions ?? Enumerable.Empty<ActionConditionInfo>();
 
-            return (objActionInfo, actionResults, actionConditions, actionParams);
+            return (objActionInfo, actionResults, actionParams);
         }
     }
 }

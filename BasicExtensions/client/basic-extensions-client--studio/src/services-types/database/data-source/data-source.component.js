@@ -54,7 +54,7 @@ class DataSourceServiceController {
             },
             EnablePaging: true,
             PageIndexParam: "@PageIndex",
-            PageSizeParam: "@PageSize",
+            PageSizeParam: "@PageSize"
         };
 
         if (!this.service.Id)
@@ -103,13 +103,6 @@ class DataSourceServiceController {
             },
             SortItems: {
                 required: true,
-            },
-            TotalCountColumnName: {
-                rule: (value) => {
-                    if (this.dataSourceService.EnablePaging && value) {
-                        return true;
-                    }
-                },
             },
             "Settings.StoredProcedurePostfixName": {
                 id: "txtSpPostfix",

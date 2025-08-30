@@ -1,6 +1,6 @@
 export function BindFor(app, expressionService) {
     return {
-        compile: function (attrs, element, controller) {
+        compile: function (attrs, element, scope) {
             const expr = attrs['b-for'];
 
             // Parse: "item in items track by item.id"
@@ -13,10 +13,10 @@ export function BindFor(app, expressionService) {
             parent.insertBefore(placeholder, element);
             parent.removeChild(element);
 
-            const renderedMap = new Map(); // key → { clone, controller }
+            const renderedMap = new Map(); // key → { clone, scope }
 
             const render = () => {
-                const list = expressionService.evaluateExpression(listName, controller) ?? [];
+                const list = expressionService.evaluateExpression(listName, scope) ?? [];
                 const newMap = new Map();
 
                 let lastNode = placeholder;
@@ -27,7 +27,7 @@ export function BindFor(app, expressionService) {
                     if (trackByExpr === '$index') {
                         key = index;
                     } else {
-                        const scopedEval = Object.create(controller);
+                        const scopedEval = Object.create(scope);
                         scopedEval[itemName] = item;
                         scopedEval.$index = index;
                         key = expressionService.evaluateExpression(trackByExpr, scopedEval);
@@ -39,9 +39,9 @@ export function BindFor(app, expressionService) {
                         // Reuse existing clone
                         newMap.set(key, record);
 
-                        // Update controller values
-                        record.controller[itemName] = item;
-                        record.controller.$index = index;
+                        // Update scope values
+                        record.scope[itemName] = item;
+                        record.scope.$index = index;
 
                         // Ensure correct order (insert after lastNode)
                         if (record.clone.previousSibling !== lastNode) {
@@ -56,8 +56,8 @@ export function BindFor(app, expressionService) {
                         clone.setAttribute('b-for-clone', listName);
                         clone.setAttribute('b-for-index', index);
 
-                        // 🔑 Scoped controller: inherits from parent controller
-                        const scopedController = Object.create(controller);
+                        // 🔑 Scoped scope: inherits from parent scope
+                        const scopedController = Object.create(scope);
                         scopedController[itemName] = item;
                         scopedController.$index = index;
 
@@ -65,7 +65,7 @@ export function BindFor(app, expressionService) {
 
                         app.detectElements(clone, scopedController);
 
-                        record = { clone, controller: scopedController };
+                        record = { clone, scope: scopedController };
                         newMap.set(key, record);
 
                         lastNode = clone;
@@ -86,7 +86,7 @@ export function BindFor(app, expressionService) {
 
             render();
 
-            app.listenTo(controller, listName, render);
+            app.listenTo(listName, scope, render);
         }
     };
 }

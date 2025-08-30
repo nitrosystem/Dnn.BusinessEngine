@@ -11,7 +11,8 @@ export class App {
     }
 
     service(name, def) {
-        this.services[name] = new def();
+        const resolved = this.resolveDependencies(def);
+        this.services[name] = new def(...resolved);
         return this;
     }
 
@@ -27,7 +28,7 @@ export class App {
 
     async bootstrap(appElement) {
         const ctrlEls = appElement.querySelectorAll('[b-controller]');
-        for (const ctrlElement of ctrlEls) { 
+        for (const ctrlElement of ctrlEls) {
             const attrs = this.getAttributesObject(ctrlElement);
             const ctrlName = attrs['b-controller'];
             const CtrlClass = this.controllers[ctrlName];
@@ -37,20 +38,21 @@ export class App {
             const resolved = this.resolveDependencies(CtrlClass);
             const controller = new CtrlClass(...resolved);
 
-            await controller.onLoad(attrs.module, attrs.connection);
+            const scope = await controller.onLoad(attrs.module, attrs.connection);
 
-            this.detectElements(ctrlElement, controller);
+            this.detectElements(ctrlElement, scope, controller);
         };
     }
 
-    detectElements(root, controller) {
+    detectElements(root, scope, controller) {
         const tree = this.buildTreeNode(root);
 
         const render = (node) => {
-            this.bindAttributes(node.element, controller);
-            this.scanDirectives(node.element, controller);
+            this.bindAttributes(node.element, scope);
+            this.bindTextNodes(node.element, scope);
+            this.scanDirectives(node.element, scope, controller);
 
-            if (!node.element.hasAttribute('b-if') && !node.element.hasAttribute('b-for'))
+            if (!node.element.hasAttribute('bb-if') && !node.element.hasAttribute('b-for'))
                 node.children.forEach(child => render(child));
         }
 
@@ -73,7 +75,7 @@ export class App {
         return processNode(element);
     }
 
-    scanDirectives(element, controller) {
+    scanDirectives(element, scope, controller) {
         for (let attr of element.attributes) {
             const dirName = attr.name;
             if (this.directives[dirName]) {
@@ -81,15 +83,13 @@ export class App {
                 const resolved = this.resolveDependencies(this.directives[dirName]);
                 const defFn = this.directives[dirName].apply(null, resolved);
 
-                defFn.compile(attrs, element, controller);
+                defFn.compile(attrs, element, scope, controller);
             }
         }
     }
 
-    createReactive(parent, key, basePath) {
+    createReactive(parent, key, expr) {
         const self = this;
-        const dot = basePath ? '.' : '';
-        const expr = `${basePath}${dot}${key}`;
         const value = parent[key];
 
         if (typeof value === "object" && value !== null) {
@@ -98,28 +98,33 @@ export class App {
                     return target[prop];
                 },
                 set(target, prop, val) {
+                    const oldVal = target[prop];
                     target[prop] = val;
-                    self.notify(expr);
+
+                    // فقط اگر کلید جدید بود یا آبجکت کامل عوض شد notify کن
+                    if (oldVal !== val && typeof val === "object") {
+                        self.notify(expr + "." + prop);
+                    }
                     return true;
                 }
             });
-        }
-        else {
+        } else {
             let internalValue = value;
             Object.defineProperty(parent, key, {
                 get() {
                     return internalValue;
                 },
                 set(val) {
-                    var t = parent;
-                    internalValue = val;
-                    self.notify(expr);
+                    if (internalValue !== val) {
+                        internalValue = val;
+                        self.notify(expr);
+                    }
                 }
             });
         }
     }
 
-    bindTextNodes(root, controller) {
+    bindTextNodes(root, scope) {
         const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
         const nodes = [];
 
@@ -134,13 +139,13 @@ export class App {
 
         nodes.forEach(({ node, expr }) => {
             const update = () => {
-                node.nodeValue = this.evalText(node.nodeValue, controller);
+                node.nodeValue = this.evalText(node.nodeValue, scope);
             };
             update();
         });
     }
 
-    bindAttributes(element, controller) {
+    bindAttributes(element, scope) {
         for (let attr of element.attributes) {
             const matches = attr.value.match(/{{\s*([^}]+)\s*}}/g);
             if (matches) {
@@ -148,7 +153,7 @@ export class App {
                     const expr = m.replace(/[{}]/g, '').trim();
                     const expressionService = this.services['expressionService'];
                     const value = attr.value.replace(/{{\s*([^}]+)\s*}}/g,
-                        (_, g1) => expressionService.evaluateExpression(expr, controller));
+                        (_, g1) => expressionService.evaluateExpression(expr, scope));
 
                     element.setAttribute(attr.name, value);
                 });
@@ -156,18 +161,18 @@ export class App {
         }
     }
 
-    evalText(template, controller) {
+    evalText(template, scope) {
         return template.replace(/{{\s*([^}]+)\s*}}/g, (_, key) => {
             try {
-                return this.evalInContext(key, controller);
+                return this.evalInContext(key, scope);
             } catch {
                 return '';
             }
         });
     }
 
-    evalInContext(obj, expr) {
-        return Function(...Object.keys(obj), `return ${expr}`)(...Object.values(obj));
+    evalInContext(expr, scope) {
+        return Function(...Object.keys(scope), `return ${expr}`)(...Object.values(scope));
     }
 
     notify(propName) {
@@ -200,25 +205,33 @@ export class App {
         const segments = path.split('.');
         const watchers = [];
 
+        // مسیرهای بالا‌دستی
         for (let i = 1; i <= segments.length; i++) {
             const subPath = segments.slice(0, i).join('.');
             const w = this.watchMap.get(subPath);
             if (w) {
-                watchers.push({ watchers: w });
+                watchers.push({ path: subPath, watchers: w });
+            }
+        }
+
+        // مسیرهای پایین‌دستی
+        for (const [key, value] of this.watchMap.entries()) {
+            if (key.startsWith(path + '.') && !watchers.some(w => w.path === key)) {
+                watchers.push({ path: key, watchers: value });
             }
         }
 
         return watchers;
     }
 
-    listenTo(obj, expr, callback, ...args) {
-        const { parent, key, basePath } = this.resolvePropReference(obj, expr);
+    listenTo(expr, scope, callback, ...args) {
+        const { parent, key } = this.resolvePropReference(expr, scope);
         if (!parent) return;
 
         // اطمینان از اینکه مسیر reactive شده
         if (!this.watchMap.has(expr)) {
             this.watchMap.set(expr, new Set());
-            this.createReactive(parent, key, basePath);
+            this.createReactive(parent, key, expr);
         }
 
         // مقدار اولیه
@@ -232,14 +245,21 @@ export class App {
         });
     }
 
-    resolvePropReference(obj, path) {
-        const keys = path.split('.');
+    resolvePropReference(path, scope) {
+        const keys = (path ?? '').split('.');
         const lastKey = keys.pop();
-        const basePath = keys.join('.'); // مسیر تا parent
 
-        const parent = keys.reduce((acc, key) => acc[key], obj);
+        let parent = scope;
+        for (const key of keys) {
+            if (parent && typeof parent === 'object' && key in parent) {
+                parent = parent[key];
+            } else {
+                parent = undefined;
+                break;
+            }
+        }
 
-        return { parent, key: lastKey, basePath };
+        return { parent, key: lastKey };
     }
 
     resolveDependencies(fn) {
@@ -262,9 +282,9 @@ export class App {
         }, {});
     }
 
-    cloneClassInstance(obj) {
-        const clone = Object.create(Object.getPrototypeOf(obj));
-        Object.assign(clone, obj);
+    cloneClassInstance(scope) {
+        const clone = Object.create(Object.getPrototypeOf(scope));
+        Object.assign(clone, scope);
         return clone;
     }
 }

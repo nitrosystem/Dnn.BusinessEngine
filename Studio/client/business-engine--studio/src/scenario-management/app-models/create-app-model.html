@@ -154,14 +154,7 @@
                                 ng-options="type.Value as type.Text for type in $.propertyTypes" chosen
                                 inherit-select-classes="true" placeholder-text-single="'Select property type'" required>
                             </select>
-                            <select
-                                ng-if="$.property.PropertyType=='appModel' || $.property.PropertyType=='listOfAppModel'"
-                                id="drpPropertyTypeId" ng-model="$.property.PropertyTypeId" class="b-input form-select"
-                                ng-options="vm.Id as vm.ModelName for vm in $.appModels" chosen
-                                inherit-select-classes="true" placeholder-text-single="'Select view model'">
-                            </select>
                             <p class="b-invalid">{{$.propertyForm.error.PropertyType}}</p>
-                            <p class="b-invalid">{{$.propertyForm.error.PropertyTypeId}}</p>
                         </div>
                         <div class="col-2"></div>
                         <div class="col-2">

@@ -11,8 +11,9 @@
                     <label class="form-label">Variable Type</label>
                     <div class="b-input-group">
                         <select id="drpVariableType" ng-model="$.variable.VariableType" class="b-input form-select"
-                            ng-options="vt for vt in $.variableTypes" ng-disabled="$.running" chosen
-                            inherit-select-classes="true" placeholder-text-single="'Select variable type'" required>
+                            ng-options="type.Value as type.Text for type in $.variableTypes" chosen
+                            inherit-select-classes="true" placeholder-text-single="'Select variable type'"
+                            ng-disabled="$.running" required>
                         </select>
                         <span><i class="codicon codicon-activate-breakpoints"></i></span>
                     </div>
@@ -35,6 +36,14 @@
                         <input type="text" id="txtVariableName" class="b-input form-control"
                             ng-model="$.variable.VariableName" placeholder="Enter variable name" autocomplete="off"
                             required />
+                        <span><i class="codicon codicon-gear"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Default Value</label>
+                    <div class="b-input-group">
+                        <input type="text" class="b-input form-control" ng-model="$.variable.DefaultValue"
+                            placeholder="Enter default value" />
                         <span><i class="codicon codicon-gear"></i></span>
                     </div>
                 </div>

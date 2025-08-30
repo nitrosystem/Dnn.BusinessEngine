@@ -72,8 +72,13 @@
             </div>
             <div class="row">
                 <div class="col-12 my-auto">
-                    <b-condition-list ng-model="$.property.Conditions" class="m-b-0"
-                        data-objects="$.objects"></b-condition-list>
+                    <div class="b-field mt-2">
+                        <label class="form-label">Conditions</label>
+                        <div monaco-editor ng-model="$.property.Conditions" ng-if="$.objects"
+                            data-language="bConditionalExpressions" data-height="25px" data-objects="$.objects"
+                            required>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

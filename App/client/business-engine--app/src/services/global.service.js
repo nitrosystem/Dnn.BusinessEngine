@@ -84,6 +84,49 @@ export class GlobalService {
         );
     }
 
+    isSystemType(type) {
+        return ['int', 'float', 'double', 'bool', 'datetime'].includes(type.toLowerCase());
+    }
+
+    convertToRealType(value, type) {
+        const lowerType = type.toLowerCase();
+
+        if (value === null || value === undefined || value === '')
+            return this.getDefaultValueByType(value, type);
+
+        switch (lowerType) {
+            case 'int':
+            case 'float':
+            case 'double':
+                return Number(value);
+            case 'bool':
+                return value === 'true' || value === true;
+            case 'datetime':
+                return new Date(value);
+            default:
+                return value;
+        }
+    }
+
+    getDefaultValueByType(value, type) {
+        const lowerType = type.toLowerCase();
+
+        if (value === null || value === undefined || value === '') {
+            switch (lowerType) {
+                case 'int':
+                case 'float':
+                case 'double':
+                    return 0;
+                case 'bool':
+                    return false;
+                case 'datetime':
+                    return new Date(0); // معادل DateTime.MinValue در C#
+                default:
+                    return '';
+            }
+        }
+    }
+
     pushState(url, title, data) {
         const _title = title ? title : document.title;
         const _data = data ? data : "";

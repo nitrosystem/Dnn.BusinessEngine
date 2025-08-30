@@ -22,10 +22,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public string Event { get; set; }
         public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
         public bool ExecuteInClientSide { get; set; }
+        public string Preconditions { get; set; }
+        public string Conditions { get; set; }
         public IEnumerable<string> AuthorizationRunAction { get; set; }
         public IDictionary<string, object> Settings { get; set; }
         public IEnumerable<ActionResultViewModel> Results { get; set; }
-        public IEnumerable<ActionConditionInfo> Conditions { get; set; }
         public IEnumerable<ActionParamInfo> Params { get; set; }
         public string ActionTypeIcon { get; set; }
         public string ActionTypeTitle { get; set; }

@@ -14,7 +14,10 @@ using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.StudioS
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Contracts;
 using System.Data.Common;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DB.Entities;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
+using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Views;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Database
 {
@@ -22,43 +25,34 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dat
     {
         private readonly IDbConnection _connection;
         private readonly IRepositoryBase _repository;
+        private readonly ITypeLoaderFactory _typeLoaderFactory;
 
-        public DataSourceService(IDbConnection connection, IRepositoryBase repository)
+        public DataSourceService(IDbConnection connection, IRepositoryBase repository, ITypeLoaderFactory typeLoaderFactory)
         {
             _connection = connection;
             if (_connection.State == ConnectionState.Closed)
                 _connection.Open();
 
             _repository = repository;
+            _typeLoaderFactory = typeLoaderFactory;
         }
 
-        public async Task<DataSourceResultDto> GetDataSourceService(ActionDto action)
+        public async Task<(IEnumerable<object> Items, int? TotalCount)> GetDataSourceService(ActionDto action, PortalSettings portalSettings)
         {
             var spParams = DbShared.FillSqlParams(action.Params);
+            var data = await _repository.GetByColumnAsync<DataSourceServiceView>("ServiceId", action.ServiceId.Value);
+            var type = _typeLoaderFactory.GetTypeFromAssembly(data.TypeRelativePath, data.TypeFullName, data.ScenarioName, portalSettings);
 
-            var spName = await _repository.GetColumnValueAsync<DataSourceServiceInfo, string>("StoredProcedureName", "ServiceId", action.ServiceId);
+            var multi = await _connection.QueryMultipleAsync(data.StoredProcedureName, spParams,
+                commandType: CommandType.StoredProcedure, commandTimeout: int.MaxValue);
 
-            var data = await _connection.QueryAsync(spName, spParams, commandType: CommandType.StoredProcedure, commandTimeout: int.MaxValue);
+            var items = await multi.ReadAsync(type);
 
-            //result.Query = string.Format("exec {0} {1}", dataSourceService.StoredProcedureName, string.Join(",", spParams));
+            var totalCount = data.EnablePaging 
+                ? await multi.ReadSingleAsync<int?>()
+                : 0;
 
-            //var data = SqlMapper.Query(connection, "[dbo]." + dataSourceService.StoredProcedureName, spParams, );
-
-            //if (this.Service.ResultType == Framework.Enums.ServiceResultType.DataRow)
-            //{
-            //    result.DataRow = data != null && data.Any() ? JObject.FromObject(data.First()) : null;
-            //}
-            //else if (this.Service.ResultType == Framework.Enums.ServiceResultType.List)
-            //{
-            //    result.DataList = JArray.FromObject(data).ToObject<JArray>();
-            //    result.;
-            //}
-
-            return new DataSourceResultDto()
-            {
-                Items = data,
-                //TotalCount = data.Any() ? data.First().bEngine_TotalCount : 0
-            };
+            return (items, totalCount);
         }
     }
 }

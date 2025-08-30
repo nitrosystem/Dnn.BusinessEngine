@@ -4,7 +4,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
@@ -25,6 +25,7 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Threading;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Core.General;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -148,11 +149,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 try
                 {
                     if (isNew)
-                        objServiceInfo.Id =  await _repository.AddAsync<ServiceInfo>(objServiceInfo);
+                        objServiceInfo.Id = await _repository.AddAsync<ServiceInfo>(objServiceInfo);
                     else
                     {
                         var isUpdated = await _repository.UpdateAsync<ServiceInfo>(objServiceInfo);
-                        if (!isUpdated) ErrorService.ThrowUpdateFailedException(objServiceInfo);
+                        if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objServiceInfo);
 
                         await _repository.DeleteByScopeAsync<ServiceParamInfo>(objServiceInfo.Id);
                     }
@@ -167,7 +168,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                     var type = await _repository.GetColumnValueAsync<ServiceTypeInfo, string>("BusinessControllerClass", "ServiceType", service.ServiceType);
                     if (!string.IsNullOrEmpty(type))
                     {
-                        var extensionController = _serviceLocator.CreateInstance<IExtensionServiceFactory>(type, _unitOfWork, _cacheService, _repository);
+                        var extensionController = _serviceLocator.CreateInstance<IExtensionServiceFactory>(type, _unitOfWork, _repository);
                         extensionServiceId = await extensionController.SaveService(service, extensionServiceJson);
                     }
 

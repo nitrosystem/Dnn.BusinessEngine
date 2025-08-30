@@ -5,7 +5,6 @@ using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
@@ -30,6 +29,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using DotNetNuke.Collections;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -87,7 +87,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 else
                 {
                     var isUpdated = await _repository.UpdateAsync<DefinedListInfo>(objDefinedListInfo);
-                    if (!isUpdated) ErrorService.ThrowUpdateFailedException(objDefinedListInfo);
+                    if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objDefinedListInfo);
                 }
 
                 if (definedList.Id != Guid.Empty) await _repository.DeleteAsync<DefinedListItemInfo>(definedList.Id);
@@ -101,7 +101,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                     else
                     {
                         var isUpdated = await _repository.UpdateAsync<DefinedListItemInfo>(objDefinedListItemInfo);
-                        if (!isUpdated) ErrorService.ThrowUpdateFailedException(objDefinedListItemInfo);
+                        if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objDefinedListItemInfo);
                     }
                 }
 

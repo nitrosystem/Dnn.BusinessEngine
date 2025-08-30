@@ -16,24 +16,26 @@ import { BindHide } from "./directives/conditional/b-hide.directive.js";
 import { BindList } from "./directives/list/b-list.directive.js";
 import { BindFor } from "./directives/list/b-for.directive";
 import { BindClick } from "./directives/events/b-click.directvife";
+import { BindChange } from "./directives/events/b-change.directvife.js";
 
 const app = new App();
+app.service("globalService", GlobalService);
 app.service("apiService", ApiService);
 app.service("expressionService", ExpressionService);
 app.service("actionService", ActionService);
-app.service("globalService", GlobalService);
 
 app.controller("moduleController", ModuleController);
 
 app.directive("b-model", BindModel);
 app.directive("b-text", BindText);
 app.directive("b-class", BindClass);
-app.directive("b-show", BindIf);
+app.directive("b-if", BindIf);
 app.directive("b-show", BindShow);
 app.directive("b-hide", BindHide);
 app.directive("b-list", BindList);
 app.directive("b-for", BindFor);
 app.directive("b-click", BindClick);
+app.directive("b-change", BindChange);
 
 document.addEventListener("DOMContentLoaded", async () => {
     const appElement = document.querySelector('[b-app]');

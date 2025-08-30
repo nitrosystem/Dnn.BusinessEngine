@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
@@ -77,7 +77,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             else
             {
                 var isUpdated = await _repository.UpdateAsync<ModuleInfo>(objModuleInfo);
-                if (!isUpdated) ErrorService.ThrowUpdateFailedException(objModuleInfo);
+                if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleInfo);
             }
 
             return objModuleInfo.Id;
@@ -167,6 +167,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 var finalResources = await _buildModuleService.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
                 var mappedResources = ResourceMapping.MapPageResourcesInfo(finalResources);
                 await _repository.BulkInsertAsync<PageResourceInfo>(mappedResources);
+
+                _cacheService.ClearByPrefix("BE_Modules_");
             }
             else if (status.ExceptionError != null)
                 throw status.ExceptionError ?? throw new Exception("The module is not ready to be build!");
@@ -260,7 +262,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 else
                 {
                     var isUpdated = await _repository.UpdateAsync<ModuleFieldInfo>(objModuleFieldInfo);
-                    if (!isUpdated) ErrorService.ThrowUpdateFailedException(objModuleFieldInfo);
+                    if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleFieldInfo);
 
                     await _repository.DeleteByScopeAsync<ModuleFieldSettingInfo>(field.Id);
                 }
@@ -386,7 +388,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             else
             {
                 var isUpdated = await _repository.UpdateAsync<ModuleVariableInfo>(objModuleVariableInfo);
-                if (!isUpdated) ErrorService.ThrowUpdateFailedException(objModuleVariableInfo);
+                if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleVariableInfo);
             }
 
             return objModuleVariableInfo.Id;
@@ -442,7 +444,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             else
             {
                 var isUpdated = await _repository.UpdateAsync<ModuleCustomLibraryInfo>(objModuleCustomLibraryInfo);
-                if (!isUpdated) ErrorService.ThrowUpdateFailedException(objModuleCustomLibraryInfo);
+                if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleCustomLibraryInfo);
             }
 
             return objModuleCustomLibraryInfo.Id;
@@ -458,7 +460,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             else
             {
                 var isUpdated = await _repository.UpdateAsync<ModuleCustomResourceInfo>(objModuleCustomResourceInfo);
-                if (!isUpdated) ErrorService.ThrowUpdateFailedException(objModuleCustomResourceInfo);
+                if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleCustomResourceInfo);
             }
 
             return objModuleCustomResourceInfo.Id;

@@ -1,7 +1,6 @@
 ﻿using DotNetNuke.Data;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Core.Providers;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;

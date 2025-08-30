@@ -9,7 +9,6 @@ using System;
 using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
 using System.Reflection;
 using System.Linq;
-using NitroSystem.Dnn.BusinessEngine.App.Framework.ModuleData;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Database;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
@@ -27,6 +26,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Sta
 
             services.AddTransient<IBindEntityService, BindEntityService>();
             services.AddTransient<IDataSourceService, DataSourceService>();
+            services.AddTransient<ISubmitEntityService, SubmitEntityService>();
+
             services.AddTransient<ILoginUserService, LoginUserService>();
         }
     }

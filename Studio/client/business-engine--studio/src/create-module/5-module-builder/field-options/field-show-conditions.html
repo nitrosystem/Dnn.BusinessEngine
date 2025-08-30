@@ -1,7 +1,9 @@
 <b-right-widget ng-if="$.workingMode=='field-show-conditions'" data-title="Show Conditions"
     data-icon="notebook-template" data-subtitle="{{$.currentField.FieldName}} show conditions"
     data-await-action="$.awaitAction" class="mb-edit-field visible" data-module="$">
-    <b-condition-list ng-model="$.currentField.ShowConditions" data-objects="$.objects"></b-condition-list>
+    <div monaco-editor ng-model="$.currentField.ShowConditions" data-language="bConditionalExpressions"
+        data-height="120px" data-objects="$.objects" required>
+    </div>
     <hr class="mb-4" />
     <div class="mb-1 d-flex justify-content-end mt-auto">
         <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveFieldClick($event)"

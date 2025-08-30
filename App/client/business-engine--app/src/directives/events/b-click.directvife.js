@@ -1,6 +1,6 @@
 export function BindClick(app, expressionService) {
     return {
-        compile: function (attrs, element, scope, rootScope) {
+        compile: function (attrs, element, scope, controller) {
             const expr = attrs['b-click'];
             const fnName = expr.split('(')[0].trim();
 
@@ -16,23 +16,17 @@ export function BindClick(app, expressionService) {
                             if (/^["'].*["']$|^\d+(\.\d+)?$|^(true|false|null)$/i.test(expression))
                                 args.push(JSON.parse(expression));
                             else
-                                args.push(_.get(scope, expression));
+                                args.push(expressionService.evaluateExpression(expression, scope));
                         });
                     }
 
-                    if (typeof scope[fnName] === "function") {
-                        scope[fnName](...args);
+                    if (typeof controller[fnName] === "function") {
+                        controller[fnName](...args);
                     }
                 } catch (err) {
                     console.error("b-click error:", err);
                 }
             });
-
-            function get(obj, path, defaultValue = undefined) {
-                return path.split('.').reduce((acc, key) => {
-                    return acc && acc[key] !== undefined ? acc[key] : undefined;
-                }, obj) ?? defaultValue;
-            }
         }
     }
 }

@@ -1,6 +1,6 @@
 export function BindModel(app, expressionService) {
     return {
-        compile: function (attrs, element, controller) {
+        compile: function (attrs, element, scope) {
             const expr = attrs['b-model'];
             if (!expr) return;
 
@@ -10,8 +10,8 @@ export function BindModel(app, expressionService) {
 
             // تابع به‌روزرسانی UI براساس model
             const render = () => {
-                const newValue = expressionService.evaluateExpression(expr, controller);
-                
+                const newValue = expressionService.evaluateExpression(expr, scope);
+
                 if (tagName === 'input') {
                     if (type === 'checkbox') {
                         element.checked = !!newValue;
@@ -23,7 +23,7 @@ export function BindModel(app, expressionService) {
                             element.value = newValue ?? '';
                         }
                     }
-                } 
+                }
                 else if (tagName === 'select') {
                     if (element.value !== (newValue ?? '')) {
                         element.value = newValue ?? '';
@@ -39,7 +39,9 @@ export function BindModel(app, expressionService) {
 
             // رویداد تغییر کاربر → update model
             const updateModel = (e) => {
-                const { parent, key } = app.resolvePropReference(controller, expr);
+                const { parent, key } = app.resolvePropReference(expr, scope);
+                if (!parent) return;
+
                 let newValue;
 
                 if (tagName === 'input') {
@@ -54,10 +56,10 @@ export function BindModel(app, expressionService) {
                     } else {
                         newValue = e.target.value;
                     }
-                } 
+                }
                 else if (tagName === 'select') {
                     newValue = e.target.value;
-                } 
+                }
                 else {
                     newValue = e.target.value;
                 }
@@ -80,7 +82,7 @@ export function BindModel(app, expressionService) {
             render();
 
             // گوش دادن به تغییرات مدل
-            app.listenTo(controller, expr, render);
+            app.listenTo(expr, scope, render);
         }
     }
 }

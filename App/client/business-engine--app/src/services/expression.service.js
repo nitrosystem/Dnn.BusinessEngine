@@ -10,37 +10,7 @@ export class ExpressionService {
             // توابع دیگه مثل Subtract, If, Contains رو هم می‌تونی اضافه کنی
         };
     }
-
-    checkConditions(conditions, data) {
-        if (!conditions || !conditions.length) return true;
-
-        var andResult = true;
-
-        var groups = _.groupBy(conditions, "GroupName");
-        for (var key in groups) {
-            var orResult = false;
-            _.forEach(groups[key], (condition) => {
-                const leftTree = this.parseExpression(condition.LeftExpression);
-                const leftValue = this.evaluateExpressionTree(leftTree, data);
-
-                const rightTree = this.parseExpression(condition.RightExpression);
-                const rightValue = rightTree
-                    ? this.evaluateExpressionTree(rightTree, data) :
-                    undefined;
-
-                const compareResult = this.compareValues(leftValue, rightValue, condition.EvalType);
-
-                if (!orResult && compareResult) orResult = true;
-            });
-            if (!orResult) {
-                andResult = false;
-                break;
-            }
-        }
-
-        return andResult;
-    }
-
+   
     compareValues(left, right, op) {
         const isValidDate = (val) => !isNaN(Date.parse(val));
         const isArray = Array.isArray;
@@ -51,8 +21,10 @@ export class ExpressionService {
             (typeof val === 'object' && !isArray(val) && Object.keys(val).length === 0);
 
         switch (op.toLowerCase()) {
-            case '=':
             case '==':
+                return left == right;
+            case '=':
+            case '===':
                 return isEqual(left, right);
             case '!=':
                 return !isEqual(left, right);
@@ -149,9 +121,9 @@ export class ExpressionService {
         return [...new Set(matches)];
     }
 
-    evaluateExpression(expr, scope) {
-        const expressionTree = this.parseExpression(expr, scope);
-        return this.evaluateExpressionTree(expressionTree, scope);
+    evaluateExpression(expr, data) {
+        const expressionTree = this.parseExpression(expr, data);
+        return this.evaluateExpressionTree(expressionTree, data);
     }
 
     parseExpression(expression) {
@@ -179,6 +151,7 @@ export class ExpressionService {
                     current += ch;
                 }
             }
+
             if (current) parts.push(current.trim());
             return parts.length > 1 ? parts : null;
         };
@@ -282,7 +255,7 @@ export class ExpressionService {
                 return node.value;
 
             case 'Path':
-                return this.resolvePath(data, node.value);
+                return this.resolvePath(node.value, data);
 
             case 'Function':
                 const func = this.ExpressionFunctions[node.name];
@@ -329,8 +302,8 @@ export class ExpressionService {
         return args;
     }
 
-    resolvePath(obj, path) {
+    resolvePath(path, data) {
         const segments = path.replace(/\[(\w+)\]/g, '.$1').split('.');
-        return segments.reduce((acc, key) => acc?.[key], obj);
+        return segments.reduce((acc, key) => acc?.[key], data);
     }
 }

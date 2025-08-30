@@ -199,8 +199,8 @@ export class CreateModuleModuleBuilderController {
                 v.Scope !== 'ServerSide' && v.VariableType === 'AppModelList'
             );
 
-            let objects = { Data: {} };
-            let variablesAsFieldValueProperty = { Data: {} };
+            let objects = {};
+            let variablesAsFieldValueProperty = {};
 
             _.forEach(data.Variables, (variable) => {
                 const baseObject = _.reduce(variable.Properties, (acc, prop) => {
@@ -209,10 +209,10 @@ export class CreateModuleModuleBuilderController {
                 }, {});
 
                 if (variable.VariableType === 'AppModelList') {
-                    objects.Data[variable.VariableName] = [baseObject];
+                    objects[variable.VariableName] = [baseObject];
                 } else {
-                    objects.Data[variable.VariableName] = baseObject;
-                    variablesAsFieldValueProperty.Data[variable.VariableName] = baseObject;
+                    objects[variable.VariableName] = baseObject;
+                    variablesAsFieldValueProperty[variable.VariableName] = baseObject;
                 }
             });
 

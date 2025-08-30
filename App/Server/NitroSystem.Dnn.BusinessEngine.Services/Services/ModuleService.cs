@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
@@ -31,6 +31,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using DotNetNuke.Services.Scheduling;
 using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Common.Enums;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 {
@@ -76,7 +77,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                     return await HybridMapper.MapWithConfigAsync<ModuleFieldInfo, ModuleFieldViewModel>(field,
                         async (src, dest) =>
                         {
-                            dest.ShowConditions = TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(field.ShowConditions);
                             dest.ConditionalValues = TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(field.ConditionalValues);
                             dest.DataSource = field.HasDataSource && !string.IsNullOrWhiteSpace(field.DataSource)
                                 ? await GetFieldDataSource(field.DataSource)
@@ -119,16 +119,16 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                         ModuleId = moduleId,
                         Scope = scope,
                     },
-                    grid => grid.Read<ModuleVariableInfo>(),
+                    grid => grid.Read<ModuleVariableView>(),
                     grid => grid.Read<AppModelPropertyInfo>()
                 );
 
-            var variables = results[0] as IEnumerable<ModuleVariableInfo>;
+            var variables = results[0] as IEnumerable<ModuleVariableView>;
             var appModelsProperties = results[1] as IEnumerable<AppModelPropertyInfo>;
 
             return variables.Select(variable =>
             {
-                return HybridMapper.MapWithConfig<ModuleVariableInfo, ModuleVariableDto>(variable,
+                return HybridMapper.MapWithConfig<ModuleVariableView, ModuleVariableDto>(variable,
                 (src, dest) =>
                 {
                     dest.Scope = (ModuleVariableScope)variable.Scope;
@@ -138,6 +138,15 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                     });
                 });
             });
+        }
+
+        public async Task<IEnumerable<ModuleClientVariableDto>> GetModuleClientVariables(Guid moduleId)
+        {
+            var variables = await _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId);
+
+            return variables.Select(variable =>
+                HybridMapper.Map<ModuleVariableInfo, ModuleClientVariableDto>(variable)
+            );
         }
 
         #endregion

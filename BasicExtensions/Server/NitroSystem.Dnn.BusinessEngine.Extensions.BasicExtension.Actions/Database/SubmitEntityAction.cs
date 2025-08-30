@@ -1,47 +1,44 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Actions.Models;
+﻿using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Framework.Dto;
-using NitroSystem.Dnn.BusinessEngine.Framework.Services;
+using NitroSystem.Dnn.BusinessEngine.Framework.Enums;
+using NitroSystem.Dnn.BusinessEngine.Framework.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Actions.Database
+namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.Database
 {
-    public class SubmitEntityAction : ActionBase<DatabaseInfo>, IAction
+    public class SubmitEntityAction : IAction
     {
-        public SubmitEntityAction()
+        private readonly ISubmitEntityService _service;
+
+        public SubmitEntityAction(ISubmitEntityService service)
         {
-            this.OnActionCompletedEvent += SubmitEntityAction_OnActionCompletedEvent;
+            _service = service;
         }
 
-        public SubmitEntityAction(IServiceWorker serviceWorker, IActionWorker actionWorker, ActionDto action)
+        public async Task<IActionResult> ExecuteAsync(ActionDto action, PortalSettings portalSettings)
         {
-            this.ServiceWorker = serviceWorker;
-            this.ActionWorker = actionWorker;
-            this.Action = action;
+            IActionResult result = new ActionResult();
 
-            this.OnActionCompletedEvent += SubmitEntityAction_OnActionCompletedEvent;
-        }
+            try
+            {
+                var data = await _service.SaveEntityRow(action, portalSettings);
 
-        public override async Task<object> ExecuteAsync<T>(bool isServerSide)
-        {
-            var actionResult = await this.ServiceWorker.RunServiceByAction<T>(this.Action);
+                result.Data = data;
+                result.ResultStatus = ActionResultStatus.Successful;
+            }
+            catch (Exception ex)
+            {
+                result.ResultStatus = ActionResultStatus.Error;
+                result.ErrorException = ex;
+            }
 
-            this.ActionWorker.SetActionResults(this.Action, actionResult);
-
-            return actionResult;
-        }
-
-        public override bool TryParseModel(string actionDetails)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void SubmitEntityAction_OnActionCompletedEvent(object sender, ActionEventArgs e)
-        {
+            return result;
         }
     }
 }

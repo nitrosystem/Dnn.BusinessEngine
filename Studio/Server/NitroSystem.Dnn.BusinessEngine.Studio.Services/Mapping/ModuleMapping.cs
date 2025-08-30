@@ -22,7 +22,6 @@ using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
@@ -179,7 +178,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
                 src => src.AuthorizationViewField.Split(','),
                 condition => !string.IsNullOrEmpty(condition.AuthorizationViewField));
-            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.ShowConditions));
             mapper.AddCustomMapping(src => src.ConditionalValues, dest => dest.ConditionalValues, src => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(src.ConditionalValues));
             mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, src => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(src.DataSource));
             mapper.AddCustomMapping(src => src, dest => dest.Actions, src => actions.Select(action => HybridMapper.Map<ActionInfo, ActionListItem>(action)));
@@ -203,10 +201,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
                 src => string.Join(",", src.AuthorizationViewField),
                 condition => condition.AuthorizationViewField != null && condition.AuthorizationViewField.Any()
-            );
-            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions,
-                src => JsonConvert.SerializeObject(src.ShowConditions),
-                condition => condition.ShowConditions != null && condition.ShowConditions.Any()
             );
             mapper.AddCustomMapping(src => src.ConditionalValues, dest => dest.ConditionalValues,
                src => JsonConvert.SerializeObject(src.ConditionalValues),
@@ -246,12 +240,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
             mapper.AddCustomMapping(src => src.AuthorizationViewField, dest => dest.AuthorizationViewField,
                 src => src.AuthorizationViewField.Split(','),
                 condition => !string.IsNullOrEmpty(condition.AuthorizationViewField));
-            mapper.AddCustomMapping(src => src.ShowConditions, dest => dest.ShowConditions, src => TypeCasting.TryJsonCasting<IEnumerable<ExpressionInfo>>(src.ShowConditions));
             mapper.AddCustomMapping(src => src.ConditionalValues, dest => dest.ConditionalValues, src => TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(src.ConditionalValues));
             mapper.AddCustomMapping(src => src.DataSource, dest => dest.DataSource, src => TypeCasting.TryJsonCasting<FieldDataSourceInfo>(src.DataSource));
             mapper.AddCustomMapping(src => src, dest => dest.Settings, src => dictionarySettings);
             mapper.AddCustomMapping(src => src, dest => dest.GlobalSettings,
-                src => DictionaryToObjectConverter.ConvertToObject<ModuleFieldGlobalSettings>(dictionarySettings) ?? new ModuleFieldGlobalSettings());
+                src => TypeCasting.ConvertDictionaryToObject<ModuleFieldGlobalSettings>(dictionarySettings) ?? new ModuleFieldGlobalSettings());
 
             var result = mapper.Map(field);
             return result;

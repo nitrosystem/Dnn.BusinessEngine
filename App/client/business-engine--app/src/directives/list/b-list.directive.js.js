@@ -1,6 +1,6 @@
 export function BindList(app, expressionService) {
     return {
-        compile: function (attrs, element, controller) {
+        compile: function (attrs, element, scope) {
             const expr = attrs['b-list'];
             const [itemName, listName] = expr.split(' in ').map(s => s.trim());
 
@@ -11,17 +11,17 @@ export function BindList(app, expressionService) {
 
             parent.querySelectorAll(`[b-list-clone="${listName}"]`).forEach(e => e.remove());
 
-            const list = expressionService.evaluateExpression(listName, controller) ?? [];
+            const list = expressionService.evaluateExpression(listName, scope) ?? [];
             list.forEach(item => {
                 const clone = element.cloneNode(true);
                 clone.removeAttribute('b-list');
                 clone.setAttribute('b-list-clone', listName);
 
-                let __controller = app.cloneClassInstance(controller);
-                __controller[itemName] = item;
+                let __scope = app.cloneClassInstance(scope);
+                __scope[itemName] = item;
 
                 parent.insertBefore(clone, placeholder);
-                app.scanDirectives(clone, __controller);
+                app.scanDirectives(clone, __scope);
             });
         }
     }

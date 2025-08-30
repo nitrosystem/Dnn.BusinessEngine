@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Common.Models;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
@@ -104,7 +104,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                     oldTableName = await _repository.GetColumnValueAsync<EntityInfo, string>(objEntityInfo.Id, "TableName");
 
                     var isUpdated = await _repository.UpdateAsync<EntityInfo>(objEntityInfo);
-                    if (!isUpdated) ErrorService.ThrowUpdateFailedException(objEntityInfo);
+                    if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objEntityInfo);
                 }
 
                 string query = string.Empty;

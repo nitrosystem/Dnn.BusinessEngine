@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="Database\BindEntityAction.cs" />
     <Compile Include="Database\DataSourceAction.cs" />
+    <Compile Include="Database\SubmitEntityAction.cs" />
     <Compile Include="DnnServices\LoginUserAction.cs" />
     <Compile Include="Form\SetVariableAction.cs" />
     <Compile Include="Models\DatabaseInfo.cs" />

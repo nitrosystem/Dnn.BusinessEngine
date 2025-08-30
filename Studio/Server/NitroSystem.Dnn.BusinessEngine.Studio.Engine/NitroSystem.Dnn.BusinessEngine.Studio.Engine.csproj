@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppModelTypeBuilder\TypeBuilderService.cs" />
     <Compile Include="BuildModule\BuildModuleLayout.cs" />
     <Compile Include="BuildModule\BuildModuleService.cs" />
     <Compile Include="BuildModule\CleanPageResources.cs" />
@@ -79,6 +80,8 @@
     <Compile Include="BuildModule\ModuleBuildQueueManager.cs" />
     <Compile Include="BuildModule\ResourceFunctionProvider.cs" />
     <Compile Include="BuildModule\ResourceMachine.cs" />
+    <Compile Include="Contracts\ITypeBuilderService.cs" />
+    <Compile Include="Dto\AppModelDto.cs" />
     <Compile Include="Dto\BuildModuleResultDto.cs" />
     <Compile Include="Dto\ExtensionInstallationResultDto.cs" />
     <Compile Include="Dto\ExtensionManifestDto.cs" />

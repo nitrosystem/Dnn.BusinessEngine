@@ -35,6 +35,8 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
+using NitroSystem.Dnn.BusinessEngine.Core.General;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -424,14 +426,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
                 var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, null, "Title");
                 var appModel = await _appModelServices.GetAppModelAsync(appModelId);
+                var propertyTypes = GlobalItems.VariableTypes.Select(kvp => new { Text = kvp.Key, Value = kvp.Value });
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     AppModels = appModels,
                     AppModel = appModel,
+                    PropertyTypes = propertyTypes,
                 });
             }
             catch (Exception ex)
@@ -446,7 +449,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty);
+                appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty, PortalSettings);
 
                 appModel = await _appModelServices.GetAppModelAsync(appModel.Id);
 
@@ -712,7 +715,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         //        Thread.Sleep(500);
         //        var extension = JsonConvert.DeserializeObject<ExtensionManifest>(objExtensionInstallTemporaryInfo.ExtensionManifestJson);
 
-        //        var extensionController = new ExtensionService(scenarioId, this.PortalSettings, this.UserInfo);
+        //        var extensionController = new ExtensionService(scenarioId, PortalSettings, this.UserInfo);
         //        extensionController.InstallExtension(extension, objExtensionInstallTemporaryInfo.ExtensionInstallUnzipedPath, monitoringInstance);
 
         //        ExtensionInstallTemporaryRepository.Instance.DeleteItem(installTemporaryItemId);

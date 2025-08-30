@@ -9,7 +9,6 @@ using System.Data.Common;
 using System.Data;
 using System.Linq;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;

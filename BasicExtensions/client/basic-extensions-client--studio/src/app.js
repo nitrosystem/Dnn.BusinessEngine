@@ -76,8 +76,6 @@ app.component("bResetPassword", ResetPasswordService);
 app.component("bActionRunService", RunServiceAction);
 app.component("bActionJavascript", JavascriptAction);
 app.component("bActionSetVariable", SetVariableAction);
-app.component("bActionCallAction", CallAction);
-app.component("bActionUpdateFieldDataSource", UpdateFieldDataSource);
 // register business engine field components
 app.component("bFieldGroup", GroupFieldComponent);
 app.component("bFieldContent", ContentFieldComponent);

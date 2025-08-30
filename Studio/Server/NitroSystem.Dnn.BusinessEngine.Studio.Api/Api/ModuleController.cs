@@ -22,8 +22,9 @@ using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using DotNetNuke.Security.Roles;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Core.General;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -272,9 +273,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
                 var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, "", "Title");
 
+                var types = GlobalItems.VariableTypes;
+                types["AppModel"] = "AppModel";
+                types["AppModelList"] = "AppModelList";
+                var variableTypes = types.Select(kvp => new { Text = kvp.Key, Value = kvp.Value });
+
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
-                    VariableTypes = GlobalItems.VariableTypes.Append("AppModel").Append("AppModelList"),
+                    VariableTypes = variableTypes,
                     Variables = variables,
                     AppModels = appModels.Items
                 });

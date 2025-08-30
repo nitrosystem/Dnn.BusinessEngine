@@ -98,16 +98,20 @@
     <Compile Include="Contracts\IBindEntityService.cs" />
     <Compile Include="Contracts\IDataSourceService.cs" />
     <Compile Include="Contracts\ILoginUserService.cs" />
+    <Compile Include="Contracts\ISubmitEntityService.cs" />
     <Compile Include="Database\BindEntityService.cs" />
     <Compile Include="Database\DataSourceService.cs" />
     <Compile Include="Database\DbShared.cs" />
-    <Compile Include="DB\Entities\DataRowServiceInfo.cs" />
-    <Compile Include="DB\Entities\DeleteEntityRowServiceInfo.cs" />
-    <Compile Include="DB\Entities\BindEntityServiceInfo.cs" />
-    <Compile Include="DB\Entities\CustomQueryServiceInfo.cs" />
-    <Compile Include="DB\Entities\DataSourceServiceInfo.cs" />
-    <Compile Include="DB\Entities\SubmitEntityServiceInfo.cs" />
+    <Compile Include="Database\SubmitEntityService.cs" />
+    <Compile Include="_DatabaseEntities\Tables\DataRowServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Tables\DeleteEntityRowServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Tables\BindEntityServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Tables\CustomQueryServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Tables\DataSourceServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Tables\SubmitEntityServiceInfo.cs" />
     <Compile Include="Dnn\LoginUserService.cs" />
+    <Compile Include="_DatabaseEntities\Views\DataSourceServiceView.cs" />
+    <Compile Include="_DatabaseEntities\Views\BindEntityServiceView.cs" />
     <Compile Include="Dto\DataSourceResultDto.cs" />
     <Compile Include="Enums\ActionType.cs" />
     <Compile Include="Models\Database\EntityColumnInfo.cs" />
@@ -168,7 +172,9 @@
       <Name>NitroSystem.Dnn.BusinessEngine.Studio.Services</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets')" />

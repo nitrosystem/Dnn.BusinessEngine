@@ -1,14 +1,14 @@
-export function BindClick(app, expressionService) {
+export function BindChange(app, expressionService) {
     return {
-        compile: function (attrs, element, scope, rootScope) {
-            const expr = attrs['b-click'];
+        compile: function (attrs, element, scope, controller) {
+            const expr = attrs['b-change'];
             const fnName = expr.split('(')[0].trim();
 
             let argsExpr = expr.includes('(')
                 ? expr.substring(expr.indexOf('(') + 1, expr.lastIndexOf(')'))
                 : "";
 
-            element.addEventListener('click', () => {
+            element.addEventListener('change', () => {
                 try {
                     let args = [];
                     if (argsExpr) {
@@ -16,23 +16,17 @@ export function BindClick(app, expressionService) {
                             if (/^["'].*["']$|^\d+(\.\d+)?$|^(true|false|null)$/i.test(expression))
                                 args.push(JSON.parse(expression));
                             else
-                                args.push(_.get(scope, expression));
+                                args.push(expressionService.evaluateExpression(expression, scope));
                         });
                     }
 
-                    if (typeof scope[fnName] === "function") {
-                        scope[fnName](...args);
+                    if (typeof controller[fnName] === "function") {
+                        controller[fnName](...args);
                     }
                 } catch (err) {
-                    console.error("b-click error:", err);
+                    console.error("b-change error:", err);
                 }
             });
-
-            function get(obj, path, defaultValue = undefined) {
-                return path.split('.').reduce((acc, key) => {
-                    return acc && acc[key] !== undefined ? acc[key] : undefined;
-                }, obj) ?? defaultValue;
-            }
         }
     }
 }

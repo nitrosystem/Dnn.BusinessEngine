@@ -14,6 +14,7 @@ using System;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Extensions;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.AppModelTypeBuilder;
 
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
@@ -28,12 +29,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<IServiceFactory, ServiceFactory>();
             services.AddScoped<IExtensionService, ExtensionService>();
             services.AddScoped<IExtensionManager, ExtensionManager>();
-            
+
             services.AddScoped<IDefinedListService, DefinedListService>();
 
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IActionService, ActionService>();
             services.AddScoped<ITemplateService, TemplateService>();
+
+            services.AddScoped<ITypeBuilderService, TypeBuilderService>();
 
             services.AddScoped<IBuildModuleService, BuildModuleService>();
             services.AddScoped<IBuildModuleLayout, BuildModuleLayout>();

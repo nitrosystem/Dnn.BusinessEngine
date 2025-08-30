@@ -6,11 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Common.Globals;
+using System.Collections.Concurrent;
 
 namespace NitroSystem.Dnn.BusinessEngine.Framework.Contracts
 {
     public interface IActionCondition
     {
-        bool IsTrueConditions(IModuleData moduleData, IEnumerable<ExpressionInfo> conditions);
+        bool IsTrueConditions(ConcurrentDictionary<string, object> moduleData, string conditions);
     }
 }

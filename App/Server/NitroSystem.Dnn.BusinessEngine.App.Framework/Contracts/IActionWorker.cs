@@ -1,5 +1,8 @@
 ﻿using DotNetNuke.Abstractions.Portals;
+using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,8 +12,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Contracts
 {
     public interface IActionWorker
     {
-        Task CallActions(IModuleData moduleData, Guid moduleId, Guid? fieldId, string eventName, IPortalSettings portalSettings);
+        Task CallActions(ConcurrentDictionary<string, object> moduleData, Guid moduleId, Guid? fieldId, string eventName, PortalSettings portalSettings);
 
-        Task CallActions(IEnumerable<Guid> actionIds, IModuleData moduleData, IPortalSettings portalSettings);
+        Task CallActions(IEnumerable<Guid> actionIds, ConcurrentDictionary<string, object> moduleData, PortalSettings portalSettings);
     }
 }

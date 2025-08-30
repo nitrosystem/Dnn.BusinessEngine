@@ -41,6 +41,7 @@ const RunServiceAction = {
         variables: "<",
         fields: "<",
         appModels: "<",
+        objects: "<",
     },
     controller: RunServiceActionController,
     controllerAs: "$",

@@ -20,8 +20,9 @@ using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using DotNetNuke.Entities.Users;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 using DotNetNuke.UI.UserControls;
-using NitroSystem.Dnn.BusinessEngine.App.Framework.ModuleData;
 using DotNetNuke.Abstractions.Portals;
+using System.Collections.Concurrent;
+using DotNetNuke.Entities.Portals;
 
 namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
 {
@@ -44,9 +45,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             _serviceLocator = serviceLocator;
         }
 
-        public async Task CallActions(IModuleData moduleData, Guid moduleId, Guid? fieldId, string eventName, IPortalSettings portalSettings)
+        public async Task CallActions(ConcurrentDictionary<string, object> moduleData, Guid moduleId, Guid? fieldId, string eventName, PortalSettings portalSettings)
         {
-            var actionIds = Enumerable.Empty<Guid>();
+            var actionIds = new List<Guid>();
 
             var actions = await _actionService.GetActionsDtoAsync(moduleId, fieldId, false);
             foreach (var action in actions.Where(a => a.Event == eventName))
@@ -55,13 +56,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
                     .GroupBy(a => a.ParentId)
                     .ToDictionary(g => g.Key, g => g.OrderBy(x => x.ViewOrder).ToList());
 
-                actionIds = CollectActionsOptimized(action, lookup, new List<Guid>());
+                actionIds.AddRange(CollectActionsOptimized(action, lookup, new List<Guid>()));
             }
 
             await CallActions(actionIds, moduleData, portalSettings);
         }
 
-        public async Task CallActions(IEnumerable<Guid> actionIds, IModuleData moduleData, IPortalSettings portalSettings)
+        public async Task CallActions(IEnumerable<Guid> actionIds, ConcurrentDictionary<string, object> moduleData, PortalSettings portalSettings)
         {
             var actions = await _actionService.GetActionsDtoForServerAsync(actionIds);
 
@@ -69,14 +70,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             await CallAction(moduleData, buffer, portalSettings);
         }
 
-        private async Task CallAction(IModuleData moduleData, Queue<ActionTree> buffer, IPortalSettings portalSettings)
+        private async Task CallAction(ConcurrentDictionary<string, object> moduleData, Queue<ActionTree> buffer, PortalSettings portalSettings)
         {
             if (buffer == null || buffer.Count == 0) return;
 
             IActionResult result = null;
 
             var node = buffer.Dequeue();
-
             var action = node.Action;
 
             if (action != null && _actionCondition.IsTrueConditions(moduleData, action.Conditions))
@@ -85,14 +85,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
 
                 foreach (var item in action.Params)
                 {
-                    var value = _expressionService.Evaluate(moduleData, item.ParamValue as string);
-                    item.ParamValue = value;
+                    var expr = item.ParamValue as string;
+                    var value = !string.IsNullOrEmpty(expr)
+                        ? _expressionService.Evaluate(expr, moduleData)
+                        : item.ParamValue;
 
+                    item.ParamValue = value;
                     actionParams.Add(item);
                 }
 
                 action.Params = actionParams;
-
 
                 IAction actionController = await GetActionExtensionInstance(action.ActionType);
 
@@ -100,9 +102,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
                 {
                     result = await actionController.ExecuteAsync(action, portalSettings);
 
-                    if (action.ServiceId.HasValue && result.Data != null) moduleData.Set("_ServiceResult", result.Data);
+                    moduleData["_ServiceResult"] = result.Data;
 
-                    SetActionResults(moduleData, action);
+                    WithServiceResult(moduleData, result.Data, () =>
+                    {
+                        SetActionResults(moduleData, action);
+                    });
 
                     var method = actionController.GetType().GetMethod("OnActionSuccessEvent");
                     if (method != null) method.Invoke(actionController, null);
@@ -235,60 +240,38 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
             return buffer;
         }
 
-        private void SetActionResults(IModuleData moduleData, ActionDto action)
+        private void SetActionResults(ConcurrentDictionary<string, object> moduleData, ActionDto action)
         {
             foreach (var item in action.Results)
             {
                 var isTrue = _actionCondition.IsTrueConditions(moduleData, item.Conditions);
                 if (isTrue)
                 {
-                    var value = _expressionService.Evaluate(moduleData, item.RightExpression);
-                    var setter = _expressionService.BuildJObjectSetter(item.LeftExpression);
-                    setter(moduleData, value);
+                    var value = _expressionService.Evaluate(item.RightExpression, moduleData);
+                    var setter = _expressionService.BuildDataSetter(item.LeftExpression, moduleData);
+
+                    setter(value);
                 }
             }
         }
 
-        //public async Task<object> CallAction(Guid actionId)
-        //{
-        //    var action = ActionMapping.GetActionDTO(actionId);
+        private void WithServiceResult(
+            ConcurrentDictionary<string, object> moduleData,
+            object resultData,
+            Action action
+        )
+        {
+            const string key = "_ServiceResult";
+            moduleData[key] = resultData;
 
-        //    var buffer = action.IsServerSide && action.RunChildsInServerSide ? CreateBuffer(actionId) : new Queue<ActionTree>();
-        //    var node = new ActionTree()
-        //    {
-        //        Action = action,
-        //        CompletedActions = new Queue<ActionTree>(),
-        //        SuccessActions = new Queue<ActionTree>(),
-        //        ErrorActions = new Queue<ActionTree>()
-        //    };
-
-        //    buffer.Enqueue(node);
-
-        //    return await CallAction(buffer);
-        //}
-
-        //private Queue<ActionTree> CreateBuffer(Guid actionId)
-        //{
-        //    var buffer = new Queue<ActionTree>();
-
-        //    var action = ActionMapping.GetActionDTO(actionId);
-
-        //    var node = new ActionTree()
-        //    {
-        //        Action = action,
-        //        CompletedActions = new Queue<ActionTree>(),
-        //        SuccessActions = new Queue<ActionTree>(),
-        //        ErrorActions = new Queue<ActionTree>()
-        //    };
-
-        //    GetActionChilds(null, node.CompletedActions, action.Id, ActionResultStatus.OnCompleted);
-        //    GetActionChilds(null, node.SuccessActions, action.Id, ActionResultStatus.OnCompletedSuccess);
-        //    GetActionChilds(null, node.ErrorActions, action.Id, ActionResultStatus.OnCompletedError);
-
-        //    buffer.Enqueue(node);
-
-        //    return buffer;
-        //}
-
+            try
+            {
+                action();
+            }
+            finally
+            {
+                moduleData.TryRemove(key, out _);
+            }
+        }
     }
 }

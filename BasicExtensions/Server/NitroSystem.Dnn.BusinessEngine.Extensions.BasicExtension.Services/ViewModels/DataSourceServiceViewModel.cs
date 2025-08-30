@@ -22,7 +22,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Vie
         public bool EnablePaging { get; set; }
         public string PageIndexParam { get; set; }
         public string PageSizeParam { get; set; }
-        public string TotalCountColumnName { get; set; }
         public IEnumerable<EntityInfo> Entities { get; set; }
         public IEnumerable<EntityJoinRelationInfo> JoinRelationships { get; set; }
         public IEnumerable<ModelPropertyInfo> ModelProperties { get; set; }

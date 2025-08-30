@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DB.Entities;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using System;
@@ -18,7 +18,7 @@ using System.Collections;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
 using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using System.Net;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
@@ -38,7 +38,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
         private readonly IEntityService _entityService;
         private readonly IAppModelService _appModelService;
 
-        public DataSourceService(IUnitOfWork unitOfWork, IRepositoryBase repository, IEntityService entityService, IAppModelService appModelService)
+        public DataSourceService(
+            IUnitOfWork unitOfWork,
+            IRepositoryBase repository,
+            IEntityService entityService, 
+            IAppModelService appModelService)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
@@ -89,9 +93,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             var filters = new List<string>();
             var sortItems = new List<string>();
 
-            var pagingRegex = new Regex("(\\[STARTPAGING\\])(.*?)(\\[ENDPAGING\\])", RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.CultureInvariant);
-
-            dataSourceQuery = dataSourceService.EnablePaging ? pagingRegex.Replace(dataSourceQuery, "\t$2") : pagingRegex.Replace(dataSourceQuery, "");
+            var pagingRegex = new Regex(@"{EnablePaging\}([\s\S]+?)\{\/EnablePaging\}");
+            dataSourceQuery = dataSourceService.EnablePaging ? pagingRegex.Replace(dataSourceQuery, "$1") : pagingRegex.Replace(dataSourceQuery, "");
 
             foreach (var property in dataSourceService.ModelProperties)
             {
@@ -111,7 +114,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             {
                 foreach (var serviceParam in service.Params)
                 {
-                    spParams.Add(string.Format("{0} {1} {2}", serviceParam.ParamName, serviceParam.ParamType));
+                    spParams.Add(string.Format("{0} {1}", serviceParam.ParamName, serviceParam.ParamType));
                 }
             }
 
@@ -181,7 +184,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             dataSourceQuery = dataSourceQuery.Replace("{Entities}", string.Join(",\n", entities));
             dataSourceQuery = dataSourceQuery.Replace("{Filters}", filters.Any() ? "WHERE \n\t\t" + string.Join(" and\n\t\t", filters) : string.Empty);
             dataSourceQuery = dataSourceQuery.Replace("{SortingQuery}", "ORDER BY \n\t\t" + string.Join(",", sortItems));
-            dataSourceQuery = dataSourceQuery.Replace("{TotalCountColumnName}", dataSourceService.TotalCountColumnName);
 
             var sqlCommand = new ExecuteSqlCommand(_unitOfWork);
 

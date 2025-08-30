@@ -37,19 +37,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
         private readonly string _fieldLayout =
-            @"<div [FIELD-DISPLAY-EXPRESSION] class=""[[Settings.CssClass??b-field]]"" [[IF:CanHaveValue == true:b-class=""{'b-invalid':[FIELD].isValidated==true && ([FIELD].requiredError==true || [FIELD].patternError==true)}""]]>
+            @"<div [[IF:ShowConditions != null && ShowConditions != """":b-if=""[[ShowConditions]]""]] class=""[[Settings.CssClass??b-field]]"" [[IF:CanHaveValue == true:b-class=""{'b-field-invalid':[FIELD].isValidated==true && ([FIELD].requiredError==true || [FIELD].patternError==true)}""]]>
                 [[IF:FieldText != null:
-                    <label class=""[[Settings.FieldTextCssClass??b-form-label]]"">[[FieldText]]</label>
+                    <label class=""[[Settings.FieldTextCssClass??b-field-label]]"">[[FieldText]]</label>
                 ]]
                 [FIELD-COMPONENT]
                 [[IF:CanHaveValue == true && IsRequired == true:
-                    <p b-show=""[FIELD].isValidated==true && [FIELD].isValid==false && [FIELD].requiredError==true"" class=""[[Settings.RequiredMessageCssClass??b-invalid-message]]"">[[Settings.RequiredMessage]]</p>
+                    <p b-show=""[FIELD].isValidated==true && [FIELD].isValid==false && [FIELD].requiredError==true"" class=""[[Settings.RequiredMessageCssClass??b-field-invalid-message]]"">[[Settings.RequiredMessage]]</p>
                 ]]
                 [[IF:CanHaveValue == true && GlobalSettings.EnableValidationPattern == true && Settings.ValidationPattern != null:
-                    <p b-show=""[FIELD].isValidated && ![FIELD].isValid && [FIELD].patternError"" class=""[[Settings.ValidationMessageCssClass??b-pattern-message]]"">[[Settings.ValidationMessage]]</p>
+                    <p b-show=""[FIELD].isValidated && ![FIELD].isValid && [FIELD].patternError"" class=""[[Settings.ValidationMessageCssClass??b-field-pattern-message]]"">[[Settings.ValidationMessage]]</p>
                 ]]
                 [[IF:GlobalSettings.Subtext != null:
-                    <span class=""[[Settings.SubtextCssClass??b-subtext]]"">[[Settings.Subtext]]</span>
+                    <span class=""[[Settings.SubtextCssClass??b-field-subtext]]"">[[Settings.Subtext]]</span>
                 ]]
             </div>";
 
@@ -148,16 +148,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                 }
 
                 fieldTemplate = _fieldLayout.Replace("[FIELD-COMPONENT]", fieldTemplate);
-
-                // --------------------- PARSE Field Show Conditions --------------------------
-                if (field.ShowConditions != null && field.ShowConditions.Any())
-                {
-                    fieldTemplate = fieldTemplate.Replace("[FIELD-DISPLAY-EXPRESSION]", $@"b-if=""field.{field.FieldName}.IsShow""");
-                }
-                else
-                {
-                    fieldTemplate = fieldTemplate.Replace("[FIELD-DISPLAY-EXPRESSION]", "");
-                }
 
                 string json = Newtonsoft.Json.JsonConvert.SerializeObject(field);
                 JObject jObject = JObject.Parse(json);

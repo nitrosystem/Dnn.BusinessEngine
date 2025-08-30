@@ -1,9 +1,9 @@
 export function BindText(app, expressionService) {
     return {
-        compile: function (attrs, element, controller) {
+        compile: function (attrs, element, scope) {
             const expr = attrs['b-text'];
             const render = () => {
-                const value = expressionService.evaluateExpression(expr, controller)
+                const value = expressionService.evaluateExpression(expr, scope)
                 if (value !== null && value !== undefined)
                     $(element).html(
                         typeof (value) == 'string'
@@ -14,7 +14,7 @@ export function BindText(app, expressionService) {
 
             render();
 
-            app.listenTo(controller, expr, render);
+            app.listenTo(expr, scope, render);
         }
     }
 }

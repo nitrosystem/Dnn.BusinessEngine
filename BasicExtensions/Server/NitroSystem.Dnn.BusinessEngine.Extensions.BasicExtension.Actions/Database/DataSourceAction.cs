@@ -1,4 +1,5 @@
 ﻿using DotNetNuke.Abstractions.Portals;
+using DotNetNuke.Entities.Portals;
 using Newtonsoft.Json.Linq;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Contracts;
@@ -22,21 +23,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.Data
             _service = service;
         }
 
-        public async Task<IActionResult> ExecuteAsync(ActionDto action, IPortalSettings portalSettings)
+        public async Task<IActionResult> ExecuteAsync(ActionDto action, PortalSettings portalSettings)
         {
             IActionResult result = new ActionResult();
 
             try
             {
-                var data = await _service.GetDataSourceService(action);
+                var data = await _service.GetDataSourceService(action, portalSettings);
+                var dict = new Dictionary<string, object>
+                        {
+                            { "Items", data.Items } ,
+                            { "TotalCount",  data.TotalCount }
+                        };
 
-                var jObject = new JObject
-                {
-                    ["Items"] = JToken.FromObject(data.Items),
-                    ["TotalCount"] = JToken.FromObject(data.TotalCount)
-                };
-
-                result.Data = jObject;
+                result.Data = dict;
                 result.ResultStatus = ActionResultStatus.Successful;
             }
             catch (Exception ex)

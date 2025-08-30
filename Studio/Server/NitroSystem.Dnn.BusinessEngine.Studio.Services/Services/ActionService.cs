@@ -6,7 +6,6 @@ using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
@@ -28,6 +27,8 @@ using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using System.Collections.Concurrent;
 using System.Threading;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
+using NitroSystem.Dnn.BusinessEngine.Core.General;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -77,17 +78,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             var actions = results.Item1;
             var totalCount = results.Item2;
 
-            return (ActionMapping.MapActionsViewModel(actions, Enumerable.Empty<ActionParamInfo>(), Enumerable.Empty<ActionConditionInfo>()), totalCount);
+            return (ActionMapping.MapActionsViewModel(actions, Enumerable.Empty<ActionParamInfo>()), totalCount);
         }
 
         public async Task<ActionViewModel> GetActionViewModelAsync(Guid actionId)
         {
             var action = await _repository.GetAsync<ActionView>(actionId);
             var actionsResults = await _repository.GetByScopeAsync<ActionResultInfo>(actionId);
-            var actionsConditions = await _repository.GetByScopeAsync<ActionConditionInfo>(actionId);
             var actionsParams = await _repository.GetByScopeAsync<ActionParamInfo>(actionId);
 
-            return ActionMapping.MapActionViewModel(action, actionsResults, actionsConditions, actionsParams);
+            return ActionMapping.MapActionViewModel(action, actionsResults, actionsParams);
         }
 
         public async Task<Guid> SaveActionAsync(ActionViewModel action, bool isNew)
@@ -98,7 +98,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             var actionObjects = ActionMapping.MapActionInfoWithChilds(action);
             var objActionInfo = actionObjects.Action;
             var actionResults = actionObjects.Results;
-            var actionConditions = actionObjects.Conditions;
             var actionParams = actionObjects.Params;
 
             await semaphore.WaitAsync();
@@ -114,15 +113,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                     else
                     {
                         var isUpdated = await _repository.UpdateAsync<ActionInfo>(objActionInfo);
-                        if (!isUpdated) ErrorService.ThrowUpdateFailedException(objActionInfo);
+                        if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objActionInfo);
 
                         await _repository.DeleteByScopeAsync<ActionResultInfo>(objActionInfo.Id);
-                        await _repository.DeleteByScopeAsync<ActionConditionInfo>(objActionInfo.Id);
                         await _repository.DeleteByScopeAsync<ActionParamInfo>(objActionInfo.Id);
                     }
 
                     await _repository.BulkInsertAsync<ActionResultInfo>(actionResults.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
-                    await _repository.BulkInsertAsync<ActionConditionInfo>(actionConditions.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
                     await _repository.BulkInsertAsync<ActionParamInfo>(actionParams.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
 
                     _unitOfWork.Commit();

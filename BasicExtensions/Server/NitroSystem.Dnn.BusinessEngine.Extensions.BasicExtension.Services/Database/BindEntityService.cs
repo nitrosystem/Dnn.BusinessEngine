@@ -9,35 +9,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Database;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DB.Entities;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using DotNetNuke.Entities.Portals;
+using System.Web;
+using System.Reflection;
+using DotNetNuke.Abstractions.Portals;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Views;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Database
 {
-    public class BindEntityService : IBindEntityService
-    {
-        private readonly IDbConnection _connection;
-        private readonly IRepositoryBase _repository;
+	public class BindEntityService : IBindEntityService
+	{
+		private readonly IDbConnection _connection;
+		private readonly IRepositoryBase _repository;
+		private readonly ITypeLoaderFactory _typeLoaderFactory;
 
-        public BindEntityService(IDbConnection connection, IRepositoryBase repository)
-        {
-            _connection = connection;
-            if (_connection.State == ConnectionState.Closed)
-                _connection.Open();
+		public BindEntityService(IDbConnection connection, IRepositoryBase repository, ITypeLoaderFactory typeLoaderFactory)
+		{
+			_connection = connection;
+			if (_connection.State == ConnectionState.Closed)
+				_connection.Open();
 
-            _repository = repository;
-        }
+			_repository = repository;
+			_typeLoaderFactory = typeLoaderFactory;
+		}
 
-        public async Task<object> GetBindEntityService(ActionDto action)
-        {
-            var spParams = DbShared.FillSqlParams(action.Params);
+		public async Task<object> GetBindEntityService(ActionDto action, PortalSettings portalSettings)
+		{
+			var spParams = DbShared.FillSqlParams(action.Params);
+			var data = await _repository.GetByColumnAsync<BindEntityServiceView>("ServiceId", action.ServiceId.Value);
+			var type = _typeLoaderFactory.GetTypeFromAssembly(data.TypeRelativePath, data.TypeFullName, data.ScenarioName, portalSettings);
 
-            var spName = await _repository.GetColumnValueAsync<BindEntityServiceInfo, string>("StoredProcedureName", "ServiceId", action.ServiceId);
+			var result = await _connection.QuerySingleAsync(type, data.StoredProcedureName, spParams,
+				commandType: CommandType.StoredProcedure, commandTimeout: int.MaxValue);
 
-            return await _connection.QuerySingleAsync(spName, spParams, commandType: CommandType.StoredProcedure, commandTimeout: int.MaxValue);
-        }
-    }
+			return result;
+		}
+	}
 }

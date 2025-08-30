@@ -38,6 +38,7 @@ export class CreateAppModelController {
         };
 
         this.apiService.get("Studio", "GetAppModel", { appModelId: id || null }).then((data) => {
+            this.propertyTypes = data.PropertyTypes;
             this.appModels = data.AppModels;
             this.appModel = data.AppModel;
             if (!this.appModel) {

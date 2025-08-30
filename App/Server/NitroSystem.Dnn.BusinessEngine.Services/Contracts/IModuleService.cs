@@ -1,7 +1,7 @@
 ﻿using DotNetNuke.Data;
 using DotNetNuke.Entities.Portals;
 using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels;
@@ -38,6 +38,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
 
         Task<IEnumerable<ModuleVariableDto>> GetModuleVariables(Guid moduleId, ModuleVariableScope scope);
 
-        #endregion    
+        Task<IEnumerable<ModuleClientVariableDto>> GetModuleClientVariables(Guid moduleId);
+
+        #endregion
     }
 }
