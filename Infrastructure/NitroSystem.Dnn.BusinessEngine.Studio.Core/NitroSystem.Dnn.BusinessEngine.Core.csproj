@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A2CAF8DA-7B01-48D1-8FD6-C6CC8E755987}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NitroSystem.Dnn.BusinessEngine.Core</RootNamespace>
+    <AssemblyName>NitroSystem.Dnn.BusinessEngine.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Dapper.2.1.66\lib\net461\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetNuke, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\DotNetNuke.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetNuke.Abstractions, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotNetNuke.Abstractions.9.4.4\lib\netstandard2.0\DotNetNuke.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotNetNuke.DependencyInjection.9.4.4\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.11.17.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\HtmlAgilityPack.1.11.17\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.1\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.JScript" />
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Reflection.Metadata, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reflection.Metadata.8.0.0\lib\net462\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ADO.NET\ISqlQueryExecutor.cs" />
+    <Compile Include="ADO.NET\SqlDataReaderExtensions.cs" />
+    <Compile Include="ADO.NET\SqlQueryExecutor.cs" />
+    <Compile Include="Attributes\AttributeCache.cs" />
+    <Compile Include="Attributes\AttributeExtensions.cs" />
+    <Compile Include="Attributes\CacheableAttribute.cs" />
+    <Compile Include="Attributes\EntityAttribute.cs" />
+    <Compile Include="Attributes\ScopeAttribute.cs" />
+    <Compile Include="Attributes\TableAttribute.cs" />
+    <Compile Include="Attributes\TableNameAttribute.cs" />
+    <Compile Include="ClientResources\ClientResourceManager.cs" />
+    <Compile Include="Contracts\IExpressionService.cs" />
+    <Compile Include="Contracts\ITypeLoaderFactory.cs" />
+    <Compile Include="General\GlobalItems.cs" />
+    <Compile Include="General\StringExtensions.cs" />
+    <Compile Include="Infrastructure\BackgroundService\BackgroundService.cs" />
+    <Compile Include="Cashing\CacheServiceBase.cs" />
+    <Compile Include="Cashing\ICacheService.cs" />
+    <Compile Include="Contracts\IDto.cs" />
+    <Compile Include="Contracts\IEntity.cs" />
+    <Compile Include="Contracts\IExecuteSqlCommand.cs" />
+    <Compile Include="Contracts\IField.cs" />
+    <Compile Include="Contracts\IRepositoryBase.cs" />
+    <Compile Include="Contracts\IServiceLocator.cs" />
+    <Compile Include="Contracts\IViewModel.cs" />
+    <Compile Include="Enums\ActionResultStatus.cs" />
+    <Compile Include="Enums\DtoType.cs" />
+    <Compile Include="Enums\ModuleType.cs" />
+    <Compile Include="Enums\ModuleWrapper.cs" />
+    <Compile Include="Enums\ServiceResultType.cs" />
+    <Compile Include="Infrastructure\ExpressionParser\ExpressionBuilder\ExpressionFunctions.cs" />
+    <Compile Include="Infrastructure\ExpressionParser\ExpressionBuilder\ExpressionService.cs" />
+    <Compile Include="Infrastructure\ExpressionParser\ConditionParser\ComparisonNode.cs" />
+    <Compile Include="Infrastructure\ExpressionParser\ConditionParser\ConditionNode.cs" />
+    <Compile Include="Infrastructure\ExpressionParser\ConditionParser\ConditionParser.cs" />
+    <Compile Include="Infrastructure\ExpressionParser\ConditionParser\LogicalNode.cs" />
+    <Compile Include="Infrastructure\ExpressionParser\ConditionParser\Temp.cs" />
+    <Compile Include="Infrastructure\TypeGeneration\AssemblyBuilderHost.cs" />
+    <Compile Include="Infrastructure\TypeGeneration\GeneratedModelAttribute.cs" />
+    <Compile Include="Infrastructure\TypeGeneration\GeneratedTypeRegistry.cs" />
+    <Compile Include="Infrastructure\TypeGeneration\ModelDefinition.cs" />
+    <Compile Include="Infrastructure\TypeGeneration\ModelDefinitionJson.cs" />
+    <Compile Include="Infrastructure\TypeGeneration\PropertyDefinition.cs" />
+    <Compile Include="Infrastructure\TypeGeneration\TypeGenerationFactory.cs" />
+    <Compile Include="Infrastructure\TypeLoader\PluginLoader.cs" />
+    <Compile Include="Infrastructure\TypeProvider\DynamicMethodExecutor.cs" />
+    <Compile Include="Infrastructure\TypeProvider\Extensions.cs" />
+    <Compile Include="IO\BatchExecutor.cs" />
+    <Compile Include="Mapper\HybridMapper.cs" />
+    <Compile Include="Mapper\HybridMapperWithExpressions.cs" />
+    <Compile Include="Providers\CurrentUserProvider.cs" />
+    <Compile Include="Infrastructure\ServiceLocator\ServiceLocator.cs" />
+    <Compile Include="Contracts\TokenBase.cs" />
+    <Compile Include="Enums\Scope.cs" />
+    <Compile Include="Infrastructure\TypeLoader\TypeLoaderFactory.cs" />
+    <Compile Include="Infrastructure\TypeLoader\TypeDescriptor.cs" />
+    <Compile Include="Security\Encryptor.cs" />
+    <Compile Include="Security\ErrorHandling.cs" />
+    <Compile Include="Security\Models\EncryptedModel.cs" />
+    <Compile Include="Security\SafeSqlExecutor.cs" />
+    <Compile Include="Security\TokenGenerator.cs" />
+    <Compile Include="Infrastructure\TypeProvider\TypeProvider.cs" />
+    <Compile Include="Mapper\CustomMapper.cs" />
+    <Compile Include="Mapper\ExpressionMapper.cs" />
+    <Compile Include="Mapper\IMapper.cs" />
+    <Compile Include="Mapper\MapperConfiguration.cs" />
+    <Compile Include="Mapper\MappingExpression.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Startup\Startup.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWork.cs" />
+    <Compile Include="UnitOfWork\PagingInfo.cs" />
+    <Compile Include="UnitOfWork\UnitOfWork.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Common\NitroSystem.Dnn.BusinessEngine.Common.csproj">
+      <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>IF NOT ($(ConfigurationName)) == (Debug) GOTO END
+cd $(ProjectDir)
+copy /y obj\debug\NitroSystem.Dnn.BusinessEngine.Core.dll  D:\Wokstation\Dnn\dnndev.new\bin
+:END</PostBuildEvent>
+  </PropertyGroup>
+</Project>
