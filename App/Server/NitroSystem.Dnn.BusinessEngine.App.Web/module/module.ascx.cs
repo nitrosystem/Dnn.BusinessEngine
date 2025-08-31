@@ -35,7 +35,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             {
                 string moduleParamValue = _id.HasValue ? _id.ToString() : this.ModuleId.ToString();
 
-                return ResolveUrl(string.Format("~/DesktopModules/BusinessEngine/studio/studio.aspx?s={0}&p={1}&a={2}&m=create-module&id={3}&ru={4}", _scenarioName, this.PortalId, this.PortalAlias.PortalAliasID, moduleParamValue, this.TabId));
+                return ResolveUrl(string.Format("~/DesktopModules/BusinessEngine/studio.aspx?s={0}&p={1}&a={2}&m=create-module&id={3}&ru={4}", _scenarioName, this.PortalId, this.PortalAlias.PortalAliasID, moduleParamValue, this.TabId));
             }
         }
 

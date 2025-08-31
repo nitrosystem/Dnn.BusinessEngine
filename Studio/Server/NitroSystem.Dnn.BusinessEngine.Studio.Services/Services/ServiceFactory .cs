@@ -149,7 +149,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 try
                 {
                     if (isNew)
-                        objServiceInfo.Id = await _repository.AddAsync<ServiceInfo>(objServiceInfo);
+                        objServiceInfo.Id = service.Id = await _repository.AddAsync<ServiceInfo>(objServiceInfo);
                     else
                     {
                         var isUpdated = await _repository.UpdateAsync<ServiceInfo>(objServiceInfo);

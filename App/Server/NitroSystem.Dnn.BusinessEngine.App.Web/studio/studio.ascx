@@ -8,7 +8,7 @@
                 <img src="/Portals/0/Images/logo.png" />
                 <hr />
                 <p class="box-text">Open studio in standalone page(high performance)</p>
-                <a href="/DesktopModules/BusinessEngine/studio.aspx?p=<%=this.PortalId%>&a=<%=this.PortalAlias.PortalAliasId%>" target="_blank" class="box-button" >Goto Studio Panel</a>
+                <a href="/DesktopModules/BusinessEngine/studio.aspx?p=<%=this.PortalId%>&a=<%=this.PortalAlias.PortalAliasID%>" target="_blank" class="box-button" >Goto Studio Panel</a>
             </div>
         </div>
     </div>
@@ -20,7 +20,7 @@
     window.bEngineGlobalSettings = {
         scenarioName: '<%=this.ScenarioNameParam%>',
         portalId: parseInt('<%=this.PortalId%>'),
-        portalAliasId: parseInt('<%=this.PortalAlias.PortalAliasId%>'),
+        portalAliasId: parseInt('<%=this.PortalAlias.PortalAliasID%>'),
         userId: parseInt('<%=this.UserId%>'),
         dnnModuleId: parseInt('<%=this.ModuleId%>'),
         dnnTabId: parseInt('<%=this.DnnTabId%>'),
