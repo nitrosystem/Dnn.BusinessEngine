@@ -1375,7 +1375,7 @@ export class CreateModuleModuleBuilderController {
             this.module.LayoutCssBackup != this.module.LayoutCss
         ) {
             this.apiService.post("Module", "SaveModuleTemplate", {
-                ModuleId: this.module.Id,
+                Id: this.module.Id,
                 Template: this.module.Template,
                 LayoutTemplate: this.module.LayoutTemplate,
                 LayoutCss: this.module.LayoutCss
