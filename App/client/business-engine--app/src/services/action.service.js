@@ -8,7 +8,7 @@ export class ActionService {
         this.apiService = apiService;
         this.expressionService = expressionService;
 
-        this.scopeCache = {};
+        this.controllerCache = {};
     }
 
     async callActions(event, actions, scope) {
@@ -46,18 +46,21 @@ export class ActionService {
     }
 
     async callClientAction(action, scope) {
-        const isTrue = expressionService.evaluateExpression(action.Conditions, scope);
+        const isTrue = action.Conditions
+            ? this.expressionService.evaluateExpression(action.Conditions, scope)
+            : true;
+
         if (typeof isTrue == 'string') isTrue = JSON.parse(value);
 
         if (!isTrue)
             return 3;
 
-        let scopeInstance = this.scopeCache[action.ActionType];
+        let scopeInstance = this.controllerCache[action.ActionType];
         if (!scopeInstance) {
             const ControllerClass = ActionRegistry.resolve(action.ActionType);
             if (typeof ControllerClass === 'function') {
                 scopeInstance = new ControllerClass(scope, this);
-                this.scopeCache[action.ActionType] = scopeInstance;
+                this.controllerCache[action.ActionType] = scopeInstance;
             }
         }
 
@@ -132,14 +135,17 @@ export class ActionService {
 
         const dfs = n => {
             const isTrue = !n.ParentId && n.Preconditions ?
-                expressionService.evaluateExpression(n.Preconditions, scope)
+                this.expressionService.evaluateExpression(n.Preconditions, scope)
                 : true;
 
             if (typeof isTrue == 'string') isTrue = JSON.parse(value);
 
             if (isTrue) {
-                result.push(n.Id);
-                if (n.children && n.children.length) n.children.forEach(child => dfs(child));
+                if (!n.ExecuteInClientSide)
+                    result.push(n.Id);
+
+                if (n.children && n.children.length)
+                    n.children.forEach(child => dfs(child));
             }
         };
 

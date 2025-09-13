@@ -60,9 +60,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         #region 1-Basic Options
 
         [HttpGet]
-        public HttpResponseMessage GetModuleBasicOptions()
+        public async Task<HttpResponseMessage> GetModuleBasicOptions()
         {
-            return Request.CreateResponse(HttpStatusCode.OK);
+            return await GetModuleBasicOptions(Guid.Empty);
         }
 
         [HttpGet]

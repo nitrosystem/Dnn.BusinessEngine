@@ -28,7 +28,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public bool CanHaveValue  { get; set; }
         public bool HasDataSource { get; set; }
         public bool IsContentField { get; set; }
-        public object DefaultSettings { get; set; }
+        public string DefaultSettings { get; set; }
         public string ValidationPattern { get; set; }
         public string Icon { get; set; }
         public bool IsEnabled { get; set; }

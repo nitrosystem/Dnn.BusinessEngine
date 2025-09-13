@@ -16,6 +16,7 @@ using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using System.Threading.Tasks;
 using DotNetNuke.Common.Utilities;
 using NitroSystem.Dnn.BusinessEngine.App.Web.Models;
+using DotNetNuke.Framework;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
@@ -23,19 +24,30 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
     {
         #region Properties
 
-        public Guid? _id { get; set; }
+        private Guid? _id { get; set; }
 
-        public string _scenarioName { get; set; }
+        private string _scenarioName { get; set; }
 
-        public string _moduleName { get; set; }
+        private string _moduleName { get; set; }
+
+        private string _siteRoot
+        {
+            get
+            {
+                var siteRoot = ServicesFramework.GetServiceFrameworkRoot();
+                return siteRoot == "/"
+                    ? string.Empty
+                    : "&sr=" + siteRoot;
+            }
+        }
 
         private string _studioUrl
         {
             get
             {
-                string moduleParamValue = _id.HasValue ? _id.ToString() : this.ModuleId.ToString();
+                string moduleParam = _id.HasValue ? "id=" + _id.ToString() : "d=" + this.ModuleId.ToString();
 
-                return ResolveUrl(string.Format("~/DesktopModules/BusinessEngine/studio.aspx?s={0}&p={1}&a={2}&m=create-module&id={3}&ru={4}", _scenarioName, this.PortalId, this.PortalAlias.PortalAliasID, moduleParamValue, this.TabId));
+                return ResolveUrl(string.Format("~/DesktopModules/BusinessEngine/studio.aspx?s={0}{1}&m=create-module&{2}&ru={3}", _scenarioName, _siteRoot, moduleParam, this.TabId));
             }
         }
 

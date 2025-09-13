@@ -141,7 +141,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             return await _cacheService.GetOrCreate<IEnumerable<T>>(cacheKey, () =>
              _unitOfWork.Connection.QueryAsync<T>(
                 query,
-                new { Value = value }
+                new { Value = value },
+                transaction: _unitOfWork.Transaction
             ), cacheAttr.timeOut);
         }
 

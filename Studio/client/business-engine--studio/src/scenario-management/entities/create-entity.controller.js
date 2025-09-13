@@ -51,7 +51,9 @@ export class CreateEntityController {
                 this.entity = {
                     ScenarioId: GlobalSettings.scenarioId,
                     EntityType: 0,
-                    Settings: {},
+                    Settings: {
+                        DatabaseObjectPrefixName: this.$rootScope.scenario.DatabaseObjectPrefix
+                    },
                     Columns: [{
                         ColumnName: "Id",
                         ColumnType: "int",

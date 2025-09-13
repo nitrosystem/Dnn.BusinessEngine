@@ -91,7 +91,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
         {
             var mapper = new ExpressionMapper<ModuleFieldTypeView, ModuleFieldTypeViewModel>();
             mapper.AddCustomMapping(src => src.Icon, dest => dest.Icon, src => src.Icon.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"));
-            mapper.AddCustomMapping(src => src.DefaultSettings, dest => dest.DefaultSettings, src => TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.DefaultSettings.ToString()));
+            mapper.AddCustomMapping(src => src.DefaultSettings, dest => dest.DefaultSettings,
+                src => TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.DefaultSettings),
+                condition => condition.DefaultSettings != null
+            );
             mapper.AddCustomMapping(src => src, dest => dest.Templates,
                 src => MapModuleFieldTypeTemplatesViewModel(templates),
                 condition => templates != null && templates.Any()

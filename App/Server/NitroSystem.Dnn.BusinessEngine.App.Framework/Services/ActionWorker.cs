@@ -188,7 +188,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
 
             foreach (var action in actions)
             {
-                if (action.ParentId == null)
+                if (action.ParentId == null || actions.Select(a => a.Id).Contains(action.ParentId.Value) == false)
                 {
                     // ریشه‌ها
                     roots.Enqueue(lookup[action.Id]);

@@ -20,13 +20,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System.Globalization;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
 using NitroSystem.Dnn.BusinessEngine.Common.IO;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -212,8 +212,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
                     if (queries.Length > 0)
                     {
-                        string token = TokenGenerator.GenerateToken(entity.TableName);
-                        await _repository.ExecuteQueryByToken(token, entity.TableName, queries.ToString());
+                        var sqlCommand = new ExecuteSqlCommand(_unitOfWork);
+                        await sqlCommand.ExecuteSqlCommandTextAsync(queries.ToString());
                     }
                 }
 

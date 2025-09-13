@@ -20,7 +20,7 @@ export class ApiService {
     getApi(module, controller, methodName, params, customHeaders) {
         const defer = this.$q.defer();
 
-        const url = GlobalSettings.apiBaseUrl + module + '/API/' + controller + "/" + methodName;
+        const url = `${GlobalSettings.siteRoot}API/${module}/${controller}/${methodName}`;
 
         var headers = customHeaders ?? GlobalSettings.apiHeaders;
         headers = { ...headers, ... { Requestverificationtoken: $('[name="__RequestVerificationToken"]').val() } };
@@ -44,7 +44,8 @@ export class ApiService {
                         Swal.showLoading();
                         const timer = Swal.getPopup().querySelector("b");
                         timerInterval = setInterval(() => {
-                            timer.textContent = `${Swal.getTimerLeft()}`;
+                            timer.textContent = `${Swal.getTimerLeft()
+                                }`;
                         }, 100);
                     },
                     willClose: () => {
@@ -80,7 +81,7 @@ export class ApiService {
     postApi(module, controller, methodName, data, params, customHeaders) {
         const defer = this.$q.defer();
 
-        const url = GlobalSettings.apiBaseUrl + module + '/API/' + controller + "/" + methodName;
+        const url = `${GlobalSettings.siteRoot}API/${module}/${controller}/${methodName}`;
 
         var headers = customHeaders ?? GlobalSettings.apiHeaders;
         headers = { ...headers, ... { Requestverificationtoken: $('[name="__RequestVerificationToken"]').val() } };
@@ -105,7 +106,7 @@ export class ApiService {
                         Swal.showLoading();
                         const timer = Swal.getPopup().querySelector("b");
                         timerInterval = setInterval(() => {
-                            timer.textContent = `${Swal.getTimerLeft()}`;
+                            timer.textContent = `${Swal.getTimerLeft()} `;
                         }, 100);
                     },
                     willClose: () => {
@@ -135,7 +136,8 @@ export class ApiService {
     }
 
     uploadFile(controller, methodName, data, customHeaders) {
-        const url = GlobalSettings.apiBaseUrl + 'BusinessEngineStudio/API/' + controller + "/" + methodName;
+        const url = `${GlobalSettings.siteRoot}API/${module}/${controller}/${methodName}`;
+      
         return this.upload(url, data, customHeaders);
     }
 
@@ -166,7 +168,7 @@ export class ApiService {
     uploadFileByAngular(controller, methodName, file, customHeaders) {
         const defer = this.$q.defer();
 
-        const url = GlobalSettings.apiBaseUrl + 'BusinessEngineStudio/API/' + controller + "/" + methodName;
+        const url = `${GlobalSettings.siteRoot}API/${module}/${controller}/${methodName}`;
 
         var headers = customHeaders ?? GlobalSettings.apiHeaders;
         headers = { ...headers, ... { Requestverificationtoken: $('[name="__RequestVerificationToken"]').val() } };
