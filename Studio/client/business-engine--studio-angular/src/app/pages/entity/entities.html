@@ -1,0 +1,53 @@
+<p-panel header="Entities" [toggleable]="true" styleClass="p-mb-3 p-shadow-3 p-bg-dark">
+
+    <div class="grid">
+        @for (entity of entities(); track entity.Id;let i = $index) {
+        <div class="col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2">
+            <p-card class="p-mb-2">
+                <ng-template pTemplate="header">
+                    <div class="flex justify-between items-center">
+
+                        <h5 (click)="toggleExpand(entity)" style="cursor:pointer;">
+                            {{ entity.EntityName }}
+                            <i class="pi"
+                                [ngClass]="{'pi-chevron-down': entity.expanded, 'pi-chevron-right': !entity.expanded}"></i>
+                        </h5>
+
+                        <p-menu #menu [model]="menuItems" popup="true"></p-menu>
+                        <button pButton type="button" icon="pi pi-cog" class="p-button-text p-button-secondary"
+                            (click)="menu.toggle($event)"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="content">
+                    @if(!entity.expanded){
+                    <ul class="mt-2 ml-3">
+                        @for (column of entity.Columns; track column.Id) {
+                        <li>
+                            {{ column.ColumnName }}
+                        </li>
+                        }
+                    </ul>
+                    }
+                </ng-template>
+            </p-card>
+            <p-select [options]="entities()" [(ngModel)]="entity.EntityName" optionLabel="EntityName"
+                optionValue="EntityName" placeholder="Select a City" class="w-full md:w-56" />
+        </div>
+        }
+    </div>
+    <div class="card flex flex-wrap gap-4 justify-center">
+        <p-button label="Primary" [raised]="true" />
+        <p-button label="Secondary" [raised]="true" severity="secondary" />
+        <p-button label="Success" [raised]="true" severity="success" />
+        <p-button label="Info" [raised]="true" severity="info" />
+        <p-button label="Warn" [raised]="true" severity="warn" />
+        <p-button label="Help" [raised]="true" severity="help" />
+        <p-button label="Danger" [raised]="true" severity="danger" />
+        <p-button label="Contrast" [raised]="true" severity="contrast" />
+    </div>
+</p-panel>
+
+<button class="btn btn-primary" (click)="openAddModal()">افزودن Entity</button>
+
+<router-outlet></router-outlet>
