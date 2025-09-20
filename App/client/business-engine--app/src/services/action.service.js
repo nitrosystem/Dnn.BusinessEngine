@@ -110,11 +110,11 @@ export class ActionService {
     }
 
     buildActionTree(actions, event) {
-        const clonedActions = _.cloneDeep(actions);
-        const rootActions = _.filter(clonedActions, (a) => { return !a.ParentId && a.Event === event });
-        const lookup = _.keyBy(clonedActions, 'Id');
+        const clonedActions = this.globalService.cloneDeep(actions);
+        const rootActions = clonedActions.filter(a => { return !a.ParentId && a.Event === event });
+        const lookup = this.globalService.keyBy(clonedActions, 'Id');
 
-        for (const action of _.filter(clonedActions, (a) => { return !!a.ParentId })) {
+        for (const action of clonedActions.filter(a => { return !!a.ParentId })) {
             lookup[action.ParentId].children = lookup[action.ParentId].children ?? [];
             lookup[action.ParentId].children.push(lookup[action.Id]);
         }

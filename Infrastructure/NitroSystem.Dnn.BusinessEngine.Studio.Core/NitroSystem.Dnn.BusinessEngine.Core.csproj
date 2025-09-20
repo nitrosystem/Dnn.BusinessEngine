@@ -98,6 +98,9 @@
     <Compile Include="Contracts\ITypeLoaderFactory.cs" />
     <Compile Include="General\GlobalItems.cs" />
     <Compile Include="General\StringExtensions.cs" />
+    <Compile Include="Infrastructure\Asynchronous\AsyncTaskWrapper.cs" />
+    <Compile Include="Infrastructure\Asynchronous\IAsyncTaskManager.cs" />
+    <Compile Include="Infrastructure\Asynchronous\MultiAsyncTaskManager.cs" />
     <Compile Include="Infrastructure\BackgroundService\BackgroundService.cs" />
     <Compile Include="Cashing\CacheServiceBase.cs" />
     <Compile Include="Cashing\ICacheService.cs" />

@@ -160,7 +160,10 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "business-engine--studio-ang
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "62103"
+		SlnRelativePath = "Studio\client\business-engine--studio-angular20-alpha\"
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.App.Web.Mvc", "App\Server\NitroSystem.Dnn.BusinessEngine.App.Web.Mvc\NitroSystem.Dnn.BusinessEngine.App.Web.Mvc.csproj", "{D79AE31F-AEF2-464C-AE90-DE7E0912B86E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -240,6 +243,10 @@ Global
 		{EC3916F3-509D-76EA-5058-97A551DB81FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC3916F3-509D-76EA-5058-97A551DB81FA}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{EC3916F3-509D-76EA-5058-97A551DB81FA}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{D79AE31F-AEF2-464C-AE90-DE7E0912B86E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D79AE31F-AEF2-464C-AE90-DE7E0912B86E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D79AE31F-AEF2-464C-AE90-DE7E0912B86E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D79AE31F-AEF2-464C-AE90-DE7E0912B86E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -269,6 +276,7 @@ Global
 		{5631D3CE-0D04-47B0-9517-293ECD1B8DE0} = {94B4D9B5-39F5-4F20-A731-6A422A8F3B14}
 		{5A02FEDF-07E2-43AB-98EF-128D508FAAB6} = {53990977-A8DC-46A8-9DA7-F6AEACEF0911}
 		{EC3916F3-509D-76EA-5058-97A551DB81FA} = {73421990-3AE0-4E07-9E48-DDB5AC39CD57}
+		{D79AE31F-AEF2-464C-AE90-DE7E0912B86E} = {D65682D6-7E27-4DF3-972D-56AA80F8F27E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B965EC00-B028-4FE7-9725-D2AECFAC2990}

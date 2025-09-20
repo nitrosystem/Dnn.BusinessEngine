@@ -9,7 +9,7 @@ export class ModuleController {
 
     //#region Event Methods
 
-    async onLoad(moduleId, connectionId) {
+    async onLoad(module, moduleId, connectionId) {
         this.moduleId = moduleId;
         this.connectionId = connectionId;
 
@@ -23,11 +23,13 @@ export class ModuleController {
 
         this.controllerCache = {};
 
-        const module = await this.apiService.getAsync("Module", "GetModule", {
-            moduleId: moduleId,
-            connectionId: connectionId,
-            pageUrl: document.URL
-        });
+        if (!module) {
+            module = await this.apiService.getAsync("Module", "GetModule", {
+                moduleId: moduleId,
+                connectionId: connectionId,
+                pageUrl: document.URL
+            });
+        }
 
         this.scope.variables = module.variables;
 
@@ -57,7 +59,7 @@ export class ModuleController {
             this.scope.field[field.FieldName] = field;
 
             if (field.CanHaveValue && field.FieldValueProperty) {
-                _.forEach(field.ConditionalValues ?? [], (fv) => {
+                (field.ConditionalValues ?? []).forEach(fv => {
                     this.app.listenTo(fv.ValueExpression, this.scope, setFieldConditionalValue, { fieldId: field.Id });
 
                     if (fv.Conditions)
@@ -86,7 +88,7 @@ export class ModuleController {
         // this.actions = this.decodeProtectedData(module.ma);
         this.actions = module.actions;
 
-        const moduleActions = _.filter(this.actions, (a) => { return a.ExecuteInClientSide && !a.FieldId });
+        const moduleActions = this.actions.filter(a => { return a.ExecuteInClientSide && !a.FieldId });
         if (moduleActions.length) await this.actionService.callActions('OnPageLoad', moduleActions, this.scope);
 
         $('.b-engine-module').addClass('is-loaded');
@@ -116,7 +118,7 @@ export class ModuleController {
     //#region Validate Methods
 
     async validateForm() {
-        const fields = _.filter(this.fields, (f) => {
+        const fields = this.fields.filter(f => {
             return f.CanHaveValue || f.IsGroupField
         });
 
@@ -133,13 +135,12 @@ export class ModuleController {
     }
 
     async validatePane(paneName) {
-        let fields = _.filter(this.fields, (f) => {
-            return f.PaneName == paneName;
-        });
+        const fields = this.fields.filter(f => { return f.PaneName == paneName; });
 
-        _.filter(fields, (f) => { return f.IsGroupField; }).map((group) => {
-            fields.push(...this.getGroupFields(group.Id));
-        });
+        fields.filter(f => { return f.IsGroupField; })
+            .map(group => {
+                fields.push(...this.getGroupFields(group.Id));
+            });
 
         this.scope.pane[paneName] = this.scope.pane[paneName] || {};
         this.scope.pane[paneName].isValid = await this.validateFields(fields);
@@ -211,7 +212,7 @@ export class ModuleController {
     //#region Actions Methods
 
     async callActionsByEvent(fieldId, event) {
-        const actions = _.filter(this.actions, (a) => { return a.FieldId == fieldId });
+        const actions = this.actions.filter(a => { return a.FieldId == fieldId });
         await this.actionService.callActions(event, actions, this.scope);
     }
 
@@ -220,18 +221,12 @@ export class ModuleController {
     //#region Field Methods
 
     getFieldById(fieldId) {
-        const field = _.find(this.fields, (f) => {
-            return f.Id == fieldId;
-        });
-
+        const field = this.fields.find(f => { return f.Id == fieldId; });
         return field;
     }
 
     getFieldByName(fieldName) {
-        const field = _.find(this.fields, (f) => {
-            return f.FieldName == fieldName;
-        });
-
+        const field = this.fields.find(f => { return f.FieldName == fieldName; });
         return field;
     }
 
@@ -239,12 +234,9 @@ export class ModuleController {
         let fields = [];
 
         const findNestedFields = (groupId) => {
-            const childs = _.filter(this.fields, (f) => { return f.ParentId == groupId; });
+            const childs = this.fields.filter(f => { return f.ParentId == groupId; });
             fields.push(...childs);
-
-            _.filter(childs, (f) => { return f.IsGroupField; }).map((group) => {
-                findNestedFields(group.Id);
-            });
+            childs.filter(f => { return f.IsGroupField; }).map((group) => { findNestedFields(group.Id); });
         };
 
         findNestedFields(groupId);
@@ -292,7 +284,7 @@ export class ModuleController {
         const matches = expression.match(/(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm);
         (matches ?? []).forEach(match => {
             const propertyPath = match;
-            const watch = _.find(this.watches, (w) => {
+            const watch = this.watches.find(w => {
                 return w.property == propertyPath;
             });
             if (!watch) {

@@ -1,5 +1,3 @@
-import * as acorn from "acorn";
-
 export class ExpressionService {
     constructor() {
         this.ExpressionFunctions = {

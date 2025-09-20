@@ -29,7 +29,32 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.Data
 
             try
             {
-                var data = await _service.GetDataSourceService(action, portalSettings);
+                var data = await _service.GetDataSourceServiceAsync(action, portalSettings);
+                var dict = new Dictionary<string, object>
+                        {
+                            { "Items", data.Items } ,
+                            { "TotalCount",  data.TotalCount }
+                        };
+
+                result.Data = dict;
+                result.ResultStatus = ActionResultStatus.Successful;
+            }
+            catch (Exception ex)
+            {
+                result.ResultStatus = ActionResultStatus.Error;
+                result.ErrorException = ex;
+            }
+
+            return result;
+        }
+
+        public IActionResult Execute(ActionDto action, PortalSettings portalSettings)
+        {
+            IActionResult result = new ActionResult();
+
+            try
+            {
+                var data = _service.GetDataSourceService(action, portalSettings);
                 var dict = new Dictionary<string, object>
                         {
                             { "Items", data.Items } ,

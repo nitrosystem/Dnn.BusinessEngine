@@ -1,85 +1,61 @@
 const path = require("path");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-var webpack = require("webpack");
 
-module.exports = (env) => {
-    return {
-        mode: env.production ? "production" : "development",
-        //mode: "production",
-        devtool: env.production ? "source-map" : "eval-cheap-module-source-map",
-        entry: path.resolve(__dirname, "./src/startup.js"),
-        output: {
-            globalObject: "self",
-            filename: "app.bundle.js",
-            path: path.resolve(__dirname, "dist"),
-            clean: true,
-        },
-        optimization: {
-            minimizer: [
-                new TerserPlugin({
-                    parallel: true,
-                    terserOptions: {
-                        mangle: false,
-                        keep_fnames: true,
-                        keep_classnames: true,
-                    },
-                }),
-            ],
-        },
-        // optimization: {
-        //     minimize: false,
-        // },
-        plugins: [
-            new MiniCssExtractPlugin(),
-            new webpack.ProvidePlugin({
-                $: "jquery",
-                jQuery: "jquery",
-                "window.jQuery": "jquery",
-            }),
-        ],
-        module: {
-            rules: [{
-                test: /\.html$/,
-                exclude: [path.resolve(__dirname, "./node_modules")],
-                use: [{
-                    loader: "ngtemplate-loader",
-                },
-                {
-                    loader: "html-loader",
-                },
-                ],
-            },
-            {
-                test: /\.css$/,
-                use: [MiniCssExtractPlugin.loader, "css-loader"],
-            },
-            {
-                test: /\.(woff(2)?|ttf|eot)$/,
-                generator: {
-                    filename: "./fonts/[name][ext]",
-                },
-            },
-            ],
-        },
-        devServer: {
-            allowedHosts: ["dnndev.new","localhost:8585"],
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-                "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization",
-            },
-            static: {
-                directory: path.join(__dirname, "dist"),
-            },
-        },
-        externals: {
-            angular: "angular",
-            angularfilter: "angular-filter",
-            angularsanitize: "angular-sanitize",
-            lodash: "_",
-            jquery: "jQuery",
-            bootstrap: "bootstrap"
-        },
-    };
+const commonRules = [
+];
+
+const commonOptimization = {
+    minimizer: [
+        new TerserPlugin({
+            parallel: true,
+            terserOptions: { mangle: false, keep_fnames: true, keep_classnames: true },
+        }),
+    ],
 };
+
+const devServer = {
+    allowedHosts: ["localhost:8585"],
+    headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
+    },
+    static: {
+        directory: path.join(__dirname, "dist")
+    }
+};
+
+// 🔹 UMD خروجی برای Razor قدیمی
+const umdConfig = {
+    mode: "production",
+    entry: path.resolve(__dirname, "./src/startup.js"),
+    output: {
+        filename: "business-engine.umd.js",
+        path: path.resolve(__dirname, "dist"),
+        clean: true,
+        library: "BusinessEngineApp",  // نام global برای Razor
+        libraryTarget: "umd",          // UMD خروجی
+        globalObject: "this",
+    },
+    module: { rules: commonRules },
+    externals: {}, // هیچ وابستگی خارجی نداریم
+};
+
+// 🔹 ESM خروجی برای Razor مدرن / import
+const esmConfig = {
+    mode: "production",
+    entry: path.resolve(__dirname, "./src/startup.js"),
+    output: {
+        filename: "business-engine.esm.js",
+        path: path.resolve(__dirname, "dist"),
+        module: true,
+        library: { type: "module" },
+    },
+    experiments: { outputModule: true },
+    optimization: commonOptimization,
+    module: { rules: commonRules },
+    devServer: devServer,
+    externals: {}, // هیچ وابستگی خارجی نداریم
+};
+
+module.exports = [esmConfig];

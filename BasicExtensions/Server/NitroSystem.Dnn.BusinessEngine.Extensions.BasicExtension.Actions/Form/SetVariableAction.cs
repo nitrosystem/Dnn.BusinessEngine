@@ -23,5 +23,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.Form
 
             return new ActionResult() { ResultStatus = ActionResultStatus.Successful };
         }
+
+        public IActionResult Execute(ActionDto action, PortalSettings portalSettings)
+        {
+            return new ActionResult() { ResultStatus = ActionResultStatus.Successful };
+        }
     }
 }

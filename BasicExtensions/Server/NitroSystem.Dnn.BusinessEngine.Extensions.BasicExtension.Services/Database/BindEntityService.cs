@@ -37,7 +37,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dat
 			_typeLoaderFactory = typeLoaderFactory;
 		}
 
-		public async Task<object> GetBindEntityService(ActionDto action, PortalSettings portalSettings)
+		public async Task<object> GetBindEntityServiceAsync(ActionDto action, PortalSettings portalSettings)
 		{
 			var spParams = DbShared.FillSqlParams(action.Params);
 			var data = await _repository.GetByColumnAsync<BindEntityServiceView>("ServiceId", action.ServiceId.Value);
@@ -48,5 +48,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dat
 
 			return result;
 		}
-	}
+
+        public object GetBindEntityService(ActionDto action, PortalSettings portalSettings)
+        {
+            var spParams = DbShared.FillSqlParams(action.Params);
+            var data = _repository.GetByColumn<BindEntityServiceView>("ServiceId", action.ServiceId.Value);
+            var type = _typeLoaderFactory.GetTypeFromAssembly(data.TypeRelativePath, data.TypeFullName, data.ScenarioName, portalSettings);
+
+            var result = _connection.QuerySingle(type, data.StoredProcedureName, spParams,
+                commandType: CommandType.StoredProcedure, commandTimeout: int.MaxValue);
+
+            return result;
+        }
+    }
 }

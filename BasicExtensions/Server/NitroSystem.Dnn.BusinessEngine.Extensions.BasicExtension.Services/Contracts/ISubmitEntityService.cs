@@ -10,6 +10,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Con
 {
    public interface ISubmitEntityService
     {
-        Task<object> SaveEntityRow(ActionDto action, PortalSettings portalSettings);
+        Task<object> SaveEntityRowAsync(ActionDto action, PortalSettings portalSettings);
+        object SaveEntityRow(ActionDto action, PortalSettings portalSettings);
     }
 }

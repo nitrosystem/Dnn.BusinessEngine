@@ -31,6 +31,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.DnnS
         {
             await Task.Yield();
 
+            return Login(action, portalSettings);
+        }
+
+        public IActionResult Execute(ActionDto action, PortalSettings portalSettings)
+        {
+            return Login(action, portalSettings);
+        }
+
+        private IActionResult Login(ActionDto action, PortalSettings portalSettings)
+        {
             var username = action.Params.FirstOrDefault(p => p.ParamName == "@Username").ParamValue;
             var password = action.Params.FirstOrDefault(p => p.ParamName == "@Password").ParamValue;
 

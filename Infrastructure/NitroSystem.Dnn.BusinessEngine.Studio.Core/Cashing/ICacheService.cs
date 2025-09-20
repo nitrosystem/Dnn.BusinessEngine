@@ -9,7 +9,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Cashing
 {
     public interface ICacheService
     {
-        Task<T> GetOrCreate<T>(string cacheKey, Func<Task<T>> factory, int? cacheTimeout = 20);
+        Task<T> GetOrCreateAsync<T>(string cacheKey, Func<Task<T>> factory, int? cacheTimeout = 20);
+        T GetOrCreate<T>(string cacheKey, Func<T> factory, int? cacheTimeout = 20);
+
         T Get<T>(string key);
         void Set<T>(string cacheKey, T value, int? cacheTimeout = 20);
         void Remove(string key);

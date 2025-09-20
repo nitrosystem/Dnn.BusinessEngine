@@ -60,7 +60,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData
                 if (userModules.TryGetValue(moduleId, out var existing))
                     return existing;
 
-                var clonedData = await GetClonedModuleData(moduleId, portalSettings);
+                var clonedData = await GetClonedModuleDataAsync(moduleId, portalSettings);
 
                 userModules[moduleId] = clonedData;
 
@@ -72,7 +72,30 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData
             }
         }
 
-        private async Task<ConcurrentDictionary<string, object>> GetClonedModuleData(Guid moduleId, PortalSettings portalSettings)
+        public ConcurrentDictionary<string, object> GetOrCreateModuleData(string connectionId, Guid moduleId, PortalSettings portalSettings)
+        {
+            var userModules = _store.GetOrAdd(connectionId, _ => new Dictionary<Guid, ConcurrentDictionary<string, object>>());
+            var locker = _locks.GetOrAdd(connectionId, _ => new SemaphoreSlim(1, 1));
+
+            locker.Wait();
+            try
+            {
+                if (userModules.TryGetValue(moduleId, out var existing))
+                    return existing;
+
+                var clonedData = GetClonedModuleData(moduleId, portalSettings);
+
+                userModules[moduleId] = clonedData;
+
+                return clonedData;
+            }
+            finally
+            {
+                locker.Release();
+            }
+        }
+
+        private async Task<ConcurrentDictionary<string, object>> GetClonedModuleDataAsync(Guid moduleId, PortalSettings portalSettings)
         {
             if (!_moduleTemplateCache.TryGetValue(moduleId, out var originalModuleData))
             {
@@ -80,7 +103,67 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData
 
                 var moduleData = new ConcurrentDictionary<string, object>();
 
-                var variables = await _moduleService.GetModuleVariables(moduleId, ModuleVariableScope.ServerSide);
+                var variables = await _moduleService.GetModuleVariablesAsync(moduleId, ModuleVariableScope.ServerSide);
+                foreach (var variable in variables)
+                {
+                    if (variable.VariableType == "AppModel")
+                    {
+                        var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings);
+                        var instance = Activator.CreateInstance(type);
+
+                        moduleData[variable.VariableName] = instance;
+                    }
+                    else if (variable.VariableType == "AppModelList")
+                    {
+                        var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings);
+                        var listType = typeof(List<>).MakeGenericType(type);
+                        var emptyList = Activator.CreateInstance(listType);
+
+                        moduleData[variable.VariableName] = emptyList;
+                    }
+                    else
+                    {
+                        moduleData[variable.VariableName] = TypeChecker.GetSystemTypeDefaultValue(variable.VariableType);
+
+                        if (!string.IsNullOrWhiteSpace(variable.DefaultValue))
+                        {
+                            var setter = _expressionService.BuildDataSetter(variable.VariableName, moduleData);
+                            setter(variable.DefaultValue);
+                        }
+                    }
+
+                    if (variable.Scope == ModuleVariableScope.ServerSide) _serverVariables[moduleId].Add(variable.VariableName);
+                }
+
+                _moduleTemplateCache.TryAdd(moduleId, moduleData);
+                originalModuleData = moduleData;
+            }
+
+            var clonedDict = new ConcurrentDictionary<string, object>();
+            foreach (var kvp in originalModuleData)
+            {
+                if (kvp.Value is ICloneable cloneable)
+                {
+                    clonedDict[kvp.Key] = cloneable.Clone();
+                }
+                else
+                {
+                    clonedDict[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return clonedDict;
+        }
+
+        private ConcurrentDictionary<string, object> GetClonedModuleData(Guid moduleId, PortalSettings portalSettings)
+        {
+            if (!_moduleTemplateCache.TryGetValue(moduleId, out var originalModuleData))
+            {
+                _serverVariables.TryAdd(moduleId, new ConcurrentBag<string>());
+
+                var moduleData = new ConcurrentDictionary<string, object>();
+
+                var variables = _moduleService.GetModuleVariables(moduleId, ModuleVariableScope.ServerSide);
                 foreach (var variable in variables)
                 {
                     if (variable.VariableType == "AppModel")
@@ -148,11 +231,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData
             return filteredData;
         }
 
-        public async Task<ConcurrentDictionary<string, object>> UpdateModuleData(string connectionId, Guid moduleId, Dictionary<string, object> incomingData, PortalSettings portalSettings)
+        public async Task<ConcurrentDictionary<string, object>> UpdateModuleDataAsync(string connectionId, Guid moduleId, Dictionary<string, object> incomingData, PortalSettings portalSettings)
         {
             var moduleData = await GetOrCreateModuleDataAsync(connectionId, moduleId, PortalSettings.Current);
 
-            var variables = await _moduleService.GetModuleVariables(moduleId, ModuleVariableScope.Global);
+            var variables = await _moduleService.GetModuleVariablesAsync(moduleId, ModuleVariableScope.Global);
             foreach (var variable in variables.Where(v => moduleData.Keys.Contains(v.VariableName) && incomingData.Keys.Contains(v.VariableName)))
             {
                 if (variable.VariableType == "AppModel")

@@ -12,6 +12,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Con
 {
     public interface IDataSourceService
     {
-        Task<(IEnumerable<object> Items, int? TotalCount)> GetDataSourceService(ActionDto action, PortalSettings portalSettings);
+        Task<(IEnumerable<object> Items, int? TotalCount)> GetDataSourceServiceAsync(ActionDto action, PortalSettings portalSettings);
+        (IEnumerable<object> Items, int? TotalCount) GetDataSourceService(ActionDto action, PortalSettings portalSettings);
     }
 }

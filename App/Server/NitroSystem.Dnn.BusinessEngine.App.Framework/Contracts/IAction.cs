@@ -14,5 +14,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Contracts
     public interface IAction
     {
         Task<IActionResult> ExecuteAsync(ActionDto action, PortalSettings portalSettings);
+        IActionResult Execute(ActionDto action, PortalSettings portalSettings);
     }
 }

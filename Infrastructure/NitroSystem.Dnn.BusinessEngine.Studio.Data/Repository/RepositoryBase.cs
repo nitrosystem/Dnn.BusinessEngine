@@ -38,8 +38,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var query = $"SELECT * FROM {table} WHERE Id = @Value";
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
-            return await _cacheService.GetOrCreate<T>(cacheAttr.key + $"_{id}", () =>
+            return await _cacheService.GetOrCreateAsync<T>(cacheAttr.key + $"_{id}", () =>
               _unitOfWork.Connection.QuerySingleOrDefaultAsync<T>(
+                query,
+                new { Value = id }
+            ), cacheAttr.timeOut);
+        }
+
+        public T Get<T>(Guid id) where T : class, IEntity, new()
+        {
+            var table = AttributeCache.Instance.GetTableName<T>();
+            var query = $"SELECT * FROM {table} WHERE Id = @Value";
+            var cacheAttr = AttributeCache.Instance.GetCache<T>();
+
+            return _cacheService.GetOrCreate<T>(cacheAttr.key + $"_{id}", () =>
+              _unitOfWork.Connection.QuerySingleOrDefault<T>(
                 query,
                 new { Value = id }
             ), cacheAttr.timeOut);
@@ -54,8 +67,26 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var query = $"SELECT * FROM {table} WHERE {column} = @Value";
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
-            var result = await _cacheService.GetOrCreate<T>(cacheAttr.key + $"_{column}_{value}", () =>
+            var result = await _cacheService.GetOrCreateAsync<T>(cacheAttr.key + $"_{column}_{value}", () =>
              _unitOfWork.Connection.QuerySingleOrDefaultAsync<T>(
+                query,
+                new { Value = value }
+            ), cacheAttr.timeOut);
+
+            return result ?? default(T);
+        }
+
+        public T GetByColumn<T>(string column, object value) where T : class, IEntity, new()
+        {
+            if (!typeof(T).GetProperties().Any(p => p.Name == column))
+                throw new ArgumentException($"Invalid column name {column}.");
+
+            var table = AttributeCache.Instance.GetTableName<T>();
+            var query = $"SELECT * FROM {table} WHERE {column} = @Value";
+            var cacheAttr = AttributeCache.Instance.GetCache<T>();
+
+            var result = _cacheService.GetOrCreate<T>(cacheAttr.key + $"_{column}_{value}", () =>
+             _unitOfWork.Connection.QuerySingleOrDefault<T>(
                 query,
                 new { Value = value }
             ), cacheAttr.timeOut);
@@ -72,7 +103,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var query = $"SELECT {column} FROM {table}";
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
-            return await _cacheService.GetOrCreate<IEnumerable<TColumnType>>(cacheAttr.key + $"_{column}", () =>
+            return await _cacheService.GetOrCreateAsync<IEnumerable<TColumnType>>(cacheAttr.key + $"_{column}", () =>
              _unitOfWork.Connection.QueryAsync<TColumnType>(
                 query,
                 _unitOfWork.Transaction
@@ -88,7 +119,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var query = $"SELECT {column} FROM {table} WHERE Id = @Value";
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
-            return await _cacheService.GetOrCreate<TColumnType>(cacheAttr.key + $"_{column}_{id}", () =>
+            return await _cacheService.GetOrCreateAsync<TColumnType>(cacheAttr.key + $"_{column}_{id}", () =>
              _unitOfWork.Connection.ExecuteScalarAsync<TColumnType>(
                 query,
                 new { Value = id },
@@ -108,8 +139,28 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var query = $"SELECT {column} FROM {table} WHERE {filerColumn} = @Value";
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
-            return await _cacheService.GetOrCreate<TColumnType>(cacheAttr.key + $"_{column}_{filerColumn}_{filterValue}", () =>
+            return await _cacheService.GetOrCreateAsync<TColumnType>(cacheAttr.key + $"_{column}_{filerColumn}_{filterValue}", () =>
              _unitOfWork.Connection.ExecuteScalarAsync<TColumnType>(
+                query,
+                new { Value = filterValue },
+                _unitOfWork.Transaction
+            ), cacheAttr.timeOut);
+        }
+
+        public TColumnType GetColumnValue<T, TColumnType>(string column, string filerColumn, object filterValue) where T : class, IEntity, new()
+        {
+            if (!typeof(T).GetProperties().Any(p => p.Name == column))
+                throw new ArgumentException($"Invalid column name {column}.");
+
+            if (!typeof(T).GetProperties().Any(p => p.Name == filerColumn))
+                throw new ArgumentException($"Invalid column name {column}.");
+
+            var table = AttributeCache.Instance.GetTableName<T>();
+            var query = $"SELECT {column} FROM {table} WHERE {filerColumn} = @Value";
+            var cacheAttr = AttributeCache.Instance.GetCache<T>();
+
+            return _cacheService.GetOrCreate<TColumnType>(cacheAttr.key + $"_{column}_{filerColumn}_{filterValue}", () =>
+             _unitOfWork.Connection.ExecuteScalar<TColumnType>(
                 query,
                 new { Value = filterValue },
                 _unitOfWork.Transaction
@@ -138,8 +189,38 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             }
             if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
 
-            return await _cacheService.GetOrCreate<IEnumerable<T>>(cacheKey, () =>
+            return await _cacheService.GetOrCreateAsync<IEnumerable<T>>(cacheKey, () =>
              _unitOfWork.Connection.QueryAsync<T>(
+                query,
+                new { Value = value },
+                transaction: _unitOfWork.Transaction
+            ), cacheAttr.timeOut);
+        }
+
+        public IEnumerable<T> GetByScope<T>(object value, params string[] orderColumns) where T : class, IEntity, new()
+        {
+            var table = AttributeCache.Instance.GetTableName<T>();
+            var scopeColumn = AttributeCache.Instance.GetScope<T>();
+            var cacheAttr = AttributeCache.Instance.GetCache<T>();
+            var cacheKey = !string.IsNullOrEmpty(cacheAttr.key)
+                ? cacheAttr.key + $"_Scope_{value}"
+                : string.Empty;
+
+            var query = $"SELECT * FROM {table} WHERE {scopeColumn} = @Value";
+
+            var sorts = new List<string>();
+            foreach (var orderColumn in orderColumns)
+            {
+                var column = orderColumn.Split(' ')[0];
+                if (!typeof(T).GetProperties().Any(p => p.Name == column))
+                    throw new ArgumentException($"Invalid column name {column}.");
+
+                sorts.Add(orderColumn);
+            }
+            if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
+
+            return _cacheService.GetOrCreate<IEnumerable<T>>(cacheKey, () =>
+             _unitOfWork.Connection.Query<T>(
                 query,
                 new { Value = value },
                 transaction: _unitOfWork.Transaction
@@ -191,8 +272,36 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             }
             if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
 
-            return await _cacheService.GetOrCreate<IEnumerable<T>>(cacheAttr.key + $"_Items_{column}_{value}", () =>
+            return await _cacheService.GetOrCreateAsync<IEnumerable<T>>(cacheAttr.key + $"_Items_{column}_{value}", () =>
             _unitOfWork.Connection.QueryAsync<T>(
+                query,
+                new { Value = value }
+            ), cacheAttr.timeOut);
+        }
+
+        public IEnumerable<T> GetItemsByColumn<T>(string column, object value, params string[] orderColumns) where T : class, IEntity, new()
+        {
+            var table = AttributeCache.Instance.GetTableName<T>();
+            var cacheAttr = AttributeCache.Instance.GetCache<T>();
+
+            if (!typeof(T).GetProperties().Any(p => p.Name == column))
+                throw new ArgumentException($"Invalid column name {column}.");
+
+            var query = $"SELECT * FROM {table} WHERE {column} = @Value";
+
+            var sorts = new List<string>();
+            foreach (var orderColumn in orderColumns)
+            {
+                var col = orderColumn.Split(' ')[0];
+                if (!typeof(T).GetProperties().Any(p => p.Name == col))
+                    throw new ArgumentException($"Invalid column name {col}.");
+
+                sorts.Add(orderColumn);
+            }
+            if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
+
+            return  _cacheService.GetOrCreate<IEnumerable<T>>(cacheAttr.key + $"_Items_{column}_{value}", () =>
+            _unitOfWork.Connection.Query<T>(
                 query,
                 new { Value = value }
             ), cacheAttr.timeOut);
@@ -232,7 +341,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             }
             if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
 
-            return await _cacheService.GetOrCreate<IEnumerable<T>>(cacheAttr.key, () =>
+            return await _cacheService.GetOrCreateAsync<IEnumerable<T>>(cacheAttr.key, () =>
              _unitOfWork.Connection.QueryAsync<T>(
                 query
             ), cacheAttr.timeOut);
@@ -641,6 +750,29 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var returnResults = new List<object>();
 
             var gridReader = await _unitOfWork.Connection.QueryMultipleAsync(
+                storedProcedure,
+                parameters,
+                _unitOfWork.Transaction,
+                commandType: CommandType.StoredProcedure
+            );
+
+            foreach (var readerFunc in readerFuncs)
+            {
+                var obj = readerFunc(gridReader);
+                returnResults.Add(obj);
+            }
+
+            return returnResults.ToArray();
+        }
+
+        public object[] ExecuteStoredProcedureMultiGridResult(string storedProcedure,
+           string cacheKey, object parameters, params Func<GridReader, object>[] readerFuncs)
+        {
+            AllowedStoredProcedures.CheckValidStoredProcedure(storedProcedure);
+
+            var returnResults = new List<object>();
+
+            var gridReader = _unitOfWork.Connection.QueryMultiple(
                 storedProcedure,
                 parameters,
                 _unitOfWork.Transaction,

@@ -13,6 +13,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Con
 {
     public interface IBindEntityService
     {
-        Task<object> GetBindEntityService(ActionDto action, PortalSettings portalSettings);
+        Task<object> GetBindEntityServiceAsync(ActionDto action, PortalSettings portalSettings);
+        object GetBindEntityService(ActionDto action, PortalSettings portalSettings);
+
     }
 }

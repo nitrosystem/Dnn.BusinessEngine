@@ -384,4 +384,16 @@ export class GlobalService {
         // Parse JSON
         return JSON.parse(decompressed);
     }
+
+    cloneDeep(obj) {
+        if (typeof structuredClone === "function") {
+            return structuredClone(obj);
+        } else {
+            return JSON.parse(JSON.stringify(obj));
+        }
+    }
+
+    keyBy(array, key) {
+        return (array || []).reduce((r, x) => ({ ...r, [key ? x[key] : x]: x }), {})
+    }
 }

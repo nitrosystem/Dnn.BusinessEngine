@@ -14,7 +14,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Cashing
         private readonly HashSet<string> _cacheKeys = new();
         private readonly CachingProvider dataCache = CachingProvider.Instance();
 
-        public async Task<T> GetOrCreate<T>(string cacheKey, Func<Task<T>> factory, int? cacheTimeout = 20)
+        public async Task<T> GetOrCreateAsync<T>(string cacheKey, Func<Task<T>> factory, int? cacheTimeout = 20)
         {
             var value = string.IsNullOrEmpty(cacheKey) || dataCache == null ? default : DataCache.GetCache<T>(cacheKey);
             if (value != null)
@@ -22,6 +22,29 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Cashing
             else
             {
                 value = await factory();
+
+                if (!string.IsNullOrEmpty(cacheKey))
+                {
+                    if (dataCache != null) DataCache.SetCache(cacheKey, value, TimeSpan.FromHours(cacheTimeout ?? 20));
+
+                    lock (_cacheKeys)
+                    {
+                        _cacheKeys.Add(cacheKey);
+                    }
+                }
+            }
+
+            return value;
+        }
+
+        public T GetOrCreate<T>(string cacheKey, Func<T> factory, int? cacheTimeout = 20)
+        {
+            var value = string.IsNullOrEmpty(cacheKey) || dataCache == null ? default : DataCache.GetCache<T>(cacheKey);
+            if (value != null)
+                return value;
+            else
+            {
+                value = factory();
 
                 if (!string.IsNullOrEmpty(cacheKey))
                 {

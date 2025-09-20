@@ -50,9 +50,55 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             });
         }
 
+        public IEnumerable<ActionDto> GetActionsDto(Guid moduleId, Guid? fieldId, bool executeInClientSide)
+        {
+            var actions = _repository.GetByScope<ActionInfo>(moduleId, "ViewOrder");
+
+            return actions.Where(a => a.FieldId == fieldId && a.ExecuteInClientSide == executeInClientSide).Select(action =>
+            {
+                return HybridMapper.Map<ActionInfo, ActionDto>(action);
+            });
+        }
+
         public async Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId, Guid? fieldId = null)
         {
             var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
+                "BusinessEngine_App_GetActionsForClient", "App_ClientActions_",
+                    new
+                    {
+                        ModuleId = moduleId,
+                        FieldId = fieldId
+                    },
+                    grid => grid.Read<ActionInfo>(),
+                    grid => grid.Read<ActionParamInfo>(),
+                    grid => grid.Read<ActionResultInfo>()
+                );
+
+            var actions = results[0] as IEnumerable<ActionInfo>;
+            var actionParams = results[1] as IEnumerable<ActionParamInfo>;
+            var actionResults = results[2] as IEnumerable<ActionResultInfo>;
+
+            return actions.Select(action =>
+            {
+                return HybridMapper.MapWithConfig<ActionInfo, ActionDto>(action,
+                    (src, dest) =>
+                    {
+                        dest.ParentActionTriggerCondition = (ActionExecutionCondition?)action.ParentActionTriggerCondition;
+                        dest.Settings = TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.Settings);
+                        dest.Params = actionParams.Where(p => p.ActionId == action.Id).Select(param =>
+                            HybridMapper.MapWithConfig<ActionParamInfo, ParamInfo>(param,
+                            (s, d) => { d.ParamValue = param.ParamValue; }));
+                        dest.Results = actionResults.Where(r => r.ActionId == action.Id).Select(result =>
+                        {
+                            return HybridMapper.Map<ActionResultInfo, ActionResultDto>(result);
+                        });
+                    });
+            });
+        }
+
+        public IEnumerable<ActionDto> GetActionsDtoForClient(Guid moduleId, Guid? fieldId = null)
+        {
+            var results = _repository.ExecuteStoredProcedureMultiGridResult(
                 "BusinessEngine_App_GetActionsForClient", "App_ClientActions_",
                     new
                     {
@@ -120,9 +166,48 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             });
         }
 
-        public async Task<string> GetBusinessControllerClass(string actionType)
+        public IEnumerable<ActionDto> GetActionsDtoForServer(IEnumerable<Guid> actionIds)
+        {
+            var results = _repository.ExecuteStoredProcedureMultiGridResult(
+                "BusinessEngine_App_GetActionsForServer", "App_ServerActions_",
+                    new
+                    {
+                        ActionIds = JsonConvert.SerializeObject(actionIds)
+                    },
+                    grid => grid.Read<ActionInfo>(),
+                    grid => grid.Read<ActionParamInfo>(),
+                    grid => grid.Read<ActionResultInfo>()
+                );
+
+            var actions = results[0] as IEnumerable<ActionInfo>;
+            var actionParams = results[1] as IEnumerable<ActionParamInfo>;
+            var actionResults = results[2] as IEnumerable<ActionResultInfo>;
+
+            return actions.Select(action =>
+            {
+                return HybridMapper.MapWithConfig<ActionInfo, ActionDto>(action,
+                    (src, dest) =>
+                    {
+                        dest.ParentActionTriggerCondition = (ActionExecutionCondition?)action.ParentActionTriggerCondition;
+                        dest.Params = actionParams.Where(p => p.ActionId == action.Id).Select(param =>
+                            HybridMapper.MapWithConfig<ActionParamInfo, ParamInfo>(param,
+                            (s, d) => { d.ParamValue = param.ParamValue; }));
+                        dest.Results = actionResults.Where(r => r.ActionId == action.Id).Select(result =>
+                        {
+                            return HybridMapper.Map<ActionResultInfo, ActionResultDto>(result);
+                        });
+                    });
+            });
+        }
+
+        public async Task<string> GetBusinessControllerClassAsync(string actionType)
         {
             return await _repository.GetColumnValueAsync<ActionTypeInfo, string>("BusinessControllerClass", "ActionType", actionType);
+        }
+
+        public string GetBusinessControllerClass(string actionType)
+        {
+            return _repository.GetColumnValue<ActionTypeInfo, string>("BusinessControllerClass", "ActionType", actionType);
         }
 
         #endregion
