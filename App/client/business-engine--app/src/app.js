@@ -107,7 +107,7 @@ export class BusinessEngineApp {
                     if (oldVal !== val && typeof val === "object") {
                         self.notify(expr + "." + prop);
                     }
-                    return true;
+                    return trued;
                 }
             });
         } else {

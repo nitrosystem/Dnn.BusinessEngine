@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Common.Globals
+namespace NitroSystem.Dnn.BusinessEngine.Shared.Globals
 {
     public static class ValueComparer
     {

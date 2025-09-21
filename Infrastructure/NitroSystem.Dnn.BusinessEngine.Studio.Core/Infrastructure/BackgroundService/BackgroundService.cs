@@ -1,6 +1,6 @@
 ﻿using DotNetNuke.Entities.Portals;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Common.IO;
+using NitroSystem.Dnn.BusinessEngine.Shared.IO;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.BackgroundService
 
 //using DotNetNuke.Entities.Portals;
 //using Newtonsoft.Json;
-//using NitroSystem.Dnn.BusinessEngine.Common.IO;
+//using NitroSystem.Dnn.BusinessEngine.Shared.IO;
 //using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Import;
 //using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Import_Export.Enums;
 //using NitroSystem.Dnn.BusinessEngine.Utilities;

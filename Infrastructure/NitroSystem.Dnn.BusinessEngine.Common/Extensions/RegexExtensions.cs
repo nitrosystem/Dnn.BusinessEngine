@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Common
+namespace NitroSystem.Dnn.BusinessEngine.Shared
 {
     public static class RegexExtensions
     {

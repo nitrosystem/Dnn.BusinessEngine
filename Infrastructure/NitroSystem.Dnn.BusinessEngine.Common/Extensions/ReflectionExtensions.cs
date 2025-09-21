@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Linq.Expressions;
 using System.Linq;
 
-namespace NitroSystem.Dnn.BusinessEngine.Common.Reflection
+namespace NitroSystem.Dnn.BusinessEngine.Shared.Reflection
 {
     /// <summary>
     /// A static class for reflection type functions

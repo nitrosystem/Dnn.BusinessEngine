@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Common.Models.Shared
+namespace NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared
 {
     public class PropertyInfo
     {

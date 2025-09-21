@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NitroSystem.Dnn.BusinessEngine.Common")]
+[assembly: AssemblyTitle("NitroSystem.Dnn.BusinessEngine.Shared")]
 [assembly: AssemblyDescription("Business Engine is a complete solution for building web applications on the DNN Platform.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Nitrosystem Group")]
-[assembly: AssemblyProduct("NitroSystem.Dnn.BusinessEngine.Common")]
+[assembly: AssemblyProduct("NitroSystem.Dnn.BusinessEngine.Shared")]
 [assembly: AssemblyCopyright("Copyright ©2016 Nitro System Group")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

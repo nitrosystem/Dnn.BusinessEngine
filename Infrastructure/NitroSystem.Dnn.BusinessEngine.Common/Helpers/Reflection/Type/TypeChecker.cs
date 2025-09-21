@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Common.Reflection
+namespace NitroSystem.Dnn.BusinessEngine.Shared.Reflection
 {
     public static class TypeChecker
     {

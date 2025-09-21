@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
+﻿using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using System;

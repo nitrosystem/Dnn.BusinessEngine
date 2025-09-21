@@ -2,11 +2,11 @@
 using DotNetNuke.Services.Scheduling;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using System;
 using System.Collections.Generic;

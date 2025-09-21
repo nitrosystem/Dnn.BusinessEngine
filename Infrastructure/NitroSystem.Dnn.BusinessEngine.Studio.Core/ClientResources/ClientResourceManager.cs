@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Common.IO;
+﻿using NitroSystem.Dnn.BusinessEngine.Shared.IO;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using System;
 using System.Collections.Generic;

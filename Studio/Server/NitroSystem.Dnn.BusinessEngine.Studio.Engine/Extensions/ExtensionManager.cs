@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Core.Extensions.Manifest;
 using DotNetNuke.Entities.Users;
 using System.Web;
-using NitroSystem.Dnn.BusinessEngine.Common.Models;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
 using System.Web.UI;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +19,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using DotNetNuke.Data;
-using NitroSystem.Dnn.BusinessEngine.Common.IO;
+using NitroSystem.Dnn.BusinessEngine.Shared.IO;
 using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.Extensions

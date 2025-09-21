@@ -2,9 +2,9 @@
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Common.Models;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using System;
@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
-using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping
 {

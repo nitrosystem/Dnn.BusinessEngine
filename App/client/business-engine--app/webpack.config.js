@@ -5,12 +5,17 @@ const commonRules = [
 ];
 
 const commonOptimization = {
+    minimize: false,
     minimizer: [
         new TerserPlugin({
             parallel: true,
-            terserOptions: { mangle: false, keep_fnames: true, keep_classnames: true },
+            terserOptions: {
+                mangle: false,
+                keep_fnames: true,
+                keep_classnames: true,
+            },
         }),
-    ],
+    ]
 };
 
 const devServer = {
@@ -25,25 +30,32 @@ const devServer = {
     }
 };
 
-// 🔹 UMD خروجی برای Razor قدیمی
-const umdConfig = {
-    mode: "production",
-    entry: path.resolve(__dirname, "./src/startup.js"),
-    output: {
-        filename: "business-engine.umd.js",
-        path: path.resolve(__dirname, "dist"),
-        clean: true,
-        library: "BusinessEngineApp",  // نام global برای Razor
-        libraryTarget: "umd",          // UMD خروجی
-        globalObject: "this",
-    },
-    module: { rules: commonRules },
-    externals: {}, // هیچ وابستگی خارجی نداریم
-};
+// // 🔹 UMD خروجی برای Razor قدیمی
+// const umdConfig = {
+//     mode: "production",
+//     devtool: "eval-cheap-module-source-map",
+//     entry: path.resolve(__dirname, "./src/startup.js"),
+//     output: {
+//         filename: "business-engine.umd.js",
+//         path: path.resolve(__dirname, "dist"),
+//         clean: true,
+//         library: "BusinessEngineApp",  // نام global برای Razor
+//         libraryTarget: "umd",          // UMD خروجی
+//         globalObject: "this",
+//     },
+//     module: { rules: commonRules },
+//     externals: {}, // هیچ وابستگی خارجی نداریم
+// };
 
 // 🔹 ESM خروجی برای Razor مدرن / import
 const esmConfig = {
     mode: "production",
+    devtool: "eval-cheap-module-source-map",
+    performance: {
+        hints: false,
+        maxEntrypointSize: 512000, // Increase limit to 500 KiB
+        maxAssetSize: 512000,
+    },
     entry: path.resolve(__dirname, "./src/startup.js"),
     output: {
         filename: "business-engine.esm.js",

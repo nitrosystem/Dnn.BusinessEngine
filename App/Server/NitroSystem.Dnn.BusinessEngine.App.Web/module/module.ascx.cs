@@ -12,7 +12,7 @@ using System.Data;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using DotNetNuke.Entities.Host;
 using DotNetNuke.Entities.Portals;
-using NitroSystem.Dnn.BusinessEngine.Common.IO;
+using NitroSystem.Dnn.BusinessEngine.Shared.IO;
 using System.Threading.Tasks;
 using DotNetNuke.Common.Utilities;
 using NitroSystem.Dnn.BusinessEngine.App.Web.Models;

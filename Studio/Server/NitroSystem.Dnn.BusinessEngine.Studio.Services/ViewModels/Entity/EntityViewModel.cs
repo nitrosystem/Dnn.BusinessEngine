@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Common.Models;
+﻿using NitroSystem.Dnn.BusinessEngine.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;

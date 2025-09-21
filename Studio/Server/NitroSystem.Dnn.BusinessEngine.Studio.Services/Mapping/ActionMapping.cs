@@ -1,7 +1,7 @@
 ﻿using DotNetNuke.Collections;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using System;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using DotNetNuke.Common.Utilities;
-using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping
 {

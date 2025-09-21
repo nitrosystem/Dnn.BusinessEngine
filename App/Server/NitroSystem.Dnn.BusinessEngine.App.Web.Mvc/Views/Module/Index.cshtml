@@ -12,10 +12,12 @@
 {
     <script type="module">
         import BusinessEngineApp from "/DesktopModules/BusinessEngine/client-app/business-engine.esm.js";
+        //import BusinessEngineApp from "http://localhost:6060/business-engine.esm.js";
 
         const module = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Data));
-        const appElement = document.querySelector('[b-app]');
 
-        await BusinessEngineApp.bootstrap(appElement, module, '@Model.Id', '@Model.ConnectionId');
+            const appElement = document.querySelector('[b-app]');
+
+             BusinessEngineApp.bootstrap(appElement, module, '@Model.Id', '@Model.ConnectionId');
     </script>
 }

@@ -17,7 +17,7 @@ using DotNetNuke.Entities.Portals;
 using DotNetNuke.Security.Roles;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services

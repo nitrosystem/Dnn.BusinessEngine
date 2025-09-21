@@ -1,6 +1,6 @@
 ﻿using DotNetNuke.Data;
 using DotNetNuke.Entities.Portals;
-using NitroSystem.Dnn.BusinessEngine.Common.IO;
+using NitroSystem.Dnn.BusinessEngine.Shared.IO;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;

@@ -30,7 +30,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System.IO.Compression;
 using NitroSystem.Dnn.BusinessEngine.App.Api.Dto;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData;
-using NitroSystem.Dnn.BusinessEngine.Common.Helpers.Globals;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers.Globals;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {

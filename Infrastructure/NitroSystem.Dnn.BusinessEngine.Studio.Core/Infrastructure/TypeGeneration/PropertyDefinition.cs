@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+﻿using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;

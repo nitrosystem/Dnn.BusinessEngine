@@ -2,8 +2,8 @@
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Services.Tokens;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Common.IO;
-using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Shared.IO;
+using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
@@ -29,8 +29,8 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using DotNetNuke.Services.Scheduling;
-using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
-using NitroSystem.Dnn.BusinessEngine.Common.Enums;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
+using NitroSystem.Dnn.BusinessEngine.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
@@ -92,7 +92,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                         {
                             dest.ConditionalValues = TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(field.ConditionalValues);
                             dest.DataSource = field.HasDataSource && !string.IsNullOrWhiteSpace(field.DataSource)
-                                ? await GetFieldDataSource(field.DataSource)
+                                ? await GetFieldDataSourceAsync(field.DataSource)
                                 : null;
                             dest.Settings = settings != null && settings.Any()
                                 ? settings
@@ -112,11 +112,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             return fields.Select(field =>
                 {
                     return HybridMapper.MapWithConfig<ModuleFieldInfo, ModuleFieldViewModel>(field,
-                        async (src, dest) =>
+                         (src, dest) =>
                         {
                             dest.ConditionalValues = TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(field.ConditionalValues);
                             dest.DataSource = field.HasDataSource && !string.IsNullOrWhiteSpace(field.DataSource)
-                                ? await GetFieldDataSource(field.DataSource)
+                                ? GetFieldDataSource(field.DataSource)
                                 : null;
                             dest.Settings = settings != null && settings.Any()
                                 ? settings
@@ -127,7 +127,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                 });
         }
 
-        public async Task<FieldDataSourceResult> GetFieldDataSource(string dataSourceSettings)
+        public async Task<FieldDataSourceResult> GetFieldDataSourceAsync(string dataSourceSettings)
         {
             var dataSource = JsonConvert.DeserializeObject<FieldDataSourceInfo>(dataSourceSettings);
 
@@ -137,6 +137,21 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                 dataSource.ListId != null)
             {
                 result.Items = await _repository.GetByScopeAsync<DefinedListItemView>(dataSource.ListId); ;
+            }
+
+            return result;
+        }
+
+        public  FieldDataSourceResult GetFieldDataSource(string dataSourceSettings)
+        {
+            var dataSource = JsonConvert.DeserializeObject<FieldDataSourceInfo>(dataSourceSettings);
+
+            FieldDataSourceResult result = HybridMapper.Map<FieldDataSourceInfo, FieldDataSourceResult>(dataSource);
+
+            if ((dataSource.Type == FieldDataSourceType.StaticItems || dataSource.Type == FieldDataSourceType.UseDefinedList) &&
+                dataSource.ListId != null)
+            {
+                result.Items = _repository.GetByScope<DefinedListItemView>(dataSource.ListId); ;
             }
 
             return result;

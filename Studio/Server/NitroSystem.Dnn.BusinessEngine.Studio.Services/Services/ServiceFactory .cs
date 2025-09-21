@@ -20,7 +20,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using Microsoft.Extensions.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Threading;

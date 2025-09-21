@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Common.Helpers.Globals
+namespace NitroSystem.Dnn.BusinessEngine.Shared.Helpers.Globals
 {
     public static class UrlHelper
     {

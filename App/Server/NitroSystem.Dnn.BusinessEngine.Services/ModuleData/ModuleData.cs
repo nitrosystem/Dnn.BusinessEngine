@@ -7,11 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Common.Models.Shared;
+using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using Newtonsoft.Json;
 using System.Collections;
-using NitroSystem.Dnn.BusinessEngine.Common.Helpers.Globals;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers.Globals;
 using Dapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData

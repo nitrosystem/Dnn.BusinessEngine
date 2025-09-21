@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Common.IO
+namespace NitroSystem.Dnn.BusinessEngine.Shared.IO
 {
     public static class ZipUtil
     {

@@ -1,8 +1,8 @@
 ﻿using DotNetNuke.Entities.Portals;
 using DotNetNuke.Services.Tokens;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Common.IO;
-using NitroSystem.Dnn.BusinessEngine.Common.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Shared.IO;
+using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;

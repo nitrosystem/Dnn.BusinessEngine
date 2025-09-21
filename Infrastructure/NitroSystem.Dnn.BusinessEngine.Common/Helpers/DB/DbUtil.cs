@@ -2,7 +2,7 @@
 using DotNetNuke.Common.Controls;
 using DotNetNuke.Data;
 using Microsoft.ApplicationBlocks.Data;
-using NitroSystem.Dnn.BusinessEngine.Common.Models;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Utilities.Models;
 using System;
 using System.Collections.Generic;

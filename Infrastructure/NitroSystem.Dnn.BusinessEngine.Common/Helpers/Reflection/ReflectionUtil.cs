@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Common.Reflection
+namespace NitroSystem.Dnn.BusinessEngine.Shared.Reflection
 {
     public static class ReflectionUtil
     {
