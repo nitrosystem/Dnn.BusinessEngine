@@ -7,8 +7,8 @@
     <ProjectGuid>{91678844-5B48-4EE1-BDD0-CFCA92BA1924}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NitroSystem.Dnn.BusinessEngine.Common</RootNamespace>
-    <AssemblyName>NitroSystem.Dnn.BusinessEngine.Common</AssemblyName>
+    <RootNamespace>NitroSystem.Dnn.BusinessEngine.Shared</RootNamespace>
+    <AssemblyName>NitroSystem.Dnn.BusinessEngine.Shared</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
