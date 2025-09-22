@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEng
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.App.Web", "App\Server\NitroSystem.Dnn.BusinessEngine.App.Web\NitroSystem.Dnn.BusinessEngine.App.Web.csproj", "{F924748C-6EDA-4B2E-8088-8E3A8B7E1976}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Shared", "Infrastructure\NitroSystem.Dnn.BusinessEngine.Common\NitroSystem.Dnn.BusinessEngine.Shared.csproj", "{91678844-5B48-4EE1-BDD0-CFCA92BA1924}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Shared", "Infrastructure\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj", "{91678844-5B48-4EE1-BDD0-CFCA92BA1924}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "business-engine--studio", "Studio\client\business-engine--studio\", "{A20F890F-18EF-41DB-272A-30A0208B9682}"
 	ProjectSection(WebsiteProperties) = preProject
