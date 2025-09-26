@@ -31,7 +31,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     [DnnAuthorize(StaticRoles = "Administrators")]
     public class ModuleController : DnnApiController
     {
-        private readonly IGlobalService _globalService;
+        private readonly IBaseService _globalService;
         private readonly IServiceFactory _serviceFactory;
         private readonly IAppModelService _appModelServices;
         private readonly IModuleService _moduleService;
@@ -39,7 +39,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly ITemplateService _templateService;
 
         public ModuleController(
-            IGlobalService globalService,
+            IBaseService globalService,
             IServiceFactory serviceFactory,
             IAppModelService appModelService,
             IModuleService moduleService,
@@ -60,9 +60,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         #region 1-Basic Options
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetModuleBasicOptions()
+        public HttpResponseMessage GetModuleBasicOptions()
         {
-            return await GetModuleBasicOptions(Guid.Empty);
+            return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         [HttpGet]

@@ -7,7 +7,7 @@ using System.Web.Caching;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
+namespace NitroSystem.Dnn.BusinessEngine.Data.Views
 {
     [Table("BusinessEngineView_Modules")]
     [Cacheable("BE_Modules_View_", CacheItemPriority.Default, 20)]

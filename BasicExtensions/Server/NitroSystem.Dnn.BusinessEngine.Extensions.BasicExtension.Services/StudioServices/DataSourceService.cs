@@ -8,7 +8,7 @@ using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Data.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +16,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
@@ -25,9 +24,9 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 using System.Runtime;
 using System.Text.RegularExpressions;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels.Database;
+using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.StudioServices
 {

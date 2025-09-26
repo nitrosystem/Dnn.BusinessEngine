@@ -14,8 +14,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public string GroupType { get; set; }
         public string ObjectType { get; set; }
         public string GroupName { get; set; }
-        public bool IsSystemGroup { get; set; }
         public string Description { get; set; }
+        public bool IsSystemGroup { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }
         public DateTime LastModifiedOnDate { get; set; }

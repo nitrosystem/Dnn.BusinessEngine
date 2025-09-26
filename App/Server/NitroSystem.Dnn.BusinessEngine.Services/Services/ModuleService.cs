@@ -25,7 +25,7 @@ using System.Web.UI;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Data.Views;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using DotNetNuke.Services.Scheduling;
@@ -45,19 +45,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
         }
 
         #region Module Services
-
-        public ModuleViewModel GetModuleViewModel(Guid moduleId)
-        {
-            var module = _repository.Get<ModuleView>(moduleId);
-
-            return HybridMapper.MapWithConfig<ModuleView, ModuleViewModel>(
-               module, (src, dest) =>
-               {
-                   dest.Settings = string.IsNullOrEmpty(module.Settings)
-                   ? null
-                   : TypeCasting.TryJsonCasting<IDictionary<string, object>>(module.Settings.ToString());
-               });
-        }
 
         public async Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId)
         {
@@ -92,7 +79,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
                         {
                             dest.ConditionalValues = TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(field.ConditionalValues);
                             dest.DataSource = field.HasDataSource && !string.IsNullOrWhiteSpace(field.DataSource)
-                                ? await GetFieldDataSourceAsync(field.DataSource)
+                                ? await GetFieldDataSource(field.DataSource)
                                 : null;
                             dest.Settings = settings != null && settings.Any()
                                 ? settings
@@ -104,30 +91,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             );
         }
 
-        public IEnumerable<ModuleFieldViewModel> GetFieldsViewModel(Guid moduleId)
-        {
-            var fields = _repository.GetByScope<ModuleFieldInfo>(moduleId, "ViewOrder");
-            var settings = _repository.GetItemsByColumn<ModuleFieldSettingView>("ModuleId", moduleId);
-
-            return fields.Select(field =>
-                {
-                    return HybridMapper.MapWithConfig<ModuleFieldInfo, ModuleFieldViewModel>(field,
-                         (src, dest) =>
-                        {
-                            dest.ConditionalValues = TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(field.ConditionalValues);
-                            dest.DataSource = field.HasDataSource && !string.IsNullOrWhiteSpace(field.DataSource)
-                                ? GetFieldDataSource(field.DataSource)
-                                : null;
-                            dest.Settings = settings != null && settings.Any()
-                                ? settings
-                                    .Where(x => x.FieldId == field.Id)
-                                    .ToDictionary(x => x.SettingName, x => Globals.ConvertStringToObject(x.SettingValue))
-                                : null;
-                        });
-                });
-        }
-
-        public async Task<FieldDataSourceResult> GetFieldDataSourceAsync(string dataSourceSettings)
+        public async Task<FieldDataSourceResult> GetFieldDataSource(string dataSourceSettings)
         {
             var dataSource = JsonConvert.DeserializeObject<FieldDataSourceInfo>(dataSourceSettings);
 
@@ -142,58 +106,13 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             return result;
         }
 
-        public  FieldDataSourceResult GetFieldDataSource(string dataSourceSettings)
-        {
-            var dataSource = JsonConvert.DeserializeObject<FieldDataSourceInfo>(dataSourceSettings);
-
-            FieldDataSourceResult result = HybridMapper.Map<FieldDataSourceInfo, FieldDataSourceResult>(dataSource);
-
-            if ((dataSource.Type == FieldDataSourceType.StaticItems || dataSource.Type == FieldDataSourceType.UseDefinedList) &&
-                dataSource.ListId != null)
-            {
-                result.Items = _repository.GetByScope<DefinedListItemView>(dataSource.ListId); ;
-            }
-
-            return result;
-        }
-
         #endregion
 
         #region Module Variables
 
-        public async Task<IEnumerable<ModuleVariableDto>> GetModuleVariablesAsync(Guid moduleId, ModuleVariableScope scope)
+        public async Task<IEnumerable<ModuleVariableDto>> GetModuleVariables(Guid moduleId, ModuleVariableScope scope)
         {
             var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                "BusinessEngine_App_GetModuleVariables", "App_ModuleVariables_",
-                    new
-                    {
-                        ModuleId = moduleId,
-                        Scope = scope,
-                    },
-                    grid => grid.Read<ModuleVariableView>(),
-                    grid => grid.Read<AppModelPropertyInfo>()
-                );
-
-            var variables = results[0] as IEnumerable<ModuleVariableView>;
-            var appModelsProperties = results[1] as IEnumerable<AppModelPropertyInfo>;
-
-            return variables.Select(variable =>
-            {
-                return HybridMapper.MapWithConfig<ModuleVariableView, ModuleVariableDto>(variable,
-                (src, dest) =>
-                {
-                    dest.Scope = (ModuleVariableScope)variable.Scope;
-                    dest.Properties = appModelsProperties.Where(p => p.AppModelId == variable.AppModelId).Select(prop =>
-                    {
-                        return HybridMapper.Map<AppModelPropertyInfo, PropertyInfo>(prop);
-                    });
-                });
-            });
-        }
-
-        public IEnumerable<ModuleVariableDto> GetModuleVariables(Guid moduleId, ModuleVariableScope scope)
-        {
-            var results = _repository.ExecuteStoredProcedureMultiGridResult(
                 "BusinessEngine_App_GetModuleVariables", "App_ModuleVariables_",
                     new
                     {

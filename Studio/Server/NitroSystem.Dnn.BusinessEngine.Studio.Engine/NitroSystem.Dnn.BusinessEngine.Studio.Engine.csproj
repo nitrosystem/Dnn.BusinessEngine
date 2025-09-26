@@ -32,26 +32,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Dapper.2.1.21\lib\net461\Dapper.dll</HintPath>
+    <Reference Include="DotNetNuke, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\DotNetNuke.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\DotNetNuke.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.DependencyInjection.9.4.4\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="HtmlAgilityPack, Version=1.11.17.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\HtmlAgilityPack.1.11.17\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="HtmlAgilityPack, Version=1.12.3.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\HtmlAgilityPack.1.12.3\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -73,7 +61,6 @@
     <Compile Include="BuildModule\CleanPageResources.cs" />
     <Compile Include="Contracts\IBuildModuleLayout.cs" />
     <Compile Include="Contracts\IBuildModuleService.cs" />
-    <Compile Include="Contracts\IExtensionManager.cs" />
     <Compile Include="Contracts\IModuleBuildLockService.cs" />
     <Compile Include="Contracts\IResourceMachine.cs" />
     <Compile Include="BuildModule\Enums\ActionType.cs" />
@@ -98,15 +85,6 @@
     <Compile Include="BuildModule\Models\MachineResourceInfo.cs" />
     <Compile Include="BuildModule\Models\ModuleFieldGlobalSettings.cs" />
     <Compile Include="BuildModule\Models\ResourceMergeStrategy.cs" />
-    <Compile Include="Extensions\ExtensionManager.cs" />
-    <Compile Include="Extensions\Manifest\ExtensionAssembly.cs" />
-    <Compile Include="Extensions\Manifest\ExtensionManifest.cs" />
-    <Compile Include="Extensions\Manifest\ExtensionOwner.cs" />
-    <Compile Include="Extensions\Manifest\ExtensionResource.cs" />
-    <Compile Include="Extensions\Manifest\ExtensionSqlProvider.cs" />
-    <Compile Include="Extensions\Manifest\PackageModels\FieldTypeInfo.cs" />
-    <Compile Include="Extensions\Manifest\PackageModels\LibraryInfo.cs" />
-    <Compile Include="Extensions\Manifest\SqlProviderType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -127,14 +105,10 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Extensions\Services\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF NOT ($(ConfigurationName)) == (Debug) GOTO END
-cd $(ProjectDir)
-copy /y obj\debug\NitroSystem.Dnn.BusinessEngine.Studio.Engine.dll  D:\Wokstation\Dnn\dnndev.new\bin
-:END</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

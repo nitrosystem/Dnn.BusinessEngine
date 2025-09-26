@@ -1,4 +1,4 @@
-export class BusinessEngineApp {
+export class App {
     constructor() {
         this.services = {};
         this.controllers = {};
@@ -26,21 +26,19 @@ export class BusinessEngineApp {
         return this;
     }
 
-    async bootstrap(appElement, module, moduleId, connectionId) {
+    async bootstrap(appElement) {
         const ctrlEls = appElement.querySelectorAll('[b-controller]');
         for (const ctrlElement of ctrlEls) {
             const attrs = this.getAttributesObject(ctrlElement);
             const ctrlName = attrs['b-controller'];
             const CtrlClass = this.controllers[ctrlName];
 
-            if (!moduleId) moduleId = attrs.module;
-            if (!connectionId) connectionId = attrs.connection;
-            if (!CtrlClass || !moduleId || !connectionId)
-                throw new Error(`Controller ${ctrlName} not found`);
+            if (!CtrlClass) throw new Error(`Controller ${ctrlName} not found`);
 
             const resolved = this.resolveDependencies(CtrlClass);
             const controller = new CtrlClass(...resolved);
-            const scope = await controller.onLoad(module, moduleId, connectionId);
+
+            const scope = await controller.onLoad(attrs.module, attrs.connection);
 
             this.detectElements(ctrlElement, scope, controller);
         };
@@ -107,7 +105,7 @@ export class BusinessEngineApp {
                     if (oldVal !== val && typeof val === "object") {
                         self.notify(expr + "." + prop);
                     }
-                    return trued;
+                    return true;
                 }
             });
         } else {

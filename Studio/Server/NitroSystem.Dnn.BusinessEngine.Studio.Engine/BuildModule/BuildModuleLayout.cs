@@ -1,5 +1,4 @@
-﻿using HtmlAgilityPack;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using NitroSystem.Dnn.BusinessEngine.Shared.IO;
 using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
@@ -15,6 +14,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using HtmlAgilityPack;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
@@ -32,7 +32,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         private IDictionary<(string fieldType, string template), string> _fieldTypes;
         private IDictionary<Guid, List<BuildModuleFieldDto>> _fieldMap;
         private Queue<BuildModuleFieldDto> _buffer;
-        private HtmlDocument _htmlDoc;
+        private HtmlDocument _htmlDoc;  
 
         private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";

@@ -33,22 +33,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Dapper.2.1.21\lib\net461\Dapper.dll</HintPath>
+      <HintPath>..\..\..\packages\Dapper.2.1.35\lib\net461\Dapper.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\DotNetNuke.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.DependencyInjection.9.4.4\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
+    <Reference Include="DotNetNuke, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\DotNetNuke.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -71,7 +62,7 @@
     <Compile Include="Contracts\IExtensionServiceViewModel.cs" />
     <Compile Include="Contracts\IServiceFactory.cs" />
     <Compile Include="Contracts\ITemplateService.cs" />
-    <Compile Include="Contracts\IGlobalService.cs" />
+    <Compile Include="Contracts\IBaseService.cs" />
     <Compile Include="Contracts\IModuleService.cs" />
     <Compile Include="Contracts\IAppModelService.cs" />
     <Compile Include="Dto\LibraryResourceDto.cs" />
@@ -93,7 +84,6 @@
     <Compile Include="Mapping\ActionMapping.cs" />
     <Compile Include="ListItems\ModuleFieldTypeCustomEventListItem.cs" />
     <Compile Include="Services\DefinedListService.cs" />
-    <Compile Include="Services\ExtensionService.cs" />
     <Compile Include="Services\TemplateService.cs" />
     <Compile Include="Services\ActionService.cs" />
     <Compile Include="Services\ModuleService.cs" />
@@ -166,9 +156,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF NOT ($(ConfigurationName)) == (Debug) GOTO END
-cd $(ProjectDir)
-copy /y obj\debug\NitroSystem.Dnn.BusinessEngine.Studio.Services.dll  D:\Wokstation\Dnn\dnndev.new\bin
-:END</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

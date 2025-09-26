@@ -1,4 +1,4 @@
-﻿using DotNetNuke.Abstractions.Portals;
+﻿using DotNetNuke.Entities.Portals;
 using DotNetNuke.Security.Membership;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Con
 {
     public interface ILoginUserService
     {
-        UserLoginStatus LoginUser(string username, string password, IPortalSettings portalSettings);
+        UserLoginStatus LoginUser(string username, string password, PortalSettings portalSettings);
     }
 }

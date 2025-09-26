@@ -333,10 +333,14 @@ export class StudioController {
     }
 
     getBaseUrl(moduleType, id) {
-        var baseUrl = "/DesktopModules/BusinessEngine/Studio.aspx?s={s}&sr={sr}&m={m}";
+        moduleType = moduleType ? moduleType : GlobalSettings.moduleType;
+
+        var baseUrl = GlobalSettings.siteRoot + "DesktopModules/BusinessEngine/Studio.aspx?s={s}&p={p}&a={a}&m={m}{d}";
         baseUrl = baseUrl.replace("{s}", GlobalSettings.scenarioName);
-        baseUrl = baseUrl.replace("{sr}", GlobalSettings.siteRoot);
+        baseUrl = baseUrl.replace("{p}", GlobalSettings.portalId);
+        baseUrl = baseUrl.replace("{a}", GlobalSettings.portalAliasId);
         baseUrl = baseUrl.replace("{m}", moduleType);
+        baseUrl = baseUrl.replace("{d}", GlobalSettings.dnnModuleId && !id && !GlobalSettings.moduleId ? "&d=" + GlobalSettings.dnnModuleId : "");
 
         return baseUrl;
     }
@@ -354,7 +358,6 @@ export class StudioController {
                 param == "key" ||
                 param == "st" ||
                 param == "mt" ||
-                param == "d" ||
                 param == "ru"
             ) {
                 const paramValue = this.globalService.getParameterByName(param);

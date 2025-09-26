@@ -18,17 +18,19 @@ class ButtonFieldController {
         );
     }
 
-    onAddFieldActionClick() {
-        const page = {
-            page: "create-action",
-            subParams: {
-                module: this.field.ModuleId,
-                type: this.field.FieldType,
-                field: this.field.Id
-            }
-        };
+    onShowLoadingConditionsClick() {
+        this.field.Settings.LoadingConditions =
+            this.field.Settings.LoadingConditions || [];
 
-        this.$scope.$emit("onGotoPage", page);
+        window["wnButtonLoadingConditions" + this.field.FieldName].show();
+    }
+
+    onAddFieldActionClick() {
+        this.$scope.$emit("onGotoPage", {
+            page: "create-action",
+            parentId: this.field.Id,
+            subParams: { type: "field" },
+        });
     }
 }
 

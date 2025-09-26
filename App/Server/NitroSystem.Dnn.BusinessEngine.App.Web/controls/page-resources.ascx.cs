@@ -8,7 +8,6 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
-using System.Web.Helpers;
 using DotNetNuke.Services.Exceptions;
 using System.Linq;
 using System.Resources;

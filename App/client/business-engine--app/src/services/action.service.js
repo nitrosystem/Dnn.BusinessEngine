@@ -8,7 +8,7 @@ export class ActionService {
         this.apiService = apiService;
         this.expressionService = expressionService;
 
-        this.controllerCache = {};
+        this.scopeCache = {};
     }
 
     async callActions(event, actions, scope) {
@@ -46,21 +46,18 @@ export class ActionService {
     }
 
     async callClientAction(action, scope) {
-        const isTrue = action.Conditions
-            ? this.expressionService.evaluateExpression(action.Conditions, scope)
-            : true;
-
+        const isTrue = expressionService.evaluateExpression(action.Conditions, scope);
         if (typeof isTrue == 'string') isTrue = JSON.parse(value);
 
         if (!isTrue)
             return 3;
 
-        let scopeInstance = this.controllerCache[action.ActionType];
+        let scopeInstance = this.scopeCache[action.ActionType];
         if (!scopeInstance) {
             const ControllerClass = ActionRegistry.resolve(action.ActionType);
             if (typeof ControllerClass === 'function') {
                 scopeInstance = new ControllerClass(scope, this);
-                this.controllerCache[action.ActionType] = scopeInstance;
+                this.scopeCache[action.ActionType] = scopeInstance;
             }
         }
 
@@ -110,11 +107,11 @@ export class ActionService {
     }
 
     buildActionTree(actions, event) {
-        const clonedActions = this.globalService.cloneDeep(actions);
-        const rootActions = clonedActions.filter(a => { return !a.ParentId && a.Event === event });
-        const lookup = this.globalService.keyBy(clonedActions, 'Id');
+        const clonedActions = _.cloneDeep(actions);
+        const rootActions = _.filter(clonedActions, (a) => { return !a.ParentId && a.Event === event });
+        const lookup = _.keyBy(clonedActions, 'Id');
 
-        for (const action of clonedActions.filter(a => { return !!a.ParentId })) {
+        for (const action of _.filter(clonedActions, (a) => { return !!a.ParentId })) {
             lookup[action.ParentId].children = lookup[action.ParentId].children ?? [];
             lookup[action.ParentId].children.push(lookup[action.Id]);
         }
@@ -135,17 +132,14 @@ export class ActionService {
 
         const dfs = n => {
             const isTrue = !n.ParentId && n.Preconditions ?
-                this.expressionService.evaluateExpression(n.Preconditions, scope)
+                expressionService.evaluateExpression(n.Preconditions, scope)
                 : true;
 
             if (typeof isTrue == 'string') isTrue = JSON.parse(value);
 
             if (isTrue) {
-                if (!n.ExecuteInClientSide)
-                    result.push(n.Id);
-
-                if (n.children && n.children.length)
-                    n.children.forEach(child => dfs(child));
+                result.push(n.Id);
+                if (n.children && n.children.length) n.children.forEach(child => dfs(child));
             }
         };
 

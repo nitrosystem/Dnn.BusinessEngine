@@ -7,7 +7,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Data.Views;
 
 using System;
 using System.Collections.Generic;
@@ -31,10 +31,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositoryBase _repository;
-        private readonly IGlobalService _globalService;
+        private readonly IBaseService _globalService;
         private readonly ITypeBuilderService _typeBuilderService;
 
-        public AppModelService(IUnitOfWork unitOfWork, IRepositoryBase repository, IGlobalService globalService, ITypeBuilderService typeBuilderService)
+        public AppModelService(IUnitOfWork unitOfWork, IRepositoryBase repository, IBaseService globalService, ITypeBuilderService typeBuilderService)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;

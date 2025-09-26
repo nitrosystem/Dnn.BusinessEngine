@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Framework.Models;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Framework.Enums;
-using DotNetNuke.Abstractions.Portals;
 using DotNetNuke.Entities.Portals;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.Form
@@ -21,11 +20,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.Form
         {
             await Task.Yield();
 
-            return new ActionResult() { ResultStatus = ActionResultStatus.Successful };
-        }
-
-        public IActionResult Execute(ActionDto action, PortalSettings portalSettings)
-        {
             return new ActionResult() { ResultStatus = ActionResultStatus.Successful };
         }
     }

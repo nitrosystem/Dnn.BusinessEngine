@@ -1,5 +1,4 @@
 ﻿using DotNetNuke.Entities.Portals;
-using NitroSystem.Dnn.BusinessEngine.Core.Extensions.Manifest;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
 using System;

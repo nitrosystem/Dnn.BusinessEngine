@@ -39,22 +39,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Dapper.2.1.21\lib\net461\Dapper.dll</HintPath>
+      <HintPath>..\..\packages\Dapper.2.1.35\lib\net461\Dapper.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\DotNetNuke.dll</HintPath>
+    <Reference Include="DotNetNuke, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\DotNetNuke.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke.Abstractions, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotNetNuke.Abstractions.9.4.4\lib\netstandard2.0\DotNetNuke.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotNetNuke.DependencyInjection.9.4.4\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="HtmlAgilityPack, Version=1.11.17.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\HtmlAgilityPack.1.11.17\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotNetNuke.DependencyInjection.9.4.0\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+      <HintPath>..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
@@ -98,9 +92,6 @@
     <Compile Include="Contracts\ITypeLoaderFactory.cs" />
     <Compile Include="General\GlobalItems.cs" />
     <Compile Include="General\StringExtensions.cs" />
-    <Compile Include="Infrastructure\Asynchronous\AsyncTaskWrapper.cs" />
-    <Compile Include="Infrastructure\Asynchronous\IAsyncTaskManager.cs" />
-    <Compile Include="Infrastructure\Asynchronous\MultiAsyncTaskManager.cs" />
     <Compile Include="Infrastructure\BackgroundService\BackgroundService.cs" />
     <Compile Include="Cashing\CacheServiceBase.cs" />
     <Compile Include="Cashing\ICacheService.cs" />
@@ -172,9 +163,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF NOT ($(ConfigurationName)) == (Debug) GOTO END
-cd $(ProjectDir)
-copy /y obj\debug\NitroSystem.Dnn.BusinessEngine.Core.dll  D:\Wokstation\Dnn\dnndev.new\bin
-:END</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEng
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.App.Web", "App\Server\NitroSystem.Dnn.BusinessEngine.App.Web\NitroSystem.Dnn.BusinessEngine.App.Web.csproj", "{F924748C-6EDA-4B2E-8088-8E3A8B7E1976}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Shared", "Infrastructure\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj", "{91678844-5B48-4EE1-BDD0-CFCA92BA1924}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Shared", "Infrastructure\NitroSystem.Dnn.BusinessEngine.Common\NitroSystem.Dnn.BusinessEngine.Shared.csproj", "{91678844-5B48-4EE1-BDD0-CFCA92BA1924}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "business-engine--studio", "Studio\client\business-engine--studio\", "{A20F890F-18EF-41DB-272A-30A0208B9682}"
 	ProjectSection(WebsiteProperties) = preProject
@@ -131,41 +131,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEng
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services", "BasicExtensions\Server\NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Services\NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.csproj", "{5631D3CE-0D04-47B0-9517-293ECD1B8DE0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{53990977-A8DC-46A8-9DA7-F6AEACEF0911}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Test", "Test\NitroSystem.Dnn.BusinessEngine.Test\NitroSystem.Dnn.BusinessEngine.Test.csproj", "{5A02FEDF-07E2-43AB-98EF-128D508FAAB6}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		README.md = README.md
 	EndProjectSection
-EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "business-engine--studio-angular20-alpha", "Studio\client\business-engine--studio-angular20-alpha\", "{EC3916F3-509D-76EA-5058-97A551DB81FA}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_62103"
-		Debug.AspNetCompiler.PhysicalPath = "Studio\client\business-engine--studio-angular20-alpha\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_62103\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_62103"
-		Release.AspNetCompiler.PhysicalPath = "Studio\client\business-engine--studio-angular20-alpha\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_62103\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "62103"
-		SlnRelativePath = "Studio\client\business-engine--studio-angular20-alpha\"
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.App.Web.Mvc", "App\Server\NitroSystem.Dnn.BusinessEngine.App.Web.Mvc\NitroSystem.Dnn.BusinessEngine.App.Web.Mvc.csproj", "{D79AE31F-AEF2-464C-AE90-DE7E0912B86E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.App.Web.SSR", "App\Server\NitroSystem.Dnn.BusinessEngine.App.Web.SSR\NitroSystem.Dnn.BusinessEngine.App.Web.SSR.csproj", "{79C2AB5C-39A1-4B9C-9505-3012E54B8612}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -237,22 +208,6 @@ Global
 		{5631D3CE-0D04-47B0-9517-293ECD1B8DE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5631D3CE-0D04-47B0-9517-293ECD1B8DE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5631D3CE-0D04-47B0-9517-293ECD1B8DE0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5A02FEDF-07E2-43AB-98EF-128D508FAAB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A02FEDF-07E2-43AB-98EF-128D508FAAB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A02FEDF-07E2-43AB-98EF-128D508FAAB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A02FEDF-07E2-43AB-98EF-128D508FAAB6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC3916F3-509D-76EA-5058-97A551DB81FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC3916F3-509D-76EA-5058-97A551DB81FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC3916F3-509D-76EA-5058-97A551DB81FA}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC3916F3-509D-76EA-5058-97A551DB81FA}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{D79AE31F-AEF2-464C-AE90-DE7E0912B86E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D79AE31F-AEF2-464C-AE90-DE7E0912B86E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D79AE31F-AEF2-464C-AE90-DE7E0912B86E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D79AE31F-AEF2-464C-AE90-DE7E0912B86E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79C2AB5C-39A1-4B9C-9505-3012E54B8612}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79C2AB5C-39A1-4B9C-9505-3012E54B8612}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79C2AB5C-39A1-4B9C-9505-3012E54B8612}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79C2AB5C-39A1-4B9C-9505-3012E54B8612}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -280,10 +235,6 @@ Global
 		{B729817F-69E9-CF54-C067-951A065D91A8} = {738A7F24-BD3C-40AD-A18D-75441185CC67}
 		{2288A8C2-8F3A-4777-B997-86AC9A00D8EB} = {94B4D9B5-39F5-4F20-A731-6A422A8F3B14}
 		{5631D3CE-0D04-47B0-9517-293ECD1B8DE0} = {94B4D9B5-39F5-4F20-A731-6A422A8F3B14}
-		{5A02FEDF-07E2-43AB-98EF-128D508FAAB6} = {53990977-A8DC-46A8-9DA7-F6AEACEF0911}
-		{EC3916F3-509D-76EA-5058-97A551DB81FA} = {73421990-3AE0-4E07-9E48-DDB5AC39CD57}
-		{D79AE31F-AEF2-464C-AE90-DE7E0912B86E} = {D65682D6-7E27-4DF3-972D-56AA80F8F27E}
-		{79C2AB5C-39A1-4B9C-9505-3012E54B8612} = {D65682D6-7E27-4DF3-972D-56AA80F8F27E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B965EC00-B028-4FE7-9725-D2AECFAC2990}

@@ -28,23 +28,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dat
             _repository = repository;
         }
 
-        public async Task<object> SaveEntityRowAsync(ActionDto action, PortalSettings portalSettings)
+        public async Task<object> SaveEntityRow(ActionDto action, PortalSettings portalSettings)
         {
             var spParams = DbShared.FillSqlParams(action.Params);
             var storedProcedureName = await _repository.GetColumnValueAsync<SubmitEntityServiceInfo, string>("StoredProcedureName", "ServiceId", action.ServiceId.Value);
 
             var result = await _connection.ExecuteScalarAsync(storedProcedureName, spParams,
-                commandType: CommandType.StoredProcedure, commandTimeout: int.MaxValue);
-
-            return result;
-        }
-
-        public object SaveEntityRow(ActionDto action, PortalSettings portalSettings)
-        {
-            var spParams = DbShared.FillSqlParams(action.Params);
-            var storedProcedureName = _repository.GetColumnValue<SubmitEntityServiceInfo, string>("StoredProcedureName", "ServiceId", action.ServiceId.Value);
-
-            var result = _connection.ExecuteScalar(storedProcedureName, spParams,
                 commandType: CommandType.StoredProcedure, commandTimeout: int.MaxValue);
 
             return result;

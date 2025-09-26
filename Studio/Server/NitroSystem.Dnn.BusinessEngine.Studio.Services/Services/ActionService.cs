@@ -14,7 +14,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Data.Views;
 
 using System;
 using System.Collections.Generic;

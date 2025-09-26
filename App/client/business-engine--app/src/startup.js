@@ -1,4 +1,4 @@
-import { BusinessEngineApp } from "./app";
+import { App } from "./app";
 
 import { GlobalService } from "./services/global.service";
 import { ApiService } from "./services/api.service";
@@ -18,7 +18,7 @@ import { BindFor } from "./directives/list/b-for.directive";
 import { BindClick } from "./directives/events/b-click.directvife";
 import { BindChange } from "./directives/events/b-change.directvife.js";
 
-const app = new BusinessEngineApp();
+const app = new App();
 app.service("globalService", GlobalService);
 app.service("apiService", ApiService);
 app.service("expressionService", ExpressionService);
@@ -37,4 +37,7 @@ app.directive("b-for", BindFor);
 app.directive("b-click", BindClick);
 app.directive("b-change", BindChange);
 
-export default app; 
+document.addEventListener("DOMContentLoaded", async () => {
+    const appElement = document.querySelector('[b-app]');
+    await app.bootstrap(appElement);
+});

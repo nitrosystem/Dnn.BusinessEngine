@@ -13,7 +13,6 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 using System;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Extensions;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.AppModelTypeBuilder;
 
 
@@ -23,12 +22,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IGlobalService, GlobalService>();
+            services.AddScoped<IBaseService, GlobalService>();
             services.AddScoped<IEntityService, EntityService>();
             services.AddScoped<IAppModelService, AppModelService>();
             services.AddScoped<IServiceFactory, ServiceFactory>();
-            services.AddScoped<IExtensionService, ExtensionService>();
-            services.AddScoped<IExtensionManager, ExtensionManager>();
+            //services.AddScoped<IExtensionService, ExtensionService>();
+            //services.AddScoped<IExtensionManager, ExtensionManager>();
 
             services.AddScoped<IDefinedListService, DefinedListService>();
 

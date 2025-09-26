@@ -16,25 +16,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Contracts
     {
         Task<T> GetAsync<T>(Guid id) where T : class, IEntity, new();
 
-        T Get<T>(Guid id) where T : class, IEntity, new();
-
         Task<T> GetByColumnAsync<T>(string column, object value) where T : class, IEntity, new();
-        T GetByColumn<T>(string column, object value) where T : class, IEntity, new();
 
         Task<IEnumerable<TColumnType>> GetColumnValuesAsync<T, TColumnType>(string column) where T : class, IEntity, new();
 
         Task<TColumnType> GetColumnValueAsync<T, TColumnType>(Guid id, string column) where T : class, IEntity, new();
 
         Task<TColumnType> GetColumnValueAsync<T, TColumnType>(string column, string filerColumn, object filterValue) where T : class, IEntity, new();
-        TColumnType GetColumnValue<T, TColumnType>(string column, string filerColumn, object filterValue) where T : class, IEntity, new();
 
         Task<IEnumerable<T>> GetByScopeAsync<T>(object value, params string[] orderColumns) where T : class, IEntity, new();
-        IEnumerable<T> GetByScope<T>(object value, params string[] orderColumns) where T : class, IEntity, new();
 
         Task<(IEnumerable<T> Items, int TotalCount)> GetByScopeAsync<T>(Guid value, int pageIndex, int pageSize) where T : class, IEntity, new();
 
         Task<IEnumerable<T>> GetItemsByColumnAsync<T>(string column, object value, params string[] orderColumns) where T : class, IEntity, new();
-        IEnumerable<T> GetItemsByColumn<T>(string column, object value, params string[] orderColumns) where T : class, IEntity, new();
 
         Task<IEnumerable<T>> GetItemsByColumnsAsync<T>(string[] columns, object values) where T : class, IEntity, new();
 
@@ -81,8 +75,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Contracts
         string storedProcedure, object parameters, params Type[] resultTypes);
 
         Task<object[]> ExecuteStoredProcedureMultiGridResultAsync(string storedProcedure,
-            string cacheKey, object parameters, params Func<GridReader, object>[] readerFuncs);
-        object[] ExecuteStoredProcedureMultiGridResult(string storedProcedure,
             string cacheKey, object parameters, params Func<GridReader, object>[] readerFuncs);
     }
 }

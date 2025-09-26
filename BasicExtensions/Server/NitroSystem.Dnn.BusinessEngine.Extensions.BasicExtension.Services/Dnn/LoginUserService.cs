@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using DotNetNuke.Abstractions.Portals;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Users;
 using DotNetNuke.Security.Membership;
@@ -20,7 +19,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dnn
 {
     public class LoginUserService : ILoginUserService
     {
-        public UserLoginStatus LoginUser(string username, string password, IPortalSettings portalSettings)
+        public UserLoginStatus LoginUser(string username, string password, PortalSettings portalSettings)
         {
             string ip = HttpContext.Current != null ? HttpContext.Current.Request.UserHostAddress : "";
 

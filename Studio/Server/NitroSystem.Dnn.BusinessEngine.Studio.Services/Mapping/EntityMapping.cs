@@ -5,7 +5,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Data.Views;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using System;
 using System.Collections.Generic;

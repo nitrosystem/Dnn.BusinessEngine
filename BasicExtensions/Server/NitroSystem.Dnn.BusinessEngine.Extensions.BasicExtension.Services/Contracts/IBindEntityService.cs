@@ -1,5 +1,4 @@
-﻿using DotNetNuke.Abstractions.Portals;
-using DotNetNuke.Entities.Portals;
+﻿using DotNetNuke.Entities.Portals;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Framework.Models;
@@ -13,8 +12,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Con
 {
     public interface IBindEntityService
     {
-        Task<object> GetBindEntityServiceAsync(ActionDto action, PortalSettings portalSettings);
-        object GetBindEntityService(ActionDto action, PortalSettings portalSettings);
-
+        Task<object> GetBindEntityService(ActionDto action, PortalSettings portalSettings);
     }
 }

@@ -5,7 +5,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Data.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +22,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
-    public class GlobalService : IGlobalService
+    public class GlobalService : IBaseService
     {
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;

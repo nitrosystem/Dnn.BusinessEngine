@@ -25,21 +25,18 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
         #region Module Services
 
         Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId);
-        ModuleViewModel GetModuleViewModel(Guid moduleId);
 
         #endregion
 
         #region Module Field Services
 
         Task<IEnumerable<ModuleFieldViewModel>> GetFieldsViewModelAsync(Guid moduleId);
-        IEnumerable<ModuleFieldViewModel> GetFieldsViewModel(Guid moduleId);
 
         #endregion
 
         #region Module Variables
 
-        Task<IEnumerable<ModuleVariableDto>> GetModuleVariablesAsync(Guid moduleId, ModuleVariableScope scope);
-        IEnumerable<ModuleVariableDto> GetModuleVariables(Guid moduleId, ModuleVariableScope scope);
+        Task<IEnumerable<ModuleVariableDto>> GetModuleVariables(Guid moduleId, ModuleVariableScope scope);
 
         Task<IEnumerable<ModuleClientVariableDto>> GetModuleClientVariables(Guid moduleId);
 

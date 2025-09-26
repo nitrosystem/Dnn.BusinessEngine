@@ -39,25 +39,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Dapper.2.1.21\lib\net461\Dapper.dll</HintPath>
+      <HintPath>..\..\..\packages\Dapper.2.1.35\lib\net461\Dapper.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\DotNetNuke.dll</HintPath>
+    <Reference Include="DotNetNuke, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\DotNetNuke.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetNuke.Abstractions, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.Abstractions.9.4.4\lib\netstandard2.0\DotNetNuke.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.DependencyInjection.9.4.4\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetNuke.Web, Version=9.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.Web.9.4.4\lib\net45\DotNetNuke.Web.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetNuke.WebUtility, Version=4.2.1.783, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.Web.9.4.4\lib\net45\DotNetNuke.WebUtility.dll</HintPath>
+    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\DotNetNuke.DependencyInjection.9.4.0\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.4\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+      <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
@@ -148,7 +139,7 @@
     </ProjectReference>
     <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Common\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
       <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
+      <Name>NitroSystem.Dnn.BusinessEngine.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Studio.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
       <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
@@ -170,9 +161,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>IF NOT ($(ConfigurationName)) == (Debug) GOTO END
-cd $(ProjectDir)
-copy /y obj\debug\NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.dll  D:\Wokstation\Dnn\dnndev.new\bin
-:END</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

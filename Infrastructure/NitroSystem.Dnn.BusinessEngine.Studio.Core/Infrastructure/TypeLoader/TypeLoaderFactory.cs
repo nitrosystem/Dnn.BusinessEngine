@@ -1,5 +1,4 @@
-﻿using DotNetNuke.Abstractions.Portals;
-using DotNetNuke.Entities.Portals;
+﻿using DotNetNuke.Entities.Portals;
 using global::NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Reflection.TypeLoader;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System;

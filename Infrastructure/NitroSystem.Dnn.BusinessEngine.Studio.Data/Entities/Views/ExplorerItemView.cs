@@ -8,7 +8,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views
+namespace NitroSystem.Dnn.BusinessEngine.Data.Views
 {
     [Table("BusinessEngineView_ExplorerItems")]
     [Scope("ScenarioId")]

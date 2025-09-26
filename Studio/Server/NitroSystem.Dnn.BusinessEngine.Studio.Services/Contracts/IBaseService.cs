@@ -1,21 +1,14 @@
-﻿using DotNetNuke.Data;
-using DotNetNuke.Security.Roles;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
+using NitroSystem.Dnn.BusinessEngine.Data.Views;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 {
-    public interface IGlobalService
+    public interface IBaseService
     {
         #region General Service
 

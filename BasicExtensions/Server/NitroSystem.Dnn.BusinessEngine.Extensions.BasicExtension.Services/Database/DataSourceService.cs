@@ -37,7 +37,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dat
             _typeLoaderFactory = typeLoaderFactory;
         }
 
-        public async Task<(IEnumerable<object> Items, int? TotalCount)> GetDataSourceServiceAsync(ActionDto action, PortalSettings portalSettings)
+        public async Task<(IEnumerable<object> Items, int? TotalCount)> GetDataSourceService(ActionDto action, PortalSettings portalSettings)
         {
             var spParams = DbShared.FillSqlParams(action.Params);
             var data = await _repository.GetByColumnAsync<DataSourceServiceView>("ServiceId", action.ServiceId.Value);
@@ -48,26 +48,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dat
 
             var items = await multi.ReadAsync(type);
 
-            var totalCount = data.EnablePaging
+            var totalCount = data.EnablePaging 
                 ? await multi.ReadSingleAsync<int?>()
-                : 0;
-
-            return (items, totalCount);
-        }
-
-        public (IEnumerable<object> Items, int? TotalCount) GetDataSourceService(ActionDto action, PortalSettings portalSettings)
-        {
-            var spParams = DbShared.FillSqlParams(action.Params);
-            var data = _repository.GetByColumn<DataSourceServiceView>("ServiceId", action.ServiceId.Value);
-            var type = _typeLoaderFactory.GetTypeFromAssembly(data.TypeRelativePath, data.TypeFullName, data.ScenarioName, portalSettings);
-
-            var multi = _connection.QueryMultiple(data.StoredProcedureName, spParams,
-                commandType: CommandType.StoredProcedure, commandTimeout: int.MaxValue);
-
-            var items = multi.Read(type);
-
-            var totalCount = data.EnablePaging
-                ? multi.ReadSingle<int?>()
                 : 0;
 
             return (items, totalCount);

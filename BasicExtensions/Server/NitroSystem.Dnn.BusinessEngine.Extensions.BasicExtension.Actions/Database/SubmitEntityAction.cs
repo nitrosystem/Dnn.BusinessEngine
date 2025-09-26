@@ -27,27 +27,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Actions.Data
 
             try
             {
-                var data = await _service.SaveEntityRowAsync(action, portalSettings);
-
-                result.Data = data;
-                result.ResultStatus = ActionResultStatus.Successful;
-            }
-            catch (Exception ex)
-            {
-                result.ResultStatus = ActionResultStatus.Error;
-                result.ErrorException = ex;
-            }
-
-            return result;
-        }
-
-        public IActionResult Execute(ActionDto action, PortalSettings portalSettings)
-        {
-            IActionResult result = new ActionResult();
-
-            try
-            {
-                var data = _service.SaveEntityRow(action, portalSettings);
+                var data = await _service.SaveEntityRow(action, portalSettings);
 
                 result.Data = data;
                 result.ResultStatus = ActionResultStatus.Successful;

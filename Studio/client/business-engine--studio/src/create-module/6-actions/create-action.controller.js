@@ -121,7 +121,7 @@ export class CreateModuleCreateActionController {
                     obj[prop.PropertyName] = {};
                 });
 
-                if (variable.VariableType == 'AppModelList')
+                 if (variable.VariableType == 'AppModelList')
                     objects[variable.VariableName] = [obj];
             });
 
@@ -202,11 +202,6 @@ export class CreateModuleCreateActionController {
             this.$scope,
             "$.action"
         );
-    }
-
-    onEventChange() {
-        if (this.action.Event !== 'OnActionCompleted')
-            this.action.ParentId = null;
     }
 
     gotoStep(step) {

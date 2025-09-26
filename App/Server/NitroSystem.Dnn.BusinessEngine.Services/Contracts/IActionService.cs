@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Providers;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Data.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,16 +20,12 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
     public interface IActionService
     {
         Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId, Guid? fieldId, bool executeInClientSide);
-        IEnumerable<ActionDto> GetActionsDto(Guid moduleId, Guid? fieldId, bool executeInClientSide);
 
         Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId, Guid? fieldId = null);
-        IEnumerable<ActionDto> GetActionsDtoForClient(Guid moduleId, Guid? fieldId = null);
 
         Task<IEnumerable<ActionDto>> GetActionsDtoForServerAsync(IEnumerable<Guid> actionIds);
-        IEnumerable<ActionDto> GetActionsDtoForServer(IEnumerable<Guid> actionIds);
 
-        Task<string> GetBusinessControllerClassAsync(string actionType);
-        string GetBusinessControllerClass(string actionType);
+        Task<string> GetBusinessControllerClass(string actionType);
 
         //Task<ActionViewModel> GetActionViewModelAsync(Guid actionId);
 

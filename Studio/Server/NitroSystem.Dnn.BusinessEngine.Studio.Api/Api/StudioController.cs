@@ -43,7 +43,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     [DnnAuthorize(StaticRoles = "Administrators")]
     public class StudioController : DnnApiController
     {
-        private readonly IGlobalService _globalService;
+        private readonly IBaseService _globalService;
         private readonly IEntityService _entityService;
         private readonly IAppModelService _appModelServices;
         private readonly IServiceFactory _serviceFactory;
@@ -51,7 +51,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IExtensionService _extensionService;
 
         public StudioController(
-            IGlobalService globalService,
+            IBaseService globalService,
             IEntityService entityService,
             IAppModelService appModelService,
             IServiceFactory serviceFactory,
@@ -651,43 +651,43 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             }
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> InstallExtension()
-        {
-            try
-            {
-                if (!UserInfo.IsSuperUser)
-                    return Request.CreateResponse(HttpStatusCode.Forbidden, "Only superusers can install extensions.");
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<HttpResponseMessage> InstallExtension()
+        //{
+        //    try
+        //    {
+        //        if (!UserInfo.IsSuperUser)
+        //            return Request.CreateResponse(HttpStatusCode.Forbidden, "Only superusers can install extensions.");
 
-                if (!Request.Content.IsMimeMultipartContent())
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
+        //        if (!Request.Content.IsMimeMultipartContent())
+        //            return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
 
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+        //        var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                // Create temp upload folder
-                var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
-                Directory.CreateDirectory(uploadPath);
+        //        // Create temp upload folder
+        //        var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
+        //        Directory.CreateDirectory(uploadPath);
 
-                var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
-                await Request.Content.ReadAsMultipartAsync(streamProvider);
+        //        var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
+        //        await Request.Content.ReadAsMultipartAsync(streamProvider);
 
-                var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
-                var fileExt = Path.GetExtension(filename);
+        //        var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
+        //        var fileExt = Path.GetExtension(filename);
 
-                // Extension whitelist check
-                if (!Host.AllowedExtensionWhitelist.AllowedExtensions.Contains(fileExt))
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest($"File type '{fileExt}' is not allowed."));
+        //        // Extension whitelist check
+        //        if (!Host.AllowedExtensionWhitelist.AllowedExtensions.Contains(fileExt))
+        //            return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest($"File type '{fileExt}' is not allowed."));
 
-                var result = await _extensionService.InstallExtensionAsync(scenarioId, filename);
+        //        var result = await _extensionService.InstallExtensionAsync(scenarioId, filename);
 
-                return Request.CreateResponse(HttpStatusCode.OK, result);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //        return Request.CreateResponse(HttpStatusCode.OK, result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
 
 
         //[HttpPost]
