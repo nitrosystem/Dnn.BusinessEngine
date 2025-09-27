@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Shared.Helpers.Globals
+namespace NitroSystem.Dnn.BusinessEngine.Shared.Helpers
 {
     public static class UrlHelper
     {
@@ -48,7 +46,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Helpers.Globals
 
         private static bool IsNumeric(string str) => double.TryParse(str, out _);
 
-        // اگر مقدار شبیه کلید نباشه (برای جلوگیری از کلید اشتباه)
         private static bool IsKeyLikeValue(string value) =>
             string.IsNullOrWhiteSpace(value) || value.Contains("=");
     }
