@@ -2,7 +2,7 @@
 using DotNetNuke.Entities.Host;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Users;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ClientResources;
+using NitroSystem.Dnn.BusinessEngine.Core.ClientResources;
 using System;
 using System.Data;
 using System.Data.SqlClient;

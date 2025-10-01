@@ -1,16 +1,13 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto
 {
-   public class ModuleVariableDto
+    public class ModuleVariableDto
     {
+        public Guid? AppModelId { get; set; }
         public string VariableType { get; set; }
         public string VariableName { get; set; }
         public ModuleVariableScope Scope { get; set; }

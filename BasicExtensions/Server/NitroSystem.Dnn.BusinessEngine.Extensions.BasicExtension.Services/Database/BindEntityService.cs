@@ -15,8 +15,8 @@ using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using DotNetNuke.Entities.Portals;
 using System.Web;
 using System.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Views;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Database
 {

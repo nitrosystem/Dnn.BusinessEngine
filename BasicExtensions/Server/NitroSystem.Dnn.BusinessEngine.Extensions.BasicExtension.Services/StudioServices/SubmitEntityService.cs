@@ -1,31 +1,18 @@
-﻿using DotNetNuke.Data;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Collections;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
+using System.Collections.Generic;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Utilities;
-using System.Net;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Repository;
-using System.Runtime;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Service;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels.Database;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.StudioServices
 {
@@ -44,17 +31,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
 
         public async Task<IExtensionServiceViewModel> GetService(Guid serviceId)
         {
-            var submitEntityService = await _repository.GetByColumnAsync<SubmitEntityServiceInfo>("ServiceId", serviceId);
+            var objSubmitEntityServiceInfo = await _repository.GetByColumnAsync<SubmitEntityServiceInfo>("ServiceId", serviceId);
 
-            return submitEntityService != null
-                ? HybridMapper.MapWithConfig<SubmitEntityServiceInfo, SubmitEntityServiceViewModel>(submitEntityService,
-                (src, dest) =>
-                {
-                    dest.ActionType = (ActionType?)submitEntityService.ActionType;
-                    dest.Entity = TypeCasting.TryJsonCasting<Models.Database.SubmitEntity.EntityInfo>(submitEntityService.Entity);
-                    dest.Settings = TypeCasting.TryJsonCasting<IDictionary<string, object>>(submitEntityService.Settings);
-                })
-            : null;
+            return objSubmitEntityServiceInfo != null
+                ? HybridMapper.Map<SubmitEntityServiceInfo, SubmitEntityServiceViewModel>(objSubmitEntityServiceInfo)
+                : null;
         }
 
         public async Task<IDictionary<string, object>> GetDependencyList(Guid scenarioId)
@@ -160,14 +141,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
 
             await sqlCommand.ExecuteSqlCommandTextAsync(submitEntityQuery);
 
-            var objSubmitEntityServiceInfo = HybridMapper.MapWithConfig<SubmitEntityServiceViewModel, SubmitEntityServiceInfo>(
-                submitEntityService, (src, dest) =>
-                {
-                    dest.ActionType = (int)submitEntityService.ActionType;
-                    dest.Entity = JsonConvert.SerializeObject(submitEntityService.Entity);
-                    dest.Settings = JsonConvert.SerializeObject(submitEntityService.Settings);
-                });
-
+            var objSubmitEntityServiceInfo = HybridMapper.Map<SubmitEntityServiceViewModel, SubmitEntityServiceInfo>(submitEntityService);
             objSubmitEntityServiceInfo.ServiceId = service.Id;
 
             if (objSubmitEntityServiceInfo.Id == Guid.Empty)

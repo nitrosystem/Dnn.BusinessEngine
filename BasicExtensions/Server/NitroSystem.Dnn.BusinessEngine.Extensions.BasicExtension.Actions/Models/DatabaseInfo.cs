@@ -1,9 +1,9 @@
-﻿using System;
+﻿using NitroSystem.Dnn.BusinessEngine.Shared.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Actions.Models
 {

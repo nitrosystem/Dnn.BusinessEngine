@@ -1,15 +1,12 @@
-﻿using DotNetNuke.Entities.Portals;
-using global::NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Reflection.TypeLoader;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using System;
-using System.Collections.Concurrent;
-using System.Configuration.Assemblies;
+﻿using System;
+using System.Web;
 using System.IO;
 using System.Reflection;
 using System.Security;
-using System.Web;
+using System.Collections.Concurrent;
+using DotNetNuke.Entities.Portals;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader
+namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader
 {
     public sealed class TypeLoaderFactory : ITypeLoaderFactory
     {

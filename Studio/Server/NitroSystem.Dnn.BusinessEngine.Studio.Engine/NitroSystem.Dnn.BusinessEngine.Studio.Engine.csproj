@@ -73,8 +73,6 @@
     <Compile Include="Contracts\ITypeBuilderService.cs" />
     <Compile Include="Dto\AppModelDto.cs" />
     <Compile Include="Dto\BuildModuleResultDto.cs" />
-    <Compile Include="Dto\ExtensionInstallationResultDto.cs" />
-    <Compile Include="Dto\ExtensionManifestDto.cs" />
     <Compile Include="Dto\PageResourceDto.cs" />
     <Compile Include="Dto\BuildModuleDto.cs" />
     <Compile Include="Dto\BuildModuleFieldDto.cs" />

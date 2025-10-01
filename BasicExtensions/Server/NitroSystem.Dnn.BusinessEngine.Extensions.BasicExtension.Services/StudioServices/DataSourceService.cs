@@ -1,32 +1,17 @@
-﻿using DotNetNuke.Data;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Collections;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
-using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Utilities;
-using System.Net;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Data.Repository;
-using System.Runtime;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
+using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Service;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels.Database;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.StudioServices
 {
@@ -40,7 +25,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
         public DataSourceService(
             IUnitOfWork unitOfWork,
             IRepositoryBase repository,
-            IEntityService entityService, 
+            IEntityService entityService,
             IAppModelService appModelService)
         {
             _unitOfWork = unitOfWork;
@@ -51,20 +36,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
 
         public async Task<IExtensionServiceViewModel> GetService(Guid serviceId)
         {
-            var dataSourceService = await _repository.GetByColumnAsync<DataSourceServiceInfo>("ServiceId", serviceId);
+            var objDataSourceServiceInfo = await _repository.GetByColumnAsync<DataSourceServiceInfo>("ServiceId", serviceId);
 
-            return dataSourceService != null
-                ? HybridMapper.MapWithConfig<DataSourceServiceInfo, DataSourceServiceViewModel>(dataSourceService,
-                (src, dest) =>
-                {
-                    dest.Entities = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.EntityInfo>>(dataSourceService.Entities);
-                    dest.JoinRelationships = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.EntityJoinRelationInfo>>(dataSourceService.JoinRelationships);
-                    dest.ModelProperties = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.ModelPropertyInfo>>(dataSourceService.ModelProperties);
-                    dest.Filters = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.FilterItemInfo>>(dataSourceService.Filters);
-                    dest.SortItems = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.SortItemInfo>>(dataSourceService.SortItems);
-                    dest.Settings = TypeCasting.TryJsonCasting<IDictionary<string, object>>(dataSourceService.Settings);
-                })
-            : null;
+            return objDataSourceServiceInfo != null
+                ? HybridMapper.Map<DataSourceServiceInfo, DataSourceServiceViewModel>(objDataSourceServiceInfo)
+                : null;
         }
 
         public async Task<IDictionary<string, object>> GetDependencyList(Guid scenarioId)
@@ -191,17 +167,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
 
             await sqlCommand.ExecuteSqlCommandTextAsync(dataSourceQuery);
 
-            var objDataSourceServiceInfo = HybridMapper.MapWithConfig<DataSourceServiceViewModel, DataSourceServiceInfo>(
-                dataSourceService, (src, dest) =>
-                {
-                    dest.Entities = JsonConvert.SerializeObject(dataSourceService.Entities);
-                    dest.JoinRelationships = JsonConvert.SerializeObject(dataSourceService.JoinRelationships);
-                    dest.ModelProperties = JsonConvert.SerializeObject(dataSourceService.ModelProperties);
-                    dest.Filters = JsonConvert.SerializeObject(dataSourceService.Filters);
-                    dest.SortItems = JsonConvert.SerializeObject(dataSourceService.SortItems);
-                    dest.Settings = JsonConvert.SerializeObject(dataSourceService.Settings);
-                });
-
+            var objDataSourceServiceInfo = HybridMapper.Map<DataSourceServiceViewModel, DataSourceServiceInfo>(dataSourceService);
             objDataSourceServiceInfo.ServiceId = service.Id;
 
             if (objDataSourceServiceInfo.Id == Guid.Empty)

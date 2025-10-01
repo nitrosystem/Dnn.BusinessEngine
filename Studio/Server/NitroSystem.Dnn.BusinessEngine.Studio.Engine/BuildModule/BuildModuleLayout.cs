@@ -1,20 +1,16 @@
-﻿using Newtonsoft.Json.Linq;
-using NitroSystem.Dnn.BusinessEngine.Shared.IO;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.ExpressionService.ConditionParser;
-using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Web;
+using Newtonsoft.Json.Linq;
 using HtmlAgilityPack;
+using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ServiceLocator;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.ConditionParser;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
@@ -228,11 +224,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             return result;
         }
 
-        private IField CreateInstance(string businessControllerClass)
+        private IModuleField CreateInstance(string businessControllerClass)
         {
             if (string.IsNullOrEmpty(businessControllerClass)) return null;
 
-            return _serviceLocator.CreateInstance<IField>(businessControllerClass);
+            return _serviceLocator.CreateInstance<IModuleField>(businessControllerClass);
         }
 
         #endregion

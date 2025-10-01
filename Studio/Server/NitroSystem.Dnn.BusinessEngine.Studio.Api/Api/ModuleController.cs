@@ -1,37 +1,30 @@
-﻿using DotNetNuke.Web.Api;
-using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using System.Web;
+using System.Web.Http;
+using System.Net;
+using System.Net.Http;
 using System.Data;
 using System.Linq;
-using System.Net.Http;
-using System.Net;
-using System.Text;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web;
+using DotNetNuke.Web.Api;
+using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using System.Web.UI;
-using System.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Shared.IO;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using DotNetNuke.Security.Roles;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Action;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
     [DnnAuthorize(StaticRoles = "Administrators")]
     public class ModuleController : DnnApiController
     {
-        private readonly IBaseService _globalService;
+        private readonly IBaseService _baseService;
         private readonly IServiceFactory _serviceFactory;
         private readonly IAppModelService _appModelServices;
         private readonly IModuleService _moduleService;
@@ -47,7 +40,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             ITemplateService templateService
         )
         {
-            _globalService = globalService;
+            _baseService = globalService;
             _serviceFactory = serviceFactory;
             _appModelServices = appModelService;
             _moduleService = moduleService;
@@ -122,7 +115,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
-                var installedTemplates = await _templateService.GetTemplatesViewModelAsync(module.ModuleType);
+                var installedTemplates = await _templateService.GetTemplatesViewModelAsync();
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -161,7 +154,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var libraries = await _globalService.GetLibrariesLiteDtoAsync();
+                var libraries = await _baseService.GetLibrariesListItemAsync();
                 var moduleCustomLibraries = await _moduleService.GetModuleCustomLibrariesAsync(moduleId);
                 var moduleCustomResources = await _moduleService.GetModuleCustomResourcesAsync(moduleId);
 
@@ -180,7 +173,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SortModuleCustomLibraries([FromUri] LibraryOrResource target, IEnumerable<SortDto> postData)
+        public async Task<HttpResponseMessage> SortModuleCustomLibraries([FromUri] LibraryOrResource target, IEnumerable<SortInfo> postData)
         {
             try
             {
@@ -196,7 +189,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteModuleCustomLibrary(GuidDto postData)
+        public async Task<HttpResponseMessage> DeleteModuleCustomLibrary(GuidInfo postData)
         {
             try
             {
@@ -212,7 +205,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteModuleCustomResource(GuidDto postData)
+        public async Task<HttpResponseMessage> DeleteModuleCustomResource(GuidInfo postData)
         {
             try
             {
@@ -233,7 +226,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                library.Id = await _moduleService.SaveModuleCustomLibraryAsync(library);
+                library.Id = await _moduleService.SaveModuleCustomLibraryAsync(library, library.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, library.Id);
             }
@@ -249,7 +242,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                resource.Id = await _moduleService.SaveModuleCustomResourceAsync(resource);
+                resource.Id = await _moduleService.SaveModuleCustomResourceAsync(resource, resource.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, resource.Id);
             }
@@ -273,7 +266,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
                 var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, "", "Title");
 
-                var types = GlobalItems.VariableTypes;
+                var types = Constants.VariableTypes;
                 types["AppModel"] = "AppModel";
                 types["AppModelList"] = "AppModelList";
                 var variableTypes = types.Select(kvp => new { Text = kvp.Key, Value = kvp.Value });
@@ -309,7 +302,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteModuleVariable(GuidDto postData)
+        public async Task<HttpResponseMessage> DeleteModuleVariable(GuidInfo postData)
         {
             try
             {
@@ -469,7 +462,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteModuleField(GuidDto postData)
+        public async Task<HttpResponseMessage> DeleteModuleField(GuidInfo postData)
         {
             try
             {
@@ -541,7 +534,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                var actionTypes = await _actionService.GetActionTypesViewModelAsync();
+                var actionTypes = await _actionService.GetActionTypesListItemAsync();
                 var actions = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, 1, 1000, null, null, "ActionName");
                 var variables = await _moduleService.GetModuleVariablesDtoAsync(moduleId);
 
@@ -550,7 +543,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 if (string.IsNullOrEmpty(fieldType))
                     events = GetDefaultCustomEvents();
                 else
-                    events = GetDefaultCustomEvents(fieldType).Concat(await _moduleService.GetFieldTypesGetCustomEventsAsync(fieldType));
+                    events = GetDefaultCustomEvents(fieldType).Concat(await _moduleService.GetFieldTypesCustomEventsListItemAsync(fieldType));
 
                 var action = actionId != Guid.Empty
                         ? await _actionService.GetActionViewModelAsync(actionId)
@@ -589,7 +582,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteAction(GuidDto postData)
+        public async Task<HttpResponseMessage> DeleteAction(GuidInfo postData)
         {
             try
             {

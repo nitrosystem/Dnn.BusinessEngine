@@ -1,4 +1,4 @@
-﻿namespace NitroSystem.Dnn.BusinessEngine.Shared.Models
+﻿namespace NitroSystem.Dnn.BusinessEngine.Shared
 {
     public class TableColumnInfo
     {

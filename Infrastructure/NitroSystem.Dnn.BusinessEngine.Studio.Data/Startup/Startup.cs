@@ -1,17 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using DotNetNuke.DependencyInjection;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using System.Web.Routing;
-using System.Data;
+﻿using System.Data;
 using System.Data.SqlClient;
-using System.Net.WebSockets;
-using System;
-using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Data.Repository;
+using Microsoft.Extensions.DependencyInjection;
+using DotNetNuke.DependencyInjection;
 using DotNetNuke.Data;
-
+using NitroSystem.Dnn.BusinessEngine.Data.Repository;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data
 {
@@ -27,6 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data
             });
 
             services.AddScoped<IRepositoryBase, RepositoryBase>();
+            services.AddScoped<IDatabaseMetadataRepository, SqlDatabaseMetadataRepository>();
         }
     }
 }

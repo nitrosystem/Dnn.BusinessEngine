@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +10,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Dat
 {
     internal static class DbShared
     {
-        public static DynamicParameters FillSqlParams(IEnumerable<ParamInfo> serviceParams)
+        public static DynamicParameters FillSqlParams(IEnumerable<ActionParamDto> serviceParams)
         {
             var result = new DynamicParameters();
 
-            foreach (var param in serviceParams ?? Enumerable.Empty<ParamInfo>())
+            foreach (var param in serviceParams ?? Enumerable.Empty<ActionParamDto>())
             {
                 result.Add(param.ParamName, param.ParamValue);
             }

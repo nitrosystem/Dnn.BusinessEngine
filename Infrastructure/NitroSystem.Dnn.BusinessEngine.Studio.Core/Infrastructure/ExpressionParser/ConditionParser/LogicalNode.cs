@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.ExpressionService.ConditionParser
+namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.ConditionParser
 {
     public class LogicalNode : ConditionNode
     {
@@ -24,9 +19,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.ExpressionService.ConditionParser
                     return Expression.AndAlso(leftExpr, rightExpr);
                 case "||":
                     return Expression.OrElse(leftExpr, rightExpr);
-            };
-
-            return null;
+                default:
+                    return null;
+            }
         }
     }
 }

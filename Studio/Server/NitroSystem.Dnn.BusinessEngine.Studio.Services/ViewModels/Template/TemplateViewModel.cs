@@ -1,14 +1,10 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Template
 {
-    public class TemplateViewModel
+    public class TemplateViewModel : IViewModel
     {
         public Guid Id { get; set; }
         public string TemplateName { get; set; }
@@ -27,8 +23,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
-        public IEnumerable<TemplateThemeInfo> Themes { get; set; }
+        public IEnumerable<TemplateThemeViewModel> Themes { get; set; }
+        public IEnumerable<TemplateItemViewModel> Items { get; set; }
         public IEnumerable<TemplateFieldTypeViewModel> FieldTypes { get; set; }
-        public IEnumerable<TemplateLibraryInfo> Libraries { get; set; }
     }
 }

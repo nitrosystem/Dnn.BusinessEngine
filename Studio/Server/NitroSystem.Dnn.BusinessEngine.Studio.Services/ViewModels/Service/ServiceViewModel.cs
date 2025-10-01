@@ -1,14 +1,9 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Service
 {
     public class ServiceViewModel : IViewModel
     {
@@ -26,7 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
-        public IEnumerable<ServiceParamInfo> Params { get; set; }
+        public IEnumerable<ParamInfo> Params { get; set; }
         public IDictionary<string, object> Settings { get; set; }
     }
 }

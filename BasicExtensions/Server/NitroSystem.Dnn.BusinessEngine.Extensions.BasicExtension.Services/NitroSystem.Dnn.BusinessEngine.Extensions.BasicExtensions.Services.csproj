@@ -85,6 +85,7 @@
     <Compile Include="Database\DataSourceService.cs" />
     <Compile Include="Database\DbShared.cs" />
     <Compile Include="Database\SubmitEntityService.cs" />
+    <Compile Include="MappingConfiguration\DatabaseServiceMappingProfile.cs" />
     <Compile Include="_DatabaseEntities\Tables\DataRowServiceInfo.cs" />
     <Compile Include="_DatabaseEntities\Tables\DeleteEntityRowServiceInfo.cs" />
     <Compile Include="_DatabaseEntities\Tables\BindEntityServiceInfo.cs" />

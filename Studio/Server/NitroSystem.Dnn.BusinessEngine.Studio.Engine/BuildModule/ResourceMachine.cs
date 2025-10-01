@@ -1,22 +1,19 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Shared.IO;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.ExpressionService.ConditionParser;
-using NitroSystem.Dnn.BusinessEngine.Core.IO;
-using NitroSystem.Dnn.BusinessEngine.Core.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
+using System.Web;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using NitroSystem.Dnn.BusinessEngine.Core.Caching;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.ConditionParser;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
@@ -69,8 +66,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                                               .GroupBy(f => f.ResourcePath.Replace("[EXTPATH]", "/DesktopModules/BusinessEngine/extensions"))
                                               .ToDictionary(
                                                   g => g.Key,
-                                                  g => {
-                                                      var f = g.First(); 
+                                                  g =>
+                                                  {
+                                                      var f = g.First();
                                                       return (f.EntryType, f.Additional, f.CacheKey);
                                                   });
 
@@ -127,7 +125,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                                 foreach (var file in resource.ResourceFiles ?? Enumerable.Empty<MachineResourceFileInfo>())
                                 {
                                     string resourcePath = file.ResourcePath;
-                                    if (file.Additional == "GetResourcePathByMethod") resourcePath = GetDynamicResourcePath(resourcePath);
+                                    //if (file.Additional == "GetResourcePathByMethod") resourcePath = GetDynamicResourcePath(resourcePath);
 
                                     if (resource.AddToResources)
                                     {
@@ -228,13 +226,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 
         private string GetDynamicResourcePath(string resourcePath)
         {
-            var result = DynamicMethodExecutor.Execute(
-                resourcePath,
-                new object[] { _buildModuleDto }, // injectedParams
-                typeof(ResourceFunctionProvider)
-            );
+            //var result = DynamicMethodExecutor.Execute(
+            //    resourcePath,
+            //    new object[] { _buildModuleDto }, // injectedParams
+            //    typeof(ResourceFunctionProvider)
+            //);
 
-            return result?.ToString() ?? string.Empty;
+            //return result?.ToString() ?? string.Empty;
+
+            return string.Empty;
         }
 
         private bool ParseCondition(string condition)

@@ -1,38 +1,32 @@
-﻿using DotNetNuke.Common.Utilities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
+using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Portals;
-using DotNetNuke.Services.Tokens;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Shared.IO;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
+using NitroSystem.Dnn.BusinessEngine.Core.Caching;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.UI;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Utilities;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -57,26 +51,25 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         {
             var module = await _repository.GetAsync<ModuleView>(moduleId);
 
-            return ModuleMapping.MapModuleViewModel(module);
+            return HybridMapper.Map<ModuleView, ModuleViewModel>(module);
         }
 
         public async Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId, PortalSettings portalSettings)
         {
             var modules = await _repository.GetByScopeAsync<ModuleView>(scenarioId);
 
-            return null;
-            //return ModuleMapping.GetModulesViewModel(modules, toupleList);
+            return HybridMapper.MapCollection<ModuleView, ModuleViewModel>(modules);
         }
 
         public async Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew)
         {
-            var objModuleInfo = ModuleMapping.MapModuleInfo(module);
+            var objModuleInfo = HybridMapper.Map<ModuleViewModel, ModuleInfo>(module);
 
             if (isNew)
-                objModuleInfo.Id = await _repository.AddAsync<ModuleInfo>(objModuleInfo);
+                objModuleInfo.Id = await _repository.AddAsync(objModuleInfo);
             else
             {
-                var isUpdated = await _repository.UpdateAsync<ModuleInfo>(objModuleInfo);
+                var isUpdated = await _repository.UpdateAsync(objModuleInfo);
                 if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleInfo);
             }
 
@@ -85,8 +78,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<bool?> IsValidModuleName(Guid scenarioId, Guid? moduleId, string moduleName)
         {
-            return await _repository.ExecuteStoredProcedureScalerAsync<bool?>("BusinessEngine_IsValidModuleName",
-                new { ScenarioId = scenarioId, ModuleId = moduleId, ModuleName = moduleName });
+            return await _repository.ExecuteStoredProcedureScalerAsync<bool?>(
+                "dbo.BusinessEngine_Studio_IsValidModuleName", "BE_Modules_IsValidModuleName_" + moduleName,
+                new
+                {
+                    ScenarioId = scenarioId,
+                    ModuleId = moduleId,
+                    ModuleName = moduleName
+                });
         }
 
         public async Task<bool> DeleteModuleAsync(Guid moduleId)
@@ -102,41 +101,48 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         {
             var module = await _repository.GetAsync<ModuleView>(moduleId);
 
-            var spResourceReaderTask = _repository.ExecuteStoredProcedureAsDataReaderAsync("BusinessEngine_GetBuildModuleAllResources",
-            new
-            {
-                ModuleId = module.Id
-            });
-
-            var spFieldsTask = _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                "BusinessEngine_GetBuildModuleFieldsAndSettings", "BE_ModuleFields_BuildModule",
-                new
-                {
-                    ModuleId = module.Id
-                },
-                grid => grid.Read<ModuleFieldInfo>(),
-                grid => grid.Read<ModuleFieldSettingView>()
-            );
-
-            var spPageIdTask = _repository.ExecuteStoredProcedureScalerAsync<int>("BusinessEngine_GetTabIdByDnnModuleId",
+            var spPageIdTask = _repository.ExecuteStoredProcedureScalerAsync<int>(
+                "dbo.BusinessEngine_Studio_GetTabIdByDnnModuleId", "BE_TabIdByDnnModuleId" + module.DnnModuleId,
                 new
                 {
                     module.DnnModuleId
                 }
              );
 
-            await Task.WhenAll(spResourceReaderTask, spFieldsTask, spPageIdTask);
+            var spFieldsTask = _repository.ExecuteStoredProcedureMultipleAsync<ModuleFieldInfo, ModuleFieldSettingView>(
+                "dbo.BusinessEngine_Studio_GetModuleFieldsAndSettingsForBuild", "BE_Modules_FieldsAndSettingsForBuild" + moduleId,
+                new
+                {
+                    ModuleId = module.Id
+                }
+            );
 
-            var fieldsData = await spFieldsTask;
-            var fields = (IEnumerable<ModuleFieldInfo>)fieldsData[0];
-            var fieldsSettings = (IEnumerable<ModuleFieldSettingView>)fieldsData[1];
+            var spResourceReaderTask = _repository.ExecuteStoredProcedureAsDataReaderAsync(
+                "dbo.BusinessEngine_Studio_GetModuleResourcesForBuild", "BE_Modules_ResourcesForBuild_" + moduleId,
+            new
+            {
+                ModuleId = module.Id
+            });
+
+            await Task.WhenAll(spPageIdTask, spFieldsTask, spResourceReaderTask);
+
             var pageId = await spPageIdTask;
+            var fieldsData = await spFieldsTask;
+            var fields = fieldsData.Item1;
+            var fieldsSettings = fieldsData.Item2;
 
-            var moduleToBuild = new BuildModuleDto();
-            module.CopyProperties(moduleToBuild);
-            moduleToBuild.BuildPath = $@"[BUILDPATH]\{module.ScenarioName}\{module.ModuleName}";
+            var moduleToBuild = HybridMapper.Map<ModuleView, BuildModuleDto>(module);
+            var fieldsToBuild = HybridMapper.MapCollection<ModuleFieldInfo, BuildModuleFieldDto>(fields,
+                (src, dest) =>
+                {
+                    var dict = fieldsSettings.GroupBy(c => c.FieldId)
+                                     .ToDictionary(g => g.Key, g => g.AsEnumerable());
 
-            var fieldsToBuild = ModuleMapping.MapModuleFieldsDto(fields, fieldsSettings);
+                    var items = dict.TryGetValue(src.Id, out var settings);
+                    dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+
+                    dest.GlobalSettings = ReflectionUtil.ConvertDictionaryToObject<ModuleFieldGlobalSettings>(dest.Settings);
+                });
 
             var resourcesToBuild = new List<BuildModuleResourceDto>();
             using (var reader = await spResourceReaderTask)
@@ -145,15 +151,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 {
                     resourcesToBuild.Add(new BuildModuleResourceDto()
                     {
-                        ModuleId = Globals.GetSafeGuid(reader["ModuleId"]),
+                        ModuleId = GlobalHelper.GetSafeGuid(reader["ModuleId"]),
                         ResourceType = (ResourceType)reader["ResourceType"],
                         ActionType = (ActionType)reader["ActionType"],
-                        ResourcePath = Globals.GetSafeString(reader["ResourcePath"]),
-                        EntryType = Globals.GetSafeString(reader["EntryType"]),
-                        Additional = Globals.GetSafeString(reader["Additional"]),
-                        CacheKey = Globals.GetSafeString(reader["CacheKey"]),
-                        Condition = Globals.GetSafeString(reader["Condition"]),
-                        LoadOrder = Globals.GetSafeInt(reader["LoadOrder"])
+                        ResourcePath = GlobalHelper.GetSafeString(reader["ResourcePath"]),
+                        EntryType = GlobalHelper.GetSafeString(reader["EntryType"]),
+                        Additional = GlobalHelper.GetSafeString(reader["Additional"]),
+                        CacheKey = GlobalHelper.GetSafeString(reader["CacheKey"]),
+                        Condition = GlobalHelper.GetSafeString(reader["Condition"]),
+                        LoadOrder = GlobalHelper.GetSafeInt(reader["LoadOrder"])
                     });
                 }
             }
@@ -162,10 +168,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             if (status.IsReadyToBuild)
             {
                 var pageResources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("DnnPageId", pageId);
-                var pageResourcesDto = ResourceMapping.MapPageResourcesDto(pageResources);
+                var pageResourcesDto = HybridMapper.MapCollection<PageResourceInfo, PageResourceDto>(pageResources);
 
                 var finalResources = await _buildModuleService.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
-                var mappedResources = ResourceMapping.MapPageResourcesInfo(finalResources);
+                var mappedResources = HybridMapper.MapCollection<PageResourceDto, PageResourceInfo>(finalResources);
                 await _repository.BulkInsertAsync<PageResourceInfo>(mappedResources);
 
                 _cacheService.ClearByPrefix("BE_Modules_");
@@ -189,7 +195,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         {
             var objModuleInfo = HybridMapper.Map<ModuleTemplateDto, ModuleInfo>(module);
 
-            return await _repository.UpdateAsync<ModuleInfo>(
+            return await _repository.UpdateAsync(
                 objModuleInfo,
                 "PreloadingTemplate",
                 "LayoutTemplate",
@@ -209,16 +215,42 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
             await Task.WhenAll(task1, task2, task3);
 
-            return ModuleMapping.MapModuleFieldTypesViewModel(await task1, await task2, await task3);
+            var fieldsTypes = await task1;
+            var templates = await task2;
+            var themes = await task3;
+
+            var builder = new CollectionMappingBuilder<ModuleFieldTypeView, ModuleFieldTypeViewModel>();
+
+            builder.AddChildAsync<ModuleFieldTypeTemplateInfo, ModuleFieldTypeTemplateViewModel, string>(
+               source: templates,
+               parentKey: parent => parent.FieldType,
+               childKey: child => child.FieldType,
+               assign: (dest, children) => dest.Templates = children
+            );
+
+            builder.AddChildAsync<ModuleFieldTypeThemeInfo, ModuleFieldTypeThemeViewModel, string>(
+               source: themes,
+               parentKey: parent => parent.FieldType,
+               childKey: child => child.FieldType,
+               assign: (dest, children) => dest.Themes = children
+            );
+
+            var result = await builder.BuildAsync(fieldsTypes);
+            return result;
         }
 
-        public async Task<IEnumerable<ModuleFieldTypeCustomEventListItem>> GetFieldTypesGetCustomEventsAsync(string fieldType)
+        public async Task<IEnumerable<ModuleFieldTypeCustomEventListItem>> GetFieldTypesCustomEventsListItemAsync(string fieldType)
         {
             var customEvents = await _repository.GetColumnValueAsync<ModuleFieldTypeInfo, string>("CustomEvents", "FieldType", fieldType);
 
-            return !string.IsNullOrEmpty(fieldType)
-                ? TypeCasting.TryJsonCasting<IEnumerable<ModuleFieldTypeCustomEventListItem>>(customEvents)
+            return !string.IsNullOrEmpty(customEvents)
+                ? ReflectionUtil.TryJsonCasting<IEnumerable<ModuleFieldTypeCustomEventListItem>>(customEvents)
                 : Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
+        }
+
+        public async Task<string> GetFieldTypeIconAsync(string fieldType)
+        {
+            return await _repository.GetColumnValueAsync<ModuleFieldTypeInfo, string>("Icon", "FieldType", fieldType);
         }
 
         #endregion
@@ -233,7 +265,24 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
             await Task.WhenAll(task1, task2, task3);
 
-            return ModuleMapping.MapModuleFieldsViewModel(await task1, await task2, await task3);
+            var fields = await task1;
+            var fieldsSettings = await task2;
+            var actions = await task3;
+
+            return HybridMapper.MapWithChildren<ModuleFieldInfo, ModuleFieldViewModel, ActionInfo, ActionListItem>(
+                parents: fields,
+                children: actions,
+                parentKeySelector: p => p.Id,
+                childKeySelector: c => c.FieldId,
+                assignChildren: (parent, childs) => parent.Actions = childs,
+                moreAssigns: (src, dest) =>
+                {
+                    var dict = fieldsSettings.GroupBy(c => c.FieldId).ToDictionary(g => g.Key, g => g.AsEnumerable());
+                    var items = dict.TryGetValue(src.Id, out var settings);
+                    dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+
+                }
+            );
         }
 
         public async Task<ModuleFieldViewModel> GetFieldViewModelAsync(Guid fieldId)
@@ -244,12 +293,24 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
             await Task.WhenAll(task1, task2, task3);
 
-            return ModuleMapping.MapModuleFieldViewModel(await task1, await task2, await task3);
+            var field = await task1;
+            var fieldSettings = await task2;
+            var actions = await task3;
+
+            return HybridMapper.MapWithChildren<ModuleFieldInfo, ModuleFieldViewModel, ActionInfo, ActionListItem>(
+                  source: field,
+                  children: actions,
+                  assignChildren: (parent, childs) => parent.Actions = childs,
+                  moreAssigns: (src, dest) =>
+                  {
+                      dest.Settings = fieldSettings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+                  }
+               );
         }
 
         public async Task<Guid> SaveFieldAsync(ModuleFieldViewModel field, bool isNew)
         {
-            var objModuleFieldInfo = ModuleMapping.MapModuleFieldInfo(field);
+            var objModuleFieldInfo = HybridMapper.Map<ModuleFieldViewModel, ModuleFieldInfo>(field);
 
             _unitOfWork.BeginTransaction();
 
@@ -282,7 +343,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                             SettingValue = value
                         };
 
-                        await _repository.AddAsync(objModuleFieldSettingInfo);
+                        await _repository.AddAsync<ModuleFieldSettingInfo>(objModuleFieldSettingInfo);
                     }
                 }
 
@@ -305,7 +366,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task SortFieldsAsync(SortPaneFieldsDto data)
         {
-            await _repository.ExecuteStoredProcedureAsync("BusinessEngine_SortModuleFields",
+            await _repository.ExecuteStoredProcedureAsync("dbo.BusinessEngine_Studio_SortModuleFields",
                 new
                 {
                     ModuleId = data.ModuleId,
@@ -347,39 +408,33 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<IEnumerable<ModuleVariableViewModel>> GetModuleVariablesViewModelAsync(Guid moduleId)
         {
-            var task1 = _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId, "ViewOrder");
-            var task2 = _repository.ExecuteStoredProcedureAsListAsync<AppModelInfo>("BusinessEngine_GetModuleVariablesAsAppModels",
-                new { ModuleId = moduleId });
+            var variables = await _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId, "ViewOrder");
 
-            await Task.WhenAll(task1, task2);
-
-            return ModuleMapping.MapModuleVariablesViewModel(await task1, await task2);
+            return HybridMapper.MapCollection<ModuleVariableInfo, ModuleVariableViewModel>(variables);
         }
 
         public async Task<IEnumerable<ModuleVariableDto>> GetModuleVariablesDtoAsync(Guid moduleId)
         {
             var variables = await _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId, "VariableName");
-            var appModelProperties = await _repository.GetAllAsync<AppModelPropertyInfo>();
-
-            return variables.Select(variable =>
-                HybridMapper.MapWithConfig<ModuleVariableInfo, ModuleVariableDto>(variable,
-                (src, dest) =>
+            var properties = await _repository.ExecuteStoredProcedureAsListAsync<AppModelPropertyInfo>(
+                "dbo.BusinessEngine_Studio_GetAppModelPropertiesAsModuleVariables", "BE_AppModelProperties_ModuleVariables_" + moduleId,
+                new
                 {
-                    dest.Scope = (ModuleVariableScope)variable.Scope;
-                    dest.Properties = appModelProperties.Where(p => p.AppModelId == variable.AppModelId).Select(property =>
-                        HybridMapper.Map<AppModelPropertyInfo, PropertyInfo>(property)
-                    );
-                })
+                    ModuleId = moduleId
+                });
+
+            return HybridMapper.MapWithChildren<ModuleVariableInfo, ModuleVariableDto, AppModelPropertyInfo, PropertyInfo>(
+                parents: variables,
+                children: properties,
+                parentKeySelector: p => p.AppModelId,
+                childKeySelector: c => c.AppModelId,
+                assignChildren: (parent, childs) => parent.Properties = childs
             );
         }
 
         public async Task<Guid> SaveModuleVariablesAsync(ModuleVariableViewModel variable, bool isNew)
         {
-            var objModuleVariableInfo = HybridMapper.MapWithConfig<ModuleVariableViewModel, ModuleVariableInfo>(variable,
-                (src, dest) =>
-                {
-                    dest.Scope = (int)variable.Scope;
-                });
+            var objModuleVariableInfo = HybridMapper.Map<ModuleVariableViewModel, ModuleVariableInfo>(variable);
 
             if (isNew)
             {
@@ -405,41 +460,31 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<IEnumerable<ModuleCustomLibraryViewModel>> GetModuleCustomLibrariesAsync(Guid moduleId)
         {
-            var task1 = _repository.GetByScopeAsync<ModuleCustomLibraryView>(moduleId, "LoadOrder");
-            var task2 = _repository.GetByScopeAsync<ModuleCustomLibraryResourceView>(moduleId);
+            var libraries = await _repository.GetByScopeAsync<ModuleCustomLibraryView>(moduleId, "LoadOrder");
+            var resources = await _repository.GetByScopeAsync<ModuleCustomLibraryResourceView>(moduleId);
 
-            await Task.WhenAll(task1, task2);
-
-            var libraries = await task1;
-            var resources = await task2;
-
-            return libraries.Select(library =>
-             {
-                 return
-                 HybridMapper.MapWithConfig<ModuleCustomLibraryView, ModuleCustomLibraryViewModel>(library,
-                 (src, dest) =>
-                 {
-                     dest.Resources = resources.Where(r => r.LibraryId == library.Id).Select(resource =>
-                     {
-                         return HybridMapper.Map<ModuleCustomLibraryResourceView, ModuleCustomLibraryResourceViewModel>(resource);
-                     });
-                 });
-             });
+            return HybridMapper.MapWithChildren<ModuleCustomLibraryView, ModuleCustomLibraryViewModel,
+                                                    ModuleCustomLibraryResourceView, ModuleCustomLibraryResourceViewModel>(
+                parents: libraries,
+                children: resources,
+                parentKeySelector: p => p.Id,
+                childKeySelector: c => c.LibraryId,
+                assignChildren: (parent, childs) => parent.Resources = childs
+            );
         }
 
         public async Task<IEnumerable<ModuleCustomResourceViewModel>> GetModuleCustomResourcesAsync(Guid moduleId)
         {
             var resources = await _repository.GetByScopeAsync<ModuleCustomResourceInfo>(moduleId, "LoadOrder");
 
-            return BaseMapping<ModuleCustomResourceInfo, ModuleCustomResourceViewModel>.MapViewModels(resources);
+            return HybridMapper.MapCollection<ModuleCustomResourceInfo, ModuleCustomResourceViewModel>(resources);
         }
 
-        public async Task<Guid> SaveModuleCustomLibraryAsync(ModuleCustomLibraryViewModel library)
+        public async Task<Guid> SaveModuleCustomLibraryAsync(ModuleCustomLibraryViewModel library, bool isNew)
         {
-            var objModuleCustomLibraryInfo = new ModuleCustomLibraryInfo();
-            PropertyCopier<ModuleCustomLibraryViewModel, ModuleCustomLibraryInfo>.Copy(library, objModuleCustomLibraryInfo);
+            var objModuleCustomLibraryInfo = HybridMapper.Map<ModuleCustomLibraryViewModel, ModuleCustomLibraryInfo>(library);
 
-            if (library.Id == Guid.Empty)
+            if (isNew)
                 objModuleCustomLibraryInfo.Id = await _repository.AddAsync<ModuleCustomLibraryInfo>(objModuleCustomLibraryInfo);
             else
             {
@@ -450,12 +495,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return objModuleCustomLibraryInfo.Id;
         }
 
-        public async Task<Guid> SaveModuleCustomResourceAsync(ModuleCustomResourceViewModel resource)
+        public async Task<Guid> SaveModuleCustomResourceAsync(ModuleCustomResourceViewModel resource, bool isNew)
         {
-            var objModuleCustomResourceInfo = new ModuleCustomResourceInfo();
-            PropertyCopier<ModuleCustomResourceViewModel, ModuleCustomResourceInfo>.Copy(resource, objModuleCustomResourceInfo);
+            var objModuleCustomResourceInfo = HybridMapper.Map<ModuleCustomResourceViewModel, ModuleCustomResourceInfo>(resource);
 
-            if (resource.Id == Guid.Empty)
+            if (isNew)
                 objModuleCustomResourceInfo.Id = await _repository.AddAsync<ModuleCustomResourceInfo>(objModuleCustomResourceInfo);
             else
             {
@@ -466,17 +510,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return objModuleCustomResourceInfo.Id;
         }
 
-        public async Task SortModuleCustomLibraries(LibraryOrResource target, IEnumerable<SortDto> items)
+        public async Task SortModuleCustomLibraries(LibraryOrResource target, IEnumerable<SortInfo> items)
         {
             if (target == LibraryOrResource.Library)
-                await _repository.ExecuteStoredProcedureAsync("BusinessEngine_SortModuleCustomLibraries",
+                await _repository.ExecuteStoredProcedureAsync("dbo.BusinessEngine_Studio_SortModuleCustomLibraries",
                     new { JsonData = items.ToJson() });
             else if (target == LibraryOrResource.Resource)
-                await _repository.ExecuteStoredProcedureAsync("BusinessEngine_SortModuleCustomResources",
+                await _repository.ExecuteStoredProcedureAsync("dbo.BusinessEngine_Studio_SortModuleCustomResources",
                     new { JsonData = items.ToJson() });
 
             DataCache.ClearCache("BE_ModuleCustomLibraries_");
-            DataCache.ClearCache("BE_ModuleCustomLibraries_Views_");
             DataCache.ClearCache("BE_ModuleCustomResources_");
         }
 

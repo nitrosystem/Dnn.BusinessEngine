@@ -1,12 +1,7 @@
-﻿
+﻿using System;
+using System.Web.Caching;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Caching;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {

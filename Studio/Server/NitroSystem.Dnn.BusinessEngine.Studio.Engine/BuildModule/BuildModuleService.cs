@@ -1,25 +1,17 @@
-﻿using DotNetNuke.Data;
+﻿using System;
+using System.Web;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using DotNetNuke.Entities.Portals;
-using NitroSystem.Dnn.BusinessEngine.Shared.IO;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.Remoting.Contexts;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
@@ -63,7 +55,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                 var deleteResult = FileUtil.DeleteDirectory(result.TemplateDirectoryPath);
 
                 result.IsDeletedOldFiles = result.IsReadyToBuild = deleteResult.isDeleted;
-                if (!result.IsDeletedOldFiles) result.ExceptionError = deleteResult.errorException;
+                //if (!result.IsDeletedOldFiles) result.ExceptionError = deleteResult.errorException;
             }
             finally
             {
@@ -81,8 +73,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                 PortalSettings portalSettings,
                 HttpContext context)
         {
-            var result = new List<MachineResourceInfo>();
-
             var dict = resources.GroupBy(r => r.ModuleId)
                                               .ToDictionary(r => r.Key, r => r.AsEnumerable());
             foreach (var moduleId in dict.Keys)
@@ -102,14 +92,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 
             var moduleResources = await _resourceMachine.RunAsync(_machineResources, context);
 
-            return moduleResources.Select(r =>
-                                      HybridMapper.MapSimpleWithDefaults<ModuleResourceInfo, PageResourceDto>(
-                                          r,
-                                          new Dictionary<string, object> {
-                                        { "DnnPageId", pageId },
-                                        { "IsActive", true }
-                                          }
-                                      ));
+            var result = HybridMapper.MapCollection<ModuleResourceInfo, PageResourceDto>(moduleResources).ToList();
+            result.ForEach(r => { r.DnnPageId = pageId; r.IsActive = true; });
+            return result;
         }
 
         private void ProcessGetResources(BuildModuleDto module, IEnumerable<BuildModuleResourceDto> resources)
@@ -171,13 +156,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                                ModuleId = module.Id,
                                ActionType = ActionType.LoadResourceContent,
                                AddToResources = true,
-                               ResourceFiles = items.Select(resource =>
-                                   HybridMapper.MapSimpleWithDefaults<BuildModuleResourceDto, MachineResourceFileInfo>(
-                                       resource,
-                                       new Dictionary<string, object> {
-                                        { "ContinueOnError", true }
-                                       }
-                                   )).ToList(),
+                               ResourceFiles = HybridMapper.MapCollection<BuildModuleResourceDto, MachineResourceFileInfo>(items).ToList(),
                                Condition = items.First().Condition,
                                OperationType = OperationType.MergeResourceFiles,
                                MergeStrategy = ProccessMergeStrategy(item.Key, module, items, fields, portalSettings),

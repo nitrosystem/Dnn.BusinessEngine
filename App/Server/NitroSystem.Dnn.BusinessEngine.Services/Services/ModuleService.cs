@@ -1,37 +1,19 @@
-﻿using DotNetNuke.Common.Utilities;
-using DotNetNuke.Entities.Portals;
-using DotNetNuke.Services.Tokens;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Shared.IO;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.Enums;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Module.Field;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.UI;
-using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels.Module;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Utilities;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using DotNetNuke.Services.Scheduling;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
-using NitroSystem.Dnn.BusinessEngine.Shared.Enums;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 {
@@ -46,48 +28,33 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 
         #region Module Services
 
-        public async Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId)
+        public async Task<ModuleDto> GetModuleViewModelAsync(Guid moduleId)
         {
             var module = await _repository.GetAsync<ModuleView>(moduleId);
 
-            return HybridMapper.MapWithConfig<ModuleView, ModuleViewModel>(
-               module, (src, dest) =>
-               {
-                   dest.Settings = string.IsNullOrEmpty(module.Settings)
-                   ? null
-                   : TypeCasting.TryJsonCasting<IDictionary<string, object>>(module.Settings.ToString());
-               });
+            return HybridMapper.Map<ModuleView, ModuleDto>(module);
         }
 
         #endregion
 
         #region Module Field Services
 
-        public async Task<IEnumerable<ModuleFieldViewModel>> GetFieldsViewModelAsync(Guid moduleId)
+        public async Task<IEnumerable<ModuleFieldDto>> GetFieldsViewModelAsync(Guid moduleId)
         {
-            var task1 = _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId, "ViewOrder");
-            var task2 = _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("ModuleId", moduleId);
+            var fields = await _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId, "ViewOrder");
+            var fieldsSettings = await _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("ModuleId", moduleId);
 
-            var fields = await task1;
-            var settings = await task2;
-
-            return await Task.WhenAll(
-                fields.Select(async field =>
+            return await HybridMapper.MapCollectionAsync<ModuleFieldInfo, ModuleFieldDto>(fields,
+                async (src, dest) =>
                 {
-                    return await HybridMapper.MapWithConfigAsync<ModuleFieldInfo, ModuleFieldViewModel>(field,
-                        async (src, dest) =>
-                        {
-                            dest.ConditionalValues = TypeCasting.TryJsonCasting<IEnumerable<FieldValueInfo>>(field.ConditionalValues);
-                            dest.DataSource = field.HasDataSource && !string.IsNullOrWhiteSpace(field.DataSource)
-                                ? await GetFieldDataSource(field.DataSource)
-                                : null;
-                            dest.Settings = settings != null && settings.Any()
-                                ? settings
-                                    .Where(x => x.FieldId == field.Id)
-                                    .ToDictionary(x => x.SettingName, x => Globals.ConvertStringToObject(x.SettingValue))
-                                : null;
-                        });
-                })
+                    dest.DataSource = src.HasDataSource && !string.IsNullOrWhiteSpace(src.DataSource)
+                               ? await GetFieldDataSource(src.DataSource)
+                               : null;
+
+                    var dict = fieldsSettings.GroupBy(c => c.FieldId).ToDictionary(g => g.Key, g => g.AsEnumerable());
+                    var items = dict.TryGetValue(src.Id, out var settings);
+                    dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+                }
             );
         }
 
@@ -112,41 +79,32 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 
         public async Task<IEnumerable<ModuleVariableDto>> GetModuleVariables(Guid moduleId, ModuleVariableScope scope)
         {
-            var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                "BusinessEngine_App_GetModuleVariables", "App_ModuleVariables_",
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<ModuleVariableView, AppModelPropertyInfo>(
+                "BusinessEngine_App_GetModuleVariables", "BE_ModuleVariables_App_" + moduleId,
                     new
                     {
                         ModuleId = moduleId,
                         Scope = scope,
-                    },
-                    grid => grid.Read<ModuleVariableView>(),
-                    grid => grid.Read<AppModelPropertyInfo>()
+                    }
                 );
 
-            var variables = results[0] as IEnumerable<ModuleVariableView>;
-            var appModelsProperties = results[1] as IEnumerable<AppModelPropertyInfo>;
+            var variables = results.Item1;
+            var properties = results.Item2;
 
-            return variables.Select(variable =>
-            {
-                return HybridMapper.MapWithConfig<ModuleVariableView, ModuleVariableDto>(variable,
-                (src, dest) =>
-                {
-                    dest.Scope = (ModuleVariableScope)variable.Scope;
-                    dest.Properties = appModelsProperties.Where(p => p.AppModelId == variable.AppModelId).Select(prop =>
-                    {
-                        return HybridMapper.Map<AppModelPropertyInfo, PropertyInfo>(prop);
-                    });
-                });
-            });
+            return HybridMapper.MapWithChildren<ModuleVariableView, ModuleVariableDto, AppModelPropertyInfo, PropertyInfo>(
+               parents: variables,
+               children: properties,
+               parentKeySelector: p => p.AppModelId,
+               childKeySelector: c => c.AppModelId,
+               assignChildren: (parent, childs) => parent.Properties = childs
+           );
         }
 
         public async Task<IEnumerable<ModuleClientVariableDto>> GetModuleClientVariables(Guid moduleId)
         {
             var variables = await _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId);
 
-            return variables.Select(variable =>
-                HybridMapper.Map<ModuleVariableInfo, ModuleClientVariableDto>(variable)
-            );
+            return HybridMapper.MapCollection<ModuleVariableInfo, ModuleClientVariableDto>(variables);
         }
 
         #endregion

@@ -1,10 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Service;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto
 {
@@ -12,6 +6,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto
     {
         public ServiceViewModel Service { get; set; }
         public string ExtensionServiceJson { get; set; }
-
     }
 }

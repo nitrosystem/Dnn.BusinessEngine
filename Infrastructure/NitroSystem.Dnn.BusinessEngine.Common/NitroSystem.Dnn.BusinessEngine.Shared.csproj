@@ -59,21 +59,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Enums\FieldDataSourceType.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Globals\Constants.cs" />
+    <Compile Include="Helpers\CastingHelper.cs" />
+    <Compile Include="Helpers\CollectionHelper.cs" />
+    <Compile Include="Helpers\TypeChecker.cs" />
+    <Compile Include="Mapper\ExpressionMapper.cs" />
+    <Compile Include="Mapper\HybridMapper.cs" />
+    <Compile Include="Mapper\CollectionMappingBuilder.cs" />
+    <Compile Include="Models\GuidInfo.cs" />
+    <Compile Include="Models\PagingInfo.cs" />
+    <Compile Include="Models\SortInfo.cs" />
     <Compile Include="Helpers\GlobalHelper.cs" />
-    <Compile Include="Utils\DbUtil.cs" />
     <Compile Include="Helpers\UrlHelper.cs" />
-    <Compile Include="Models\Shared\ExpressionInfo.cs" />
-    <Compile Include="Models\Shared\FieldDataSourceInfo.cs" />
-    <Compile Include="Models\Shared\FieldDataSourceResult.cs" />
-    <Compile Include="Models\Shared\FieldValueInfo.cs" />
-    <Compile Include="Models\Shared\ParamInfo.cs" />
-    <Compile Include="Models\Shared\PropertyInfo.cs" />
+    <Compile Include="Models\ParamInfo.cs" />
+    <Compile Include="Models\PropertyInfo.cs" />
     <Compile Include="Extensions\DirectoryExtensions.cs" />
     <Compile Include="Utils\FileUtil.cs" />
     <Compile Include="Models\TableColumnInfo.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
-    <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Extensions\RegexExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\ReflectionUtil.cs" />

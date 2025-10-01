@@ -1,31 +1,16 @@
-﻿using DotNetNuke.Data;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Collections;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
+using System.Collections.Generic;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Utilities;
-using System.Net;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Data.Repository;
-using System.Runtime;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Service;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels.Database;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.StudioServices
 {
@@ -44,16 +29,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
 
         public async Task<IExtensionServiceViewModel> GetService(Guid serviceId)
         {
-            var deleteEntityRowService = await _repository.GetByColumnAsync<DeleteEntityRowServiceInfo>("ServiceId", serviceId);
+            var objDeleteEntityRowServiceInfo = await _repository.GetByColumnAsync<DeleteEntityRowServiceInfo>("ServiceId", serviceId);
 
-            return deleteEntityRowService != null
-                ? HybridMapper.MapWithConfig<DeleteEntityRowServiceInfo, DeleteEntityRowServiceViewModel>(deleteEntityRowService,
-                (src, dest) =>
-                {
-                    dest.Conditions = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.FilterItemInfo>>(deleteEntityRowService.Conditions);
-                    dest.Settings = TypeCasting.TryJsonCasting<IDictionary<string, object>>(deleteEntityRowService.Settings);
-                })
-            : null;
+            return objDeleteEntityRowServiceInfo != null
+                ? HybridMapper.Map<DeleteEntityRowServiceInfo, DeleteEntityRowServiceViewModel>(objDeleteEntityRowServiceInfo)
+                : null;
         }
 
         public async Task<IDictionary<string, object>> GetDependencyList(Guid scenarioId)
@@ -111,13 +91,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
 
             await sqlCommand.ExecuteSqlCommandTextAsync(deleteEntityRowQuery);
 
-            var objDeleteEntityRowServiceInfo = HybridMapper.MapWithConfig<DeleteEntityRowServiceViewModel, DeleteEntityRowServiceInfo>(
-                deleteEntityRowService, (src, dest) =>
-                {
-                    dest.Conditions = JsonConvert.SerializeObject(deleteEntityRowService.Conditions);
-                    dest.Settings = JsonConvert.SerializeObject(deleteEntityRowService.Settings);
-                });
-
+            var objDeleteEntityRowServiceInfo = HybridMapper.Map<DeleteEntityRowServiceViewModel, DeleteEntityRowServiceInfo>(deleteEntityRowService);
             objDeleteEntityRowServiceInfo.ServiceId = service.Id;
 
             if (objDeleteEntityRowServiceInfo.Id == Guid.Empty)

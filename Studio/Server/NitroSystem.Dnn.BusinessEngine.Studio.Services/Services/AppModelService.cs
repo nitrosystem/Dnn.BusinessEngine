@@ -1,29 +1,18 @@
-﻿using DotNetNuke.Data;
-using DotNetNuke.Entities.Users;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using System.Text.RegularExpressions;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.TypeGeneration;
-using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -31,85 +20,107 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositoryBase _repository;
-        private readonly IBaseService _globalService;
+        private readonly IBaseService _baseService;
         private readonly ITypeBuilderService _typeBuilderService;
 
         public AppModelService(IUnitOfWork unitOfWork, IRepositoryBase repository, IBaseService globalService, ITypeBuilderService typeBuilderService)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
-            _globalService = globalService;
+            _baseService = globalService;
             _typeBuilderService = typeBuilderService;
         }
-
-        #region App Model 
 
         public async Task<AppModelViewModel> GetAppModelAsync(Guid appModuleId)
         {
             var appModel = await _repository.GetAsync<AppModelInfo>(appModuleId);
             var properties = await _repository.GetByScopeAsync<AppModelPropertyInfo>(appModuleId, "ViewOrder");
 
-            return AppModelMapping.MapAppModelViewModel(appModel, properties);
+            var appViewModel = HybridMapper.MapWithChildren<AppModelInfo, AppModelViewModel, AppModelPropertyInfo, AppModelPropertyViewModel>(
+                source: appModel,
+                children: properties,
+                assignChildren: (parent, childList) => parent.Properties = childList
+            );
+
+            return appViewModel;
+
+            //async 
+            //var appViewModel = await HybridMapperExtensions.MapWithChildrenAsync<AppModelInfo, AppModelViewModel, AppModelPropertyInfo, AppModelPropertyViewModel>(
+            //    source: appModel,
+            //    children: properties,
+            //    assignChildrenAsync: async (parent, childList) =>
+            //    {
+            //        // اگر نیاز به async داشت
+            //        parent.Properties = childList;
+            //        await Task.CompletedTask;
+            //    }
+            //);
         }
 
         public async Task<IEnumerable<AppModelViewModel>> GetAppModelsAsync(Guid scenarioId, string sortBy = "ViewOrder")
         {
             var appModels = await _repository.GetByScopeAsync<AppModelInfo>(scenarioId, sortBy);
+            var properties = await _repository.GetAllAsync<AppModelPropertyInfo>("ViewOrder");
 
-            return AppModelMapping.MapAppModelsViewModel(appModels, Enumerable.Empty<AppModelPropertyInfo>());
+            return HybridMapper.MapWithChildren<AppModelInfo, AppModelViewModel,
+                                                AppModelPropertyInfo, AppModelPropertyViewModel>(
+                appModels,
+                properties,
+                parentKeySelector: p => p.Id,
+                childKeySelector: c => c.AppModelId,
+                assignChildren: (parent, childs) => parent.Properties = childs
+            );
         }
 
         public async Task<(IEnumerable<AppModelViewModel> Items, int? TotalCount)> GetAppModelsAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, string sortBy)
         {
-            var results =
-                await _repository
-                    .ExecuteStoredProcedureMultiGridResultAsync(
-                        "BusinessEngine_GetAppModelsWithProperties", "Studio_AppModels_",
-                        new
-                        {
-                            ScenarioId = scenarioId,
-                            SearchText = searchText,
-                            PageIndex = pageIndex,
-                            PageSize = pageSize,
-                            SortBy = sortBy
-                        },
-                        grid => grid.ReadSingle<int?>(),
-                        grid => grid.Read<AppModelInfo>(),
-                        grid => grid.Read<AppModelPropertyInfo>()
-                    );
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<int?, AppModelInfo, AppModelPropertyInfo>(
+                    "BusinessEngine_Studio_GetAppModelsWithProperties", "",
+                    new
+                    {
+                        ScenarioId = scenarioId,
+                        SearchText = searchText,
+                        PageIndex = pageIndex,
+                        PageSize = pageSize,
+                        SortBy = sortBy
+                    }
+                );
 
-            var totalCount = results[0] as int?;
-            var appModels = results[1] as IEnumerable<AppModelInfo>;
-            var appModelProperties = results[2] as IEnumerable<AppModelPropertyInfo>;
+            var totalCount = results.Item1?.First();
+            var appModels = results.Item2;
+            var properties = results.Item3;
 
-            return (AppModelMapping.MapAppModelsViewModel(appModels, appModelProperties), totalCount);
+            var result = HybridMapper.MapWithChildren<AppModelInfo, AppModelViewModel,
+                                                AppModelPropertyInfo, AppModelPropertyViewModel>(
+                appModels,
+                properties,
+                parentKeySelector: p => p.Id,
+                childKeySelector: c => c.AppModelId,
+                assignChildren: (parent, childs) => parent.Properties = childs
+            );
+
+            return (result, totalCount);
         }
 
         public async Task<Guid> SaveAppModelAsync(AppModelViewModel appModel, bool isNew, PortalSettings portalSettings)
         {
-            var objAppModelInfo = AppModelMapping.MapAppModelInfo(appModel);
+            var objAppModelInfo = HybridMapper.Map<AppModelViewModel, AppModelInfo>(appModel);
 
             _unitOfWork.BeginTransaction();
 
             try
             {
-                var scenarioName = await _globalService.GetScenarioNameAsync(appModel.ScenarioId);
+                var scenarioName = await _baseService.GetScenarioNameAsync(appModel.ScenarioId);
                 var outputPath = $@"{portalSettings.HomeSystemDirectoryMapPath}\business-engine\{scenarioName}\AppModelTypes";
-                var appModelDto = new AppModelDto()
-                {
-                    ModelName = appModel.ModelName,
-                    ScenarioName = scenarioName,
-                    Properties = appModel.Properties.Select(prop =>
-                        HybridMapper.MapWithConfig<AppModelPropertyInfo, PropertyDefinition>(prop,
-                            (src, dest) =>
-                            {
-                                dest.Name = prop.PropertyName;
-                                dest.ClrType = prop.PropertyType;
-                            }
-                    )).ToList()
-                };
+                var appModelDto =
+                    HybridMapper.MapWithChildren<AppModelViewModel, AppModelDto, AppModelPropertyViewModel, PropertyDefinition>(
+                        appModel,
+                        appModel.Properties,
+                        (parent, childs) => parent.Properties = childs.ToList()
+                    );
 
                 objAppModelInfo.TypeFullName = _typeBuilderService.BuildAppModelAsType(appModelDto, outputPath);
+
                 objAppModelInfo.TypeRelativePath = $"{portalSettings.HomeSystemDirectory}/business-engine/{scenarioName}/AppModelTypes/";
 
                 if (isNew)
@@ -122,9 +133,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
                 await _repository.DeleteByScopeAsync<AppModelPropertyInfo>(objAppModelInfo.Id);
 
-                foreach (var objAppModelPropertyInfo in appModel.Properties)
+                foreach (var prop in appModel.Properties)
                 {
-                    objAppModelPropertyInfo.AppModelId = objAppModelInfo.Id;
+                    var objAppModelPropertyInfo = HybridMapper.Map<AppModelPropertyViewModel, AppModelPropertyInfo>(prop);
 
                     await _repository.AddAsync<AppModelPropertyInfo>(objAppModelPropertyInfo);
                 }
@@ -141,7 +152,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return objAppModelInfo.Id;
         }
 
-        public async Task<bool> UpdateGroupColumn(Guid appModelId, Guid? groupId)
+        public async Task<bool> UpdateGroupColumnAsync(Guid appModelId, Guid? groupId)
         {
             return await _repository.UpdateColumnAsync<AppModelInfo>("GroupId", groupId, appModelId);
         }
@@ -165,7 +176,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 throw ex;
             }
         }
-
-        #endregion
     }
 }

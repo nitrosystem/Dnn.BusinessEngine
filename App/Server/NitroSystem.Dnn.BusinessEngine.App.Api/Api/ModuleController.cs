@@ -6,7 +6,6 @@ using DotNetNuke.Web.Api;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NitroSystem.Dnn.BusinessEngine.Api.Models;
-using NitroSystem.Dnn.BusinessEngine.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,14 +21,13 @@ using System.Web.Http.Results;
 using System.IO;
 using System.Drawing;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System.IO.Compression;
 using NitroSystem.Dnn.BusinessEngine.App.Api.Dto;
 using NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers.Globals;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {

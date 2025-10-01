@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using System.Collections.Concurrent;
 

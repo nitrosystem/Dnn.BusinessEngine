@@ -1,13 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection
+namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ServiceLocator
 {
     public class ServiceLocator : IServiceLocator
     {

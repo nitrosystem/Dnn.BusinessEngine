@@ -1,32 +1,21 @@
-﻿using DotNetNuke.Common.Utilities;
-using DotNetNuke.Entities.Portals;
-using DotNetNuke.Entities.Users;
-using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-using NitroSystem.Dnn.BusinessEngine.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using System.Globalization;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
-using NitroSystem.Dnn.BusinessEngine.Shared.IO;
+using NitroSystem.Dnn.BusinessEngine.Core.Security;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
+using NitroSystem.Dnn.BusinessEngine.Data.Repository;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -43,24 +32,25 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         public async Task<EntityViewModel> GetEntityViewModelAsync(Guid entityId)
         {
-            var entityTask = _repository.GetAsync<EntityInfo>(entityId);
-            var entityColumnsTask = _repository.ExecuteStoredProcedureAsListAsync<EntityColumnInfo>("BusinessEngine_GetEntityColumns",
+            var entity = await _repository.GetAsync<EntityInfo>(entityId);
+            var columns = await _repository.ExecuteStoredProcedureAsListAsync<EntityColumnInfo>(
+                "dbo.BusinessEngine_Studio_GetEntityColumns", "BE_EntityColumns_GetEntityColumns",
                 new
                 {
                     EntityId = entityId
                 });
 
-            await Task.WhenAll(entityTask, entityColumnsTask);
-
-            var columns = BaseMapping<EntityColumnInfo, EntityColumnViewModel>.MapViewModels(entityColumnsTask.Result);
-
-            return EntityMapping.MapEntityViewModel(entityTask.Result, columns);
+            return HybridMapper.MapWithChildren<EntityInfo, EntityViewModel, EntityColumnInfo, EntityColumnViewModel>(
+                entity,
+                columns,
+                (parent, childs) => parent.Columns = childs
+            );
         }
 
         public async Task<(IEnumerable<EntityViewModel> Items, int? TotalCount)> GetEntitiesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, byte? entityType, bool? isReadonly, string sortBy)
         {
-            var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                        "BusinessEngine_GetEntitiesWithColumns", "Studio_Entities_",
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<int?, EntityInfo, EntityColumnInfo>(
+                        "dbo.BusinessEngine_Studio_GetEntitiesWithColumns", "BE_Entities_GetEntitiesWithColumns",
                         new
                         {
                             ScenarioId = scenarioId,
@@ -70,22 +60,28 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                             PageIndex = pageIndex,
                             PageSize = pageSize,
                             SortBy = sortBy
-                        },
-                        grid => grid.ReadSingle<int?>(),
-                        grid => grid.Read<EntityInfo>(),
-                        grid => grid.Read<EntityColumnInfo>()
+                        }
                     );
 
-            var totalCount = results[0] as int?;
-            var entities = results[1] as IEnumerable<EntityInfo>;
-            var entityColumns = results[2] as IEnumerable<EntityColumnInfo>;
 
-            return (EntityMapping.MapEntitiesViewModel(entities, entityColumns), totalCount);
+            var totalCount = results.Item1?.First();
+            var entities = results.Item2;
+            var columns = results.Item3;
+
+            var result = HybridMapper.MapWithChildren<EntityInfo, EntityViewModel, EntityColumnInfo, EntityColumnViewModel>(
+                 entities,
+                 columns,
+                 parentKeySelector: p => p.Id,
+                 childKeySelector: c => c.EntityId,
+                 assignChildren: (parent, childs) => parent.Columns = childs
+             );
+
+            return (result, totalCount);
         }
 
         public async Task<Guid> SaveEntity(EntityViewModel entity, bool isNew, HttpContext context)
         {
-            var objEntityInfo = EntityMapping.MapEntityInfo(entity);
+            var objEntityInfo = HybridMapper.Map<EntityViewModel, EntityInfo>(entity);
 
             _unitOfWork.BeginTransaction();
 
@@ -97,13 +93,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
                 if (isNew)
                 {
-                    objEntityInfo.Id = await _repository.AddAsync<EntityInfo>(objEntityInfo);
+                    objEntityInfo.Id = await _repository.AddAsync(objEntityInfo);
                 }
                 else
                 {
                     oldTableName = await _repository.GetColumnValueAsync<EntityInfo, string>(objEntityInfo.Id, "TableName");
 
-                    var isUpdated = await _repository.UpdateAsync<EntityInfo>(objEntityInfo);
+                    var isUpdated = await _repository.UpdateAsync(objEntityInfo);
                     if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objEntityInfo);
                 }
 
@@ -145,11 +141,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                     {
                         column.EntityId = objEntityInfo.Id;
 
-                        var objEntityColumnInfo = BaseMapping<EntityColumnInfo, EntityColumnViewModel>.MapEntity(column);
+                        var objEntityColumnInfo = HybridMapper.Map<EntityColumnViewModel, EntityColumnInfo>(column);
 
                         if (isNew && column.IsPrimary)
                         {
-                            await _repository.AddAsync<EntityColumnInfo>(objEntityColumnInfo);
+                            await _repository.AddAsync(objEntityColumnInfo);
                             continue;
                         }
 
@@ -202,7 +198,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
                         if (isNewColumn)
                         {
-                            await _repository.AddAsync<EntityColumnInfo>(objEntityColumnInfo);
+                            await _repository.AddAsync(objEntityColumnInfo);
                         }
                         else
                         {
@@ -212,8 +208,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
                     if (queries.Length > 0)
                     {
-                        string token = TokenGenerator.GenerateToken(entity.TableName);
-                        await _repository.ExecuteQueryByToken(token, entity.TableName, queries.ToString());
+                        var sqlCommand = new ExecuteSqlCommand(_unitOfWork);
+                        await sqlCommand.ExecuteSqlCommandTextAsync(queries.ToString());
                     }
                 }
 
@@ -241,18 +237,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             try
             {
                 string tableName = await _repository.GetColumnValueAsync<EntityInfo, string>(entityId, "TableName");
-                string token = TokenGenerator.GenerateToken(tableName);
-
                 string query = $"DROP TABLE {tableName};";
 
-                var task1 = _repository.DeleteAsync<EntityInfo>(entityId);
-                var task2 = _repository.ExecuteQueryByToken(token, tableName, query);
+                var sqlCommand = new ExecuteSqlCommand(_unitOfWork);
+                await sqlCommand.ExecuteSqlCommandTextAsync(query);
 
-                await Task.WhenAll(task1, task2);
+                var result = await _repository.DeleteAsync<EntityInfo>(entityId);
 
                 _unitOfWork.Commit();
 
-                return await task1;
+                return result;
             }
             catch (Exception ex)
             {

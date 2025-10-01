@@ -1,32 +1,16 @@
-﻿using DotNetNuke.Data;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Collections;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Utilities;
-using System.Net;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Data.Repository;
-using System.Runtime;
-using System.Text.RegularExpressions;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels.Database;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DatabaseEntities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Service;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.StudioServices
 {
@@ -50,15 +34,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
             var dataRowService = await _repository.GetByColumnAsync<DataRowServiceInfo>("ServiceId", serviceId);
 
             return dataRowService != null
-                ? HybridMapper.MapWithConfig<DataRowServiceInfo, DataRowServiceViewModel>(dataRowService,
-                (src, dest) =>
-                {
-                    dest.Entities = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.EntityInfo>>(dataRowService.Entities);
-                    dest.JoinRelationships = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.EntityJoinRelationInfo>>(dataRowService.JoinRelationships);
-                    dest.ModelProperties = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.ModelPropertyInfo>>(dataRowService.ModelProperties);
-                    dest.Filters = TypeCasting.TryJsonCasting<IEnumerable<Models.Database.FilterItemInfo>>(dataRowService.Filters);
-                    dest.Settings = TypeCasting.TryJsonCasting<IDictionary<string, object>>(dataRowService.Settings);
-                })
+                ? HybridMapper.Map<DataRowServiceInfo, DataRowServiceViewModel>(dataRowService)
             : null;
         }
 
@@ -163,16 +139,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Stu
 
             await sqlCommand.ExecuteSqlCommandTextAsync(dataSourceQuery);
 
-            var objDataRowServiceInfo = HybridMapper.MapWithConfig<DataRowServiceViewModel, DataRowServiceInfo>(
-                dataRowService, (src, dest) =>
-                {
-                    dest.Entities = JsonConvert.SerializeObject(dataRowService.Entities);
-                    dest.JoinRelationships = JsonConvert.SerializeObject(dataRowService.JoinRelationships);
-                    dest.ModelProperties = JsonConvert.SerializeObject(dataRowService.ModelProperties);
-                    dest.Filters = JsonConvert.SerializeObject(dataRowService.Filters);
-                    dest.Settings = JsonConvert.SerializeObject(dataRowService.Settings);
-                });
-
+            var objDataRowServiceInfo = HybridMapper.Map<DataRowServiceViewModel, DataRowServiceInfo>(dataRowService);
             objDataRowServiceInfo.ServiceId = service.Id;
 
             if (objDataRowServiceInfo.Id == Guid.Empty)

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Reflection.TypeLoader
+namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader
 {
     internal sealed class PluginLoader : MarshalByRefObject
     {

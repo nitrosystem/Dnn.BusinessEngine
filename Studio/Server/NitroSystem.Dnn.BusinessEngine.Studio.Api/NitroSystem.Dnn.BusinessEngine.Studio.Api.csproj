@@ -82,23 +82,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\ModuleController.cs" />
-    <Compile Include="Contracts\IJWTAttribute.cs" />
     <Compile Include="Api\StudioController.cs" />
     <Compile Include="Dto\ExplorerItemDto.cs" />
-    <Compile Include="Dto\GuidDto.cs" />
     <Compile Include="Dto\CheckModuleNameDto.cs" />
     <Compile Include="Dto\SaveServiceDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup\RouteMapper.cs" />
     <Compile Include="Startup\Startup.cs" />
-    <Compile Include="WebSocketHandler.ashx.cs">
-      <DependentUpon>WebSocketHandler.ashx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <Content Include="WebSocketHandler.ashx" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

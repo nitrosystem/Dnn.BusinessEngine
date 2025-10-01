@@ -1,63 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Base;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
 {
     public interface IBaseService
     {
-        #region General Service
-
         Task<string[]> GetPortalRolesAsync(int portalId);
-        
-        #endregion
-
-        #region Scenario
 
         Task<IEnumerable<ScenarioViewModel>> GetScenariosViewModelAsync();
-        
         Task<ScenarioViewModel> GetScenarioViewModelAsync(Guid scenarioId);
-
         Task<ScenarioViewModel> GetScenarioByNameViewModelAsync(string name);
-
         Task<string> GetScenarioNameAsync(Guid scenarioId);
-
         Task<Guid> SaveScenarioAsync(ScenarioViewModel scenario, bool isNew);
 
-        void DeleteScenarioAndChilds(Guid scenarioId);
-
-        #endregion
-
-        #region Group
-
         Task<IEnumerable<GroupViewModel>> GetGroupsViewModelAsync(Guid scenarioId, string groupType = null);
-
         Task<Guid> SaveGroupAsync(GroupViewModel group, bool isNew);
-
         Task<bool> DeleteGroupAsync(Guid groupId);
-
-        #endregion
-
-        #region Explorer Items
 
         Task<IEnumerable<ExplorerItemViewModel>> GetExplorerItemsViewModelAsync(Guid scenarioId);
 
-        #endregion
-
-        #region Library & Resources
-
-        Task<IEnumerable<LibraryDto>> GetLibrariesLiteDtoAsync();
-
-        #endregion
-
-        #region Studio Library
-
-        Task<IEnumerable<StudioLibraryViewModel>> GetStudioLibrariesViewModelAsync();
-
-        #endregion
+        Task<IEnumerable<LibraryListItem>> GetLibrariesListItemAsync();
     }
 }

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Shared
+namespace NitroSystem.Dnn.BusinessEngine.Shared.Extensions
 {
     public static class RegexExtensions
     {
@@ -13,8 +10,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared
             this Regex regex, string input, string groupName, string replacement, int count)
         {
             return regex.Replace(
-                input,
-                m =>
+                input, m =>
                 {
                     var group = m.Groups[groupName];
                     var sb = new StringBuilder();

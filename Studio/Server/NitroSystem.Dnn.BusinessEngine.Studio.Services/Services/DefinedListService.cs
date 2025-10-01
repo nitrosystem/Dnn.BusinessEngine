@@ -1,35 +1,14 @@
-﻿using DotNetNuke.Entities.Portals;
-using DotNetNuke.Services.Tokens;
-using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Shared.IO;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using System.Runtime.Remoting.Messaging;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
+using System.Collections.Generic;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using DotNetNuke.Collections;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Base;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -44,13 +23,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             _repository = repository;
         }
 
-        #region DefinedList Services
-
-        public async Task<DefinedListViewModel> GetDefinedListByFieldId(Guid fieldId)
+        public async Task<DefinedListViewModel> GetDefinedListByListName(string listName)
         {
             DefinedListViewModel definedList = null;
 
-            var objDefinedListInfo = await _repository.GetByColumnAsync<DefinedListInfo>("FieldId", fieldId);
+            var objDefinedListInfo = await _repository.GetByColumnAsync<DefinedListInfo>("ListName", listName);
             if (objDefinedListInfo != null)
             {
                 var items = await _repository.GetByScopeAsync<DefinedListItemInfo>(objDefinedListInfo.Id, "ViewOrder");
@@ -72,10 +49,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         {
             IEnumerable<DefinedListItemInfo> items = Enumerable.Empty<DefinedListItemInfo>();
 
-            var objDefinedListInfo = HybridMapper.MapWithChildCollection<DefinedListViewModel, DefinedListInfo, DefinedListItemViewModel, DefinedListItemInfo>(
+            var objDefinedListInfo = HybridMapper.MapWithChildren<DefinedListViewModel, DefinedListInfo, DefinedListItemViewModel, DefinedListItemInfo>(
                 source: definedList,
-                childSelector: vm => vm.Items,
-                childAssigner: (info, columns) => items = columns
+                children: definedList.Items,
+                assignChildren: (info, columns) => items = columns
             );
 
             _unitOfWork.BeginTransaction();
@@ -83,10 +60,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             try
             {
                 if (isNew)
-                    objDefinedListInfo.Id = await _repository.AddAsync<DefinedListInfo>(objDefinedListInfo);
+                    objDefinedListInfo.Id = await _repository.AddAsync(objDefinedListInfo);
                 else
                 {
-                    var isUpdated = await _repository.UpdateAsync<DefinedListInfo>(objDefinedListInfo);
+                    var isUpdated = await _repository.UpdateAsync(objDefinedListInfo);
                     if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objDefinedListInfo);
                 }
 
@@ -97,10 +74,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                     objDefinedListItemInfo.ListId = objDefinedListInfo.Id;
 
                     if (objDefinedListItemInfo.Id == Guid.Empty)
-                        await _repository.AddAsync<DefinedListItemInfo>(objDefinedListItemInfo);
+                        await _repository.AddAsync(objDefinedListItemInfo);
                     else
                     {
-                        var isUpdated = await _repository.UpdateAsync<DefinedListItemInfo>(objDefinedListItemInfo);
+                        var isUpdated = await _repository.UpdateAsync(objDefinedListItemInfo);
                         if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objDefinedListItemInfo);
                     }
                 }
@@ -116,7 +93,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
             return objDefinedListInfo.Id;
         }
-
-        #endregion
     }
 }

@@ -20,7 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Vie
         public string InsertBaseQuery { get; set; }
         public string UpdateBaseQuery { get; set; }
         public string StoredProcedureName { get; set; }
-        public ActionType? ActionType { get; set; }
+        public ActionType ActionType { get; set; }
         public EntityInfo Entity { get; set; }
         public string CustomQuery{ get; set; }
         public IDictionary<string, object> Settings { get; set; }

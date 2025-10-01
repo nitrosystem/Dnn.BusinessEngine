@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.TypeGeneration
+namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class GeneratedModelAttribute : Attribute

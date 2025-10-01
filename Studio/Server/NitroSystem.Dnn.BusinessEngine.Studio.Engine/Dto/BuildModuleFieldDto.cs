@@ -1,10 +1,7 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Core.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto
 {

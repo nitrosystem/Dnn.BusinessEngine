@@ -1,14 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Action
 {
     public class ActionViewModel
     {
@@ -20,14 +14,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public string ActionType { get; set; }
         public string ActionName { get; set; }
         public string Event { get; set; }
-        public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
         public bool ExecuteInClientSide { get; set; }
         public string Preconditions { get; set; }
         public string Conditions { get; set; }
-        public IEnumerable<string> AuthorizationRunAction { get; set; }
-        public IDictionary<string, object> Settings { get; set; }
-        public IEnumerable<ActionResultViewModel> Results { get; set; }
-        public IEnumerable<ActionParamInfo> Params { get; set; }
         public string ActionTypeIcon { get; set; }
         public string ActionTypeTitle { get; set; }
         public string FieldType { get; set; }
@@ -40,5 +29,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
+        public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
+        public IEnumerable<string> AuthorizationRunAction { get; set; }
+        public IEnumerable<ActionParamViewModel> Params { get; set; }
+        public IEnumerable<ActionResultViewModel> Results { get; set; }
+        public IDictionary<string, object> Settings { get; set; }
     }
 }

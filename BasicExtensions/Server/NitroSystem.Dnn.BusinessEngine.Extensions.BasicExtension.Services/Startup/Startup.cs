@@ -13,6 +13,7 @@ using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Contrac
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Database;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DnnServices;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Startup
 {

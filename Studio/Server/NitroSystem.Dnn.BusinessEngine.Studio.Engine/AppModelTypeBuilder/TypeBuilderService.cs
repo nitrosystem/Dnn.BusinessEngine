@@ -1,12 +1,7 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.TypeGeneration;
+﻿using System.IO;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.AppModelTypeBuilder
 {

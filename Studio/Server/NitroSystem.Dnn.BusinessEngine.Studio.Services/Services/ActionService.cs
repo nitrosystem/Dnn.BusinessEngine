@@ -1,34 +1,18 @@
-﻿using DotNetNuke.Entities.Portals;
-using DotNetNuke.Services.Tokens;
-using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Shared.IO;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationActions.Mapping;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Action;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -37,7 +21,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositoryBase _repository;
 
-        private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> _actionLocks = new ConcurrentDictionary<Guid, SemaphoreSlim>();
+        private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> _actionLocks =
+            new ConcurrentDictionary<Guid, SemaphoreSlim>();
 
         public ActionService(IUnitOfWork unitOfWork, IRepositoryBase repository)
         {
@@ -45,25 +30,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             _repository = repository;
         }
 
-        public async Task<IEnumerable<ActionTypeViewModel>> GetActionTypesViewModelAsync(string sortBy = "ViewOrder")
+        public async Task<IEnumerable<ActionTypeListItem>> GetActionTypesListItemAsync(string sortBy = "ViewOrder")
         {
             var actionTypes = await _repository.GetAllAsync<ActionTypeView>(sortBy);
 
-            return actionTypes.Select(actionType =>
-            {
-                return HybridMapper.MapWithConfig<ActionTypeView, ActionTypeViewModel>(actionType, (src, dest) =>
-                {
-                    dest.Icon = (dest.Icon ?? string.Empty).ReplaceFrequentTokens();
-                });
-            });
+            return HybridMapper.MapCollection<ActionTypeView, ActionTypeListItem>(actionTypes);
         }
-
-        #region Action Services
 
         public async Task<(IEnumerable<ActionViewModel> Items, int TotalCount)> GetActionsViewModelAsync(
             Guid moduleId, Guid? fieldId, int pageIndex, int pageSize, string searchText, string actionType, string sortBy)
         {
-            var results = await _repository.ExecuteStoredProcedureAsListWithPagingAsync<ActionView>("BusinessEngine_GetActions",
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<int, ActionView, ActionParamInfo, ActionResultInfo>(
+                "dbo.BusinessEngine_Studio_GetActions", "BE_Actions_Studio_GetActions",
                 new
                 {
                     ModuleId = moduleId,
@@ -75,19 +53,55 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                     SortBy = sortBy
                 });
 
-            var actions = results.Item1;
-            var totalCount = results.Item2;
+            var totalCount = results.Item1?.First() ?? 0;
+            var actions = results.Item2;
+            var actionParams = results.Item3;
+            var actionResults = results.Item4;
 
-            return (ActionMapping.MapActionsViewModel(actions, Enumerable.Empty<ActionParamInfo>()), totalCount);
+            var builder = new CollectionMappingBuilder<ActionView, ActionViewModel>();
+
+            builder.AddChildAsync<ActionParamInfo, ActionParamViewModel, Guid>(
+               source: actionParams,
+               parentKey: parent => parent.Id,
+               childKey: child => child.ActionId,
+               assign: (dest, children) => dest.Params = children
+            );
+
+            builder.AddChildAsync<ActionResultInfo, ActionResultViewModel, Guid>(
+              source: actionResults,
+              parentKey: parent => parent.Id,
+              childKey: child => child.ActionId,
+              assign: (dest, children) => dest.Results = children
+            );
+
+            var result = await builder.BuildAsync(actions);
+            return (result, totalCount);
         }
 
         public async Task<ActionViewModel> GetActionViewModelAsync(Guid actionId)
         {
             var action = await _repository.GetAsync<ActionView>(actionId);
-            var actionsResults = await _repository.GetByScopeAsync<ActionResultInfo>(actionId);
-            var actionsParams = await _repository.GetByScopeAsync<ActionParamInfo>(actionId);
+            var actionResults = await _repository.GetByScopeAsync<ActionResultInfo>(actionId);
+            var actionParams = await _repository.GetByScopeAsync<ActionParamInfo>(actionId);
 
-            return ActionMapping.MapActionViewModel(action, actionsResults, actionsParams);
+            var builder = new CollectionMappingBuilder<ActionView, ActionViewModel>();
+
+            builder.AddChildAsync<ActionParamInfo, ActionParamViewModel, Guid>(
+               source: actionParams,
+               parentKey: parent => parent.Id,
+               childKey: child => child.ActionId,
+               assign: (dest, children) => dest.Params = children
+            );
+
+            builder.AddChildAsync<ActionResultInfo, ActionResultViewModel, Guid>(
+              source: actionResults,
+              parentKey: parent => parent.Id,
+              childKey: child => child.ActionId,
+              assign: (dest, children) => dest.Results = children
+            );
+
+            var result = await builder.BuildAsync(action);
+            return result;
         }
 
         public async Task<Guid> SaveActionAsync(ActionViewModel action, bool isNew)
@@ -95,10 +109,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             var lockKey = action.Id == Guid.Empty ? Guid.NewGuid() : action.Id;
             var semaphore = _actionLocks.GetOrAdd(lockKey, _ => new SemaphoreSlim(1, 1));
 
-            var actionObjects = ActionMapping.MapActionInfoWithChilds(action);
-            var objActionInfo = actionObjects.Action;
-            var actionResults = actionObjects.Results;
-            var actionParams = actionObjects.Params;
+            var objActionInfo = HybridMapper.Map<ActionViewModel, ActionInfo>(action);
+            var actionParams = HybridMapper.MapCollection<ActionParamViewModel, ActionParamInfo>(action.Params);
+            var actionResults = HybridMapper.MapCollection<ActionResultViewModel, ActionResultInfo>(action.Results);
 
             await semaphore.WaitAsync();
 
@@ -109,18 +122,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 try
                 {
                     if (isNew)
-                        objActionInfo.Id = await _repository.AddAsync<ActionInfo>(objActionInfo);
+                        objActionInfo.Id = await _repository.AddAsync(objActionInfo);
                     else
                     {
-                        var isUpdated = await _repository.UpdateAsync<ActionInfo>(objActionInfo);
+                        var isUpdated = await _repository.UpdateAsync(objActionInfo);
                         if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objActionInfo);
 
                         await _repository.DeleteByScopeAsync<ActionResultInfo>(objActionInfo.Id);
                         await _repository.DeleteByScopeAsync<ActionParamInfo>(objActionInfo.Id);
                     }
 
-                    await _repository.BulkInsertAsync<ActionResultInfo>(actionResults.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
-                    await _repository.BulkInsertAsync<ActionParamInfo>(actionParams.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
+                    await _repository.BulkInsertAsync(actionResults.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
+                    await _repository.BulkInsertAsync(actionParams.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
 
                     _unitOfWork.Commit();
                 }
@@ -159,7 +172,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 throw ex;
             }
         }
-
-        #endregion
     }
 }

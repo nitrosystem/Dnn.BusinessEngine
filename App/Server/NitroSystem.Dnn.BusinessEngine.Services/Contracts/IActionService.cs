@@ -1,18 +1,6 @@
-﻿using DotNetNuke.Data;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.Providers;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
-using System.Web;
+using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
@@ -20,15 +8,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Contracts
     public interface IActionService
     {
         Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId, Guid? fieldId, bool executeInClientSide);
-
-        Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId, Guid? fieldId = null);
-
+        Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId);
         Task<IEnumerable<ActionDto>> GetActionsDtoForServerAsync(IEnumerable<Guid> actionIds);
-
         Task<string> GetBusinessControllerClass(string actionType);
-
-        //Task<ActionViewModel> GetActionViewModelAsync(Guid actionId);
-
-        //Task<IEnumerable<ModuleFieldLiteDto>> GetFieldsHaveActionsAsync(Guid moduleId);
     }
 }

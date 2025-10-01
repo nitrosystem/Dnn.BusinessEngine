@@ -1,12 +1,10 @@
-﻿using DotNetNuke.Data;
-using System;
+﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using DotNetNuke.Data;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.ADO_NET
 {
@@ -77,5 +75,4 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.ADO_NET
             return $"{typeof(T).FullName}_{queryOrSp}_{paramStr}";
         }
     }
-
 }

@@ -10,5 +10,4 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Mapper
     {
         TDestination Map(TSource source);
     }
-
 }

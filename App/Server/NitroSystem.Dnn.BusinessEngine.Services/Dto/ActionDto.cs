@@ -1,12 +1,6 @@
-﻿using NitroSystem.Dnn.BusinessEngine.App.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Dto
 {
@@ -20,15 +14,15 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Dto
         public string ActionType { get; set; }
         public string ActionName { get; set; }
         public string Event { get; set; }
-        public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
         public bool ExecuteInClientSide { get; set; }
         public string Preconditions { get; set; }
         public string Conditions { get; set; }
-        public IDictionary<string, object> Settings { get; set; }
         public int ViewOrder { get; set; }
+        public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
         public IEnumerable<string> AuthorizationRunAction { get; set; }
-        public IEnumerable<ParamInfo> Params { get; set; }
+        public IEnumerable<ActionParamDto> Params { get; set; }
         public IEnumerable<ActionResultDto> Results { get; set; }
+        public IDictionary<string, object> Settings { get; set; }
     }
 
 }

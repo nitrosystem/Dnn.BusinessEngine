@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Template
 {
-    public class TemplateFieldTypeViewModel
+    public class TemplateFieldTypeViewModel : IViewModel
     {
+        public Guid Id { get; set; }
         public string FieldType { get; set; }
         public string Icon { get; set; }
-
     }
 }

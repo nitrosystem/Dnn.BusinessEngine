@@ -1,23 +1,15 @@
-﻿using Dapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using System.Data.Common;
+﻿using System;
 using System.Data;
 using System.Linq;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
-using System.Collections.ObjectModel;
-using System.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Dapper;
 using static Dapper.SqlMapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using System.Data.SqlClient;
-using NitroSystem.Dnn.BusinessEngine.Core.Providers;
-using System.Collections;
-using System.Text;
+using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
+using NitroSystem.Dnn.BusinessEngine.Core.Caching;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 {
@@ -38,7 +30,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var query = $"SELECT * FROM {table} WHERE Id = @Value";
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
-            return await _cacheService.GetOrCreate<T>(cacheAttr.key + $"_{id}", () =>
+            return await _cacheService.GetOrCreateAsync<T>(cacheAttr.key + $"_{id}", () =>
               _unitOfWork.Connection.QuerySingleOrDefaultAsync<T>(
                 query,
                 new { Value = id }
@@ -54,7 +46,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var query = $"SELECT * FROM {table} WHERE {column} = @Value";
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
-            var result = await _cacheService.GetOrCreate<T>(cacheAttr.key + $"_{column}_{value}", () =>
+            var result = await _cacheService.GetOrCreateAsync<T>(cacheAttr.key + $"_{column}_{value}", () =>
              _unitOfWork.Connection.QuerySingleOrDefaultAsync<T>(
                 query,
                 new { Value = value }
@@ -72,7 +64,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var query = $"SELECT {column} FROM {table}";
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
-            return await _cacheService.GetOrCreate<IEnumerable<TColumnType>>(cacheAttr.key + $"_{column}", () =>
+            return await _cacheService.GetOrCreateAsync<IEnumerable<TColumnType>>(cacheAttr.key + $"_{column}", () =>
              _unitOfWork.Connection.QueryAsync<TColumnType>(
                 query,
                 _unitOfWork.Transaction
@@ -88,7 +80,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var query = $"SELECT {column} FROM {table} WHERE Id = @Value";
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
-            return await _cacheService.GetOrCreate<TColumnType>(cacheAttr.key + $"_{column}_{id}", () =>
+            return await _cacheService.GetOrCreateAsync<TColumnType>(cacheAttr.key + $"_{column}_{id}", () =>
              _unitOfWork.Connection.ExecuteScalarAsync<TColumnType>(
                 query,
                 new { Value = id },
@@ -108,7 +100,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var query = $"SELECT {column} FROM {table} WHERE {filerColumn} = @Value";
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
-            return await _cacheService.GetOrCreate<TColumnType>(cacheAttr.key + $"_{column}_{filerColumn}_{filterValue}", () =>
+            return await _cacheService.GetOrCreateAsync<TColumnType>(cacheAttr.key + $"_{column}_{filerColumn}_{filterValue}", () =>
              _unitOfWork.Connection.ExecuteScalarAsync<TColumnType>(
                 query,
                 new { Value = filterValue },
@@ -138,7 +130,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             }
             if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
 
-            return await _cacheService.GetOrCreate<IEnumerable<T>>(cacheKey, () =>
+            return await _cacheService.GetOrCreateAsync<IEnumerable<T>>(cacheKey, () =>
              _unitOfWork.Connection.QueryAsync<T>(
                 query,
                 new { Value = value }
@@ -190,7 +182,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             }
             if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
 
-            return await _cacheService.GetOrCreate<IEnumerable<T>>(cacheAttr.key + $"_Items_{column}_{value}", () =>
+            return await _cacheService.GetOrCreateAsync<IEnumerable<T>>(cacheAttr.key + $"_Items_{column}_{value}", () =>
             _unitOfWork.Connection.QueryAsync<T>(
                 query,
                 new { Value = value }
@@ -231,13 +223,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             }
             if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
 
-            return await _cacheService.GetOrCreate<IEnumerable<T>>(cacheAttr.key, () =>
+            return await _cacheService.GetOrCreateAsync<IEnumerable<T>>(cacheAttr.key, () =>
              _unitOfWork.Connection.QueryAsync<T>(
                 query
             ), cacheAttr.timeOut);
         }
 
-        public async Task<(IEnumerable<T> Items, int TotalCount)> GetAllAsync<T>(int pageIndex, int pageSize) where T : class, IEntity, new()
+        public async Task<(IEnumerable<T> Items, int TotalCount)> GetByPage<T>(int pageIndex, int pageSize) where T : class, IEntity, new()
         {
             var table = AttributeCache.Instance.GetTableName<T>();
 
@@ -266,8 +258,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
             var properties = typeof(T).GetProperties().Where(p => p.CanRead && p.CanWrite);
 
-            int userID = CurrentUserProvider.GetCurrentUserId(_cacheService);
-
             if (isNew || entity.Id == Guid.Empty)
             {
                 if (entity.Id == Guid.Empty) entity.Id = Guid.NewGuid();
@@ -278,7 +268,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
                 var createdByUserProp = properties.FirstOrDefault(p => p.Name == "CreatedByUserId");
                 if (createdByUserProp != null)
-                    createdByUserProp.SetValue(entity, userID);
+                    createdByUserProp.SetValue(entity, Constants.CurrentUser.UserID);
             }
 
             var lastModifiedDateProp = properties.FirstOrDefault(p => p.Name == "LastModifiedOnDate");
@@ -287,7 +277,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
             var lastModifiedByUserProp = properties.FirstOrDefault(p => p.Name == "LastModifiedByUserId");
             if (lastModifiedByUserProp != null)
-                lastModifiedByUserProp.SetValue(entity, userID);
+                lastModifiedByUserProp.SetValue(entity, Constants.CurrentUser.UserID);
 
             var columns = string.Join(", ", properties.Select(p => p.Name));
             var values = string.Join(", ", properties.Select(p => "@" + p.Name));
@@ -329,11 +319,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             //    .Where(p => !Attribute.IsDefined(p, typeof(IgnoreInsertAttribute)))
                 .ToArray();
 
-
-            int userID = -1;
-            if (properties.FirstOrDefault(p => p.Name == "CreatedByUserId" || p.Name == "LastModifiedByUserId") != null)
-                userID = CurrentUserProvider.GetCurrentUserId(_cacheService);
-
             var entityList = entities.ToList();
             foreach (var entity in entityList)
             {
@@ -345,7 +330,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
                 var lastModifiedByUserProp = properties.FirstOrDefault(p => p.Name == "LastModifiedByUserId");
                 if (lastModifiedByUserProp != null)
-                    lastModifiedByUserProp.SetValue(entity, userID);
+                    lastModifiedByUserProp.SetValue(entity, Constants.CurrentUser.UserID);
 
                 var createdOnDateProp = properties.FirstOrDefault(p => p.Name == "CreatedOnDate");
                 if (createdOnDateProp != null)
@@ -353,7 +338,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
                 var createdByUserProp = properties.FirstOrDefault(p => p.Name == "CreatedByUserId");
                 if (createdByUserProp != null)
-                    createdByUserProp.SetValue(entity, userID);
+                    createdByUserProp.SetValue(entity, Constants.CurrentUser.UserID);
             }
 
             var table = AttributeCache.Instance.GetTableName<T>();
@@ -397,7 +382,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
             var lastModifiedByUserProp = properties.FirstOrDefault(p => p.Name == "LastModifiedByUserId");
             if (lastModifiedByUserProp != null)
-                lastModifiedByUserProp.SetValue(entity, CurrentUserProvider.GetCurrentUserId(_cacheService));
+                lastModifiedByUserProp.SetValue(entity, Constants.CurrentUser.UserID);
 
             if (!properties.Any())
                 throw new InvalidOperationException("No valid properties to update.");
@@ -497,24 +482,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             return rowAffected >= 1;
         }
 
-        public async Task ExecuteQueryByToken(string token, string key, string query, params object[] parameters)
-        {
-            if (!TokenGenerator.IsValidToken(token, key))
-            {
-                throw new UnauthorizedAccessException("Token is not valid!");
-            }
-
-            await _unitOfWork.Connection.ExecuteAsync(
-                 query,
-                 commandType: CommandType.Text,
-                 transaction: _unitOfWork.Transaction
-             );
-        }
-
         public async Task ExecuteStoredProcedureAsync(string storedProcedure, object parameters)
         {
-            AllowedStoredProcedures.CheckValidStoredProcedure(storedProcedure);
-
             await _unitOfWork.Connection.ExecuteAsync(
                storedProcedure,
                param: parameters,
@@ -523,10 +492,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
            );
         }
 
-        public async Task<T> ExecuteStoredProcedureScalerAsync<T>(string storedProcedure, object parameters)
+        public async Task<T> ExecuteStoredProcedureScalerAsync<T>(string storedProcedure, string cacheKey, object parameters)
         {
-            AllowedStoredProcedures.CheckValidStoredProcedure(storedProcedure);
-
             return await _unitOfWork.Connection.ExecuteScalarAsync<T>(
                 storedProcedure,
                 param: parameters,
@@ -535,10 +502,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             );
         }
 
-        public async Task<IDataReader> ExecuteStoredProcedureAsDataReaderAsync(string storedProcedure, object parameters)
+        public async Task<IDataReader> ExecuteStoredProcedureAsDataReaderAsync(string storedProcedure, string cacheKey, object parameters)
         {
-            AllowedStoredProcedures.CheckValidStoredProcedure(storedProcedure);
-
             return await _unitOfWork.Connection.ExecuteReaderAsync(
                     storedProcedure,
                     parameters,
@@ -547,10 +512,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             );
         }
 
-        public async Task<IEnumerable<T>> ExecuteStoredProcedureAsListAsync<T>(string storedProcedure, object parameters)
+        public async Task<IEnumerable<T>> ExecuteStoredProcedureAsListAsync<T>(string storedProcedure, string cacheKey, object parameters)
         {
-            AllowedStoredProcedures.CheckValidStoredProcedure(storedProcedure);
-
             return await _unitOfWork.Connection.QueryAsync<T>(
                     storedProcedure,
                     parameters,
@@ -559,100 +522,147 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             );
         }
 
-        public async Task<(IEnumerable<T>, int)> ExecuteStoredProcedureAsListWithPagingAsync<T>(string storedProcedure, object parameters)
+        /// <summary>
+        /// Executes a stored procedure and returns two strongly-typed result sets.
+        /// </summary>
+        /// <summary>
+        /// Executes a stored procedure for paging and caches the final result.
+        /// This version safely disposes the GridReader and only caches the materialized data.
+        /// </summary>
+        public async Task<(IEnumerable<T> Items, int TotalCount)> ExecuteStoredProcedureForPagingAsync<T>(
+            string storedProcedure,
+            string cacheKey,
+            object parameters = null)
         {
-            AllowedStoredProcedures.CheckValidStoredProcedure(storedProcedure);
+            // Check cache first
+            var cachedResult = _cacheService.Get<(IEnumerable<T>, int)?>(cacheKey);
+            if (cachedResult != null)
+                return cachedResult.Value;
 
-            var multi = await _unitOfWork.Connection.QueryMultipleAsync(
+            // Query DB and dispose GridReader properly
+            (IEnumerable<T> Items, int TotalCount) result;
+            using (var grid = await _unitOfWork.Connection.QueryMultipleAsync(
                 storedProcedure,
                 parameters,
                 _unitOfWork.Transaction,
-                commandType: CommandType.StoredProcedure
-            );
-
-            var totalCount = (await multi.ReadFirstOrDefaultAsync<int?>()) ?? 0;
-            var listT = await multi.ReadAsync<T>();
-
-            return (listT, totalCount);
-        }
-
-        public async Task<(IEnumerable<T1> Items, int? TotalCount, IEnumerable<T2> Childs)> ExecuteStoredProcedureAsListWithChildsAsync<T1, T2>(string storedProcedure, object parameters)
-        {
-            AllowedStoredProcedures.CheckValidStoredProcedure(storedProcedure);
-
-            var multi = await _unitOfWork.Connection.QueryMultipleAsync(
-                    storedProcedure,
-                    parameters,
-                    _unitOfWork.Transaction,
-                    commandType: CommandType.StoredProcedure
-            );
-
-            var task1 = multi.ReadFirstAsync<int?>();
-            var task2 = multi.ReadAsync<T1>();
-            var task3 = multi.ReadAsync<T2>();
-
-            await Task.WhenAll(task1, task2, task3);
-
-            var totalCount = await task1;
-            var listT1 = await task2;
-            var listT2 = await task3;
-
-            return (listT1, totalCount, listT2);
-        }
-
-        public async Task<object[]> ExecuteStoredProcedureMultiResultAsync(string storedProcedure, object parameters, params Type[] resultTypes)
-        {
-            AllowedStoredProcedures.CheckValidStoredProcedure(storedProcedure);
-
-            var multi = await _unitOfWork.Connection.QueryMultipleAsync(
-                storedProcedure,
-                parameters,
-                _unitOfWork.Transaction,
-                commandType: CommandType.StoredProcedure
-            );
-
-            var readAsyncMethod = typeof(SqlMapper.GridReader)
-                .GetMethods()
-                .Where(m => m.Name == "ReadAsync" && m.IsGenericMethod && m.GetParameters().Length == 0)
-                .FirstOrDefault();
-
-            if (readAsyncMethod == null)
-                throw new InvalidOperationException("Dapper.SqlMapper.GridReader.ReadAsync method not found. Ensure you are using the correct version of Dapper.");
-
-            var tasks = resultTypes
-                .Select(type =>
-                        ((Task)readAsyncMethod.MakeGenericMethod(type)
-                            .Invoke(multi, null))
-                        .ContinueWith(t => ((dynamic)t).Result as object) // اینجا مقدار خروجی رو به object تبدیل می‌کنیم
-                )
-                .ToArray();
-
-            await Task.WhenAll(tasks);
-
-            return tasks.Select(t => t.Result).ToArray();
-        }
-
-        public async Task<object[]> ExecuteStoredProcedureMultiGridResultAsync(string storedProcedure,
-            string cacheKey, object parameters, params Func<GridReader, object>[] readerFuncs)
-        {
-            AllowedStoredProcedures.CheckValidStoredProcedure(storedProcedure);
-
-            var returnResults = new List<object>();
-
-            var gridReader = await _unitOfWork.Connection.QueryMultipleAsync(
-                storedProcedure,
-                parameters,
-                _unitOfWork.Transaction,
-                commandType: CommandType.StoredProcedure
-            );
-
-            foreach (var readerFunc in readerFuncs)
+                commandType: CommandType.StoredProcedure))
             {
-                var obj = readerFunc(gridReader);
-                returnResults.Add(obj);
+                var totalCount = await grid.ReadSingleAsync<int>();
+                var items = await grid.ReadAsync<T>();
+                result = (items.ToList(), totalCount); // Materialize to avoid deferred reading
             }
 
-            return returnResults.ToArray();
+            // Cache the final materialized result
+            _cacheService.Set(cacheKey, result);
+            return result;
+        }
+
+        /// <summary>
+        /// Executes a stored procedure and returns two strongly-typed result sets.
+        /// </summary>
+        /// <summary>
+        /// Executes a stored procedure for paging and caches the final result.
+        /// This version safely disposes the GridReader and only caches the materialized data.
+        /// </summary>
+        public async Task<(IEnumerable<T1>, IEnumerable<T2>)> ExecuteStoredProcedureMultipleAsync<T1, T2>(
+            string storedProcedure,
+            string cacheKey,
+            object parameters = null)
+        {
+            // Check cache first
+            var cachedResult = _cacheService.Get<(IEnumerable<T1>, IEnumerable<T2>)?>(cacheKey);
+            if (cachedResult != null)
+                return cachedResult.Value;
+
+            // Query DB and dispose GridReader properly
+            (IEnumerable<T1>, IEnumerable<T2>) result;
+            using (var grid = await _unitOfWork.Connection.QueryMultipleAsync(
+                storedProcedure,
+                parameters,
+                _unitOfWork.Transaction,
+                commandType: CommandType.StoredProcedure))
+            {
+                result.Item1 = await grid.ReadAsync<T1>();
+                result.Item2 = await grid.ReadAsync<T2>();
+            }
+
+            // Cache the final materialized result
+            _cacheService.Set(cacheKey, result);
+            return result;
+        }
+
+
+        /// <summary>
+        /// Executes a stored procedure and returns two strongly-typed result sets.
+        /// </summary>
+        /// <summary>
+        /// Executes a stored procedure for paging and caches the final result.
+        /// This version safely disposes the GridReader and only caches the materialized data.
+        /// </summary>
+        public async Task<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>)> ExecuteStoredProcedureMultipleAsync<T1, T2, T3>(
+            string storedProcedure,
+            string cacheKey,
+            object parameters = null)
+        {
+            // Check cache first
+            var cachedResult = string.IsNullOrEmpty(cacheKey)
+                ? _cacheService.Get<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>)?>(cacheKey)
+                : null;
+            if (cachedResult != null)
+                return cachedResult.Value;
+
+            // Query DB and dispose GridReader properly
+            (IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>) result;
+            using (var grid = await _unitOfWork.Connection.QueryMultipleAsync(
+                storedProcedure,
+                parameters,
+                _unitOfWork.Transaction,
+                commandType: CommandType.StoredProcedure))
+            {
+                result.Item1 = await grid.ReadAsync<T1>();
+                result.Item2 = await grid.ReadAsync<T2>();
+                result.Item3 = await grid.ReadAsync<T3>();
+            }
+
+            // Cache the final materialized result
+            _cacheService.Set(cacheKey, result);
+            return result;
+        }
+
+        /// <summary>
+        /// Executes a stored procedure and returns two strongly-typed result sets.
+        /// </summary>
+        /// <summary>
+        /// Executes a stored procedure for paging and caches the final result.
+        /// This version safely disposes the GridReader and only caches the materialized data.
+        /// </summary>
+        public async Task<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>)> ExecuteStoredProcedureMultipleAsync<T1, T2, T3, T4>(
+            string storedProcedure,
+            string cacheKey,
+            object parameters = null)
+        {
+            // Check cache first
+            var cachedResult = _cacheService.Get<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>)?>(cacheKey);
+            if (cachedResult != null)
+                return cachedResult.Value;
+
+            // Query DB and dispose GridReader properly
+            (IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>) result;
+            using (var grid = await _unitOfWork.Connection.QueryMultipleAsync(
+                storedProcedure,
+                parameters,
+                _unitOfWork.Transaction,
+                commandType: CommandType.StoredProcedure))
+            {
+                result.Item1 = await grid.ReadAsync<T1>();
+                result.Item2 = await grid.ReadAsync<T2>();
+                result.Item3 = await grid.ReadAsync<T3>();
+                result.Item4 = await grid.ReadAsync<T4>();
+            }
+
+            // Cache the final materialized result
+            _cacheService.Set(cacheKey, result);
+            return result;
         }
     }
 }

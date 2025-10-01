@@ -1,13 +1,10 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module
 {
-    public class ModuleVariableViewModel
+    public class ModuleVariableViewModel : IViewModel
     {
         public Guid Id { get; set; }
         public Guid ModuleId { get; set; }
@@ -15,13 +12,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public string VariableType { get; set; }
         public string VariableName { get; set; }
         public string DefaultValue { get; set; }
-        public ModuleVariableScope Scope { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
-        public AppModelViewModel ViewModel { get; set; }
+        public ModuleVariableScope Scope { get; set; }
     }
 }

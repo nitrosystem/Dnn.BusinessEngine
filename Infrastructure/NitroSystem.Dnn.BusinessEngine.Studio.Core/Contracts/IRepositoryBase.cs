@@ -1,14 +1,7 @@
-﻿
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
-using static Dapper.SqlMapper;
+﻿using System;
 using System.Data;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Contracts
 {
@@ -34,7 +27,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Contracts
 
         Task<IEnumerable<T>> GetAllAsync<T>(params string[] orderColumns) where T : class, IEntity, new();
 
-        Task<(IEnumerable<T> Items, int TotalCount)> GetAllAsync<T>(int pageIndex, int pageSize) where T : class, IEntity, new();
+        Task<(IEnumerable<T> Items, int TotalCount)> GetByPage<T>(int pageIndex, int pageSize) where T : class, IEntity, new();
 
         Task<Guid> AddAsync<T>(T entity, bool isNew = false) where T : class, IEntity, new();
 
@@ -50,31 +43,31 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Contracts
 
         Task<bool> DeleteByScopeAsync<T>(Guid value) where T : class, IEntity, new();
 
-        Task ExecuteQueryByToken(
-            string token, string key, string query, params object[] parameters);
+        Task ExecuteStoredProcedureAsync(string storedProcedure, object parameters);
 
-        Task ExecuteStoredProcedureAsync(
-            string storedProcedure, object parameters);
+        Task<T> ExecuteStoredProcedureScalerAsync<T>(string storedProcedure, string cacheKey, object parameters);
 
-        Task<T> ExecuteStoredProcedureScalerAsync<T>(
-            string storedProcedure, object parameters);
+        Task<IDataReader> ExecuteStoredProcedureAsDataReaderAsync(string storedProcedure, string cacheKey, object parameters);
 
-        Task<IDataReader> ExecuteStoredProcedureAsDataReaderAsync(
-            string storedProcedure, object parameters);
+        Task<IEnumerable<T>> ExecuteStoredProcedureAsListAsync<T>(string storedProcedure, string cacheKey, object parameters);
 
-        Task<IEnumerable<T>> ExecuteStoredProcedureAsListAsync<T>(
-            string storedProcedure, object parameters);
+        Task<(IEnumerable<T> Items, int TotalCount)> ExecuteStoredProcedureForPagingAsync<T>(
+           string storedProcedure,
+           string cacheKey,
+           object parameters = null);
 
-        Task<(IEnumerable<T>, int)> ExecuteStoredProcedureAsListWithPagingAsync<T>(
-            string storedProcedure, object parameters);
+        Task<(IEnumerable<T1>, IEnumerable<T2>)> ExecuteStoredProcedureMultipleAsync<T1, T2>(
+           string storedProcedure,
+           string cacheKey,
+           object parameters = null);
 
-        Task<(IEnumerable<T1> Items, int? TotalCount, IEnumerable<T2> Childs)> ExecuteStoredProcedureAsListWithChildsAsync<T1, T2>(
-            string storedProcedure, object parameters);
-
-        Task<object[]> ExecuteStoredProcedureMultiResultAsync(
-        string storedProcedure, object parameters, params Type[] resultTypes);
-
-        Task<object[]> ExecuteStoredProcedureMultiGridResultAsync(string storedProcedure,
-            string cacheKey, object parameters, params Func<GridReader, object>[] readerFuncs);
+        Task<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>)> ExecuteStoredProcedureMultipleAsync<T1, T2, T3>(
+           string storedProcedure,
+           string cacheKey,
+           object parameters = null);
+        Task<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>)> ExecuteStoredProcedureMultipleAsync<T1, T2, T3, T4>(
+           string storedProcedure,
+           string cacheKey,
+           object parameters = null);
     }
 }

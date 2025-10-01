@@ -12,15 +12,14 @@ using System.Text.RegularExpressions;
 using NitroSystem.Dnn.BusinessEngine.Framework.Enums;
 using System.Runtime.Remoting.Messaging;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using DotNetNuke.Entities.Users;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
 using DotNetNuke.UI.UserControls;
 using System.Collections.Concurrent;
 using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ServiceLocator;
 
 namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
 {
@@ -79,7 +78,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Framework.Services
 
             if (action != null && _actionCondition.IsTrueConditions(moduleData, action.Conditions))
             {
-                var actionParams = new List<ParamInfo>();
+                var actionParams = new List<ActionParamDto>();
 
                 foreach (var item in action.Params)
                 {

@@ -1,26 +1,16 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity
 {
-    [Entity(typeof(EntityInfo))]
     public class EntityViewModel : IViewModel
     {
         public Guid Id { get; set; }
         public Guid ScenarioId { get; set; }
-        public Guid? DatabaseId { get; set; }
         public Guid? GroupId { get; set; }
         public string EntityName { get; set; }
-        public EntityType EntityType { get; set; }
         public string TableName { get; set; }
         public bool IsReadonly { get; set; }
         public string Description { get; set; }
@@ -29,6 +19,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
+        public EntityType EntityType { get; set; }
         public IDictionary<string, object> Settings { get; set; }
         public IEnumerable<EntityColumnViewModel> Columns { get; set; }
     }

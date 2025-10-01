@@ -1,74 +1,47 @@
-﻿using DotNetNuke.Data;
-using DotNetNuke.Entities.Users;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Mapping;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
+﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
+using NitroSystem.Dnn.BusinessEngine.Core.Caching;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ServiceLocator;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
-using Newtonsoft.Json;
-using System.Collections.Concurrent;
-using System.Threading;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Service;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
+using System.Resources;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
     public class ServiceFactory : IServiceFactory
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
         private readonly IServiceLocator _serviceLocator;
 
         private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> _serviceLocks = new ConcurrentDictionary<Guid, SemaphoreSlim>();
 
-        public ServiceFactory(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository, IServiceLocator serviceLocator)
+        public ServiceFactory(IUnitOfWork unitOfWork, IRepositoryBase repository, IServiceLocator serviceLocator)
         {
             _unitOfWork = unitOfWork;
-            _cacheService = cacheService;
             _repository = repository;
             _serviceLocator = serviceLocator;
-        }
-
-        #region Service Type
-
-        public async Task<IEnumerable<ServiceTypeViewModel>> GetServiceTypeViewModelsAsync()
-        {
-            var serviceTypes = await _repository.GetAllAsync<ServiceTypeView>();
-            return BaseMapping<ServiceTypeView, ServiceTypeViewModel>.MapViewModels(serviceTypes);
         }
 
         public async Task<IEnumerable<ServiceTypeListItem>> GetServiceTypesListItemAsync()
         {
             var serviceTypes = await _repository.GetAllAsync<ServiceTypeView>("GroupViewOrder", "ViewOrder");
-            return serviceTypes.Select(serviceType =>
-            {
-                return HybridMapper.MapWithConfig<ServiceTypeView, ServiceTypeListItem>(
-                   serviceType, (src, dest) =>
-                   {
-                       dest.Icon = (serviceType.Icon ?? string.Empty).ReplaceFrequentTokens();
-                   });
-            });
+
+            return HybridMapper.MapCollection<ServiceTypeView, ServiceTypeListItem>(serviceTypes);
         }
-
-        #endregion
-
-        #region Service 
 
         public async Task<(ServiceViewModel Service, IExtensionServiceViewModel Extension, IDictionary<string, object> ExtensionDependency)>
             GetServiceViewModelAsync(Guid scenarioId, string serviceType, Guid serviceId)
@@ -78,7 +51,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             var service = await _repository.GetAsync<ServiceView>(serviceId);
             var serviceParams = await _repository.GetByScopeAsync<ServiceParamInfo>(serviceId, "ViewOrder");
 
-            result.Service = ServiceMapping.MapServiceViewModel(service, serviceParams);
+            result.Service = HybridMapper.MapWithChildren<ServiceView, ServiceViewModel, ServiceParamInfo, ParamInfo>(
+               source: service,
+               children: serviceParams,
+               assignChildren: (parent, childs) => parent.Params = childs
+           );
 
             if (serviceId != Guid.Empty)
                 serviceType = service.ServiceType;
@@ -98,13 +75,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         {
             var services = await _repository.GetByScopeAsync<ServiceView>(scenarioId, sortBy);
 
-            return ServiceMapping.MapServicesViewModel(services, Enumerable.Empty<ServiceParamInfo>());
+            return HybridMapper.MapCollection<ServiceView, ServiceViewModel>(services);
         }
 
-        public async Task<(IEnumerable<ServiceViewModel> Items, int? TotalCount)> GetServicesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, string serviceType, string sortBy)
+        public async Task<(IEnumerable<ServiceViewModel> Items, int? TotalCount)> GetServicesViewModelAsync(
+            Guid scenarioId, int pageIndex, int pageSize, string searchText, string serviceType, string sortBy)
         {
-            var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                "BusinessEngine_GetServicesWithParams", "Studio_Services_",
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<int?, ServiceView, ServiceParamInfo>(
+                "dbo.BusinessEngine_Studio_GetServicesWithParams", "",
                     new
                     {
                         ScenarioId = scenarioId,
@@ -113,17 +91,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                         PageIndex = pageIndex,
                         PageSize = pageSize,
                         SortBy = sortBy
-                    },
-                    grid => grid.ReadSingle<int?>(),
-                    grid => grid.Read<ServiceView>(),
-                    grid => grid.Read<ServiceParamInfo>()
+                    }
                 );
 
-            var totalCount = results[0] as int?;
-            var services = results[1] as IEnumerable<ServiceView>;
-            var serviceParams = results[2] as IEnumerable<ServiceParamInfo>;
+            var totalCount = results.Item1?.First();
+            var services = results.Item2;
+            var serviceParams = results.Item3;
 
-            return (ServiceMapping.MapServicesViewModel(services, serviceParams), totalCount);
+            var result = HybridMapper.MapWithChildren<ServiceView, ServiceViewModel, ServiceParamInfo, ParamInfo>(
+                parents: services,
+                children: serviceParams,
+                parentKeySelector: p => p.Id,
+                childKeySelector: c => c.ServiceId,
+                assignChildren: (parent, childs) => parent.Params = childs
+            );
+
+            return (result, totalCount);
         }
 
         public async Task<(Guid ServiceId, Guid? ExtensionServiceId)> SaveServiceAsync(ServiceViewModel service, string extensionServiceJson, bool isNew)
@@ -133,11 +116,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
             Guid? extensionServiceId = null;
 
-            var objServiceInfo = HybridMapper.MapWithConfig<ServiceViewModel, ServiceInfo>(
-            service, (src, dest) =>
-            {
-                dest.Settings = JsonConvert.SerializeObject(service.Settings);
-            });
+            var objServiceInfo = HybridMapper.Map<ServiceViewModel, ServiceInfo>(service);
+            var serviceParams = HybridMapper.MapCollection<ParamInfo, ServiceParamInfo>(service.Params);
 
             await semaphore.WaitAsync();
 
@@ -157,7 +137,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                         await _repository.DeleteByScopeAsync<ServiceParamInfo>(objServiceInfo.Id);
                     }
 
-                    foreach (var objServiceParamInfo in service.Params ?? Enumerable.Empty<ServiceParamInfo>())
+                    foreach (var objServiceParamInfo in serviceParams ?? Enumerable.Empty<ServiceParamInfo>())
                     {
                         objServiceParamInfo.ServiceId = objServiceInfo.Id;
 
@@ -214,17 +194,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             return await _repository.DeleteAsync<ServiceInfo>(serviceId);
         }
 
-        #endregion
-
-        #region Service Params
-
-        public async Task<IEnumerable<ServiceParamViewModel>> GetServiceParamsAsync(Guid serviceId)
+        public async Task<IEnumerable<ParamInfo>> GetServiceParamsAsync(Guid serviceId)
         {
             var serviceParams = await _repository.GetByScopeAsync<ServiceParamInfo>(serviceId);
 
-            return BaseMapping<ServiceParamInfo, ServiceParamViewModel>.MapViewModels(serviceParams);
+            return HybridMapper.MapCollection<ServiceParamInfo, ParamInfo>(serviceParams);
         }
-
-        #endregion
     }
 }

@@ -1,14 +1,9 @@
-﻿using DotNetNuke.Entities.Host;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
+﻿using System;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection.Emit;
 using System.Collections.Concurrent;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.TypeGeneration
+namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration
 {
     public sealed class TypeGenerationFactory
     {

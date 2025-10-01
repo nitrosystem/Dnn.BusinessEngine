@@ -1,14 +1,8 @@
-﻿using Dapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Providers;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
+using Dapper;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 {
@@ -35,6 +29,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                 throw new Exception($"Error execute query {ex.Message}", ex);
             }
         }
-
     }
 }

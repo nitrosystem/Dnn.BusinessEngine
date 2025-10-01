@@ -1,12 +1,7 @@
-﻿using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Dto
 {

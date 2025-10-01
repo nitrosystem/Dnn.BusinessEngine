@@ -1,12 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Caching;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Attributes
 {
@@ -18,22 +10,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Attributes
             return item.TableName;
         }
 
-        public static string GetScope<T>(this AttributeCache attributeCache) where T : class, IEntity, new()
-        {
-            var item = attributeCache.GetAttribute<T, ScopeAttribute>();
-            return item.Scope;
-        }
-
         public static (string key, int? timeOut) GetCache<T>(this AttributeCache attributeCache) where T : class, IEntity, new()
         {
             var item = attributeCache.GetAttribute<T, CacheableAttribute>();
             return item != null ? (item.CacheKey, item.CacheTimeOut) : (string.Empty, 0);
         }
 
-        public static IEntity GetEntity<T>(this AttributeCache attributeCache) where T : class
+        public static string GetScope<T>(this AttributeCache attributeCache) where T : class, IEntity, new()
         {
-            var item = attributeCache.GetAttribute<T, EntityAttribute>();
-            return item.Entity;
+            var item = attributeCache.GetAttribute<T, ScopeAttribute>();
+            return item.Scope;
         }
     }
 }

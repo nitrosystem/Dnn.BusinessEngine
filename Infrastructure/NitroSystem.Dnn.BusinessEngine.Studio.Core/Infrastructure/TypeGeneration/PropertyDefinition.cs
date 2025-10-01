@@ -1,11 +1,7 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.TypeGeneration
+namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration
 {
     public sealed class PropertyDefinition
     {

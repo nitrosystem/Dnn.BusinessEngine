@@ -1,9 +1,5 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems
 {
@@ -15,6 +11,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems
         public string ActionType { get; set; }
         public string ActionName { get; set; }
         public string Event { get; set; }
-        public int? ParentActionTriggerCondition { get; set; }
+        public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
     }
 }

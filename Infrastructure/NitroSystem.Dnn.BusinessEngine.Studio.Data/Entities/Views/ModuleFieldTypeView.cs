@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Caching;
-
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Data.Views
+namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
 {
     [Table("BusinessEngineView_ModuleFieldTypes")]
     [Cacheable("BE_FieldType_View_", CacheItemPriority.Default, 20)]

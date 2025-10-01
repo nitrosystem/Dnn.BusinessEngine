@@ -1,43 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.IO;
 using System.Web;
 using System.Web.Http;
-using Newtonsoft.Json;
-using DotNetNuke.Entities.Host;
-using DotNetNuke.Common.Utilities;
-using DotNetNuke.Security.Roles;
-using DotNetNuke.Web.Api;
-using DotNetNuke.Entities.Portals;
-using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
-using DotNetNuke.Entities.Controllers;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using System.Threading;
-using System.Web.WebSockets;
-using System.Net.WebSockets;
-using System.Text;
+using System.Net;
+using System.Net.Http;
 using System.Data;
-using System.IdentityModel.Metadata;
-using System.Text.RegularExpressions;
-using DotNetNuke.Collections;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
+using System.Linq;
+using System.Threading.Tasks;
+using DotNetNuke.Web.Api;
+using DotNetNuke.Entities.Host;
+using DotNetNuke.Entities.Portals;
+using DotNetNuke.Entities.Controllers;
+using DotNetNuke.Common.Utilities;
+using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
+using NitroSystem.Dnn.BusinessEngine.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module.Field;
-using NitroSystem.Dnn.BusinessEngine.Utilities;
-using NitroSystem.Dnn.BusinessEngine.Shared.IO;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Base;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -49,23 +30,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IAppModelService _appModelServices;
         private readonly IServiceFactory _serviceFactory;
         private readonly IDefinedListService _definedListService;
-        private readonly IExtensionService _extensionService;
+        private readonly IDatabaseMetadataRepository _databaseMetadata;
 
         public StudioController(
             IBaseService globalService,
             IEntityService entityService,
             IAppModelService appModelService,
             IServiceFactory serviceFactory,
-            IExtensionService extensionService,
-            IDefinedListService definedListService
+            IDefinedListService definedListService,
+            IDatabaseMetadataRepository databaseMetadata
         )
         {
             _globalService = globalService;
             _entityService = entityService;
             _appModelServices = appModelService;
             _serviceFactory = serviceFactory;
-            _extensionService = extensionService;
             _definedListService = definedListService;
+            _databaseMetadata = databaseMetadata;
         }
 
         #region Common
@@ -155,7 +136,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                         result = await _entityService.UpdateGroupColumn(item.ItemId, item.GroupId);
                         break;
                     case "ViewModel":
-                        result = await _appModelServices.UpdateGroupColumn(item.ItemId, item.GroupId);
+                        result = await _appModelServices.UpdateGroupColumnAsync(item.ItemId, item.GroupId);
                         break;
                     case "Service":
                         result = await _serviceFactory.UpdateGroupColumn(item.ItemId, item.GroupId);
@@ -257,7 +238,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteGroup(GuidDto postData)
+        public async Task<HttpResponseMessage> DeleteGroup(GuidInfo postData)
         {
             try
             {
@@ -325,8 +306,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var tables = DbUtil.GetDatabaseObjects(0);
-                var views = DbUtil.GetDatabaseObjects(1);
+                var tables = _databaseMetadata.GetDatabaseObjectsAsync(0);
+                var views = _databaseMetadata.GetDatabaseObjectsAsync(1);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Tables = tables, Views = views });
             }
@@ -341,7 +322,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var columns = DbUtil.GetDatabaseObjectColumns(objectName);
+                var columns = _databaseMetadata.GetDatabaseObjectColumnsAsync(objectName);
 
                 return Request.CreateResponse(HttpStatusCode.OK, columns);
             }
@@ -375,7 +356,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteEntity(GuidDto postData)
+        public async Task<HttpResponseMessage> DeleteEntity(GuidInfo postData)
         {
             try
             {
@@ -429,7 +410,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
                 var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, null, "Title");
                 var appModel = await _appModelServices.GetAppModelAsync(appModelId);
-                var propertyTypes = GlobalItems.VariableTypes.Select(kvp => new { Text = kvp.Key, Value = kvp.Value });
+                var propertyTypes = Constants.VariableTypes.Select(kvp => new { Text = kvp.Key, Value = kvp.Value });
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -464,7 +445,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteAppModel(GuidDto postData)
+        public async Task<HttpResponseMessage> DeleteAppModel(GuidInfo postData)
         {
             try
             {
@@ -583,7 +564,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteService(GuidDto postData)
+        public async Task<HttpResponseMessage> DeleteService(GuidInfo postData)
         {
             try
             {
@@ -602,11 +583,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         #region Defined Lists
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetDefinedListByFieldId(Guid fieldId)
+        public async Task<HttpResponseMessage> GetDefinedListByListName(string listName)
         {
             try
             {
-                var definedList = await _definedListService.GetDefinedListByFieldId(fieldId);
+                var definedList = await _definedListService.GetDefinedListByListName(listName);
 
                 return Request.CreateResponse(HttpStatusCode.OK, definedList);
             }
@@ -625,154 +606,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 definedList.Id = await _definedListService.SaveDefinedList(definedList, definedList.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, definedList.Id);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        #endregion
-
-        #region Extensions
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetExtensions()
-        {
-            try
-            {
-                var extensions = await _extensionService.GetExtensionsViewModelAsync();
-
-                return Request.CreateResponse(HttpStatusCode.OK, extensions);
-            }
-            catch (Exception ex)
-            {
-
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<HttpResponseMessage> InstallExtension()
-        //{
-        //    try
-        //    {
-        //        if (!UserInfo.IsSuperUser)
-        //            return Request.CreateResponse(HttpStatusCode.Forbidden, "Only superusers can install extensions.");
-
-        //        if (!Request.Content.IsMimeMultipartContent())
-        //            return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
-
-        //        var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
-        //        // Create temp upload folder
-        //        var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
-        //        Directory.CreateDirectory(uploadPath);
-
-        //        var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
-        //        await Request.Content.ReadAsMultipartAsync(streamProvider);
-
-        //        var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
-        //        var fileExt = Path.GetExtension(filename);
-
-        //        // Extension whitelist check
-        //        if (!Host.AllowedExtensionWhitelist.AllowedExtensions.Contains(fileExt))
-        //            return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest($"File type '{fileExt}' is not allowed."));
-
-        //        var result = await _extensionService.InstallExtensionAsync(scenarioId, filename);
-
-        //        return Request.CreateResponse(HttpStatusCode.OK, result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
-
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public HttpResponseMessage InstallExtension([FromUri] Guid installTemporaryItemId)
-        //{
-        //    try
-        //    {
-        //        var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
-        //        string monitoringFile = string.Empty;
-        //        string progressFile = string.Empty;
-        //        ProgressMonitoring monitoringInstance = null;
-
-        //        monitoringFile = Request.Headers.GetValues("MonitoringFile").First();
-        //        progressFile = Request.Headers.GetValues("ProgressFile").First();
-
-        //        monitoringInstance = new ProgressMonitoring(monitoringFile, progressFile, "Start instaling the extension...");
-
-        //        await ws.SendMessageToClientAsync("Loading extension install temporary...", 5);
-        //        Thread.Sleep(500);
-        //        var objExtensionInstallTemporaryInfo = ExtensionInstallTemporaryRepository.Instance.GetExpression(installTemporaryItemId);
-
-        //        await ws.SendMessageToClientAsync("Deserializing json to modeling object...", 10);
-        //        Thread.Sleep(500);
-        //        var extension = JsonConvert.DeserializeObject<ExtensionManifest>(objExtensionInstallTemporaryInfo.ExtensionManifestJson);
-
-        //        var extensionController = new ExtensionService(scenarioId, PortalSettings, this.UserInfo);
-        //        extensionController.InstallExtension(extension, objExtensionInstallTemporaryInfo.ExtensionInstallUnzipedPath, monitoringInstance);
-
-        //        ExtensionInstallTemporaryRepository.Instance.DeleteItem(installTemporaryItemId);
-
-        //        return Request.CreateResponse(HttpStatusCode.OK);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
-        //    }
-        //}
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteExtension(GuidDto postData)
-        {
-            try
-            {
-                var result = await _extensionService.UninstallExtension(postData.Id);
-
-                return Request.CreateResponse(HttpStatusCode.OK, result);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        #endregion
-
-        #region Providers
-
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetProvider(Guid providerId)
-        {
-            try
-            {
-                //var provider = ProviderRepository.Instance.GetProvider(providerId);
-
-                return Request.CreateResponse(HttpStatusCode.OK/*, provider*/);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveProvider(object provider)
-        {
-            try
-            {
-                //ProviderRepository.Instance.UpdateProvider(provider);
-
-                return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {

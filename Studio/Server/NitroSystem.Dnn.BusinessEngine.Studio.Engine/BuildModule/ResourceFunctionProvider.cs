@@ -1,13 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
+﻿namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
     public static class ResourceFunctionProvider
     {

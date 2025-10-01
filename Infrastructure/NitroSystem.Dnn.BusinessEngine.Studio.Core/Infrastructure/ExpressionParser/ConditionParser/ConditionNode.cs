@@ -1,12 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.ExpressionService.ConditionParser
+namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.ConditionParser
 {
     public abstract class ConditionNode  
     {

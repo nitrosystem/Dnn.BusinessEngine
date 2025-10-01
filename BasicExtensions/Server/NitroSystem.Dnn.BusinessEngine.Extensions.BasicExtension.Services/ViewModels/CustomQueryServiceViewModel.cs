@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels.Database
 {
-    public class LoginUserService : IExtensionServiceViewModel
+    public class CustomQueryServiceViewModel : IExtensionServiceViewModel
     {
         public Guid Id { get; set; }
         public Guid? ServiceId { get; set; }

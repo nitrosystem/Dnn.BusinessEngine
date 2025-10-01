@@ -1,30 +1,12 @@
-﻿using DotNetNuke.Entities.Portals;
-using DotNetNuke.Services.Tokens;
-using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Shared.IO;
-using NitroSystem.Dnn.BusinessEngine.Shared.Reflection;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Cashing;
-using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Views;
-
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
-using NitroSystem.Dnn.BusinessEngine.Core.Mapper;
-using System.Collections.Concurrent;
-using System.Threading;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
-using System.Globalization;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models.Shared;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
@@ -50,74 +32,73 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
             });
         }
 
-        public async Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId, Guid? fieldId = null)
+        public async Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId)
         {
-            var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                "BusinessEngine_App_GetActionsForClient", "App_ClientActions_",
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo, ActionResultInfo>(
+                "BusinessEngine_App_GetActionsForClient", "BE_Actions_ForClient_" + moduleId,
                     new
                     {
                         ModuleId = moduleId,
-                        FieldId = fieldId
-                    },
-                    grid => grid.Read<ActionInfo>(),
-                    grid => grid.Read<ActionParamInfo>(),
-                    grid => grid.Read<ActionResultInfo>()
+                        FieldId = (Guid?)null
+                    }
                 );
 
-            var actions = results[0] as IEnumerable<ActionInfo>;
-            var actionParams = results[1] as IEnumerable<ActionParamInfo>;
-            var actionResults = results[2] as IEnumerable<ActionResultInfo>;
+            var actions = results.Item1;
+            var actionParams = results.Item2;
+            var actionResults = results.Item3;
 
-            return actions.Select(action =>
-            {
-                return HybridMapper.MapWithConfig<ActionInfo, ActionDto>(action,
-                    (src, dest) =>
-                    {
-                        dest.ParentActionTriggerCondition = (ActionExecutionCondition?)action.ParentActionTriggerCondition;
-                        dest.Settings = TypeCasting.TryJsonCasting<IDictionary<string, object>>(src.Settings);
-                        dest.Params = actionParams.Where(p => p.ActionId == action.Id).Select(param =>
-                            HybridMapper.MapWithConfig<ActionParamInfo, ParamInfo>(param,
-                            (s, d) => { d.ParamValue = param.ParamValue; }));
-                        dest.Results = actionResults.Where(r => r.ActionId == action.Id).Select(result =>
-                        {
-                            return HybridMapper.Map<ActionResultInfo, ActionResultDto>(result);
-                        });
-                    });
-            });
+            var builder = new CollectionMappingBuilder<ActionInfo, ActionDto>();
+
+            builder.AddChildAsync<ActionParamInfo, ActionParamDto, Guid>(
+               source: actionParams,
+               parentKey: parent => parent.Id,
+               childKey: child => child.ActionId,
+               assign: (dest, children) => dest.Params = children
+            );
+
+            builder.AddChildAsync<ActionResultInfo, ActionResultDto, Guid>(
+              source: actionResults,
+              parentKey: parent => parent.Id,
+              childKey: child => child.ActionId,
+              assign: (dest, children) => dest.Results = children
+            );
+
+            var result = await builder.BuildAsync(actions);
+            return result;
         }
 
         public async Task<IEnumerable<ActionDto>> GetActionsDtoForServerAsync(IEnumerable<Guid> actionIds)
         {
-            var results = await _repository.ExecuteStoredProcedureMultiGridResultAsync(
-                "BusinessEngine_App_GetActionsForServer", "App_ServerActions_",
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo, ActionResultInfo>(
+                "BusinessEngine_App_GetActionsForServer", "BE_Actions_ForServer_" + string.Join("_", actionIds),
                     new
                     {
                         ActionIds = JsonConvert.SerializeObject(actionIds)
-                    },
-                    grid => grid.Read<ActionInfo>(),
-                    grid => grid.Read<ActionParamInfo>(),
-                    grid => grid.Read<ActionResultInfo>()
+                    }
                 );
 
-            var actions = results[0] as IEnumerable<ActionInfo>;
-            var actionParams = results[1] as IEnumerable<ActionParamInfo>;
-            var actionResults = results[2] as IEnumerable<ActionResultInfo>;
+            var actions = results.Item1;
+            var actionParams = results.Item2;
+            var actionResults = results.Item3;
 
-            return actions.Select(action =>
-            {
-                return HybridMapper.MapWithConfig<ActionInfo, ActionDto>(action,
-                    (src, dest) =>
-                    {
-                        dest.ParentActionTriggerCondition = (ActionExecutionCondition?)action.ParentActionTriggerCondition;
-                        dest.Params = actionParams.Where(p => p.ActionId == action.Id).Select(param =>
-                            HybridMapper.MapWithConfig<ActionParamInfo, ParamInfo>(param,
-                            (s, d) => { d.ParamValue = param.ParamValue; }));
-                        dest.Results = actionResults.Where(r => r.ActionId == action.Id).Select(result =>
-                        {
-                            return HybridMapper.Map<ActionResultInfo, ActionResultDto>(result);
-                        });
-                    });
-            });
+            var builder = new CollectionMappingBuilder<ActionInfo, ActionDto>();
+
+            builder.AddChildAsync<ActionParamInfo, ActionParamDto, Guid>(
+               source: actionParams,
+               parentKey: parent => parent.Id,
+               childKey: child => child.ActionId,
+               assign: (dest, children) => dest.Params = children
+            );
+
+            builder.AddChildAsync<ActionResultInfo, ActionResultDto, Guid>(
+              source: actionResults,
+              parentKey: parent => parent.Id,
+              childKey: child => child.ActionId,
+              assign: (dest, children) => dest.Results = children
+            );
+
+            var result = await builder.BuildAsync(actions);
+            return result;
         }
 
         public async Task<string> GetBusinessControllerClass(string actionType)

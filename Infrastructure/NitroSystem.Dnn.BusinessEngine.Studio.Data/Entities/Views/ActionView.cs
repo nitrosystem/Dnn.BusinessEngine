@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Caching;
-
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Data.Views
+namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
 {
     [Table("BusinessEngineView_Actions")]
     [Cacheable("BE_Actions_View_", CacheItemPriority.Default, 20)]
@@ -24,6 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Views
         public string Event { get; set; }
         public int? ParentActionTriggerCondition { get; set; }
         public bool ExecuteInClientSide { get; set; }
+        public string AuthorizationRunAction { get; set; }
         public string Preconditions { get; set; }
         public string Conditions { get; set; }
         public string Settings { get; set; }
