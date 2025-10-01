@@ -1,9 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Models.Database.SubmitEntity
 {

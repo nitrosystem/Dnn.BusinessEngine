@@ -17,16 +17,15 @@ using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Enums;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Enums;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {
@@ -35,14 +34,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
-        private readonly IBuildModuleService _buildModuleService;
+        private readonly IBuildModule _buildModule;
 
-        public ModuleService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository, IBuildModuleService buildModuleService)
+        public ModuleService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository, IBuildModule buildModule)
         {
             _unitOfWork = unitOfWork;
             _cacheService = cacheService;
             _repository = repository;
-            _buildModuleService = buildModuleService;
+            _buildModule = buildModule;
         }
 
         #region Module Services
@@ -164,13 +163,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                 }
             }
 
-            var status = await _buildModuleService.PrepareBuild(moduleToBuild, _repository, portalSettings);
+            var status = await _buildModule.PrepareBuild(moduleToBuild, _repository, portalSettings);
             if (status.IsReadyToBuild)
             {
                 var pageResources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("DnnPageId", pageId);
                 var pageResourcesDto = HybridMapper.MapCollection<PageResourceInfo, PageResourceDto>(pageResources);
 
-                var finalResources = await _buildModuleService.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
+                var finalResources = await _buildModule.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
                 var mappedResources = HybridMapper.MapCollection<PageResourceDto, PageResourceInfo>(finalResources);
                 await _repository.BulkInsertAsync<PageResourceInfo>(mappedResources);
 

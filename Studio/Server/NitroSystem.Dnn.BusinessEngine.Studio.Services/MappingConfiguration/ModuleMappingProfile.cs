@@ -1,18 +1,15 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
+﻿using System.Collections.Generic;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Action;
-using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
+using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.Models;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using System.Security.Cryptography;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.MappingConfiguration
 {

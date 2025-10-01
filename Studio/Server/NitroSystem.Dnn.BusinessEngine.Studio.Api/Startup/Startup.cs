@@ -2,9 +2,10 @@
 using DotNetNuke.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Services;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.AppModelTypeBuilder;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilderEngine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilderEngine;
 
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
@@ -24,11 +25,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<IActionService, ActionService>();
             services.AddScoped<ITemplateService, TemplateService>();
 
-            services.AddScoped<ITypeBuilderService, TypeBuilderService>();
-
-            services.AddScoped<IBuildModuleService, BuildModuleService>();
+            services.AddScoped<IBuildModule, BuildModule>();
             services.AddScoped<IBuildModuleLayout, BuildModuleLayout>();
             services.AddScoped<IModuleBuildLockService, ModuleBuildLockService>();
+
+            services.AddScoped<ITypeBuilder, TypeBuilder>();
 
             services.AddTransient<IResourceMachine, ResourceMachine>();
         }

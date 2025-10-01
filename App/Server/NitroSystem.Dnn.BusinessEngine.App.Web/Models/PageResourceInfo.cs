@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Caching;
-
-namespace NitroSystem.Dnn.BusinessEngine.App.Web.Models
+﻿namespace NitroSystem.Dnn.BusinessEngine.App.Web.Models
 {
     public class PageResourceDto 
     {

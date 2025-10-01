@@ -1,14 +1,9 @@
-﻿using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
+﻿using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Core.Enums;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.MappingConfiguration
 {

@@ -57,14 +57,10 @@
     <Compile Include="Contracts\IActionCondition.cs" />
     <Compile Include="Contracts\IActionWorker.cs" />
     <Compile Include="Enums\ActionResultStatus.cs" />
-    <Compile Include="Enums\ActionPaymentStatus.cs" />
-    <Compile Include="Enums\TokenType.cs" />
-    <Compile Include="Models\ResolvedPath.cs" />
     <Compile Include="Models\ActionResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ActionCondition.cs" />
     <Compile Include="Services\ActionWorker.cs" />
-    <Compile Include="Services\ModuleDataCleanupService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Common\NitroSystem.Dnn.BusinessEngine.Shared.csproj">

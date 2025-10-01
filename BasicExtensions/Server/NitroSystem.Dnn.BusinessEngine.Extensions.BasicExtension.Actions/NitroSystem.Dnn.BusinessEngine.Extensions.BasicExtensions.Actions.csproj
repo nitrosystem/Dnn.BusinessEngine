@@ -77,17 +77,12 @@
     <Compile Include="Database\SubmitEntityAction.cs" />
     <Compile Include="DnnServices\LoginUserAction.cs" />
     <Compile Include="Form\SetVariableAction.cs" />
-    <Compile Include="Models\DatabaseInfo.cs" />
     <Compile Include="Models\Database\CustomQueryResult.cs" />
     <Compile Include="Models\DnnServices\LoginUserInfo.cs" />
     <Compile Include="Models\DnnServices\RegisterUserInfo.cs" />
     <Compile Include="Models\DnnServices\ResetPasswordInfo.cs" />
-    <Compile Include="Models\PublicServices\SendEmailInfo.cs" />
+    <Compile Include="Models\PublicServices\SendEmail\SendEmailInfo.cs" />
     <Compile Include="Models\PublicServices\SMSService\SendSmsInfo.cs" />
-    <Compile Include="Models\PublicServices\Webservice\Authorization.cs" />
-    <Compile Include="Models\PublicServices\Webservice\BasicAuth.cs" />
-    <Compile Include="Models\PublicServices\Webservice\ParamInfo.cs" />
-    <Compile Include="Models\PublicServices\Webservice\WebServiceOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup\Startup.cs" />
   </ItemGroup>
@@ -111,10 +106,6 @@
     <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Studio.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
       <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Studio.Data\NitroSystem.Dnn.BusinessEngine.Data.csproj">
-      <Project>{57e9a1ea-6603-4cd5-9914-5f79f60923ed}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtension.Services\NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.csproj">
       <Project>{5631d3ce-0d04-47b0-9517-293ecd1b8de0}</Project>

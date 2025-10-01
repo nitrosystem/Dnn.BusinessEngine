@@ -9,8 +9,8 @@ using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilderEngine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilderEngine.Dto;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel;
 
@@ -21,14 +21,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositoryBase _repository;
         private readonly IBaseService _baseService;
-        private readonly ITypeBuilderService _typeBuilderService;
+        private readonly ITypeBuilder _typeBuilder;
 
-        public AppModelService(IUnitOfWork unitOfWork, IRepositoryBase repository, IBaseService globalService, ITypeBuilderService typeBuilderService)
+        public AppModelService(IUnitOfWork unitOfWork, IRepositoryBase repository, IBaseService globalService, ITypeBuilder typeBuilder)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
             _baseService = globalService;
-            _typeBuilderService = typeBuilderService;
+            _typeBuilder = typeBuilder;
         }
 
         public async Task<AppModelViewModel> GetAppModelAsync(Guid appModuleId)
@@ -119,7 +119,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
                         (parent, childs) => parent.Properties = childs.ToList()
                     );
 
-                objAppModelInfo.TypeFullName = _typeBuilderService.BuildAppModelAsType(appModelDto, outputPath);
+                objAppModelInfo.TypeFullName = _typeBuilder.BuildAppModelAsType(appModelDto, outputPath);
 
                 objAppModelInfo.TypeRelativePath = $"{portalSettings.HomeSystemDirectory}/business-engine/{scenarioName}/AppModelTypes/";
 

@@ -1,16 +1,14 @@
-﻿using DotNetNuke.Data;
+﻿using System;
+using System.Web;
+using System.Web.Helpers;
+using System.Web.UI;
+using System.Data;
+using System.Data.SqlClient;
+using DotNetNuke.Data;
 using DotNetNuke.Entities.Host;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Users;
 using NitroSystem.Dnn.BusinessEngine.Core.ClientResources;
-using System;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Web;
-using System.Web.Helpers;
-using System.Web.UI;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web
 {

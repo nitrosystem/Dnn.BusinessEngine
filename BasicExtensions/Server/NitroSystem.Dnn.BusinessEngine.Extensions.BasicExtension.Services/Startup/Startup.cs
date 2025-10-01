@@ -1,19 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using DotNetNuke.DependencyInjection;
-using DotNetNuke.Data;
-using System.Data.SqlClient;
-using System.Data;
-using System.Web.Routing;
-using System.Net.WebSockets;
-using System;
-using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using DotNetNuke.DependencyInjection;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Database;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DnnServices;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Startup
 {

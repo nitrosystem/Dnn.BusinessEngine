@@ -4,7 +4,6 @@ using System.IO;
 using System.Reflection;
 using System.Security;
 using System.Collections.Concurrent;
-using DotNetNuke.Entities.Portals;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader
 {
@@ -20,9 +19,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader
 
         private readonly string _trustedRootNamespace = "NitroSystem.Dnn.BusinessEngine.";
 
-        public Type GetTypeFromAssembly(string relativePath, string typeFullName, string scenarioName, PortalSettings portalSettings)
+        public Type GetTypeFromAssembly(string relativePath, string typeFullName, string scenarioName, string basePath)
         {
-            ValidatePath(relativePath, portalSettings.HomeSystemDirectory, scenarioName);
+            ValidatePath(relativePath, basePath, scenarioName);
 
             var key = $"{relativePath}:{typeFullName}";
             var assemblyPath = HttpContext.Current.Server.MapPath($"{relativePath + typeFullName}.dll");

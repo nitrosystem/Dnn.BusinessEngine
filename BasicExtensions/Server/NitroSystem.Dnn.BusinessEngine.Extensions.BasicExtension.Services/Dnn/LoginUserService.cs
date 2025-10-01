@@ -1,19 +1,8 @@
-﻿using Dapper;
+﻿using System.Web;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Users;
 using DotNetNuke.Security.Membership;
-using Newtonsoft.Json.Linq;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.ViewModels.Database;
-using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Framework.Models;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.DnnServices
 {

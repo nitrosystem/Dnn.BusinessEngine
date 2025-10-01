@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Models;
+
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine
+{
+    public static class CleanPageResources
+    {
+        public static IEnumerable<PageResourceDto> Clean(
+            int? pageId,
+            List<ModuleResourceInfo> resources,
+            IEnumerable<PageResourceDto> pageResources)
+        {
+            var existingResourcesSet = new HashSet<string>(
+                pageResources
+                    .Where(r => !r.IsCustomResource) 
+                    .Select(r => $"{r.ResourceType}|{r.ResourcePath}"),
+                StringComparer.OrdinalIgnoreCase
+            );
+
+            var cleaned = resources
+                .Select(r => new PageResourceDto
+                {
+                    ModuleId = r.ModuleId,
+                    DnnPageId = pageId,
+                    IsCustomResource = false,
+                    ResourceType = r.ResourceType,
+                    ResourcePath = r.ResourcePath,
+                    IsActive = true,
+                    LoadOrder = r.LoadOrder
+                })
+                .Where(r =>
+                    r.IsCustomResource ||
+                    !existingResourcesSet.Contains($"{r.ResourceType}|{r.ResourcePath}")
+                );
+
+            return cleaned;
+        }
+    }
+}

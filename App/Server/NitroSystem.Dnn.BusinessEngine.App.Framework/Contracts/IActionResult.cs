@@ -1,16 +1,12 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Framework.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using NitroSystem.Dnn.BusinessEngine.Framework.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Framework.Contracts
 {
     public interface IActionResult
     {
-        ActionResultStatus ResultStatus { get; set; }
         object Data { get; set; }
+        ActionResultStatus ResultStatus { get; set; }
         Exception ErrorException { get; set; }
     }
 }

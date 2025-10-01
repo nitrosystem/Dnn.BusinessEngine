@@ -13,9 +13,6 @@ using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 {

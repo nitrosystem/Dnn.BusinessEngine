@@ -38,21 +38,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration
             {
                 if (_cache.TryGetValue(stableKey, out var existing)) return existing;
 
-
                 var typeBuilder = _host.Module.DefineType(
                 model.Namespace + "." + model.Name,
                 TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed | TypeAttributes.BeforeFieldInit);
 
-
                 // Public parameterless ctor
                 typeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
-
 
                 // [GeneratedModel(Name, Version, StableKey)]
                 var attrCtor = typeof(GeneratedModelAttribute).GetConstructor(new[] { typeof(string), typeof(string), typeof(string) });
                 var attrBuilder = new CustomAttributeBuilder(attrCtor, new object[] { model.Name, model.ModelVersion, stableKey });
                 typeBuilder.SetCustomAttribute(attrBuilder);
-
 
                 foreach (var p in model.Properties)
                 {

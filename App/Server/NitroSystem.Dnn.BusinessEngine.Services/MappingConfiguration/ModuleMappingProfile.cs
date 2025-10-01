@@ -1,16 +1,12 @@
-﻿using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
+﻿using System.Collections.Generic;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.Models;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.MappingConfiguration
 {
@@ -18,6 +14,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.MappingConfiguration
     {
         public static void Register()
         {
+            #region Module
+
             HybridMapper.BeforeMap<ModuleView, ModuleDto>(
                 (src, dest) => dest.ModuleType = (ModuleType)src.ModuleType);
 
@@ -27,6 +25,10 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.MappingConfiguration
             HybridMapper.BeforeMap<ModuleView, ModuleDto>(
                 (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
 
+            #endregion
+
+            #region Module Field
+
             HybridMapper.BeforeMap<ModuleFieldInfo, ModuleFieldDto>(
                 (src, dest) => dest.AuthorizationViewField = src.AuthorizationViewField?.Split(','));
 
@@ -35,6 +37,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.MappingConfiguration
 
             HybridMapper.BeforeMap<ModuleVariableInfo, ModuleVariableDto>(
                 (src, dest) => dest.Scope = (ModuleVariableScope)src.Scope);
+
+            #endregion
         }
     }
 }

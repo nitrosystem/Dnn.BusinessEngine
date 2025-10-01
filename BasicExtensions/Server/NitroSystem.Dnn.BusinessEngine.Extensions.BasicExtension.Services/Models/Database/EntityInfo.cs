@@ -1,9 +1,5 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Services.Models.Database
 {

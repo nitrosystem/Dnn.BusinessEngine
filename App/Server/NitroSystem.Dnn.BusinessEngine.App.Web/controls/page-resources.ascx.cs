@@ -1,21 +1,15 @@
-﻿using DotNetNuke.Entities.Host;
-using DotNetNuke.Entities.Modules;
-using DotNetNuke.Entities.Modules.Actions;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Threading.Tasks;
-using System.Web;
+﻿using System;
 using System.Web.UI;
-using DotNetNuke.Services.Exceptions;
-using System.Linq;
-using System.Resources;
-using System.Security.AccessControl;
-using DotNetNuke.Data;
+using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Reflection;
+using System.Collections.Generic;
+using DotNetNuke.Data;
+using DotNetNuke.Entities.Host;
+using DotNetNuke.Services.Exceptions;
 using DotNetNuke.Web.Client.ClientResourceManagement;
-using NitroSystem.Dnn.BusinessEngine.Core.ADO_NET;
+using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using NitroSystem.Dnn.BusinessEngine.App.Web.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web
@@ -108,10 +102,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
 
                     List<string> registeredResources = new List<string>();
 
-                    var sqlReader = new SqlQueryExecutor();
-                    var resources = sqlReader.ExecuteQuery<PageResourceDto>(
-                        "BusinessEngine_GetPageResources",
-                        System.Data.CommandType.StoredProcedure,
+                    var resources = ExecuteQuery<PageResourceDto>("dbo.BusinessEngine_App_GetPageResources", CommandType.StoredProcedure,
                         new Dictionary<string, object>
                         {
                             { "@Type", 1 } ,
@@ -186,6 +177,51 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             if (resourceType == "js")
                 ClientResourceManager.RegisterScript(base.Page, resourcePath, priority);
             //}
+        }
+
+        private static List<T> ExecuteQuery<T>(string queryOrSp, CommandType commandType, Dictionary<string, object> parameters = null) where T : new()
+        {
+            var result = new List<T>();
+
+            using var connection = new SqlConnection(DataProvider.Instance().ConnectionString);
+            using var command = new SqlCommand(queryOrSp, connection)
+            {
+                CommandType = commandType
+            };
+
+            if (parameters != null)
+            {
+                foreach (var param in parameters)
+                    command.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
+            }
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            while (reader.Read())
+            {
+                var item = new T();
+
+                foreach (var prop in props)
+                {
+                    if (!reader.HasColumn(prop.Name) || reader[prop.Name] is DBNull)
+                        continue;
+
+                    var value = reader[prop.Name];
+                    prop.SetValue(item, Convert.ChangeType(value, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType));
+                }
+
+                result.Add(item);
+            }
+
+            return result;
+        }
+
+        private string GenerateCacheKey<T>(string queryOrSp, Dictionary<string, object> parameters)
+        {
+            string paramStr = parameters != null ? string.Join(",", parameters.Select(p => $"{p.Key}={p.Value}")) : "";
+            return $"{typeof(T).FullName}_{queryOrSp}_{paramStr}";
         }
     }
 }

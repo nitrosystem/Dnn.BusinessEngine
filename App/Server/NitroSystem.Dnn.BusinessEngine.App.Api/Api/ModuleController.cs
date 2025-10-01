@@ -1,33 +1,17 @@
-﻿using DotNetNuke.Entities.Host;
-using DotNetNuke.Entities.Portals;
-using DotNetNuke.Entities.Tabs;
-using DotNetNuke.Services.Scheduling;
-using DotNetNuke.Web.Api;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NitroSystem.Dnn.BusinessEngine.Api.Models;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Net;
 using System.Net.Http;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
-using System.Web.Http.Results;
 using System.IO;
-using System.Drawing;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using System.IO.Compression;
-using NitroSystem.Dnn.BusinessEngine.App.Api.Dto;
-using NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData;
+using System.Threading.Tasks;
+using DotNetNuke.Web.Api;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
+using NitroSystem.Dnn.BusinessEngine.App.Api.Dto;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {
@@ -151,18 +135,5 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                 return Convert.ToBase64String(output.ToArray());
             }
         }
-
-
-        //یک نمونه هندلرد
-        //(existingModule, incomingData) =>
-        //            {
-        //                var existing = existingModule;
-        //                existing.Merge(incomingData, new JsonMergeSettings
-        //                {
-        //                    MergeArrayHandling = MergeArrayHandling.Replace,
-        //                    MergeNullValueHandling = MergeNullValueHandling.Merge
-        //                });
-        //                return incomingData;
-        //            },
     }
 }

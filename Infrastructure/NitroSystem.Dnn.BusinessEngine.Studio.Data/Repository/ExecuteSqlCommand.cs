@@ -1,14 +1,21 @@
 ﻿using System;
+using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Dapper;
+using DotNetNuke.Data;
+using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 {
-    public class ExecuteSqlCommand: IExecuteSqlCommand
+    public class ExecuteSqlCommand : IExecuteSqlCommand
     {
-        protected readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ExecuteSqlCommand(IUnitOfWork unitOfWork)
         {

@@ -1,21 +1,16 @@
-﻿using DotNetNuke.Entities.Portals;
-using DotNetNuke.Services.Mobile;
-using DotNetNuke.UI.UserControls;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static NitroSystem.Dnn.BusinessEngine.App.Services.Delegates.Delegates;
+using DotNetNuke.Entities.Portals;
+using Newtonsoft.Json.Linq;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
+using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData
 {
@@ -83,14 +78,14 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData
                 {
                     if (variable.VariableType == "AppModel")
                     {
-                        var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings);
+                        var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectoryMapPath);
                         var instance = Activator.CreateInstance(type);
 
                         moduleData[variable.VariableName] = instance;
                     }
                     else if (variable.VariableType == "AppModelList")
                     {
-                        var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings);
+                        var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectoryMapPath);
                         var listType = typeof(List<>).MakeGenericType(type);
                         var emptyList = Activator.CreateInstance(listType);
 
@@ -155,7 +150,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData
             {
                 if (variable.VariableType == "AppModel")
                 {
-                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings);
+                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectoryMapPath);
                     var dict = incomingData[variable.VariableName] as JObject;
                     var data = dict.ToObject(type);
 
@@ -163,7 +158,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData
                 }
                 else if (variable.VariableType == "AppModelList")
                 {
-                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings);
+                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectoryMapPath);
                     var dict = incomingData[variable.VariableName] as JArray;
                     var listType = typeof(List<>).MakeGenericType(type);
                     var data = dict.ToObject(listType);

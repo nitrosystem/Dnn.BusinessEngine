@@ -1,7 +1,4 @@
-﻿using System.Web.Routing;
-using DotNetNuke.Web.Api;
-using System;
-using System.Web.Http;
+﻿using DotNetNuke.Web.Api;
 
 namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
 {
@@ -10,8 +7,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
         public void RegisterRoutes(IMapRoute mapRouteManager)
         {
             mapRouteManager.MapHttpRoute("BusinessEngine", "default", "{controller}/{action}", new[] { "NitroSystem.Dnn.BusinessEngine.App.Api" });
-
-            //GlobalConfiguration.Configuration.AddModuleInfoProvider(new StudioModuleInfoProvider());
         }
     }
 }

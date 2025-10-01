@@ -62,15 +62,12 @@
     <Compile Include="Dto\ModuleVariableDto.cs" />
     <Compile Include="Enums\EntityType.cs" />
     <Compile Include="Enums\ModuleVariableScope.cs" />
-    <Compile Include="Delegates\Delegates.cs" />
     <Compile Include="Enums\VariableType.cs" />
     <Compile Include="MappingConfiguration\ModuleMappingProfile.cs" />
     <Compile Include="MappingConfiguration\ActionMappingProfile.cs" />
-    <Compile Include="ModuleData\IModuleData.cs" />
     <Compile Include="ModuleData\InMemoryUserDataStore.cs" />
     <Compile Include="ModuleData\GarbageCollector.cs" />
     <Compile Include="ModuleData\IUserDataStore.cs" />
-    <Compile Include="ModuleData\ModuleData.cs" />
     <Compile Include="Services\ActionService.cs" />
     <Compile Include="Services\ModuleService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
