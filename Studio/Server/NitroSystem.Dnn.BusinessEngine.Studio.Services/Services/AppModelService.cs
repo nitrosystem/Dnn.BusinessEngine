@@ -4,31 +4,25 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using DotNetNuke.Entities.Portals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilderEngine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilderEngine.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Services
 {
     public class AppModelService : IAppModelService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositoryBase _repository;
         private readonly IBaseService _baseService;
-        private readonly ITypeBuilder _typeBuilder;
 
-        public AppModelService(IUnitOfWork unitOfWork, IRepositoryBase repository, IBaseService globalService, ITypeBuilder typeBuilder)
+        public AppModelService(IUnitOfWork unitOfWork, IRepositoryBase repository, IBaseService globalService)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
             _baseService = globalService;
-            _typeBuilder = typeBuilder;
         }
 
         public async Task<AppModelViewModel> GetAppModelAsync(Guid appModuleId)
@@ -112,14 +106,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
             {
                 var scenarioName = await _baseService.GetScenarioNameAsync(appModel.ScenarioId);
                 var outputPath = $@"{portalSettings.HomeSystemDirectoryMapPath}\business-engine\{scenarioName}\AppModelTypes";
-                var appModelDto =
-                    HybridMapper.MapWithChildren<AppModelViewModel, AppModelDto, AppModelPropertyViewModel, PropertyDefinition>(
-                        appModel,
-                        appModel.Properties,
-                        (parent, childs) => parent.Properties = childs.ToList()
-                    );
-
-                objAppModelInfo.TypeFullName = _typeBuilder.BuildAppModelAsType(appModelDto, outputPath);
+                
+                //var appModelDto =
+                //    HybridMapper.MapWithChildren<AppModelViewModel, AppModelDto, AppModelPropertyViewModel, PropertyDefinition>(
+                //        appModel,
+                //        appModel.Properties,
+                //        (parent, childs) => parent.Properties = childs.ToList()
+                //    );
+                //objAppModelInfo.TypeFullName = _typeBuilder.BuildAppModelAsType(appModelDto, outputPath);
 
                 objAppModelInfo.TypeRelativePath = $"{portalSettings.HomeSystemDirectory}/business-engine/{scenarioName}/AppModelTypes/";
 

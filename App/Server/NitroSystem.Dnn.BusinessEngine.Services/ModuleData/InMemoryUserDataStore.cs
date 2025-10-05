@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using DotNetNuke.Entities.Portals;
 using Newtonsoft.Json.Linq;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData
 {

@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Linq;
-using System.Data;
-using System.Data.SqlClient;
-using System.Reflection;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Dapper;
-using DotNetNuke.Data;
-using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 {

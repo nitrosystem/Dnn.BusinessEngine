@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F4C66D02-6CBE-4AFD-93E1-16C56E69E86E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NitroSystem.Dnn.BusinessEngine.Abstractions</RootNamespace>
+    <AssemblyName>NitroSystem.Dnn.BusinessEngine.Abstractions</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BuildModuleEngine\BuildModuleRequest.cs" />
+    <Compile Include="BuildModuleEngine\BuildModuleResponse.cs" />
+    <Compile Include="BuildModuleEngine\Dto\ModuleExternalResourceDto.cs" />
+    <Compile Include="BuildModuleEngine\Dto\ModuleFieldTypeDto.cs" />
+    <Compile Include="BuildModuleEngine\Dto\ModuleResourceDto.cs" />
+    <Compile Include="BuildModuleEngine\Dto\ResourceDto.cs" />
+    <Compile Include="BuildModuleEngine\Dto\BuildModuleResultDto.cs" />
+    <Compile Include="BuildModuleEngine\Contracts\IBuildLayoutService.cs" />
+    <Compile Include="BuildModuleEngine\Contracts\IMergeResourcesService.cs" />
+    <Compile Include="BuildModuleEngine\Contracts\IBuildModuleEngine .cs" />
+    <Compile Include="BuildModuleEngine\Contracts\IModuleBuildLockService.cs" />
+    <Compile Include="BuildModuleEngine\Contracts\IResourceMachine.cs" />
+    <Compile Include="BuildModuleEngine\Dto\ModuleDto.cs" />
+    <Compile Include="BuildModuleEngine\Dto\ModuleFieldDto.cs" />
+    <Compile Include="BuildModuleEngine\Enums\ExternalResourceType.cs" />
+    <Compile Include="BuildModuleEngine\Enums\ResourceContentType.cs" />
+    <Compile Include="Data\IDatabaseMetadataRepository.cs" />
+    <Compile Include="Data\IExecuteSqlCommand.cs" />
+    <Compile Include="Data\IRepositoryBase.cs" />
+    <Compile Include="Data\IUnitOfWork.cs" />
+    <Compile Include="EngineBase\Events\Delegates.cs" />
+    <Compile Include="ModuleBuilder\Enums\FieldDataSourceType.cs" />
+    <Compile Include="ModuleBuilder\Enums\ModuleType.cs" />
+    <Compile Include="ModuleBuilder\Enums\ModuleWrapper.cs" />
+    <Compile Include="ModuleBuilder\Models\FieldDataSourceInfo.cs" />
+    <Compile Include="ModuleBuilder\Models\FieldDataSourceResult.cs" />
+    <Compile Include="ModuleBuilder\Models\FieldValueInfo.cs" />
+    <Compile Include="ModuleBuilder\Models\ModuleFieldGlobalSettings.cs" />
+    <Compile Include="PageResources\PageResourceDto.cs" />
+    <Compile Include="BuildModuleEngine\Enums\ActionType.cs" />
+    <Compile Include="BuildModuleEngine\Enums\BuildScope.cs" />
+    <Compile Include="BuildModuleEngine\Enums\OperationType.cs" />
+    <Compile Include="BuildModuleEngine\Enums\ResourceType.cs" />
+    <Compile Include="EngineBase\Contracts\IBackgroundTaskQueue.cs" />
+    <Compile Include="EngineBase\Contracts\IEngine.cs" />
+    <Compile Include="EngineBase\Contracts\IEngineMiddleware.cs" />
+    <Compile Include="EngineBase\EngineContext.cs" />
+    <Compile Include="EngineBase\EngineResult.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shared\Contracts\IEntity.cs" />
+    <Compile Include="Shared\Contracts\IExpressionService.cs" />
+    <Compile Include="Shared\Contracts\IExtensionServiceFactory.cs" />
+    <Compile Include="Shared\Contracts\IExtensionServiceViewModel.cs" />
+    <Compile Include="Shared\Contracts\IViewModel.cs" />
+    <Compile Include="Shared\Enums\ActionExecutionCondition.cs" />
+    <Compile Include="Shared\Models\ExpressionInfo.cs" />
+    <Compile Include="Shared\Models\GuidInfo.cs" />
+    <Compile Include="Shared\Models\PagingInfo.cs" />
+    <Compile Include="Shared\Models\ParamInfo.cs" />
+    <Compile Include="Shared\Models\PropertyInfo.cs" />
+    <Compile Include="Shared\Models\SortInfo.cs" />
+    <Compile Include="Shared\Models\TableColumnInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ActionWorker\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
+      <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Core.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Dto
 {

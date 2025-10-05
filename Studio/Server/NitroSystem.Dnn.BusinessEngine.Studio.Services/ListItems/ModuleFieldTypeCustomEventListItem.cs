@@ -1,4 +1,4 @@
-﻿namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems
+﻿namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems
 {
     public class ModuleFieldTypeCustomEventListItem
     {

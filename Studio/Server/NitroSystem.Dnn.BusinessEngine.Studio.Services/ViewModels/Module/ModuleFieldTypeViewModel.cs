@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Module
 {
     public class ModuleFieldTypeViewModel
     {

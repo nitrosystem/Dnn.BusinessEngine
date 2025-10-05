@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Data.Repository;
-using NitroSystem.Dnn.BusinessEngine.Shared;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 {

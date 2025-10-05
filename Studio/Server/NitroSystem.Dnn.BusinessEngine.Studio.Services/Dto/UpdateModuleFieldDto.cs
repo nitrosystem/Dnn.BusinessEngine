@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Module;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Dto
 {
    public class UpdateModuleFieldDto
     {

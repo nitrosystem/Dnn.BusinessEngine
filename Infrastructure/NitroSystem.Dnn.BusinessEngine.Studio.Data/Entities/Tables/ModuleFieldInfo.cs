@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Web.Caching;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_ModuleFields")]
-    [Cacheable("BE_ModuleFields_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Modules_Fields_", CacheItemPriority.Default, 20)]
     [Scope("ModuleId")]
     public class ModuleFieldInfo : IEntity
     {

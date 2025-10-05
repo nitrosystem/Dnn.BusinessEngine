@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Template;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Template;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts
 {
     public interface ITemplateService
     {

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Library
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Library
 {
     public class LibraryViewModel : IViewModel
     {
@@ -22,10 +21,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Library
         public bool IsStable { get; set; }
         public string LicenseJson { get; set; }
         public string GithubPage { get; set; }
-        public IEnumerable<LibraryResourceViewModel> Resources { get; set; }
         public DateTime LastModifiedOnDate { get ; set ; }
         public int LastModifiedByUserId { get ; set ; }
         public DateTime CreatedOnDate { get ; set ; }
         public int CreatedByUserId { get ; set ; }
+        public IEnumerable<LibraryResourceViewModel> Resources { get; set; }
     }
 }

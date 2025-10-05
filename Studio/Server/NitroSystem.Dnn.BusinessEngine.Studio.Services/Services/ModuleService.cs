@@ -3,45 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using Newtonsoft.Json;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Portals;
-using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Core.Caching;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModuleEngine.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Enums;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
+using System.Web.UI;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Services
 {
     public class ModuleService : IModuleService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
-        private readonly IBuildModule _buildModule;
 
-        public ModuleService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository, IBuildModule buildModule)
+        public ModuleService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
         {
             _unitOfWork = unitOfWork;
             _cacheService = cacheService;
             _repository = repository;
-            _buildModule = buildModule;
         }
 
         #region Module Services
@@ -94,92 +90,65 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
 
         #endregion
 
-        #region Build Module Services
+        //#region Build Module Services
 
-        public async Task BuildModuleAsync(Guid moduleId, PortalSettings portalSettings, HttpContext context)
-        {
-            var module = await _repository.GetAsync<ModuleView>(moduleId);
+        //public async Task BuildModuleAsync(Guid moduleId, PortalSettings portalSettings, HttpContext context)
+        //{
+        //    
 
-            var spPageIdTask = _repository.ExecuteStoredProcedureScalerAsync<int>(
-                "dbo.BusinessEngine_Studio_GetTabIdByDnnModuleId", "BE_TabIdByDnnModuleId" + module.DnnModuleId,
-                new
-                {
-                    module.DnnModuleId
-                }
-             );
+        //    var pageId = await spPageIdTask;
+        //    
 
-            var spFieldsTask = _repository.ExecuteStoredProcedureMultipleAsync<ModuleFieldInfo, ModuleFieldSettingView>(
-                "dbo.BusinessEngine_Studio_GetModuleFieldsAndSettingsForBuild", "BE_Modules_FieldsAndSettingsForBuild" + moduleId,
-                new
-                {
-                    ModuleId = module.Id
-                }
-            );
+        //    var moduleToBuild = HybridMapper.Map<ModuleView, BuildModuleDto>(module);
+        //    var fieldsToBuild = HybridMapper.MapCollection<ModuleFieldInfo, BuildModuleFieldDto>(fields,
+        //        (src, dest) =>
+        //        {
+        //            var dict = fieldsSettings.GroupBy(c => c.FieldId)
+        //                             .ToDictionary(g => g.Key, g => g.AsEnumerable());
 
-            var spResourceReaderTask = _repository.ExecuteStoredProcedureAsDataReaderAsync(
-                "dbo.BusinessEngine_Studio_GetModuleResourcesForBuild", "BE_Modules_ResourcesForBuild_" + moduleId,
-            new
-            {
-                ModuleId = module.Id
-            });
+        //            var items = dict.TryGetValue(src.Id, out var settings);
+        //            dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
 
-            await Task.WhenAll(spPageIdTask, spFieldsTask, spResourceReaderTask);
+        //            dest.GlobalSettings = ReflectionUtil.ConvertDictionaryToObject<ModuleFieldGlobalSettings>(dest.Settings);
+        //        });
 
-            var pageId = await spPageIdTask;
-            var fieldsData = await spFieldsTask;
-            var fields = fieldsData.Item1;
-            var fieldsSettings = fieldsData.Item2;
+        //    var resourcesToBuild = new List<BuildModuleResourceDto>();
+        //    using (var reader = await spResourceReaderTask)
+        //    {
+        //        while (reader.Read())
+        //        {
+        //            resourcesToBuild.Add(new BuildModuleResourceDto()
+        //            {
+        //                ModuleId = GlobalHelper.GetSafeGuid(reader["ModuleId"]),
+        //                ResourceType = (ResourceType)reader["ResourceType"],
+        //                ActionType = (ActionType)reader["ActionType"],
+        //                ResourcePath = GlobalHelper.GetSafeString(reader["ResourcePath"]),
+        //                EntryType = GlobalHelper.GetSafeString(reader["EntryType"]),
+        //                Additional = GlobalHelper.GetSafeString(reader["Additional"]),
+        //                CacheKey = GlobalHelper.GetSafeString(reader["CacheKey"]),
+        //                Condition = GlobalHelper.GetSafeString(reader["Condition"]),
+        //                LoadOrder = GlobalHelper.GetSafeInt(reader["LoadOrder"])
+        //            });
+        //        }
+        //    }
 
-            var moduleToBuild = HybridMapper.Map<ModuleView, BuildModuleDto>(module);
-            var fieldsToBuild = HybridMapper.MapCollection<ModuleFieldInfo, BuildModuleFieldDto>(fields,
-                (src, dest) =>
-                {
-                    var dict = fieldsSettings.GroupBy(c => c.FieldId)
-                                     .ToDictionary(g => g.Key, g => g.AsEnumerable());
+        //    var status = await _buildModule.PrepareBuild(moduleToBuild, _repository, portalSettings);
+        //    if (status.IsReadyToBuild)
+        //    {
+        //        var pageResources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("DnnPageId", pageId);
+        //        var pageResourcesDto = HybridMapper.MapCollection<PageResourceInfo, PageResourceDto>(pageResources);
 
-                    var items = dict.TryGetValue(src.Id, out var settings);
-                    dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+        //        var finalResources = await _buildModule.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
+        //        var mappedResources = HybridMapper.MapCollection<PageResourceDto, PageResourceInfo>(finalResources);
+        //        await _repository.BulkInsertAsync<PageResourceInfo>(mappedResources);
 
-                    dest.GlobalSettings = ReflectionUtil.ConvertDictionaryToObject<ModuleFieldGlobalSettings>(dest.Settings);
-                });
+        //        _cacheService.ClearByPrefix("BE_Modules_");
+        //    }
+        //    else if (status.ExceptionError != null)
+        //        throw status.ExceptionError ?? throw new Exception("The module is not ready to be build!");
+        //}
 
-            var resourcesToBuild = new List<BuildModuleResourceDto>();
-            using (var reader = await spResourceReaderTask)
-            {
-                while (reader.Read())
-                {
-                    resourcesToBuild.Add(new BuildModuleResourceDto()
-                    {
-                        ModuleId = GlobalHelper.GetSafeGuid(reader["ModuleId"]),
-                        ResourceType = (ResourceType)reader["ResourceType"],
-                        ActionType = (ActionType)reader["ActionType"],
-                        ResourcePath = GlobalHelper.GetSafeString(reader["ResourcePath"]),
-                        EntryType = GlobalHelper.GetSafeString(reader["EntryType"]),
-                        Additional = GlobalHelper.GetSafeString(reader["Additional"]),
-                        CacheKey = GlobalHelper.GetSafeString(reader["CacheKey"]),
-                        Condition = GlobalHelper.GetSafeString(reader["Condition"]),
-                        LoadOrder = GlobalHelper.GetSafeInt(reader["LoadOrder"])
-                    });
-                }
-            }
-
-            var status = await _buildModule.PrepareBuild(moduleToBuild, _repository, portalSettings);
-            if (status.IsReadyToBuild)
-            {
-                var pageResources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("DnnPageId", pageId);
-                var pageResourcesDto = HybridMapper.MapCollection<PageResourceInfo, PageResourceDto>(pageResources);
-
-                var finalResources = await _buildModule.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
-                var mappedResources = HybridMapper.MapCollection<PageResourceDto, PageResourceInfo>(finalResources);
-                await _repository.BulkInsertAsync<PageResourceInfo>(mappedResources);
-
-                _cacheService.ClearByPrefix("BE_Modules_");
-            }
-            else if (status.ExceptionError != null)
-                throw status.ExceptionError ?? throw new Exception("The module is not ready to be build!");
-        }
-
-        #endregion
+        //#endregion
 
         #region Module Template Services
 
@@ -533,5 +502,86 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
         }
 
         #endregion
+
+        #region Building Module
+
+        public async Task<ModuleDto> GetDataForModuleBuildingAsync(Guid moduleId)
+        {
+            var module = await _repository.GetAsync<ModuleView>(moduleId);
+            var data = await _repository.ExecuteStoredProcedureMultipleAsync<ModuleFieldResult, ModuleFieldSettingResult,
+                    ModuleResourceResult, ModuleExternalResourceResult>(
+                "dbo.BusinessEngine_Studio_GetModuleDataForBuild", "BE_Modules_Fields_Settings_Build_" + moduleId,
+                new
+                {
+                    ModuleId = moduleId
+                }
+            );
+
+            var fields = data.Item1;
+            var fieldsSettings = data.Item2;
+            var resources = data.Item3;
+            var externalResources = data.Item4;
+
+            var builder = new CollectionMappingBuilder<ModuleView, ModuleDto>();
+
+            builder.AddChildAsync<ModuleFieldResult, ModuleFieldDto, Guid>(
+              source: fields,
+              parentKey: parent => parent.Id,
+              childKey: child => child.ModuleId,
+              assign: (dest, children) => dest.Fields = children,
+              configAction: async (src, dest) =>
+               {
+                   var dict = fieldsSettings.GroupBy(c => c.FieldId).ToDictionary(g => g.Key, g => g.AsEnumerable());
+                   var items = dict.TryGetValue(src.Id, out var settings);
+                   dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+
+                   await Task.CompletedTask;
+               }
+            );
+
+            builder.AddChildAsync<ModuleResourceResult, ModuleResourceDto, Guid>(
+               source: resources,
+               parentKey: parent => parent.Id,
+               childKey: child => child.ModuleId,
+               assign: (dest, children) => dest.Resources = children
+            );
+
+            builder.AddChildAsync<ModuleExternalResourceResult, ModuleExternalResourceDto, Guid>(
+              source: externalResources,
+              parentKey: parent => parent.Id,
+              childKey: child => child.ModuleId,
+              assign: (dest, children) => dest.ExternalResources = children
+           );
+
+            var result = await builder.BuildAsync(module);
+            return result;
+        }
+
+        public async Task<bool> DeleteModuleResourcesAsync(Guid moduleId)
+        {
+            return await _repository.DeleteByScopeAsync<PageResourceInfo>(moduleId);
+        }
+
+        #endregion
     }
 }
+
+
+//    using (var reader = await spResourceReaderTask)
+//    {
+//        while (reader.Read())
+//        {
+//            resourcesToBuild.Add(new BuildModuleResourceDto()
+//            {
+//                ModuleId = GlobalHelper.GetSafeGuid(reader["ModuleId"]),
+//                ResourceType = (ResourceType)reader["ResourceType"],
+//                ActionType = (ActionType)reader["ActionType"],
+//                ResourcePath = GlobalHelper.GetSafeString(reader["ResourcePath"]),
+//                EntryType = GlobalHelper.GetSafeString(reader["EntryType"]),
+//                Additional = GlobalHelper.GetSafeString(reader["Additional"]),
+//                CacheKey = GlobalHelper.GetSafeString(reader["CacheKey"]),
+//                Condition = GlobalHelper.GetSafeString(reader["Condition"]),
+//                LoadOrder = GlobalHelper.GetSafeInt(reader["LoadOrder"])
+//            });
+//        }
+//    }

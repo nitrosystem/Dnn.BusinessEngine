@@ -5,16 +5,15 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Action;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Action;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Services
 {
     public class ActionService : IActionService
     {

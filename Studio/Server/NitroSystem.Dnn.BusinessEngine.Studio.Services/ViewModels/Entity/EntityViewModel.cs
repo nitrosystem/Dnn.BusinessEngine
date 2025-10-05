@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Entity
 {
     public class EntityViewModel : IViewModel
     {

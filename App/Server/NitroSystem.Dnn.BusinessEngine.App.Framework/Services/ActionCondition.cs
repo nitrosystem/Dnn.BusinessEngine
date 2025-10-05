@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Collections.Concurrent;
 using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Framework.Services
 {

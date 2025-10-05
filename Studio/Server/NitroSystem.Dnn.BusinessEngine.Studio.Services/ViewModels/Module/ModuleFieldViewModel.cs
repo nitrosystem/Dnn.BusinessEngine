@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Module
 {
     public class ModuleFieldViewModel : IViewModel
     {

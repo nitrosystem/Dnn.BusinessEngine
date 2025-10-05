@@ -1,7 +1,0 @@
-﻿<div class="b-check-list [[Settings.CheckListDisplayType]] [[ThemeCssClass]]">
-    <div class="check-item" ng-repeat="option in [FIELD].DataSource.Items">
-        <input type="checkbox" id="bCheck[FIELDID]_{{option.[[Settings.DataSource.TextField??Value]]}}"
-            ng-value="option.Value" ng-model="option.Selected" ng-change="bCheckBoxList_onChange([FIELD])">
-        <label for="bCheck[FIELDID]_{{option.[[Settings.DataSource.TextField??Value]]}}">{{option.[[Settings.DataSource.TextField??Text]]}}</label>
-    </div>
-</div>

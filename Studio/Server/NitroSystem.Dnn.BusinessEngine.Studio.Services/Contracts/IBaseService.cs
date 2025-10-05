@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Base;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Base;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts
 {
     public interface IBaseService
     {

@@ -1,9 +1,0 @@
-﻿<div class="b-dropdown-group [[ThemeCssClass]]">
-    [[IF:GlobalSettings.WithIcon==true&&GlobalSettings.IconPosition==Left:<i class="b-dropdown-icon [[Settings.FontIcon]]"></i> ]]
-    <select ng-model="[FIELD].Value" class="b-dropdown-control" ng-disabled="[[!IsEnabled]]">
-        <option value="">[[Settings.Placeholder]]</option>
-        <option ng-repeat="option in [FIELD].DataSource.Items" ng-value="option.[[DataSource.ValueField]]"
-            ng-selected="[FIELD].Value == option.[[DataSource.ValueField??Value]]">{{option.[[DataSource.TextField??Text]]}}</option>
-    </select>
-    [[IF:GlobalSettings.WithIcon==true&&GlobalSettings.IconPosition==Right:<i class="b-dropdown-icon [[Settings.FontIcon]]"></i> ]]
-</div>

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.DependencyInjection;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Caching;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ServiceLocator;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader;
 

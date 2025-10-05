@@ -5,21 +5,20 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
-using NitroSystem.Dnn.BusinessEngine.Core.Caching;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ServiceLocator;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Service;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Service;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Module;
 using System.Resources;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Services
 {
     public class ServiceFactory : IServiceFactory
     {

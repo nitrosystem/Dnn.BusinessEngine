@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNetNuke.Entities.Portals;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.AppModel;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts
 {
     public interface IAppModelService
     {

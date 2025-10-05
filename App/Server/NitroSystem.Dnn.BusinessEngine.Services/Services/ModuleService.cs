@@ -5,15 +5,15 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Dto;
 using NitroSystem.Dnn.BusinessEngine.App.Services.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Services.Services
 {

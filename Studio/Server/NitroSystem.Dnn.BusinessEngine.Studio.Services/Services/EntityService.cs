@@ -6,15 +6,14 @@ using System.Threading.Tasks;
 using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Entity;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Services
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Services
 {
     public class EntityService : IEntityService
     {

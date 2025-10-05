@@ -3,8 +3,8 @@ using System.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.DependencyInjection;
 using DotNetNuke.Data;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Data.Repository;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data
 {

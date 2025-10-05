@@ -1,15 +1,15 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Action;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Action;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.MappingConfiguration
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.MappingConfiguration
 {
     public class ActionMappingProfile
     {

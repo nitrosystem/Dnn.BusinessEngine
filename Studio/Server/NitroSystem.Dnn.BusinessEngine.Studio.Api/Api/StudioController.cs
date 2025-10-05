@@ -12,13 +12,14 @@ using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Common.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Base;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Base;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Entity;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {

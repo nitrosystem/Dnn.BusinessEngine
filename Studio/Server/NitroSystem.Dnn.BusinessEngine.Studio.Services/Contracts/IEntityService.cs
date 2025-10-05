@@ -2,9 +2,9 @@
 using System.Web;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Entity;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Entity;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts
 {
     public interface IEntityService
     {

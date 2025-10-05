@@ -1,8 +1,8 @@
 ﻿using System;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Module
 {
     public class ModuleVariableViewModel : IViewModel
     {

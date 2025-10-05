@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Dto
 {
     public class ModuleTemplateDto
     {

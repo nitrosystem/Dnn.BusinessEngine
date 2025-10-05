@@ -10,14 +10,18 @@ using System.Threading.Tasks;
 using DotNetNuke.Web.Api;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Action;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Enums;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Action;
+using NitroSystem.Dnn.BusinessEngine.Studio.Api.DTO;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -379,22 +383,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> BuildModule([FromUri] Guid moduleId)
-        {
-            try
-            {
-                await _moduleService.BuildModuleAsync(moduleId, PortalSettings, HttpContext.Current);
-
-                return Request.CreateResponse(HttpStatusCode.OK);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<HttpResponseMessage> SaveModuleField(UpdateModuleFieldDto postData)
         {
             try
@@ -469,6 +457,26 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var isDeleted = await _moduleService.DeleteFieldAsync(postData.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        #endregion
+
+        #region 5-1 Build Module
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> BuildModule(BuildModuleDto postData)
+        {
+            try
+            {
+                var data = await _moduleService.GetDataForModuleBuildingAsync(postData.ModuleId);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {

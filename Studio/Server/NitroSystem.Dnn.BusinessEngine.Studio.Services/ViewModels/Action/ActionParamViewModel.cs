@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Action
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Action
 {
     public class ActionParamViewModel
     {

@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Web;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using DotNetNuke.Entities.Portals;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Dto;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Enums;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts
 {
     public interface IModuleService
     {
@@ -20,7 +20,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
         Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew);
         Task<bool> DeleteModuleAsync(Guid moduleId);
         Task<bool?> IsValidModuleName(Guid scenarioId, Guid? moduleId, string moduleName);
-        Task BuildModuleAsync(Guid moduleId, PortalSettings portalSettings, HttpContext context);
 
         #endregion
 
@@ -68,6 +67,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Contracts
         Task SortModuleCustomLibraries(LibraryOrResource target, IEnumerable<SortInfo> items);
         Task<bool> DeleteModuleCustomLibraryAsync(Guid moduleId);
         Task<bool> DeleteModuleCustomResourceAsync(Guid moduleId);
+
+        #endregion
+
+        #region Building Module
+
+        Task<ModuleDto> GetDataForModuleBuildingAsync(Guid moduleId);
+        Task<bool> DeleteModuleResourcesAsync(Guid moduleId);
 
         #endregion
     }

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Web.Caching;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
 {
     [Table("BusinessEngineView_ModuleFieldSettings")]
-    [Cacheable("BE_ModuleFieldSettings_View_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Modules_Fields_Settings_View_", CacheItemPriority.Default, 20)]
     public class ModuleFieldSettingView : IEntity
     {
         public Guid Id { get; set; }

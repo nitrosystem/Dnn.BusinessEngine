@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.AppModel
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.AppModel
 {
     public class AppModelPropertyViewModel
     {

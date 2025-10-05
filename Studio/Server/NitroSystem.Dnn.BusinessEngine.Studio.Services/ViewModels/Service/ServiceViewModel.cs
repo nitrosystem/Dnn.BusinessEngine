@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Service
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Service
 {
     public class ServiceViewModel : IViewModel
     {

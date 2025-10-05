@@ -1,7 +1,7 @@
-﻿using System;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Template
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Template
 {
     public class TemplateItemViewModel : IViewModel
     {

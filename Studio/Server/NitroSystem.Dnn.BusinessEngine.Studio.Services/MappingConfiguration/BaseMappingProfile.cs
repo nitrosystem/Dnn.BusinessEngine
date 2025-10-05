@@ -1,9 +1,9 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.MappingConfiguration
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.MappingConfiguration
 {
     public class BaseMappingProfile
     {

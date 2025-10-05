@@ -1,7 +1,7 @@
-﻿using System;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
+﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ListItems
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems
 {
     public class ActionListItem
     {

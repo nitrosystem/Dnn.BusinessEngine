@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.Dto
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Dto
 {
     public class SortPaneFieldsDto
     {

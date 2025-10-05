@@ -35,11 +35,20 @@
     <Reference Include="DotNetNuke, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\DotNetNuke.dll</HintPath>
     </Reference>
+    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\DotNetNuke.DependencyInjection.9.4.0\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
+    </Reference>
     <Reference Include="HtmlAgilityPack, Version=1.12.3.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\HtmlAgilityPack.1.12.3\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -55,38 +64,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuildModule\BuildModuleEngine.cs" />
+    <Compile Include="BuildModule\Middlewares\MergeResourcesMiddleware.cs" />
+    <Compile Include="BuildModule\Middlewares\BuildLayoutMiddleware.cs" />
     <Compile Include="TypeBuilderEngine\Contracts\ITypeBuilder.cs" />
     <Compile Include="TypeBuilderEngine\TypeBuilder.cs" />
-    <Compile Include="BuildModuleEngine\BuildModuleLayout.cs" />
-    <Compile Include="BuildModuleEngine\BuildModule.cs" />
-    <Compile Include="BuildModuleEngine\CleanPageResources.cs" />
-    <Compile Include="BuildModuleEngine\Contracts\IBuildModuleLayout.cs" />
-    <Compile Include="BuildModuleEngine\Contracts\IBuildModule.cs" />
-    <Compile Include="BuildModuleEngine\Contracts\IModuleBuildLockService.cs" />
-    <Compile Include="BuildModuleEngine\Contracts\IResourceMachine.cs" />
-    <Compile Include="BuildModuleEngine\Enums\ActionType.cs" />
-    <Compile Include="BuildModuleEngine\Enums\OperationType.cs" />
-    <Compile Include="BuildModuleEngine\Models\ModuleResourceInfo.cs" />
-    <Compile Include="BuildModuleEngine\ModuleBuildLockService.cs" />
-    <Compile Include="BuildModuleEngine\ModuleBuildQueueManager.cs" />
-    <Compile Include="BuildModuleEngine\ResourceFunctionProvider.cs" />
-    <Compile Include="BuildModuleEngine\ResourceMachine.cs" />
+    <Compile Include="BuildModule\Services\BuildLayoutService.cs" />
+    <Compile Include="BuildModule\Services\MergeResourcesService.cs" />
+    <Compile Include="BuildModule\Models\ModuleResourceInfo.cs" />
     <Compile Include="TypeBuilderEngine\Dto\AppModelDto.cs" />
-    <Compile Include="BuildModuleEngine\Dto\BuildModuleResultDto.cs" />
-    <Compile Include="BuildModuleEngine\Dto\PageResourceDto.cs" />
-    <Compile Include="BuildModuleEngine\Dto\BuildModuleDto.cs" />
-    <Compile Include="BuildModuleEngine\Dto\BuildModuleFieldDto.cs" />
-    <Compile Include="BuildModuleEngine\Dto\BuildModuleResourceDto.cs" />
-    <Compile Include="BuildModuleEngine\Dto\PrebuildResultDto.cs" />
-    <Compile Include="BuildModuleEngine\Enums\ResourceType.cs" />
-    <Compile Include="BuildModuleEngine\Models\MachineResourceFileInfo.cs" />
-    <Compile Include="BuildModuleEngine\Models\MachineResourceInfo.cs" />
-    <Compile Include="BuildModuleEngine\Models\ModuleFieldGlobalSettings.cs" />
-    <Compile Include="BuildModuleEngine\Models\ResourceMergeStrategy.cs" />
+    <Compile Include="BuildModule\Models\MachineResourceFileInfo.cs" />
+    <Compile Include="BuildModule\Models\MachineResourceInfo.cs" />
+    <Compile Include="BuildModule\Models\ResourceMergeStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Common\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
+    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Abstractions\NitroSystem.Dnn.BusinessEngine.Abstractions.csproj">
+      <Project>{f4c66d02-6cbe-4afd-93e1-16c56e69e86e}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
       <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
     </ProjectReference>
@@ -94,9 +91,9 @@
       <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Studio.Data\NitroSystem.Dnn.BusinessEngine.Data.csproj">
-      <Project>{57e9a1ea-6603-4cd5-9914-5f79f60923ed}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.Data</Name>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Studio.Services\NitroSystem.Dnn.BusinessEngine.Studio.DataServices.csproj">
+      <Project>{1fc5279b-b157-4a01-bd60-49f42f8c3971}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Studio.DataServices</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

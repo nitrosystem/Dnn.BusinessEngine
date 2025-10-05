@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web.Caching;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
 {
@@ -15,6 +15,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public Guid? ParentId { get; set; }
         public int PortalId { get; set; }
         public int? DnnModuleId { get; set; }
+        public int? DnnModuleTabId { get; set; }
         public int ModuleType { get; set; }
         public int Wrapper { get; set; }
         public string ScenarioName { get; set; }

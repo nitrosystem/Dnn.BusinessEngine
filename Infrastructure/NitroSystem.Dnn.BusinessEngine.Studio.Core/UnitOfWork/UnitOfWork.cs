@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork
 {

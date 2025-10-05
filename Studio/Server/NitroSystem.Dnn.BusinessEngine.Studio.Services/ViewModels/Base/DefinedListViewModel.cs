@@ -1,8 +1,8 @@
-﻿using System;
+﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Base
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Base
 {
     public class DefinedListViewModel : IViewModel
     {

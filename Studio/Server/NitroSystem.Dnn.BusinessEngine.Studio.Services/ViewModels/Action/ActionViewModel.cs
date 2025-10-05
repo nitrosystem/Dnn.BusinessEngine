@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Core.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Action
+namespace NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Action
 {
     public class ActionViewModel
     {
