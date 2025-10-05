@@ -470,11 +470,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> BuildModule(BuildModuleDto postData)
+        public async Task<HttpResponseMessage> BuildModule([FromUri] Guid moduleId)
         {
             try
             {
-                var data = await _moduleService.GetDataForModuleBuildingAsync(postData.ModuleId);
+                var data = await _moduleService.GetDataForModuleBuildingAsync(moduleId);
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
