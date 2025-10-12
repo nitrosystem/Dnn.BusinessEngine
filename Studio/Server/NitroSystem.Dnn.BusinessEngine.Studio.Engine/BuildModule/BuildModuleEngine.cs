@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
@@ -19,34 +19,39 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
     {
         private readonly EnginePipeline<BuildModuleRequest, BuildModuleResponse> _pipeline;
 
-        private readonly IModuleService _moduleService;
-
-        public BuildModuleEngine(IServiceProvider services, IModuleService _moduleService, EngineContext context)
-            : base(context)
+        public BuildModuleEngine(IServiceProvider services)
+            : base(services)
         {
             OnError += OnErrorHandle;
 
             _pipeline = new EnginePipeline<BuildModuleRequest, BuildModuleResponse>()
             .Use<BuildLayoutMiddleware>()
-            .Use<MergeResourcesMiddleware>();
+            .Use<MergeResourcesMiddleware>()
+            .Use<ResourceAggregatorMiddleware>();
         }
 
-        protected override Task OnInitializeAsync(BuildModuleRequest request, EngineContext context)
+        protected override Task OnInitializeAsync(BuildModuleRequest request)
         {
-            var outputDirectory = Constants.MapPath(request.BasePath + request.ModuleName);
+            var moduleFolder = StringHelper.ToKebabCase(request.ModuleName);
+            var outputDirectory = Constants.MapPath(request.BasePath + moduleFolder);
             if (Directory.Exists(outputDirectory))
-                FileUtil.DeleteDirectory(outputDirectory, true);
+                Directory.Delete(outputDirectory, true);
+
+            Directory.CreateDirectory(outputDirectory);
+
+            Context.Set("OutputDirectory", outputDirectory);
+            Context.Set("OutputRelativePath", request.BasePath + moduleFolder);
 
             //var logger = Services.GetRequiredService<ILogger<BuildModuleEngine>>();
-            //context.Items["Logger"] = logger;
+            //Context.Items["Logger"] = logger;
 
             //var configService = Services.GetRequiredService<IConfigService>();
-            //context.Items["BuildConfig"] = await configService.GetConfigAsync("BuildModule");
+            //Context.Items["BuildConfig"] = await configService.GetConfigAsync("BuildModule");
 
-            return base.OnInitializeAsync(request, context);
+            return base.OnInitializeAsync(request);
         }
 
-        protected override async Task<EngineResult<object>> ValidateAsync(BuildModuleRequest request, EngineContext context)
+        protected override async Task<EngineResult<object>> ValidateAsync(BuildModuleRequest request)
         {
             await Task.Yield();
 
@@ -58,7 +63,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             if (string.IsNullOrEmpty(request.ModuleName))
                 errors.Add("ModuleName is required.");
 
-            //if (!await _permissionService.HasAccessAsync(context.UserId, "BuildModule"))
+            //if (!await _permissionService.HasAccessAsync(Context.UserId, "BuildModule"))
             //    errors.Add("User does not have permission to build module.");
 
             if (errors.Any())
@@ -67,13 +72,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             return EngineResult<object>.Success(null);
         }
 
-        protected override async Task BeforeExecuteAsync(BuildModuleRequest request, EngineContext context)
-        {
-            await _moduleService.DeleteModuleResourcesAsync(request.ModuleId.Value);
-        }
-
         protected override async Task<EngineResult<BuildModuleResponse>> ExecuteCoreAsync(
-            BuildModuleRequest request, EngineContext context)
+            BuildModuleRequest request)
         {
             var lockService = new LockService();
 
@@ -85,7 +85,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 
             try
             {
-                return await _pipeline.ExecuteAsync(request, context, Services);
+                return await _pipeline.ExecuteAsync(request, Context, Services);
             }
             finally
             {

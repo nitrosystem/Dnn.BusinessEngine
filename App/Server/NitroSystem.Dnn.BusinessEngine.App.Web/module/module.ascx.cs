@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Globalization;
 using System.Web.UI;
 using System.Web.Helpers;
-using System.Data;
-using System.Data.SqlClient;
-using System.Globalization;
-using DotNetNuke.Data;
-using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Modules.Actions;
+using DotNetNuke.Data;
+using System.Data.SqlClient;
+using System.Data;
+using DotNetNuke.Common.Utilities;
+using DotNetNuke.Framework;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.App.Web.Models;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
@@ -17,19 +19,30 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
     {
         #region Properties
 
-        public Guid? _id { get; set; }
+        private Guid? _id { get; set; }
 
-        public string _scenarioName { get; set; }
+        private string _scenarioName { get; set; }
 
-        public string _moduleName { get; set; }
+        private string _moduleName { get; set; }
+
+        private string _siteRoot
+        {
+            get
+            {
+                var siteRoot = ServicesFramework.GetServiceFrameworkRoot();
+                return siteRoot == "/"
+                    ? string.Empty
+                    : "&sr=" + siteRoot;
+            }
+        }
 
         private string _studioUrl
         {
             get
             {
-                string moduleParamValue = _id.HasValue ? _id.ToString() : this.ModuleId.ToString();
+                string moduleParam = _id.HasValue ? "id=" + _id.ToString() : "d=" + this.ModuleId.ToString();
 
-                return ResolveUrl(string.Format("~/DesktopModules/BusinessEngine/studio.aspx?s={0}&p={1}&a={2}&m=create-module&id={3}&ru={4}", _scenarioName, this.PortalId, this.PortalAlias.PortalAliasID, moduleParamValue, this.TabId));
+                return ResolveUrl(string.Format("~/DesktopModules/BusinessEngine/studio.aspx?s={0}{1}&m=create-module&{2}&ru={3}", _scenarioName, _siteRoot, moduleParam, this.TabId));
             }
         }
 
@@ -90,10 +103,10 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                 {
                     connection.Open();
 
-                    using (var command = new SqlCommand("dbo.BusinessEngine_GetModuleLite", connection))
+                    using (var command = new SqlCommand("dbo.BusinessEngine_App_GetModuleLite", connection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
-                        command.Parameters.AddWithValue("@DnnModuleId", this.ModuleId);
+                        command.Parameters.AddWithValue("@SiteModuleId", this.ModuleId);
 
                         using (var reader = command.ExecuteReader())
                         {
@@ -110,7 +123,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                                 DataCache.SetCache(cacheKey, module);
                             }
                         }
-
                     }
 
                     connection.Close();
@@ -129,8 +141,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 
             if (string.IsNullOrEmpty(template))
             {
+                string moduleFolder = StringHelper.ToKebabCase(_moduleName);
+                string scenarioFolder = StringHelper.ToKebabCase(_scenarioName);
                 string modulePath = this.PortalSettings.HomeSystemDirectory + @"business-engine/";
-                string moduleTemplateUrl = string.Format("{0}/{1}/{2}/module--{2}.html", modulePath, _scenarioName, _moduleName);
+                string moduleTemplateUrl = $"{modulePath}/{scenarioFolder}/{moduleFolder}/{_moduleName}.html";
+
                 template = FileUtil.GetFileContent(MapPath(moduleTemplateUrl));
 
                 data = ("", template);

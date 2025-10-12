@@ -13,13 +13,12 @@ using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Common.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Base;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Entity;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.AppModel;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Base;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Entity;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.AppModel;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -31,15 +30,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IAppModelService _appModelServices;
         private readonly IServiceFactory _serviceFactory;
         private readonly IDefinedListService _definedListService;
-        private readonly IDatabaseMetadataRepository _databaseMetadata;
+        //private readonly IDatabaseMetadataRepository _databaseMetadata;
 
         public StudioController(
             IBaseService globalService,
             IEntityService entityService,
             IAppModelService appModelService,
             IServiceFactory serviceFactory,
-            IDefinedListService definedListService,
-            IDatabaseMetadataRepository databaseMetadata
+            IDefinedListService definedListService
+        //IDatabaseMetadataRepository databaseMetadata
         )
         {
             _globalService = globalService;
@@ -47,7 +46,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _appModelServices = appModelService;
             _serviceFactory = serviceFactory;
             _definedListService = definedListService;
-            _databaseMetadata = databaseMetadata;
+            //_databaseMetadata = databaseMetadata;
         }
 
         #region Common
@@ -215,6 +214,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> DeleteScenario(GuidInfo postData)
+        {
+            try
+            {
+                var isDeleted = await _globalService.DeleteScenarioAsync(postData.Id);
+
+                return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
         #endregion
 
         #region Group
@@ -307,10 +322,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var tables = _databaseMetadata.GetDatabaseObjectsAsync(0);
-                var views = _databaseMetadata.GetDatabaseObjectsAsync(1);
+                //var tables = _databaseMetadata.GetDatabaseObjectsAsync(0);
+                //var views = _databaseMetadata.GetDatabaseObjectsAsync(1);
 
-                return Request.CreateResponse(HttpStatusCode.OK, new { Tables = tables, Views = views });
+                return Request.CreateResponse(HttpStatusCode.OK/*, new { Tables = tables, Views = views }*/);
             }
             catch (Exception ex)
             {
@@ -323,9 +338,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var columns = _databaseMetadata.GetDatabaseObjectColumnsAsync(objectName);
+                //var columns = _databaseMetadata.GetDatabaseObjectColumnsAsync(objectName);
 
-                return Request.CreateResponse(HttpStatusCode.OK, columns);
+                return Request.CreateResponse(HttpStatusCode.OK/*, columns*/);
             }
             catch (Exception ex)
             {
@@ -432,7 +447,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty, PortalSettings);
+                appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty, PortalSettings.HomeSystemDirectory);
 
                 appModel = await _appModelServices.GetAppModelAsync(appModel.Id);
 

@@ -145,7 +145,7 @@ export class CreateModuleBasicOptionsController {
         else if (this.form.valid) {
             this.validateModuleName().then(() => {
                 const id = this.globalService.getParameterByName("id");
-                if (!isNaN(id)) this.module.DnnModuleId = id;
+                if (!isNaN(id)) this.module.SiteModuleId = id;
 
                 this.running = "save-module";
                 this.awaitAction = {

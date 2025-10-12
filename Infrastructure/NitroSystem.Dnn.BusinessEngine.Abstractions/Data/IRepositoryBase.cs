@@ -42,7 +42,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts
 
         Task<bool> DeleteAsync<T>(Guid id) where T : class, IEntity, new();
 
-        Task<bool> DeleteByScopeAsync<T>(Guid value) where T : class, IEntity, new();
+        Task<bool> DeleteByScopeAsync<T>(object value) where T : class, IEntity, new();
 
         Task ExecuteStoredProcedureAsync(string storedProcedure, object parameters);
 

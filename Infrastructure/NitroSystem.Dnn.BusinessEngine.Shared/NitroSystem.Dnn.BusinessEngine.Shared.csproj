@@ -57,11 +57,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\QueueExtensions.cs" />
     <Compile Include="Extensions\SqlDataReaderExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Globals\Constants.cs" />
     <Compile Include="Helpers\CastingHelper.cs" />
     <Compile Include="Helpers\CollectionHelper.cs" />
+    <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Helpers\TypeChecker.cs" />
     <Compile Include="Mapper\ExpressionMapper.cs" />
     <Compile Include="Mapper\HybridMapper.cs" />

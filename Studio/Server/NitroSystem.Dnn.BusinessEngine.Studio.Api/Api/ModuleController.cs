@@ -11,17 +11,22 @@ using DotNetNuke.Web.Api;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Dto;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Module;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.ViewModels.Action;
-using NitroSystem.Dnn.BusinessEngine.Studio.Api.DTO;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Template;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Action;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -32,24 +37,38 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IServiceFactory _serviceFactory;
         private readonly IAppModelService _appModelServices;
         private readonly IModuleService _moduleService;
+        private readonly IModuleFieldService _moduleFieldService;
+        private readonly IModuleVariableService _moduleVariableService;
+        private readonly IModuleLibraryAndResourceService _moduleLibraryAndResourceService;
         private readonly IActionService _actionService;
         private readonly ITemplateService _templateService;
+        private readonly IServiceProvider _serviceProvider;
 
         public ModuleController(
             IBaseService globalService,
             IServiceFactory serviceFactory,
             IAppModelService appModelService,
             IModuleService moduleService,
+            IModuleFieldService moduleFieldService,
+            IModuleVariableService moduleVariableService,
+            IModuleLibraryAndResourceService moduleLibraryAndResourceService,
             IActionService actionService,
-            ITemplateService templateService
+            ITemplateService templateService,
+            IServiceProvider serviceProvider
+
         )
         {
             _baseService = globalService;
             _serviceFactory = serviceFactory;
             _appModelServices = appModelService;
             _moduleService = moduleService;
+            _moduleFieldService = moduleFieldService;
+            _moduleVariableService = moduleVariableService;
+            _moduleLibraryAndResourceService = moduleLibraryAndResourceService;
             _actionService = actionService;
             _templateService = templateService;
+            _serviceProvider = serviceProvider;
+
         }
 
         #region Create Module
@@ -119,12 +138,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
-                var installedTemplates = await _templateService.GetTemplatesViewModelAsync();
+                var templates = await _templateService.GetTemplatesViewModelAsync(module.ModuleType);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     Module = module,
-                    InstalledTemplates = installedTemplates
+                    Templates = templates
                 });
             }
             catch (Exception ex)
@@ -135,7 +154,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveModuleTemplate(ModuleTemplateDto module)
+        public async Task<HttpResponseMessage> SaveModuleTemplate(ModuleTemplateViewModel module)
         {
             try
             {
@@ -159,8 +178,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var libraries = await _baseService.GetLibrariesListItemAsync();
-                var moduleCustomLibraries = await _moduleService.GetModuleCustomLibrariesAsync(moduleId);
-                var moduleCustomResources = await _moduleService.GetModuleCustomResourcesAsync(moduleId);
+                var moduleCustomLibraries = await _moduleLibraryAndResourceService.GetModuleCustomLibrariesAsync(moduleId);
+                var moduleCustomResources = await _moduleLibraryAndResourceService.GetModuleCustomResourcesAsync(moduleId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -181,7 +200,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                await _moduleService.SortModuleCustomLibraries(target, postData);
+                await _moduleLibraryAndResourceService.SortModuleCustomLibraries(target, postData);
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
@@ -197,7 +216,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var isDeleted = await _moduleService.DeleteModuleCustomLibraryAsync(postData.Id);
+                var isDeleted = await _moduleLibraryAndResourceService.DeleteModuleCustomLibraryAsync(postData.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
@@ -213,7 +232,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var isDeleted = await _moduleService.DeleteModuleCustomResourceAsync(postData.Id);
+                var isDeleted = await _moduleLibraryAndResourceService.DeleteModuleCustomResourceAsync(postData.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
@@ -230,7 +249,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                library.Id = await _moduleService.SaveModuleCustomLibraryAsync(library, library.Id == Guid.Empty);
+                library.Id = await _moduleLibraryAndResourceService.SaveModuleCustomLibraryAsync(library, library.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, library.Id);
             }
@@ -246,7 +265,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                resource.Id = await _moduleService.SaveModuleCustomResourceAsync(resource, resource.Id == Guid.Empty);
+                resource.Id = await _moduleLibraryAndResourceService.SaveModuleCustomResourceAsync(resource, resource.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, resource.Id);
             }
@@ -267,7 +286,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                var variables = await _moduleService.GetModuleVariablesViewModelAsync(moduleId);
+                var variables = await _moduleVariableService.GetModuleVariablesViewModelAsync(moduleId);
                 var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, "", "Title");
 
                 var types = Constants.VariableTypes;
@@ -294,7 +313,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                variable.Id = await _moduleService.SaveModuleVariablesAsync(variable, variable.Id == Guid.Empty);
+                variable.Id = await _moduleVariableService.SaveModuleVariablesAsync(variable, variable.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, variable.Id);
             }
@@ -310,7 +329,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var isDeleted = await _moduleService.DeleteModuleVariablesAsync(postData.Id);
+                var isDeleted = await _moduleVariableService.DeleteModuleVariablesAsync(postData.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
@@ -332,9 +351,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
-                var fieldTypes = await _moduleService.GetFieldTypesViewModelAsync();
-                var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
-                var variables = await _moduleService.GetModuleVariablesDtoAsync(moduleId);
+                var fieldTypes = await _moduleFieldService.GetFieldTypesViewModelAsync();
+                var fields = await _moduleFieldService.GetFieldsViewModelAsync(moduleId);
+                var variables = await _moduleVariableService.GetModuleVariablesDtoAsync(moduleId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -355,7 +374,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var field = await _moduleService.GetFieldViewModelAsync(fieldId);
+                var field = await _moduleFieldService.GetFieldViewModelAsync(fieldId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, field);
             }
@@ -387,13 +406,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                postData.Field.Id = await _moduleService.SaveFieldAsync(postData.Field, postData.Field.Id == Guid.Empty);
+                postData.Field.Id = await _moduleFieldService.SaveFieldAsync(postData.Field, postData.Field.Id == Guid.Empty);
 
                 if (postData.ReorderFields && postData.PaneFieldIds != null && postData.PaneFieldIds.Any())
                 {
                     if (postData.FieldViewOrder.HasValue) postData.PaneFieldIds.Insert(postData.FieldViewOrder.Value, postData.Field.Id);
 
-                    await _moduleService.SortFieldsAsync(new SortPaneFieldsDto()
+                    await _moduleFieldService.SortFieldsAsync(new SortPaneFieldsDto()
                     {
                         ModuleId = postData.Field.ModuleId,
                         PaneName = postData.Field.PaneName,
@@ -415,9 +434,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                await _moduleService.UpdateFieldPaneAsync(postData);
+                await _moduleFieldService.UpdateFieldPaneAsync(postData);
 
-                await _moduleService.SortFieldsAsync(new SortPaneFieldsDto()
+                await _moduleFieldService.SortFieldsAsync(new SortPaneFieldsDto()
                 {
                     ModuleId = postData.ModuleId,
                     PaneName = postData.PaneName,
@@ -438,7 +457,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                await _moduleService.SortFieldsAsync(postData);
+                await _moduleFieldService.SortFieldsAsync(postData);
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
@@ -454,7 +473,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var isDeleted = await _moduleService.DeleteFieldAsync(postData.Id);
+                var isDeleted = await _moduleFieldService.DeleteFieldAsync(postData.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
@@ -474,7 +493,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var data = await _moduleService.GetDataForModuleBuildingAsync(moduleId);
+                var module = await _moduleService.GetDataForModuleBuildingAsync(moduleId);
+
+                var request = new BuildModuleRequest();
+                request.Module = module;
+                request.Scope = BuildScope.Module;
+                request.BasePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(module.ScenarioName)}/";
+
+                var engine = new BuildModuleEngine(_serviceProvider);
+                await engine.ExecuteAsync(request);
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
@@ -544,14 +571,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
                 var actionTypes = await _actionService.GetActionTypesListItemAsync();
                 var actions = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, 1, 1000, null, null, "ActionName");
-                var variables = await _moduleService.GetModuleVariablesDtoAsync(moduleId);
+                var variables = await _moduleVariableService.GetModuleVariablesDtoAsync(moduleId);
 
                 var events = Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
 
                 if (string.IsNullOrEmpty(fieldType))
                     events = GetDefaultCustomEvents();
                 else
-                    events = GetDefaultCustomEvents(fieldType).Concat(await _moduleService.GetFieldTypesCustomEventsListItemAsync(fieldType));
+                    events = GetDefaultCustomEvents(fieldType).Concat(await _moduleFieldService.GetFieldTypesCustomEventsListItemAsync(fieldType));
 
                 var action = actionId != Guid.Empty
                         ? await _actionService.GetActionViewModelAsync(actionId)

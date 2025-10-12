@@ -7,16 +7,15 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using Newtonsoft.Json.Linq;
 using HtmlAgilityPack;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine.Dto;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.ConditionParser;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
     public class BuildLayoutService : IBuildLayoutService
     {
@@ -133,11 +132,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 
             var field = _buffer.Dequeue();
 
-            var node = GetPaneNode(field.PaneName);
-            var fieldHtml = ParseFieldTemplate(field);
-            var htmlNode = HtmlNode.CreateNode(fieldHtml);
+            try
+            {
+                var node = GetPaneNode(field.PaneName);
+                var fieldHtml = ParseFieldTemplate(field);
+                var htmlNode = HtmlNode.CreateNode(fieldHtml);
 
-            node.AppendChild(htmlNode);
+                node.AppendChild(htmlNode);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
 
             ProcessBuffer(index - 1);
         }

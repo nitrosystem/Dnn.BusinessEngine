@@ -100,21 +100,21 @@
       <Project>{f4c66d02-6cbe-4afd-93e1-16c56e69e86e}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Abstractions</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
+      <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
       <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Studio.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
-      <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Studio.DataServices\NitroSystem.Dnn.BusinessEngine.Studio.DataServices.csproj">
+      <Project>{1fc5279b-b157-4a01-bd60-49f42f8c3971}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Studio.DataServices</Name>
     </ProjectReference>
     <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Studio.Engine\NitroSystem.Dnn.BusinessEngine.Studio.Engine.csproj">
       <Project>{a4f5b881-f4a7-4cfe-8e82-84421fa67751}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Studio.Engine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Studio.Services\NitroSystem.Dnn.BusinessEngine.Studio.DataServices.csproj">
-      <Project>{1fc5279b-b157-4a01-bd60-49f42f8c3971}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.Studio.DataServices</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

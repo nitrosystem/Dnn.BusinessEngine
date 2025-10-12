@@ -38,8 +38,8 @@
     <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\DotNetNuke.DependencyInjection.9.4.0\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
     </Reference>
-    <Reference Include="HtmlAgilityPack, Version=1.12.3.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\HtmlAgilityPack.1.12.3\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="HtmlAgilityPack, Version=1.12.4.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\HtmlAgilityPack.1.12.4\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
@@ -65,17 +65,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildModule\BuildModuleEngine.cs" />
+    <Compile Include="BuildModule\Middlewares\ResourceAggregatorMiddleware.cs" />
     <Compile Include="BuildModule\Middlewares\MergeResourcesMiddleware.cs" />
     <Compile Include="BuildModule\Middlewares\BuildLayoutMiddleware.cs" />
+    <Compile Include="BuildModule\Services\ResourceAggregatorService.cs" />
     <Compile Include="TypeBuilderEngine\Contracts\ITypeBuilder.cs" />
     <Compile Include="TypeBuilderEngine\TypeBuilder.cs" />
     <Compile Include="BuildModule\Services\BuildLayoutService.cs" />
     <Compile Include="BuildModule\Services\MergeResourcesService.cs" />
-    <Compile Include="BuildModule\Models\ModuleResourceInfo.cs" />
     <Compile Include="TypeBuilderEngine\Dto\AppModelDto.cs" />
-    <Compile Include="BuildModule\Models\MachineResourceFileInfo.cs" />
-    <Compile Include="BuildModule\Models\MachineResourceInfo.cs" />
-    <Compile Include="BuildModule\Models\ResourceMergeStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -83,17 +81,13 @@
       <Project>{f4c66d02-6cbe-4afd-93e1-16c56e69e86e}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Abstractions</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
-      <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Studio.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
+    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
       <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Studio.Services\NitroSystem.Dnn.BusinessEngine.Studio.DataServices.csproj">
-      <Project>{1fc5279b-b157-4a01-bd60-49f42f8c3971}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.Studio.DataServices</Name>
+    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
+      <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

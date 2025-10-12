@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 using DotNetNuke.Web.Api;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-using NitroSystem.Dnn.BusinessEngine.Framework.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Api.Dto;
-using NitroSystem.Dnn.BusinessEngine.App.Services.Contracts;
-using NitroSystem.Dnn.BusinessEngine.App.Services.ModuleData;
+using NitroSystem.Dnn.BusinessEngine.App.DataServices.ModuleData;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {
@@ -47,11 +48,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                 var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, module.Id, PortalSettings);
                 moduleData["_PageParam"] = UrlHelper.ParsePageParameters(pageUrl);
 
-                await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad", PortalSettings);
+                await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad");
 
                 var data = _userDataStore.GetDataForClients(moduleId, moduleData);
 
-                var variables = await _moduleService.GetModuleVariables(moduleId, Services.Enums.ModuleVariableScope.Global);
+                var variables = await _moduleService.GetModuleVariables(moduleId, ModuleVariableScope.Global);
 
                 var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
                 var actions = await _actionService.GetActionsDtoForClientAsync(moduleId);
@@ -92,7 +93,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
 
                 moduleData["_PageParam"] = UrlHelper.ParsePageParameters(action.PageUrl);
 
-                await _actionWorker.CallActions(action.ActionIds, moduleData, PortalSettings);
+                await _actionWorker.CallActions(action.ActionIds, moduleData);
 
                 var data = _userDataStore.GetDataForClients(action.ModuleId, moduleData);
 

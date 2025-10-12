@@ -92,21 +92,21 @@
       <Project>{f4c66d02-6cbe-4afd-93e1-16c56e69e86e}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Abstractions</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
+      <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
       <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Studio.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
-      <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.App.Framework\NitroSystem.Dnn.BusinessEngine.App.Framework.csproj">
-      <Project>{8ef8ff3b-e365-415e-ab70-72aebb897a40}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.App.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Services\NitroSystem.Dnn.BusinessEngine.App.Services.csproj">
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.App.DataServices\NitroSystem.Dnn.BusinessEngine.App.DataServices.csproj">
       <Project>{88bee964-c0a8-4617-b114-dd8728c40b87}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.App.Services</Name>
+      <Name>NitroSystem.Dnn.BusinessEngine.App.DataServices</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.App.Engine\NitroSystem.Dnn.BusinessEngine.App.Engine.csproj">
+      <Project>{8ef8ff3b-e365-415e-ab70-72aebb897a40}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.App.Engine</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

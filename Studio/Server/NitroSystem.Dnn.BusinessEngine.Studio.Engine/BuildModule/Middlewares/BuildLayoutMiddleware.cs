@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares

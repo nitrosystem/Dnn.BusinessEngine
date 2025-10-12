@@ -10,7 +10,8 @@ using DotNetNuke.Entities.Host;
 using DotNetNuke.Services.Exceptions;
 using DotNetNuke.Web.Client.ClientResourceManagement;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
-using NitroSystem.Dnn.BusinessEngine.App.Web.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web
 {
@@ -102,7 +103,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
 
                     List<string> registeredResources = new List<string>();
 
-                    var resources = ExecuteQuery<PageResourceDto>("dbo.BusinessEngine_App_GetPageResources", CommandType.StoredProcedure,
+                    var resources = ExecuteQuery<ModuleOutputResourceDto>("dbo.BusinessEngine_App_GetModuleOutputResources", CommandType.StoredProcedure,
                         new Dictionary<string, object>
                         {
                             { "@Type", 1 } ,
@@ -117,7 +118,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                         {
                             registeredResources.Add(item.ResourcePath);
 
-                            RegisterPageResources(item.ResourceType, item.ResourcePath, item.LoadOrder);
+                            RegisterPageResources(item.ResourceContentType, item.ResourcePath, item.LoadOrder);
                         }
 
                         this.Page.Header.Controls.Add(new LiteralControl(@"<span id=""b-page-resources""><!--business engine registered resources--></span>"));
@@ -139,7 +140,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             }
         }
 
-        private void RegisterPageResources(string resourceType, string resourcePath, int priority)
+        private void RegisterPageResources(ModuleResourceContentType resourceType, string resourcePath, int priority)
         {
             //if (this.IsPanel && this.PanelResourcesControl != null)
             //{
@@ -172,9 +173,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             //}
             //else
             //{
-            if (resourceType == "css")
+            if (resourceType == ModuleResourceContentType.Css)
                 ClientResourceManager.RegisterStyleSheet(base.Page, resourcePath, priority);
-            if (resourceType == "js")
+            if (resourceType == ModuleResourceContentType.Js)
                 ClientResourceManager.RegisterScript(base.Page, resourcePath, priority);
             //}
         }
@@ -209,7 +210,17 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                         continue;
 
                     var value = reader[prop.Name];
-                    prop.SetValue(item, Convert.ChangeType(value, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType));
+                    var targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+
+                    if (targetType.IsEnum)
+                    {
+                        var enumValue = Enum.Parse(targetType, value.ToString());
+                        prop.SetValue(item, enumValue);
+                    }
+                    else
+                    {
+                        prop.SetValue(item, Convert.ChangeType(value, targetType));
+                    }
                 }
 
                 result.Add(item);

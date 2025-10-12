@@ -38,6 +38,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Utils
 
         public static T ConvertDictionaryToObject<T>(IDictionary<string, object> dictionary)
         {
+            if (dictionary == null) return default;
+
             T obj = Activator.CreateInstance<T>();
 
             var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);

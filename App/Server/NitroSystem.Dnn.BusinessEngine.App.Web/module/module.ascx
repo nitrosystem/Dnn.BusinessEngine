@@ -7,3 +7,10 @@
 <asp:LinkButton ID="lnkModuleBuilder" CssClass="b--module-builder" Text="Studio" runat="server"></asp:LinkButton>
 
 <div b-app="" id="pnlTemplate" runat="server"></div>
+
+<script type="module">
+    import BusinessEngineApp from "/DesktopModules/BusinessEngine/client-app/business-engine.esm.js";
+
+    const appElement = document.querySelector('[b-app]');
+    BusinessEngineApp.bootstrap(appElement);
+</script>

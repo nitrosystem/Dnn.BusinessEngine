@@ -64,7 +64,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
             if (_afterMaps.TryGetValue(key, out var afterList))
                 afterList.ForEach(a => a(source, destination));
 
-            AutoMapChildren(source, destination);
+            //AutoMapChildren(source, destination);
             return destination;
         }
 
@@ -130,60 +130,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
 
             return results;
         }
-
-        // public static TDestination MapWithChildCollectionOld<TSource, TDestination, TChildSource, TChildDestination>(
-        //    TSource source,
-        //    Func<TSource, IEnumerable<TChildSource>> childSelector,
-        //    Action<TDestination, IEnumerable<TChildDestination>> childAssigner
-        //)
-        //    where TDestination : new()
-        //    where TChildDestination : new()
-        // {
-        //     if (source == null) return default;
-
-        //     var destination = Map<TSource, TDestination>(source);
-
-        //     var childSourceList = childSelector(source);
-        //     if (childSourceList != null)
-        //     {
-        //         var mapper = GetOrCreateMapper<TChildSource, TChildDestination>();
-
-        //         var childDestList = childSourceList
-        //             .Select(child => mapper(child))
-        //             .ToList();
-
-        //         childAssigner(destination, childDestList);
-        //     }
-
-        //     return destination;
-        // }
-
-        //public static TDestination MapWithChildCollection<TSource, TDestination, TChildSource, TChildDestination>(
-        //    TSource source,
-        //    Func<TSource, IEnumerable<TChildSource>> childSelector,
-        //    Action<TDestination, IEnumerable<TChildDestination>> childAssigner
-        //)
-        //    where TDestination : new()
-        //    where TChildDestination : new()
-        //{
-        //    if (source == null) return default;
-
-        //    var destination = Map<TSource, TDestination>(source);
-
-        //    var childSourceList = childSelector(source);
-        //    if (childSourceList == null) return destination;
-
-        //    var mapper = GetOrCreateMapper<TChildSource, TChildDestination>();
-
-        //    // سریع‌تر از Select + ToList
-        //    var childDestList = new List<TChildDestination>();
-        //    foreach (var child in childSourceList)
-        //        childDestList.Add(mapper(child));
-
-        //    childAssigner(destination, childDestList);
-        //    return destination;
-        //}
-
+       
         /// <summary>
         /// Map یک parent و لیست children به parent با استفاده از childSelector
         /// </summary>
@@ -244,36 +191,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
             }
         }
 
-        /// <summary>
-        /// نسخه Async برای Map parent و لیست children
-        /// </summary>
-        public static async Task<TDestination> MapWithChildrenAsync<TSource, TDestination, TChildSource, TChildDestination>(
-            TSource source,
-            IEnumerable<TChildSource> children,
-            Func<TDestination, IEnumerable<TChildDestination>, Task> assignChildrenAsync
-        )
-            where TDestination : new()
-            where TChildDestination : new()
-        {
-            if (source == null) return default;
-
-            var parentDest = HybridMapper.Map<TSource, TDestination>(source);
-
-            if (children != null)
-            {
-                var childDestList = new List<TChildDestination>();
-                foreach (var child in children)
-                {
-                    childDestList.Add(await HybridMapper.MapAsync<TChildSource, TChildDestination>(child));
-                }
-
-                if (assignChildrenAsync != null)
-                    await assignChildrenAsync(parentDest, childDestList).ConfigureAwait(false);
-            }
-
-            return parentDest;
-        }
-
         #endregion
 
         #region Private Helpers
@@ -301,56 +218,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
                          .Where(f => !ignored.Contains(f.Name)))
             {
                 var sourceField = typeof(TSource).GetField(destField.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (sourceField != null)
+                if (sourceField != null && destField.FieldType.IsAssignableFrom(sourceField.FieldType))
                     bindings.Add(Expression.Bind(destField, Expression.Field(sourceParam, sourceField)));
             }
 
             var body = Expression.MemberInit(Expression.New(typeof(TDestination)), bindings);
             return Expression.Lambda<Func<TSource, TDestination>>(body, sourceParam).Compile();
-        }
-
-        private static void AutoMapChildren(object source, object destination)
-        {
-            if (source == null || destination == null) return;
-
-            var destProps = destination.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.CanWrite);
-
-            foreach (var destProp in destProps)
-            {
-                var sourceProp = source.GetType().GetProperty(destProp.Name, BindingFlags.Public | BindingFlags.Instance);
-                if (sourceProp == null) continue;
-
-                var sourceValue = sourceProp.GetValue(source);
-                if (sourceValue == null) continue;
-
-                // Handle collections
-                if (typeof(IEnumerable).IsAssignableFrom(destProp.PropertyType) &&
-                    destProp.PropertyType != typeof(string))
-                {
-                    var sourceEnumerable = sourceValue as IEnumerable;
-                    if (sourceEnumerable == null) continue;
-
-                    var destElementType = GetCollectionElementType(destProp.PropertyType);
-                    if (destElementType == null) continue;
-
-                    var listType = typeof(List<>).MakeGenericType(destElementType);
-                    var destList = (IList)Activator.CreateInstance(listType);
-
-                    foreach (var item in sourceEnumerable)
-                    {
-                        var mappedItem = MapDynamic(item, destElementType);
-                        if (mappedItem != null) destList.Add(mappedItem);
-                    }
-
-                    destProp.SetValue(destination, destList);
-                }
-                else if (!destProp.PropertyType.IsPrimitive && destProp.PropertyType != typeof(string))
-                {
-                    var mappedObj = MapDynamic(sourceValue, destProp.PropertyType);
-                    destProp.SetValue(destination, mappedObj);
-                }
-            }
         }
 
         private static object MapDynamic(object source, Type destinationType)
@@ -361,45 +234,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
             return generic.Invoke(null, new object[] { source });
         }
 
-        private static Type GetCollectionElementType(Type collectionType)
-        {
-            if (collectionType.IsArray) return collectionType.GetElementType();
-            if (collectionType.IsGenericType) return collectionType.GetGenericArguments()[0];
-            return typeof(object);
-        }
-
         #endregion
     }
 }
-
-
-//public static async Task<TDestination> MapWithChildCollectionAsync<TSource, TDestination, TChildSource, TChildDestination>(
-//    TSource source,
-//    Func<TSource, Task<IEnumerable<TChildSource>>> childSelectorAsync,
-//    Func<TChildSource, Task<TChildDestination>> childMapperAsync,
-//    Action<TDestination, IEnumerable<TChildDestination>> childAssigner
-//)
-//    where TDestination : new()
-//    where TChildDestination : new()
-//{
-//    if (source == null) return default;
-
-//    // مپ پدر (فرض بر این است که Map خودش sync است)
-//    var destination = Map<TSource, TDestination>(source);
-
-//    // گرفتن فرزندان (async)
-//    var childSourceList = await childSelectorAsync(source).ConfigureAwait(false);
-//    if (childSourceList == null) return destination;
-
-//    // مپ فرزندان (async + حلقه سریع)
-//    var childDestList = new List<TChildDestination>();
-//    foreach (var child in childSourceList)
-//    {
-//        var mappedChild = await childMapperAsync(child).ConfigureAwait(false);
-//        childDestList.Add(mappedChild);
-//    }
-
-//    // الحاق فرزندان به والد
-//    childAssigner(destination, childDestList);
-//    return destination;
-//}

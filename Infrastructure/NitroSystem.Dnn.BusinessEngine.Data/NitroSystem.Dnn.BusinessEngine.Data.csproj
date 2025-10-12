@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{57E9A1EA-6603-4CD5-9914-5F79F60923ED}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NitroSystem.Dnn.BusinessEngine.Data</RootNamespace>
+    <AssemblyName>NitroSystem.Dnn.BusinessEngine.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Dapper.2.1.35\lib\net461\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetNuke, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\DotNetNuke.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotNetNuke.DependencyInjection.9.4.0\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Entities\Procedures\ModuleFieldSettingSpResult.cs" />
+    <Compile Include="Entities\Procedures\ModuleFieldSpResult.cs" />
+    <Compile Include="Entities\Procedures\ModuleResourceSpResult.cs" />
+    <Compile Include="Entities\Views\ModuleVariableView.cs" />
+    <Compile Include="Repository\ExecuteSqlCommand.cs" />
+    <Compile Include="Entities\Tables\ActionInfo.cs" />
+    <Compile Include="Entities\Tables\ActionResultInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleInfo.cs" />
+    <Compile Include="Entities\Tables\ScenarioInfo.cs" />
+    <Compile Include="Entities\Tables\ServiceInfo.cs" />
+    <Compile Include="Entities\Tables\ServiceParamInfo.cs" />
+    <Compile Include="Entities\Tables\TemplateThemeInfo.cs" />
+    <Compile Include="Entities\Tables\TemplateInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleCustomResourceInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleCustomLibraryInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldTypeLibraryInfo.cs" />
+    <Compile Include="Entities\Tables\LibraryInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldTypeThemeInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldTypeTemplateInfo.cs" />
+    <Compile Include="Entities\Tables\LibraryResourceInfo.cs" />
+    <Compile Include="Entities\Tables\ExtensionInfo.cs" />
+    <Compile Include="Entities\Tables\StudioLibraryInfo.cs" />
+    <Compile Include="Entities\Tables\ActionParamInfo.cs" />
+    <Compile Include="Entities\Tables\ServiceTypeInfo.cs" />
+    <Compile Include="Entities\Tables\ActionTypeInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleOutputResourceInfo.cs" />
+    <Compile Include="Entities\Tables\DefinedListItemInfo.cs" />
+    <Compile Include="Entities\Tables\DefinedListInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldInfo.cs" />
+    <Compile Include="Entities\Tables\EntityColumnInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleVariableInfo.cs" />
+    <Compile Include="Entities\Tables\GroupInfo.cs" />
+    <Compile Include="Entities\Tables\ProviderInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldTypeInfo.cs" />
+    <Compile Include="Entities\Tables\EntityInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldSettingInfo.cs" />
+    <Compile Include="Entities\Tables\AppModelInfo.cs" />
+    <Compile Include="Entities\Tables\AppModelPropertyInfo.cs" />
+    <Compile Include="Entities\Views\ActionView.cs" />
+    <Compile Include="Entities\Views\ExplorerItemView.cs" />
+    <Compile Include="Entities\Views\ModuleCustomLibraryResourceView.cs" />
+    <Compile Include="Entities\Views\ModuleFieldSettingView.cs" />
+    <Compile Include="Entities\Views\ModuleCustomLibraryView.cs" />
+    <Compile Include="Entities\Views\DefinedListItemView.cs" />
+    <Compile Include="Entities\Views\ModuleView.cs" />
+    <Compile Include="Entities\Views\ServiceView.cs" />
+    <Compile Include="Entities\Views\ModuleFieldTypeLibraryView.cs" />
+    <Compile Include="Entities\Views\ModuleFieldTypeView.cs" />
+    <Compile Include="Entities\Views\ActionTypeView.cs" />
+    <Compile Include="Entities\Views\LibraryView.cs" />
+    <Compile Include="Entities\Views\ServiceTypeView.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\RepositoryBase.cs" />
+    <Compile Include="Repository\SqlDatabaseMetadataRepository.cs" />
+    <Compile Include="Startup\Startup.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Abstractions\NitroSystem.Dnn.BusinessEngine.Abstractions.csproj">
+      <Project>{f4c66d02-6cbe-4afd-93e1-16c56e69e86e}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
+      <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
+      <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

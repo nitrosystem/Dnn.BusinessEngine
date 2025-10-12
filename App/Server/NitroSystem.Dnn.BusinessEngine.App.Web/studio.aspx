@@ -15,22 +15,13 @@
         var require = { paths: { 'vs': '/DesktopModules/BusinessEngine/client-resources/components/monaco-editor/0.47.0/vs' } };
 
         window.bEngineGlobalSettings = {
-            scenarioName: '<%=ScenarioId!=Guid.Empty?this.ScenarioNameParam:string.Empty%>',
-            portalId: parseInt('<%=this.PortalIdParam%>'),
-            portalAliasId: parseInt('<%=this.PortalAliasIdParam%>'),
-            dnnModuleId: parseInt('<%=this.DnnModuleIdParam%>'),
-            moduleId: '<%=this.ModuleIdParam%>',
-            moduleType: '<%=this.ModuleTypeParam%>',
             scenarioId: '<%=this.ScenarioId%>',
+            scenarioName: '<%=this.ScenarioName%>',
             siteRoot: '<%=this.SiteRoot%>',
-            apiBaseUrl: '<%=this.ApiBaseUrl%>',
-            modulePath: '/DesktopModules/BusinessEngine/',
-            version: '<%=this.Version%>',
-            debugMode: false
         };
     </script>
 
-    <asp:PlaceHolder Id="pnlAntiForgery" runat="server"></asp:PlaceHolder>
-    <asp:PlaceHolder Id="pnlResources" runat="server"></asp:PlaceHolder>
+    <asp:PlaceHolder ID="pnlAntiForgery" runat="server"></asp:PlaceHolder>
+    <asp:PlaceHolder ID="pnlResources" runat="server"></asp:PlaceHolder>
 </body>
 </html>

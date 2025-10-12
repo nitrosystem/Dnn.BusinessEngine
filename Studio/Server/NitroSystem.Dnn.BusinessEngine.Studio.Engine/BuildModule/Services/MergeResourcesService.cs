@@ -1,30 +1,26 @@
 ﻿using System;
-using System.Web;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using DotNetNuke.Entities.Portals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine.Dto;
-using System.Collections;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine.Enums;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using System.Text;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.BuildModuleEngine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
     public class MergeResourcesService : IMergeResourcesService
     {
         public async Task<(string Scripts, string Styles)> MergeResourcesAsync(IEnumerable<ModuleResourceDto> resources)
         {
             var resourcesLookup = resources.ToLookup(r => r.ResourceContentType);
-            var scripts = await MergeScriptResources(resourcesLookup[ResourceContentType.Js]);
-            var styles = await MergeStyleResources(resourcesLookup[ResourceContentType.Css]);
+            var scripts = await MergeScriptResources(resourcesLookup[ModuleResourceContentType.Js]);
+            var styles = await MergeStyleResources(resourcesLookup[ModuleResourceContentType.Css]);
             
             return (scripts,styles);
         }
@@ -33,9 +29,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         {
             var scripts = new StringBuilder();
 
-            await BatchExecutor.ExecuteInBatchesAsync(
+            await ParallelBatchExecutor.ExecuteInParallelBatchesAsync(
                 resources,
                 batchSize: 5,
+                maxDegreeOfParallelism: 3,
                 async batch =>
                 {
                     var items = batch
@@ -73,9 +70,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                 styles.AppendLine(Environment.NewLine);
             }
 
-            await BatchExecutor.ExecuteInBatchesAsync(
+            await ParallelBatchExecutor.ExecuteInParallelBatchesAsync(
                 resourcesTypes[false],
                 batchSize: 5,
+                maxDegreeOfParallelism: 3,
                 async batch =>
                 {
                     var items = batch
