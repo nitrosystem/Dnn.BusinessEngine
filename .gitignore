@@ -492,5 +492,4 @@ $RECYCLE.BIN/
 .ntvs_analysis.dat
 node_modules/
 dist/
-/Studio/Server/NitroSystem.Dnn.BusinessEngine.Studio.Api/DTO/BuildModuleDTO.cs
 /CopyAfterBuild.bat

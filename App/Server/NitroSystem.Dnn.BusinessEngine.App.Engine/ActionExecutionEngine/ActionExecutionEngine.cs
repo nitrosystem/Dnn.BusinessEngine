@@ -11,7 +11,7 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middlewares;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Services;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
 {
@@ -19,21 +19,24 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
     {
         private readonly EnginePipeline<ActionRequest, ActionResponse> _pipeline;
 
-        private readonly IServiceProvider _services;
+        private readonly IUserDataStore _userDataStore;
 
         private Queue<ActionTree> _buffer;
 
         public ActionExecutionEngine(IServiceProvider services)
             : base(services)
         {
-            _services = services;
-
             _pipeline = new EnginePipeline<ActionRequest, ActionResponse>()
             .Use<ActionConditionMiddleware>()
             .Use<ActionWorkerMiddleware>()
             .Use<ActionSetResultMiddleware>();
 
             OnError += OnErrorHandle;
+        }
+
+        protected override Task OnInitializeAsync(ActionRequest request)
+        {
+            return base.OnInitializeAsync(request);
         }
 
         protected override Task BeforeExecuteAsync(ActionRequest request)
@@ -44,8 +47,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
 
         protected override async Task<EngineResult<ActionResponse>> ExecuteCoreAsync(ActionRequest request)
         {
-            //var moduleData = con.ModuleData ?? new Dictionary<string, object>();
-
             int total = _buffer.Count;
             int index = 0;
 
@@ -57,7 +58,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
 
                 await _pipeline.ExecuteAsync(request, ctx, Services);
 
-                
+                await _userDataStore.UpdateModuleData(request.ConnectionId, request.ModuleId,
+                    ctx.ModuleData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
 
                 if (ctx.Result.Status == ActionResultStatus.Successful)
                 {

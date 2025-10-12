@@ -22,12 +22,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         public BuildModuleEngine(IServiceProvider services)
             : base(services)
         {
-            OnError += OnErrorHandle;
-
             _pipeline = new EnginePipeline<BuildModuleRequest, BuildModuleResponse>()
             .Use<BuildLayoutMiddleware>()
             .Use<MergeResourcesMiddleware>()
             .Use<ResourceAggregatorMiddleware>();
+
+            OnError += OnErrorHandle;
         }
 
         protected override Task OnInitializeAsync(BuildModuleRequest request)

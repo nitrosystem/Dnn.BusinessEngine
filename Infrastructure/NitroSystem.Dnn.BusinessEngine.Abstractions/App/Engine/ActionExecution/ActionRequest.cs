@@ -9,6 +9,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution
 {
     public class ActionRequest
     {
+        public string ConnectionId { get; set; }
+        public Guid ModuleId { get; set; }
         public IEnumerable<ActionDto> Actions { get; set; }
     }
 }

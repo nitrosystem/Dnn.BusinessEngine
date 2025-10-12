@@ -3,6 +3,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution
 
         public ActionExecutionContext(ActionDto action, CancellationTokenSource ct)
         {
+            ModuleData = new ConcurrentDictionary<string, object>();
             Action = action;
             CancellationTokenSource = ct;
         }
