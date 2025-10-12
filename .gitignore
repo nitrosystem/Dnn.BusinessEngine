@@ -493,3 +493,4 @@ $RECYCLE.BIN/
 node_modules/
 dist/
 /Studio/Server/NitroSystem.Dnn.BusinessEngine.Studio.Api/DTO/BuildModuleDTO.cs
+/CopyAfterBuild.bat
