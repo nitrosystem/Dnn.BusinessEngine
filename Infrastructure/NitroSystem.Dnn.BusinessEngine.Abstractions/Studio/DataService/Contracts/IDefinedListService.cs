@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Base;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Base;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts
 {
     public interface IDefinedListService
     {

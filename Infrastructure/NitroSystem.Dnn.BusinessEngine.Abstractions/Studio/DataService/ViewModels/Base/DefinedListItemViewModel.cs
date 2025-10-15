@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Base
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Base
 {
     public class DefinedListItemViewModel : IViewModel
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Action
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Action
 {
     public class ActionViewModel
     {

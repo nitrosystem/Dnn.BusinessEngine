@@ -14,25 +14,23 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Module;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Template;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Action;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Action;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
     [DnnAuthorize(StaticRoles = "Administrators")]
     public class ModuleController : DnnApiController
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly IBaseService _baseService;
         private readonly IServiceFactory _serviceFactory;
         private readonly IAppModelService _appModelServices;
@@ -42,9 +40,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IModuleLibraryAndResourceService _moduleLibraryAndResourceService;
         private readonly IActionService _actionService;
         private readonly ITemplateService _templateService;
-        private readonly IServiceProvider _serviceProvider;
 
         public ModuleController(
+            IServiceProvider serviceProvider,
             IBaseService globalService,
             IServiceFactory serviceFactory,
             IAppModelService appModelService,
@@ -53,11 +51,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             IModuleVariableService moduleVariableService,
             IModuleLibraryAndResourceService moduleLibraryAndResourceService,
             IActionService actionService,
-            ITemplateService templateService,
-            IServiceProvider serviceProvider
-
+            ITemplateService templateService
         )
         {
+            _serviceProvider = serviceProvider;
             _baseService = globalService;
             _serviceFactory = serviceFactory;
             _appModelServices = appModelService;
@@ -67,8 +64,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _moduleLibraryAndResourceService = moduleLibraryAndResourceService;
             _actionService = actionService;
             _templateService = templateService;
-            _serviceProvider = serviceProvider;
-
         }
 
         #region Create Module
@@ -353,7 +348,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 var fieldTypes = await _moduleFieldService.GetFieldTypesViewModelAsync();
                 var fields = await _moduleFieldService.GetFieldsViewModelAsync(moduleId);
-                var variables = await _moduleVariableService.GetModuleVariablesDtoAsync(moduleId);
+                var variables = await _moduleVariableService.GetModuleVariablesListItemAsync(moduleId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -402,7 +397,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveModuleField(UpdateModuleFieldDto postData)
+        public async Task<HttpResponseMessage> SaveModuleField(ModuleFieldUpdatedItems postData)
         {
             try
             {
@@ -412,7 +407,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 {
                     if (postData.FieldViewOrder.HasValue) postData.PaneFieldIds.Insert(postData.FieldViewOrder.Value, postData.Field.Id);
 
-                    await _moduleFieldService.SortFieldsAsync(new SortPaneFieldsDto()
+                    await _moduleFieldService.SortFieldsAsync(new PaneFieldsOrder()
                     {
                         ModuleId = postData.Field.ModuleId,
                         PaneName = postData.Field.PaneName,
@@ -430,13 +425,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> UpdateModuleFieldPaneAndReorderFields(SortPaneFieldsDto postData)
+        public async Task<HttpResponseMessage> UpdateModuleFieldPaneAndReorderFields(PaneFieldsOrder postData)
         {
             try
             {
                 await _moduleFieldService.UpdateFieldPaneAsync(postData);
 
-                await _moduleFieldService.SortFieldsAsync(new SortPaneFieldsDto()
+                await _moduleFieldService.SortFieldsAsync(new PaneFieldsOrder()
                 {
                     ModuleId = postData.ModuleId,
                     PaneName = postData.PaneName,
@@ -453,7 +448,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SortModuleFields(SortPaneFieldsDto postData)
+        public async Task<HttpResponseMessage> SortModuleFields(PaneFieldsOrder postData)
         {
             try
             {
@@ -568,21 +563,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
                 var actionTypes = await _actionService.GetActionTypesListItemAsync();
                 var actions = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, 1, 1000, null, null, "ActionName");
-                var variables = await _moduleVariableService.GetModuleVariablesDtoAsync(moduleId);
-
+                var variables = await _moduleVariableService.GetModuleVariablesListItemAsync(moduleId);
                 var events = Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
+                var action = actionId != Guid.Empty
+                        ? await _actionService.GetActionViewModelAsync(actionId)
+                        : null;
 
                 if (string.IsNullOrEmpty(fieldType))
                     events = GetDefaultCustomEvents();
                 else
                     events = GetDefaultCustomEvents(fieldType).Concat(await _moduleFieldService.GetFieldTypesCustomEventsListItemAsync(fieldType));
-
-                var action = actionId != Guid.Empty
-                        ? await _actionService.GetActionViewModelAsync(actionId)
-                        : null;
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {

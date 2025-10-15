@@ -17,11 +17,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
             _service = service;
         }
 
-        public async Task<EngineResult<BuildModuleResponse>> InvokeAsync(EngineContext context, BuildModuleRequest request, Func<Task<EngineResult<BuildModuleResponse>>> next)
+        public async Task<EngineResult<BuildModuleResponse>> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<EngineResult<BuildModuleResponse>>> next)
         {
+            var ctx = context as EngineContext;
             var layout = await _service.BuildLayoutAsync(request.Module.LayoutTemplate, request.Module.Fields);
 
-            context.Set<string>("ModuleLayoutTemplate", layout);
+            ctx.Set<string>("ModuleLayoutTemplate", layout);
 
             var result = await next();
             return result;

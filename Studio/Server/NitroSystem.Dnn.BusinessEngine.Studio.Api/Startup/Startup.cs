@@ -1,24 +1,23 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.DependencyInjection;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilderEngine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilderEngine;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Module;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Action;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Template;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.DefinedList;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Service;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.AppModel;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Entity;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataServices.Base;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Template;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.DefinedList;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services;
-
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
 {
@@ -30,6 +29,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<IEntityService, EntityService>();
             services.AddScoped<IAppModelService, AppModelService>();
             services.AddScoped<IServiceFactory, ServiceFactory>();
+            services.AddScoped<IBrtGateService, InMemoryBrtGate>();
 
             services.AddScoped<IDefinedListService, DefinedListService>();
 
@@ -41,19 +41,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<IActionService, ActionService>();
             services.AddScoped<ITemplateService, TemplateService>();
 
+            services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, BuildLayoutMiddleware>();
+            services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, MergeResourcesMiddleware>();
+            services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, ResourceAggregatorMiddleware>();
+            services.AddScoped<BuildLayoutMiddleware>();
+            services.AddScoped<MergeResourcesMiddleware>();
+            services.AddScoped<ResourceAggregatorMiddleware>();
             services.AddScoped<IBuildLayoutService, BuildLayoutService>();
             services.AddScoped<IMergeResourcesService, MergeResourcesService>();
             services.AddScoped<IResourceAggregatorService, ResourceAggregatorService>();
 
             services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, BuildLayoutMiddleware>();
-            services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, MergeResourcesMiddleware>();
-            services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, ResourceAggregatorMiddleware>();
-
-            services.AddScoped<BuildLayoutMiddleware>();
-            services.AddScoped<MergeResourcesMiddleware>();
-            services.AddScoped<ResourceAggregatorMiddleware>();
-
-            services.AddScoped<ITypeBuilder, TypeBuilder>();
+            services.AddScoped<BuildTypeMiddleware>();
 
             BaseMappingProfile.Register();
             EntityMappingProfile.Register();

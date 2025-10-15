@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Module
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module
 {
     public class ModuleFieldTypeThemeViewModel
     {

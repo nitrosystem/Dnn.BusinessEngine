@@ -1,4 +1,4 @@
-﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Enums
+﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Enums
 {
     public enum VariableType
     {

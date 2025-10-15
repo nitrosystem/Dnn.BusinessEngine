@@ -64,7 +64,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
             if (_afterMaps.TryGetValue(key, out var afterList))
                 afterList.ForEach(a => a(source, destination));
 
-            //AutoMapChildren(source, destination);
             return destination;
         }
 

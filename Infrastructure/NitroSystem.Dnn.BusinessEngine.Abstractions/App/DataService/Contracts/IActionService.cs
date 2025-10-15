@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts
 {
     public interface IActionService
     {

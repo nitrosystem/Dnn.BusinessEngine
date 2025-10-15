@@ -9,8 +9,8 @@ using DotNetNuke.Web.Api;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.App.Api.Dto;
-using NitroSystem.Dnn.BusinessEngine.App.DataServices.ModuleData;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
@@ -21,19 +21,16 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
         private readonly IUserDataStore _userDataStore;
         private readonly IModuleService _moduleService;
         private readonly IActionService _actionService;
-        private readonly IActionWorker _actionWorker;
 
         public ModuleController(
             IUserDataStore userDataStore,
             IModuleService moduleService,
-            IActionService actionService,
-            IActionWorker actionWorker
+            IActionService actionService
         )
         {
             _userDataStore = userDataStore;
             _moduleService = moduleService;
             _actionService = actionService;
-            _actionWorker = actionWorker;
         }
 
         [AllowAnonymous]
@@ -45,10 +42,10 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 if (module == null) throw new Exception("Module Not Config");
 
-                var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, module.Id, PortalSettings);
+                var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, module.Id);
                 moduleData["_PageParam"] = UrlHelper.ParsePageParameters(pageUrl);
 
-                await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad");
+                //await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad");
 
                 var data = _userDataStore.GetDataForClients(moduleId, moduleData);
 
@@ -84,16 +81,10 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
         {
             try
             {
-                var moduleData = await _userDataStore.UpdateModuleData(
-                    action.ConnectionId,
-                    action.ModuleId,
-                    action.Data,
-                    PortalSettings
-                );
-
+                var moduleData = await _userDataStore.UpdateModuleData(action.ConnectionId, action.ModuleId, action.Data);
                 moduleData["_PageParam"] = UrlHelper.ParsePageParameters(action.PageUrl);
 
-                await _actionWorker.CallActions(action.ActionIds, moduleData);
+                //await _actionWorker.CallActions(action.ActionIds, moduleData);
 
                 var data = _userDataStore.GetDataForClients(action.ModuleId, moduleData);
 

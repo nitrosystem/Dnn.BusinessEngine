@@ -66,9 +66,6 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
-    <Reference Include="System.ServiceModel.Http, Version=8.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\System.ServiceModel.Http.8.1.1\lib\net462\System.ServiceModel.Http.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
@@ -108,9 +105,9 @@
       <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Studio.DataServices\NitroSystem.Dnn.BusinessEngine.Studio.DataServices.csproj">
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Studio.DataService\NitroSystem.Dnn.BusinessEngine.Studio.DataService.csproj">
       <Project>{1fc5279b-b157-4a01-bd60-49f42f8c3971}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.Studio.DataServices</Name>
+      <Name>NitroSystem.Dnn.BusinessEngine.Studio.DataService</Name>
     </ProjectReference>
     <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Studio.Engine\NitroSystem.Dnn.BusinessEngine.Studio.Engine.csproj">
       <Project>{a4f5b881-f4a7-4cfe-8e82-84421fa67751}</Project>

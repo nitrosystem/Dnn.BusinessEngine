@@ -13,6 +13,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public Guid Id { get; set; }
         public Guid ScenarioId { get; set; }
         public Guid? GroupId { get; set; }
+        public int ModelType { get; set; }
         public string ModelName { get; set; }
         public string TypeFullName { get; set; }
         public string TypeRelativePath { get; set; }

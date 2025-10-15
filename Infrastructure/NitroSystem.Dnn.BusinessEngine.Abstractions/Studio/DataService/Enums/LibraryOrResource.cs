@@ -1,4 +1,4 @@
-﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Enums
+﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums
 {
     public enum LibraryOrResource
     {

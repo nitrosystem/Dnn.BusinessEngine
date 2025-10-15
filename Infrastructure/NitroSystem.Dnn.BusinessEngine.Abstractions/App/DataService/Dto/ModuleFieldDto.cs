@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Dto
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
 {
     public class ModuleFieldDto 
     {

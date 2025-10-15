@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ListItems
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems
 {
     public class LibraryListItem
     {

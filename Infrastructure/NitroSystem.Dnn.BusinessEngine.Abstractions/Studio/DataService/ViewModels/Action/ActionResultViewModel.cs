@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Action
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Action
 {
     public class ActionResultViewModel
     {
@@ -8,7 +8,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewMo
         public string LeftExpression { get; set; }
         public string EvalType { get; set; }
         public string RightExpression { get; set; }
-        public string GroupName { get; set; }
         public string Conditions { get; set; }
     }
 }

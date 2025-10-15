@@ -1,7 +1,7 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Base
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Base
 {
     public class ScenarioViewModel : IViewModel
     {

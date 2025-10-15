@@ -1,9 +1,10 @@
 ﻿using System;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration
 {
-    public sealed class PropertyDefinition
+    public sealed class PropertyDefinition: IPropertyDefinition
     {
         public string Name { get; set; }
         public string ClrType { get; set; } // AssemblyQualifiedName

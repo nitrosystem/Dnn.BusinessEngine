@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts
 {
     public interface IUserDataStore
     {

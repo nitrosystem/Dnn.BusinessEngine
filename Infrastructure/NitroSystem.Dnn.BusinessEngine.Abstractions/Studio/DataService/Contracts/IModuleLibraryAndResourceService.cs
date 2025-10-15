@@ -1,6 +1,6 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

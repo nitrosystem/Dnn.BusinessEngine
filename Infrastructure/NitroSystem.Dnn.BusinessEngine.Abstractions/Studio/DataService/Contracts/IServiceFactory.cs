@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Service;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Service;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts
 {
     public interface IServiceFactory
     {

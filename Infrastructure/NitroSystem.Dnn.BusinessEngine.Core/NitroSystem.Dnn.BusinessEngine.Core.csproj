@@ -95,6 +95,10 @@
     <Compile Include="General\BatchExecutor.cs" />
     <Compile Include="General\ParallelBatchExecutor.cs" />
     <Compile Include="EngineBase\SmartMaterializer.cs" />
+    <Compile Include="Infrastructure\Brt\Contracts\IBrtGateService.cs" />
+    <Compile Include="Infrastructure\Brt\Disposable.cs" />
+    <Compile Include="Infrastructure\Brt\InMemoryBrtGate.cs" />
+    <Compile Include="Infrastructure\Brt\Models\BrtPermit.cs" />
     <Compile Include="Infrastructure\TypeLoader\ITypeLoaderFactory.cs" />
     <Compile Include="Caching\CacheService.cs" />
     <Compile Include="Infrastructure\ExpressionParser\ExpressionBuilder\ExpressionFunctions.cs" />

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Dto
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
 {
     public class ModuleVariableDto
     {

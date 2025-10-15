@@ -1,4 +1,4 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Service;
+﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Service;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto
 {

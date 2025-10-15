@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -8,11 +9,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration
 {
     public sealed class ModelDefinition
     {
-        public string Namespace { get; set; } = "DynamicModels";
+        public string Namespace { get; set; }
         public string Name { get; set; }
-        public string SchemaVersion { get; set; } = "1.0"; // schema of ModelDefinition
-        public string ModelVersion { get; set; } = "1.0"; // version of the model itself
-        public List<PropertyDefinition> Properties { get; set; } = new List<PropertyDefinition>();
+        public string SchemaVersion { get; set; }
+        public string ModelVersion { get; set; }
+        public List<IPropertyDefinition> Properties { get; set; }
 
         public string ComputeStableKey()
         {

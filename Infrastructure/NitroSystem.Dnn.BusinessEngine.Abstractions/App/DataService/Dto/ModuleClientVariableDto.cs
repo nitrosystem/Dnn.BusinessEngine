@@ -1,4 +1,4 @@
-﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Dto
+﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
 {
     public class ModuleClientVariableDto
     {

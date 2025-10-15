@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Service;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Service
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Service
 {
     public class ServiceViewModel : IViewModel
     {
@@ -21,7 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewMo
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
-        public IEnumerable<ParamInfo> Params { get; set; }
+        public IEnumerable<ServiceParamViewModel> Params { get; set; }
         public IDictionary<string, object> Settings { get; set; }
     }
 }

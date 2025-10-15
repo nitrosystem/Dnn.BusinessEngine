@@ -1,7 +1,8 @@
 ﻿using System;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Module
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module
 {
     public class ModuleCustomResourceViewModel : IViewModel
     {
@@ -9,7 +10,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewMo
         public Guid ModuleId { get; set; }
         public Guid LibraryId { get; set; }
         public string AddressType { get; set; }
-        public string ResourceType { get; set; }
+        public ModuleResourceContentType ResourceType { get; set; }
         public string ResourcePath { get; set; }
         public int LoadOrder { get; set; }
     }

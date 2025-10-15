@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Template
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Template
 {
     public class TemplateViewModel : IViewModel
     {

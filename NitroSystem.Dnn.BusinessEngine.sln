@@ -81,13 +81,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEng
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.App.Engine", "App\Server\NitroSystem.Dnn.BusinessEngine.App.Engine\NitroSystem.Dnn.BusinessEngine.App.Engine.csproj", "{8EF8FF3B-E365-415E-AB70-72AEBB897A40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Studio.DataServices", "Studio\Server\NitroSystem.Dnn.BusinessEngine.Studio.DataServices\NitroSystem.Dnn.BusinessEngine.Studio.DataServices.csproj", "{1FC5279B-B157-4A01-BD60-49F42F8C3971}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Studio.DataService", "Studio\Server\NitroSystem.Dnn.BusinessEngine.Studio.DataService\NitroSystem.Dnn.BusinessEngine.Studio.DataService.csproj", "{1FC5279B-B157-4A01-BD60-49F42F8C3971}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Core", "Infrastructure\NitroSystem.Dnn.BusinessEngine.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj", "{A2CAF8DA-7B01-48D1-8FD6-C6CC8E755987}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Data", "Infrastructure\NitroSystem.Dnn.BusinessEngine.Data\NitroSystem.Dnn.BusinessEngine.Data.csproj", "{57E9A1EA-6603-4CD5-9914-5F79F60923ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.App.DataServices", "App\Server\NitroSystem.Dnn.BusinessEngine.App.DataServices\NitroSystem.Dnn.BusinessEngine.App.DataServices.csproj", "{88BEE964-C0A8-4617-B114-DD8728C40B87}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.App.DataService", "App\Server\NitroSystem.Dnn.BusinessEngine.App.DataService\NitroSystem.Dnn.BusinessEngine.App.DataService.csproj", "{88BEE964-C0A8-4617-B114-DD8728C40B87}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -56,13 +57,14 @@
     <Compile Include="App\DataService\Dto\ModuleDto.cs" />
     <Compile Include="App\DataService\Dto\ModuleFieldDto.cs" />
     <Compile Include="App\DataService\Dto\ModuleVariableDto.cs" />
-    <Compile Include="App\DataService\Enums\EntityType.cs" />
     <Compile Include="App\Engine\ActionExecution\ActionExecutionContext.cs" />
     <Compile Include="App\Engine\ActionExecution\ActionRequest.cs" />
     <Compile Include="App\Engine\ActionExecution\ActionResponse.cs" />
     <Compile Include="App\Web\Models\Models\ModuleLiteData.cs" />
     <Compile Include="App\Web\Models\Models\ModuleOutputResourceDto .cs" />
+    <Compile Include="Core\Contracts\IPropertyDefinition.cs" />
     <Compile Include="Core\EngineBase\Contracts\IEngineContext.cs" />
+    <Compile Include="Shared\Enums\AppModelType.cs" />
     <Compile Include="Shared\Enums\ModuleVariableScope.cs" />
     <Compile Include="App\DataService\Enums\VariableType.cs" />
     <Compile Include="App\Engine\Models\ActionTree.cs" />
@@ -84,7 +86,9 @@
     <Compile Include="Studio\DataService\ListItems\LibraryListItem.cs" />
     <Compile Include="Studio\DataService\ListItems\LibraryResourceListItem.cs" />
     <Compile Include="Studio\DataService\ListItems\ModuleFieldTypeCustomEventListItem.cs" />
+    <Compile Include="Studio\DataService\ListItems\ModuleFieldTypeListItem.cs" />
     <Compile Include="Studio\DataService\ListItems\ServiceTypeListItem.cs" />
+    <Compile Include="Studio\DataService\ViewModels\Service\ServiceParamViewModel.cs" />
     <Compile Include="Studio\Engine\BuildModule\BuildModuleRequest.cs" />
     <Compile Include="Studio\Engine\BuildModule\BuildModuleResponse.cs" />
     <Compile Include="Studio\Engine\BuildModule\Contracts\IResourceAggregatorService.cs" />
@@ -104,6 +108,8 @@
     <Compile Include="Data\IRepositoryBase.cs" />
     <Compile Include="Core\Contracts\IUnitOfWork.cs" />
     <Compile Include="Core\EngineBase\Events\Delegates.cs" />
+    <Compile Include="Studio\Engine\TypeBuilder\TypeBuilderRequest.cs" />
+    <Compile Include="Studio\Engine\TypeBuilder\TypeBuilderResponse.cs" />
     <Compile Include="Studio\ModuleBuilder\Enums\FieldDataSourceType.cs" />
     <Compile Include="Studio\ModuleBuilder\Enums\ModuleType.cs" />
     <Compile Include="Studio\ModuleBuilder\Enums\ModuleWrapper.cs" />
@@ -141,9 +147,9 @@
     <Compile Include="Studio\DataService\Contracts\IModuleService.cs" />
     <Compile Include="Studio\DataService\Contracts\IServiceFactory.cs" />
     <Compile Include="Studio\DataService\Contracts\ITemplateService.cs" />
-    <Compile Include="Studio\DataService\Dto\ModuleVariableDto.cs" />
-    <Compile Include="Studio\DataService\Dto\SortPaneFieldsDto.cs" />
-    <Compile Include="Studio\DataService\Dto\UpdateModuleFieldDto.cs" />
+    <Compile Include="Studio\DataService\ListItems\ModuleVariableListItem.cs" />
+    <Compile Include="Studio\DataService\Models\PaneFieldsOrder.cs" />
+    <Compile Include="Studio\DataService\Models\UpdateModuleField.cs" />
     <Compile Include="Studio\DataService\ViewModels\Action\ActionParamViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Action\ActionResultViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Action\ActionViewModel.cs" />
@@ -157,8 +163,6 @@
     <Compile Include="Studio\DataService\ViewModels\Base\StudioLibraryViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Entity\EntityColumnViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Entity\EntityViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Library\LibraryResourceViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Library\LibraryViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Module\ModuleCustomLibraryResourceViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Module\ModuleCustomLibraryViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Module\ModuleCustomResourceViewModel.cs" />
@@ -169,8 +173,7 @@
     <Compile Include="Studio\DataService\ViewModels\Module\ModuleVariableViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Module\ModuleViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Service\ServiceViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Template\ModuleTemplateViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Template\TemplateModuleViewModel.cs" />
+    <Compile Include="Studio\DataService\ViewModels\Module\ModuleTemplateViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Template\TemplateThemeViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Template\TemplateViewModel.cs" />
   </ItemGroup>

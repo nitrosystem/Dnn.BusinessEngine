@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.ExpressionBuilder;
-using NitroSystem.Dnn.BusinessEngine.App.Engine.Services;
-using NitroSystem.Dnn.BusinessEngine.App.DataServices.ModuleData;
+using NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.App.DataServices.Module;
-using NitroSystem.Dnn.BusinessEngine.App.DataServices.Action;
+using NitroSystem.Dnn.BusinessEngine.App.DataService.Module;
+using NitroSystem.Dnn.BusinessEngine.App.DataService.Action;
 
 
 namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
@@ -22,9 +21,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
             services.AddScoped<IActionService, ActionService>();
 
             services.AddScoped<IExpressionService, ExpressionService>();
-
-            services.AddScoped<IActionWorker, ActionWorker>();
-            services.AddScoped<IActionCondition, ActionCondition>();
         }
     }
 }

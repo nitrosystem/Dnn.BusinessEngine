@@ -11,7 +11,7 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middlewares;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Services;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
 {

@@ -1,8 +1,9 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using System;
 using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.AppModel
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.AppModel
 {
     public class AppModelViewModel : IViewModel
     {
@@ -18,6 +19,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewMo
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
+        public AppModelType ModelType { get; set; }
         public IEnumerable<AppModelPropertyViewModel> Properties { get; set; }
     }
 }

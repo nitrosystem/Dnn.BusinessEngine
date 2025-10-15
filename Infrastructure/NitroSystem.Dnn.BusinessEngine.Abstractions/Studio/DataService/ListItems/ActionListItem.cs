@@ -1,7 +1,7 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ListItems
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems
 {
     public class ActionListItem
     {

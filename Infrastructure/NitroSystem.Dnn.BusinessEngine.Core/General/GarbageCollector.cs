@@ -1,7 +1,7 @@
 ﻿using System;
 using DotNetNuke.Services.Exceptions;
 using DotNetNuke.Services.Scheduling;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataServices.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.General
 {

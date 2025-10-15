@@ -15,17 +15,26 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Base;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Entity;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Base;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Entity;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Models;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
     [DnnAuthorize(StaticRoles = "Administrators")]
     public class StudioController : DnnApiController
     {
-        private readonly IBaseService _globalService;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IBrtGateService _brtGate;
+        private readonly IBaseService _baseService;
         private readonly IEntityService _entityService;
         private readonly IAppModelService _appModelServices;
         private readonly IServiceFactory _serviceFactory;
@@ -33,7 +42,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         //private readonly IDatabaseMetadataRepository _databaseMetadata;
 
         public StudioController(
-            IBaseService globalService,
+            IServiceProvider serviceProvider,
+            IBrtGateService brtGate,
+            IBaseService baseService,
             IEntityService entityService,
             IAppModelService appModelService,
             IServiceFactory serviceFactory,
@@ -41,7 +52,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         //IDatabaseMetadataRepository databaseMetadata
         )
         {
-            _globalService = globalService;
+            _serviceProvider = serviceProvider;
+            _brtGate = brtGate;
+            _baseService = baseService;
             _entityService = entityService;
             _appModelServices = appModelService;
             _serviceFactory = serviceFactory;
@@ -84,11 +97,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                var scenarios = await _globalService.GetScenariosViewModelAsync();
-                var scenario = await _globalService.GetScenarioViewModelAsync(scenarioId);
-                var roles = await _globalService.GetPortalRolesAsync(PortalSettings.PortalId);
-                var groups = await _globalService.GetGroupsViewModelAsync(scenarioId, "SidebarExplorer");
-                var explorerItems = await _globalService.GetExplorerItemsViewModelAsync(scenarioId);
+                var scenarios = await _baseService.GetScenariosViewModelAsync();
+                var scenario = await _baseService.GetScenarioViewModelAsync(scenarioId);
+                var roles = await _baseService.GetPortalRolesAsync(PortalSettings.PortalId);
+                var groups = await _baseService.GetGroupsViewModelAsync(scenarioId, "SidebarExplorer");
+                var explorerItems = await _baseService.GetExplorerItemsViewModelAsync(scenarioId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -112,7 +125,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                var explorerItems = await _globalService.GetExplorerItemsViewModelAsync(scenarioId);
+                var explorerItems = await _baseService.GetExplorerItemsViewModelAsync(scenarioId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, explorerItems);
             }
@@ -160,7 +173,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var scenarios = await _globalService.GetScenariosViewModelAsync();
+                var scenarios = await _baseService.GetScenariosViewModelAsync();
 
                 return Request.CreateResponse(HttpStatusCode.OK, scenarios);
             }
@@ -188,7 +201,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var scenario = await _globalService.GetScenarioViewModelAsync(scenarioId);
+                var scenario = await _baseService.GetScenarioViewModelAsync(scenarioId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, scenario);
             }
@@ -204,7 +217,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                scenario.Id = await _globalService.SaveScenarioAsync(scenario, scenario.Id == Guid.Empty);
+                scenario.Id = await _baseService.SaveScenarioAsync(scenario, scenario.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, scenario);
             }
@@ -220,7 +233,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var isDeleted = await _globalService.DeleteScenarioAsync(postData.Id);
+                var isDeleted = await _baseService.DeleteScenarioAsync(postData.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
@@ -242,7 +255,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 group.ScenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                group.Id = await _globalService.SaveGroupAsync(group, group.Id == Guid.Empty);
+                group.Id = await _baseService.SaveGroupAsync(group, group.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, group.Id);
             }
@@ -258,7 +271,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var isDeleted = await _globalService.DeleteGroupAsync(postData.Id);
+                var isDeleted = await _baseService.DeleteGroupAsync(postData.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
@@ -447,9 +460,28 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty, PortalSettings.HomeSystemDirectory);
+                var scenarioName = await _baseService.GetScenarioNameAsync(appModel.ScenarioId);
+                var properties = HybridMapper.MapCollection<AppModelPropertyViewModel, PropertyDefinition>(appModel.Properties);
+                var request = new TypeBuilderRequest()
+                {
+                    ScenarioName = scenarioName,
+                    BasePath = PortalSettings.HomeSystemDirectory,
+                    ModelName = appModel.ModelName,
+                    Version = "01.00.00",
+                    Properties = properties.Cast<IPropertyDefinition>().ToList()
+                };
 
-                appModel = await _appModelServices.GetAppModelAsync(appModel.Id);
+                var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromSeconds(70));
+                using (await _brtGate.OpenGateAsync(permitId))
+                {
+                    var typeBuilder = new TypeBuilderEngine(_serviceProvider, _brtGate, permitId);
+                    var response = await typeBuilder.ExecuteAsync(request);
+
+                    appModel.TypeRelativePath = response.Data.RelativePath;
+                    appModel.TypeFullName = response.Data.TypeFullName;
+                }
+
+                appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, appModel);
             }
@@ -630,5 +662,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         }
 
         #endregion
+
+        private async Task<Guid> CreateAndRegisterPermitAsync(string purpose, TimeSpan duration)
+        {
+            var permit = new BrtPermit
+            {
+                Issuer = "MyApi",
+                Purpose = purpose,
+                ExpiresAt = DateTimeOffset.UtcNow.Add(duration)
+            };
+            await _brtGate.RegisterPermitAsync(permit);
+            return permit.Id;
+        }
     }
 }

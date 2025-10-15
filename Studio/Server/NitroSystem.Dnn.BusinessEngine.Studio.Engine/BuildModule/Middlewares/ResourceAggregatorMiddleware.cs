@@ -16,10 +16,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
             _service = service;
         }
 
-        public async Task<EngineResult<BuildModuleResponse>> InvokeAsync(EngineContext context, BuildModuleRequest request, Func<Task<EngineResult<BuildModuleResponse>>> next)
+        public async Task<EngineResult<BuildModuleResponse>> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<EngineResult<BuildModuleResponse>>> next)
         {
-            BuildModuleResponse response = await _service.FinalizeResourcesAsync(request, context);
-
+            var ctx = context as EngineContext;
+            BuildModuleResponse response = await _service.FinalizeResourcesAsync(request, ctx);
             return EngineResult<BuildModuleResponse>.Success(response);
         }
     }

@@ -1,7 +1,7 @@
 ﻿using System;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Entity
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Entity
 {
     public class EntityColumnViewModel : IViewModel
     {

@@ -100,9 +100,9 @@
       <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
       <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.App.DataServices\NitroSystem.Dnn.BusinessEngine.App.DataServices.csproj">
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.App.DataService\NitroSystem.Dnn.BusinessEngine.App.DataService.csproj">
       <Project>{88bee964-c0a8-4617-b114-dd8728c40b87}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.App.DataServices</Name>
+      <Name>NitroSystem.Dnn.BusinessEngine.App.DataService</Name>
     </ProjectReference>
     <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.App.Engine\NitroSystem.Dnn.BusinessEngine.App.Engine.csproj">
       <Project>{8ef8ff3b-e365-415e-ab70-72aebb897a40}</Project>

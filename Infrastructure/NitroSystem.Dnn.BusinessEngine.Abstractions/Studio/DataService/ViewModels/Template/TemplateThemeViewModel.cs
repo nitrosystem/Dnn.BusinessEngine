@@ -1,7 +1,7 @@
 ﻿using System;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Template
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Template
 {
     public class TemplateThemeViewModel : IViewModel
     {

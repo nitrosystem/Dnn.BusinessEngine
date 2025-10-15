@@ -8,7 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.General
     public class LockService 
     {
         // Stores a semaphore per module to synchronize build operations.
-        private static readonly Dictionary<Guid, SemaphoreSlim> _locks = new Dictionary<Guid, SemaphoreSlim>();
+        private static readonly Dictionary<object, SemaphoreSlim> _locks = new Dictionary<object, SemaphoreSlim>();
 
         // Used to synchronize access to the _locks dictionary itself.
         private static readonly object _locksAccess = new object();
@@ -17,16 +17,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.General
         /// Tries to acquire a lock for the given module ID.
         /// Returns true if the lock was acquired within the specified timeout.
         /// </summary>
-        public async Task<bool> TryLockAsync(Guid moduleId, int timeoutMilliseconds = 0)
+        public async Task<bool> TryLockAsync(object lockId, int timeoutMilliseconds = 0)
         {
             SemaphoreSlim semaphore;
 
             lock (_locksAccess)
             {
-                if (!_locks.TryGetValue(moduleId, out semaphore))
+                if (!_locks.TryGetValue(lockId, out semaphore))
                 {
                     semaphore = new SemaphoreSlim(1, 1);
-                    _locks[moduleId] = semaphore;
+                    _locks[lockId] = semaphore;
                 }
             }
 
@@ -36,11 +36,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.General
         /// <summary>
         /// Releases the lock for the given module ID.
         /// </summary>
-        public void ReleaseLock(Guid moduleId)
+        public void ReleaseLock(object lockId)
         {
             lock (_locksAccess)
             {
-                if (_locks.TryGetValue(moduleId, out var semaphore))
+                if (_locks.TryGetValue(lockId, out var semaphore))
                 {
                     semaphore.Release();
                 }

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataServices.ViewModels.Module
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module
 {
     public class ModuleCustomLibraryViewModel : IViewModel
     {
