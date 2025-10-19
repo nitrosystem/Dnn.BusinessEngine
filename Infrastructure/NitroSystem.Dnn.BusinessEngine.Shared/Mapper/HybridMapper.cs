@@ -225,14 +225,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
             return Expression.Lambda<Func<TSource, TDestination>>(body, sourceParam).Compile();
         }
 
-        private static object MapDynamic(object source, Type destinationType)
-        {
-            if (source == null) return null;
-            var method = typeof(HybridMapper).GetMethod(nameof(Map), BindingFlags.Public | BindingFlags.Static);
-            var generic = method.MakeGenericMethod(source.GetType(), destinationType);
-            return generic.Invoke(null, new object[] { source });
-        }
-
         #endregion
     }
 }

@@ -20,6 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data
             });
 
             services.AddScoped<IRepositoryBase, RepositoryBase>();
+            services.AddScoped<IExecuteSqlCommand, ExecuteSqlCommand>();
             services.AddScoped<IDatabaseMetadataRepository, SqlDatabaseMetadataRepository>();
         }
     }

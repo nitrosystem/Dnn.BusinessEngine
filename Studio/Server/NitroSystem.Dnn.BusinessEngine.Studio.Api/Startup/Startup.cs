@@ -13,11 +13,13 @@ using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
 {
@@ -30,6 +32,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<IAppModelService, AppModelService>();
             services.AddScoped<IServiceFactory, ServiceFactory>();
             services.AddScoped<IBrtGateService, InMemoryBrtGate>();
+
+            services.AddScoped<IExtensionService, ExtensionService>();
 
             services.AddScoped<IDefinedListService, DefinedListService>();
 
@@ -54,6 +58,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, BuildLayoutMiddleware>();
             services.AddScoped<BuildTypeMiddleware>();
 
+            services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, SqlDataProviderMiddleware>();
+            services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, ResourcesMiddleware>();
+            services.AddScoped<SqlDataProviderMiddleware>();
+            services.AddScoped<ResourcesMiddleware>();
+
             BaseMappingProfile.Register();
             EntityMappingProfile.Register();
             AppModelMappingProfile.Register();
@@ -61,6 +70,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             ModuleMappingProfile.Register();
             ActionMappingProfile.Register();
             TemplateMappingProfile.Register();
+            ExtensionMappingProfile.Register();
         }
     }
 }

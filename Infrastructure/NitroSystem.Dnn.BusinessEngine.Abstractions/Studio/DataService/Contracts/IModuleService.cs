@@ -18,7 +18,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contrac
         Task<bool> UpdateModuleTemplateAsync(ModuleTemplateViewModel module);
 
         Task<ModuleDto> GetDataForModuleBuildingAsync(Guid moduleId);
-        Task<bool> DeleteModuleResourcesAsync(Guid moduleId);
+        Task DeleteModuleResourcesAsync(Guid moduleId);
         Task BulkInsertModuleOutputResources(int? sitePageId,IEnumerable<ModuleResourceDto> resources);
     }
 }

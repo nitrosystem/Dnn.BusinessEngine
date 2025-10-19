@@ -5,6 +5,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models
     {
         public string ColumnName { get; set; }
         public string ColumnType { get; set; }
+        public string ColumnTypeWithoutSize { get; set; }
         public int MaxLength { get; set; }
         public bool IsPrimary { get; set; }
         public bool IsIdentity { get; set; }

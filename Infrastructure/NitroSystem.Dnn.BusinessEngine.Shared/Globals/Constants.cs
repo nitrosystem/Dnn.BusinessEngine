@@ -9,7 +9,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Globals
     {
         public static readonly Func<string, string> MapPath = relative =>
         {
-            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relative.TrimStart('~', '/'));
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relative.TrimStart('~', '/').Replace(@"/", @"\"));
         };
 
         public static readonly Dictionary<string, string> VariableTypes = new Dictionary<string, string>()

@@ -154,9 +154,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             return result;
         }
 
-        public async Task<bool> DeleteModuleResourcesAsync(Guid moduleId)
+        public async Task DeleteModuleResourcesAsync(Guid moduleId)
         {
-            return await _repository.DeleteByScopeAsync<ModuleOutputResourceInfo>(moduleId);
+            await _repository.DeleteByScopeAsync<ModuleOutputResourceInfo>(moduleId);
         }
 
         public async Task BulkInsertModuleOutputResources(int? sitePageId, IEnumerable<ModuleResourceDto> resources)

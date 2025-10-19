@@ -7,12 +7,16 @@ using System.Web;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Entity;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using System.Security.AccessControl;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
 {
@@ -20,11 +24,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositoryBase _repository;
+        private readonly IExecuteSqlCommand _sqlCommand;
+        private readonly IDatabaseMetadataRepository _databaseMetadata;
 
-        public EntityService(IUnitOfWork unitOfWork, IRepositoryBase repository)
+        public EntityService(IUnitOfWork unitOfWork, IRepositoryBase repository, IExecuteSqlCommand sqlCommand, IDatabaseMetadataRepository databaseMetadata)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
+            _sqlCommand = sqlCommand;
+            _databaseMetadata = databaseMetadata;
         }
 
         public async Task<EntityViewModel> GetEntityViewModelAsync(Guid entityId)
@@ -47,18 +55,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
         public async Task<(IEnumerable<EntityViewModel> Items, int? TotalCount)> GetEntitiesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, byte? entityType, bool? isReadonly, string sortBy)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<int?, EntityInfo, EntityColumnInfo>(
-                        "dbo.BusinessEngine_Studio_GetEntitiesWithColumns", "BE_Entities_GetEntitiesWithColumns",
-                        new
-                        {
-                            ScenarioId = scenarioId,
-                            SearchText = searchText,
-                            EntityType = entityType,
-                            IsReadonly = isReadonly,
-                            PageIndex = pageIndex,
-                            PageSize = pageSize,
-                            SortBy = sortBy
-                        }
-                    );
+                "dbo.BusinessEngine_Studio_GetEntitiesWithColumns", "BE_Entities_GetEntitiesWithColumns",
+                    new
+                    {
+                        ScenarioId = scenarioId,
+                        SearchText = searchText,
+                        EntityType = entityType,
+                        IsReadonly = isReadonly,
+                        PageIndex = pageIndex,
+                        PageSize = pageSize,
+                        SortBy = sortBy
+                    }
+                );
 
 
             var totalCount = results.Item1?.First();
@@ -76,6 +84,33 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
             return (result, totalCount);
         }
 
+        public async Task<IEnumerable<EntityListItem>> GetEntitiesListItemAsync(Guid scenarioId)
+        {
+            var entities = await _repository.GetByScopeAsync<EntityInfo>(scenarioId);
+            var columns = await _repository.GetAllAsync<EntityColumnInfo>();
+
+            return HybridMapper.MapWithChildren<EntityInfo, EntityListItem, EntityColumnInfo, EntityColumnListItem>(
+               parents: entities,
+               children: columns,
+               parentKeySelector: p => p.Id,
+               childKeySelector: c => c.EntityId,
+               assignChildren: (parent, childs) => parent.Columns = childs
+           );
+        }
+
+        public async Task<(IEnumerable<string> Tables, IEnumerable<string> Views)> GetDatabaseObjects()
+        {
+            var tables = await _databaseMetadata.GetDatabaseObjectsAsync(0);
+            var views = await _databaseMetadata.GetDatabaseObjectsAsync(1);
+
+            return (tables, views);
+        }
+
+        public async Task<IEnumerable<TableColumnInfo>> GetDatabaseObjectColumns(string objectName)
+        {
+            return await _databaseMetadata.GetDatabaseObjectColumnsAsync(objectName);
+        }
+
         public async Task<Guid> SaveEntity(EntityViewModel entity, bool isNew, HttpContext context)
         {
             var objEntityInfo = HybridMapper.Map<EntityViewModel, EntityInfo>(entity);
@@ -90,13 +125,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
 
                 if (isNew)
                 {
-                    objEntityInfo.Id = await _repository.AddAsync(objEntityInfo);
+                    objEntityInfo.Id = await _repository.AddAsync<EntityInfo>(objEntityInfo);
                 }
                 else
                 {
                     oldTableName = await _repository.GetColumnValueAsync<EntityInfo, string>(objEntityInfo.Id, "TableName");
 
-                    var isUpdated = await _repository.UpdateAsync(objEntityInfo);
+                    var isUpdated = await _repository.UpdateAsync<EntityInfo>(objEntityInfo);
                     if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objEntityInfo);
                 }
 
@@ -142,7 +177,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
 
                         if (isNew && column.IsPrimary)
                         {
-                            await _repository.AddAsync(objEntityColumnInfo);
+                            await _repository.AddAsync<EntityColumnInfo>(objEntityColumnInfo);
                             continue;
                         }
 
@@ -195,18 +230,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
 
                         if (isNewColumn)
                         {
-                            await _repository.AddAsync(objEntityColumnInfo);
+                            await _repository.AddAsync<EntityColumnInfo>(objEntityColumnInfo);
                         }
                         else
                         {
-                            await _repository.UpdateAsync(objEntityColumnInfo);
+                            await _repository.UpdateAsync<EntityColumnInfo>(objEntityColumnInfo);
                         }
                     }
 
                     if (queries.Length > 0)
                     {
-                        var sqlCommand = new ExecuteSqlCommand(_unitOfWork);
-                        await sqlCommand.ExecuteSqlCommandTextAsync(queries.ToString());
+                        await _sqlCommand.ExecuteSqlCommandTextAsync(_unitOfWork, queries.ToString());
                     }
                 }
 
@@ -233,12 +267,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
 
             try
             {
-                string tableName = await _repository.GetColumnValueAsync<EntityInfo, string>(entityId, "TableName");
-                string query = $"DROP TABLE {tableName};";
+                bool isReadonly = await _repository.GetColumnValueAsync<EntityInfo, bool>(entityId, "IsReadonly");
+                if (!isReadonly)
+                {
+                    string tableName = await _repository.GetColumnValueAsync<EntityInfo, string>(entityId, "TableName");
+                    string query = $"DROP TABLE {tableName};";
 
-                var sqlCommand = new ExecuteSqlCommand(_unitOfWork);
-                await sqlCommand.ExecuteSqlCommandTextAsync(query);
+                    await _sqlCommand.ExecuteSqlCommandTextAsync(_unitOfWork, query);
+                }
 
+                await _repository.DeleteByScopeAsync<EntityColumnInfo>(entityId);
                 var result = await _repository.DeleteAsync<EntityInfo>(entityId);
 
                 _unitOfWork.Commit();

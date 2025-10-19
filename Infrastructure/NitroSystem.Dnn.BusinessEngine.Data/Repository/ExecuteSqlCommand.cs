@@ -8,21 +8,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 {
     public class ExecuteSqlCommand : IExecuteSqlCommand
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public ExecuteSqlCommand(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
-        public async Task<int> ExecuteSqlCommandTextAsync(string commandText, object param = null)
+        public async Task<int> ExecuteSqlCommandTextAsync(IUnitOfWork unitOfWork, string commandText, object param = null)
         {
             try
             {
-                return await _unitOfWork.Connection.ExecuteAsync(
+                return await unitOfWork.Connection.ExecuteAsync(
                     commandText,
                     param,
-                    _unitOfWork.Transaction);
+                    unitOfWork.Transaction);
             }
             catch (Exception ex)
             {

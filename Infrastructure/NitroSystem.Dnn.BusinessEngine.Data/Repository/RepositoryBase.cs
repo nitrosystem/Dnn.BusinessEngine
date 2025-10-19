@@ -9,7 +9,6 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Caching;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
@@ -470,7 +469,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             return rowAffected >= 1;
         }
 
-        public async Task<bool> DeleteByScopeAsync<T>(object value) where T : class, IEntity, new()
+        public async Task DeleteByScopeAsync<T>(object value) where T : class, IEntity, new()
         {
             var table = AttributeCache.Instance.GetTableName<T>();
             var scopeColumn = AttributeCache.Instance.GetScope<T>();
@@ -480,8 +479,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             int rowAffected = await _unitOfWork.Connection.ExecuteAsync(query, new { Value = value }, _unitOfWork.Transaction);
 
             _cacheService.RemoveByPrefix(cacheAttr.key);
-
-            return rowAffected >= 1;
         }
 
         public async Task ExecuteStoredProcedureAsync(string storedProcedure, object parameters)

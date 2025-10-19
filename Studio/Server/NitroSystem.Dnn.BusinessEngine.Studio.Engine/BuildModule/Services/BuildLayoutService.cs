@@ -50,8 +50,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
         public async Task<string> BuildLayoutAsync(string moduleLayoutTemplate, IEnumerable<ModuleFieldDto> fields)
         {
-            var result = new BuildModuleResultDto();
-
             _fieldMap = fields
                 .GroupBy(f => f.ParentId ?? Guid.Empty)
                 .ToDictionary(

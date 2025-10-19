@@ -51,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extension\ExtensionMappingProfile.cs" />
+    <Compile Include="Extension\ExtensionService.cs" />
     <Compile Include="Module\ModuleFieldService.cs" />
     <Compile Include="Module\ModuleLibraryAndResourceService.cs" />
     <Compile Include="Module\ModuleVariableService.cs" />
