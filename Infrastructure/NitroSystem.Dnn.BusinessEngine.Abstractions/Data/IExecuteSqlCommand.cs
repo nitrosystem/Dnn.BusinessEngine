@@ -5,6 +5,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts
 {
     public interface IExecuteSqlCommand
     {
-        Task<int> ExecuteSqlCommandTextAsync(IUnitOfWork unitOfWork, string commandText, object param = null);
+        Task ExecuteSqlCommandTextAsync(IUnitOfWork unitOfWork, string commandText, object param = null);
     }
 }

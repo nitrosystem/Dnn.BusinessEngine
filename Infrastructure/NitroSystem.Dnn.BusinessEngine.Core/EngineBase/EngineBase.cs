@@ -68,7 +68,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
         protected abstract Task<EngineResult<TResponse>> ExecuteCoreAsync(TRequest request);
         protected virtual Task AfterExecuteAsync(TRequest request, EngineResult<TResponse> result) => Task.CompletedTask;
         protected virtual Task HandleExceptionAsync(Exception ex) => Task.CompletedTask;
-
+        
         protected async Task NotifyProgress(string msg, double? percent = null)
         {
             if (OnProgress != null) await OnProgress(msg, percent);

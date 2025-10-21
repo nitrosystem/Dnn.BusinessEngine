@@ -5,7 +5,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExten
 {
    public class ExtensionManifest
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public string ExtensionName { get; set; }
         public string ExtensionType { get; set; }
         public string ExtensionImage { get; set; }

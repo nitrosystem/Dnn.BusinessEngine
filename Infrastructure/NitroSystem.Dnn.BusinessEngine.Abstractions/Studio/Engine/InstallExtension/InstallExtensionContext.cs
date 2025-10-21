@@ -10,7 +10,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExten
     {
         public CancellationTokenSource CancellationTokenSource { get; }
         public override CancellationToken CancellationToken => CancellationTokenSource.Token;
-        public ExtensionManifest Manifest { get; set; }
+        public ExtensionManifest ExtensionManifest { get; set; }
         public IUnitOfWork UnitOfWork { get; set; }
         public string UnzipedPath { get; set; }
         public string CurrentVersion { get; set; }

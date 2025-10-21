@@ -1,5 +1,4 @@
-﻿using DotNetNuke.Entities.Portals;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using System;
@@ -13,7 +12,8 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Extension;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension.Models;
-using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension
 {
@@ -33,6 +33,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension
             var extensions = await _repository.GetAllAsync<ExtensionInfo>("ExtensionName");
 
             return HybridMapper.MapCollection<ExtensionInfo, ExtensionViewModel>(extensions);
+        }
+
+        public  IEnumerable<string> GetAvailableExtensionsViewModel()
+        {
+            var availableExtensions = new List<string>();
+
+            var basePath = Constants.MapPath("~/DesktopModules/BusinessEngine/install");
+            if (Directory.Exists(basePath))
+            {
+                var zipFiles = Directory.EnumerateFiles(basePath, "*.zip").ToList();
+                foreach (var filePath in zipFiles)
+                {
+                    availableExtensions.Add(Path.GetFileName(filePath));
+                }
+            }
+
+            return availableExtensions;
         }
 
         public async Task<string> GetCurrentVersionExtensionsAsync(string extensionName)

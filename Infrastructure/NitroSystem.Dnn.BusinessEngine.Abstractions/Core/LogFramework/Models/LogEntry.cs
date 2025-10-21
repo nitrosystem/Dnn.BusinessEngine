@@ -5,11 +5,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Core.LogFramework.Models
 {
     public class LogEntry
     {
-        public Guid ScenarioId { get; set; }
-        public string ScenarioName { get; set; }
-        public DateTime Timestamp { get; set; }
-        public LogLevel Level { get; set; }
         public string Message { get; set; }
-        public object Data { get; set; }
+        public LogLevel Level { get; set; }
+        public string Source { get; set; }
+        public DateTime Timestamp { get; set; } = DateTime.Now;
+        public string User { get; set; }
+        public string CorrelationId { get; set; }
+        public Exception Exception { get; set; }
     }
 }

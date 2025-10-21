@@ -34,6 +34,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         {
             var moduleFolder = StringHelper.ToKebabCase(request.ModuleName);
             var outputDirectory = Constants.MapPath(request.BasePath + moduleFolder);
+         
             if (Directory.Exists(outputDirectory))
                 Directory.Delete(outputDirectory, true);
 

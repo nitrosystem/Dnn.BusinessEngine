@@ -19,7 +19,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
         {
             var ctx = context as InstallExtensionContext;
 
-            foreach (var item in ctx.Manifest.Assemblies ?? Enumerable.Empty<ExtensionAssembly>())
+            foreach (var item in ctx.ExtensionManifest.Assemblies ?? Enumerable.Empty<ExtensionAssembly>())
             {
                 string targetDir = Constants.MapPath(item.BasePath);
                 foreach (var file in item.Items)
@@ -29,7 +29,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
                 }
             }
 
-            foreach (var item in ctx.Manifest.Resources ?? Enumerable.Empty<ExtensionResource>())
+            foreach (var item in ctx.ExtensionManifest.Resources ?? Enumerable.Empty<ExtensionResource>())
             {
                 string zipFile = $@"{ctx.UnzipedPath}\{item.ZipFile}";
                 string targetDir = $@"{request.ModulePath}\{item.BasePath}";

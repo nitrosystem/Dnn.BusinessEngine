@@ -39,14 +39,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
 
             try
             {
-                ctx.Manifest.Id = await _service.SaveExtensionAsync(ctx.Manifest, ctx.UnitOfWork);
+                ctx.ExtensionManifest.Id = await _service.SaveExtensionAsync(ctx.ExtensionManifest, ctx.UnitOfWork);
 
                 var unzipedPath = ctx.UnzipedPath;
                 var sqlProviderFolder = Path.Combine(unzipedPath, "sql-providers");
 
                 StringBuilder queries = new StringBuilder();
 
-                foreach (var item in (ctx.Manifest.SqlProviders ?? Enumerable.Empty<ExtensionSqlProvider>())
+                foreach (var item in (ctx.ExtensionManifest.SqlProviders ?? Enumerable.Empty<ExtensionSqlProvider>())
                     .Where(p => p.Type == SqlProviderType.Install && IsValidVersion(ctx.CurrentVersion, p.Version)))
                 {
                     var query = await FileUtil.GetFileContentAsync(Path.Combine(sqlProviderFolder, item.File));
@@ -54,10 +54,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
                     queries.AppendLine(Environment.NewLine);
                 }
 
-                if (!string.IsNullOrEmpty(queries.ToString()))
+                string sqlCommands = queries.ToString();
+                if (!string.IsNullOrEmpty(sqlCommands))
                 {
-                    queries = queries.Replace("GO", Environment.NewLine);
-                    await _sqlCommand.ExecuteSqlCommandTextAsync(ctx.UnitOfWork, queries.ToString());
+                    sqlCommands = sqlCommands.Replace("[EXTENSIONID]", ctx.ExtensionManifest.Id.Value.ToString());
+
+                    await _sqlCommand.ExecuteSqlCommandTextAsync(ctx.UnitOfWork, sqlCommands);
                 }
             }
             catch (Exception ex)
@@ -73,7 +75,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
 
         private bool IsValidVersion(string currentVersion, string newVersion)
         {
-            return new Version(currentVersion) < new Version(newVersion);
+            return string.IsNullOrEmpty(currentVersion) || new Version(currentVersion) < new Version(newVersion);
         }
     }
 }

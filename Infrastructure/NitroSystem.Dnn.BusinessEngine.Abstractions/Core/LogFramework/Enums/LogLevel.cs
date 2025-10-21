@@ -8,10 +8,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Core.LogFramework.Enums
 {
     public enum LogLevel
     {
-        Trace,
-        Info,
-        Warning,
-        Error,
-        Critical
+        Trace = 0,
+        Debug = 1,
+        Info = 2,
+        Warning = 3,
+        Error = 4,
+        Critical = 5
     }
 }

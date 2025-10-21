@@ -14,7 +14,6 @@ using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares;
 
@@ -63,7 +62,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             var manifestJson = await FileUtil.GetFileContentAsync(manifestFile);
 
             _ctx.UnzipedPath = unzipedPath;
-            _ctx.Manifest = JsonConvert.DeserializeObject<ExtensionManifest>(manifestJson);
+            _ctx.ExtensionManifest = JsonConvert.DeserializeObject<ExtensionManifest>(manifestJson);
 
             await base.OnInitializeAsync(request);
         }
@@ -76,11 +75,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             if (!user.IsSuperUser)
                 errors.Add("Only superusers can install extensions.");
 
-            var currentVersion = await _extensionService.GetCurrentVersionExtensionsAsync(_ctx.Manifest.ExtensionName);
-            if (!string.IsNullOrEmpty(currentVersion) && new Version(currentVersion) > new Version(_ctx.Manifest.Version)) 
+            var currentVersion = await _extensionService.GetCurrentVersionExtensionsAsync(_ctx.ExtensionManifest.ExtensionName);
+            if (!string.IsNullOrEmpty(currentVersion) && new Version(currentVersion) > new Version(_ctx.ExtensionManifest.Version))
                 errors.Add("The installed extension should not be larger than the new extension");
 
             _ctx.CurrentVersion = currentVersion;
+            _ctx.ExtensionManifest.IsNewExtension = string.IsNullOrEmpty(currentVersion);
 
             if (errors.Any())
                 return EngineResult<object>.Failure(errors.ToArray());
@@ -92,7 +92,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             InstallExtensionRequest request)
         {
             var lockService = new LockService();
-            var lockId = _ctx.Manifest.ExtensionName;
+            var lockId = _ctx.ExtensionManifest.ExtensionName;
 
             var lockAcquired = await lockService.TryLockAsync(lockId);
             if (!lockAcquired)
@@ -104,15 +104,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             {
                 return await _pipeline.ExecuteAsync(request, _ctx, Services);
             }
+            catch (Exception ex)
+            {
+                await OnErrorHandle(ex, "phase");
+
+                return EngineResult<InstallExtensionResponse>.Failure(ex.Message);
+            }
             finally
             {
                 lockService.ReleaseLock(lockId);
             }
         }
 
-        private Task OnErrorHandle(Exception ex, string phase)
+        private async Task OnErrorHandle(Exception ex, string phase)
         {
-            throw new NotImplementedException();
+            await Task.Yield();
+
+            throw ex;
         }
     }
 }

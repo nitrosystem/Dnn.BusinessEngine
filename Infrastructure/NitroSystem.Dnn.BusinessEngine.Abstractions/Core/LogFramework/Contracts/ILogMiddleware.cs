@@ -4,8 +4,8 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.LogFramework.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Core.LogFramework.Contracts
 {
-    public interface ILogMiddleware<TContext>
+    public interface ILogMiddleware<TRequest>
     {
-        Task<LogResult> InvokeAsync(TContext context, Func<Task<LogResult>> next);
+        Task<LogResult> InvokeAsync(LogContext context, TRequest request, Func<Task<LogResult>> next);
     }
 }

@@ -94,6 +94,10 @@
     <Compile Include="EngineBase\EngineBase.cs" />
     <Compile Include="EngineBase\EngineContextExtensions.cs" />
     <Compile Include="EngineBase\EnginePipeline.cs" />
+    <Compile Include="EvenFramework\EventDispatcher.cs" />
+    <Compile Include="EvenFramework\EventFramework.cs" />
+    <Compile Include="EvenFramework\EventWrapper.cs" />
+    <Compile Include="EvenFramework\LoggingObserver.cs" />
     <Compile Include="EventBus\EventBus.cs" />
     <Compile Include="EventBus\EventSubscriber.cs" />
     <Compile Include="EventBus\IEvent.cs" />
@@ -126,13 +130,6 @@
     <Compile Include="Infrastructure\ServiceLocator\ServiceLocator.cs" />
     <Compile Include="Infrastructure\TypeLoader\TypeLoaderFactory.cs" />
     <Compile Include="Infrastructure\TypeLoader\TypeDescriptor.cs" />
-    <Compile Include="LogFramework\Handlers\ConsoleLogHandler.cs" />
-    <Compile Include="LogFramework\Handlers\DatabaseLogHandler.cs" />
-    <Compile Include="LogFramework\Handlers\FileLogHandler.cs" />
-    <Compile Include="LogFramework\InMemoryQueueLogService.cs" />
-    <Compile Include="LogFramework\LogContext.cs" />
-    <Compile Include="LogFramework\LogFrameworkBase.cs" />
-    <Compile Include="LogFramework\LogPipeline.cs" />
     <Compile Include="Security\ErrorHandling.cs" />
     <Compile Include="Mapper\CustomMapper.cs" />
     <Compile Include="Mapper\IMapper.cs" />

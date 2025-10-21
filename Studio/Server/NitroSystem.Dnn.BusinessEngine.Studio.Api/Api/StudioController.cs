@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Data;
 using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
 using DotNetNuke.Web.Api;
 using DotNetNuke.Entities.Host;
@@ -26,12 +27,12 @@ using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using System.IO;
-using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension.Models;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using System.Collections.Generic;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -675,12 +676,35 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var extensions = await _extensionService.GetExtensionsViewModelAsync();
+                var availableExtensions = _extensionService.GetAvailableExtensionsViewModel();
 
-                return Request.CreateResponse(HttpStatusCode.OK, extensions);
+                return Request.CreateResponse(HttpStatusCode.OK,
+                    new { Extensions = extensions, AvailableExtensions = availableExtensions });
             }
             catch (Exception ex)
             {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> onInstallAvailableExtension([FromUri] string extensionFilename)
+        {
+            try
+            {
+                var scenarioID = Guid.Parse(Request.Headers.GetValues("ScenarioID").First());
+
+                var basePath = Constants.MapPath("~/DesktopModules/BusinessEngine/install");
+                var filename = Path.Combine(basePath, extensionFilename);
+                var result = await InstallExtension(filename);
+
+                File.Delete(filename);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
@@ -704,28 +728,32 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 await Request.Content.ReadAsMultipartAsync(streamProvider);
 
                 var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
-                var fileExt = Path.GetExtension(filename);
 
-                var request = new InstallExtensionRequest()
-                {
-                    BasePath = PortalSettings.HomeSystemDirectory,
-                    ModulePath = Constants.MapPath("/DesktopModules/BusinessEngine"),
-                    ExtensionZipFile = filename,
-                };
-
-                var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromMinutes(10));
-                using (await _brtGate.OpenGateAsync(permitId))
-                {
-                    var installExtension = new InstallExtensionEngine(_serviceProvider, _brtGate, _extensionService, permitId);
-                    var response = await installExtension.ExecuteAsync(request);
-                }
-
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return await InstallExtension(filename);
             }
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
+        }
+
+        private async Task<HttpResponseMessage> InstallExtension(string filename)
+        {
+            var request = new InstallExtensionRequest()
+            {
+                BasePath = PortalSettings.HomeSystemDirectory,
+                ModulePath = Constants.MapPath("/DesktopModules/BusinessEngine"),
+                ExtensionZipFile = filename,
+            };
+
+            var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromMinutes(10));
+            using (await _brtGate.OpenGateAsync(permitId))
+            {
+                var installExtension = new InstallExtensionEngine(_serviceProvider, _brtGate, _extensionService, permitId);
+                var response = await installExtension.ExecuteAsync(request);
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         //[HttpPost]

@@ -1,69 +1,107 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DotNetNuke.Services.Installer.Log;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.LogFramework.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.LogFramework.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.LogFramework.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.LogFramework
 {
-        public abstract class LogFrameworkBase<TContext>
+    public abstract class LogFrameworkBase<TRequest> : ILogFramework<TRequest>
+    {
+        public event Func<string, double?, Task> OnProgress;
+        public event Func<Exception, string, Task> OnError;
+        public event Func<TRequest, string, Task> OnLogged;
+
+        private readonly IServiceProvider _services;
+        protected IServiceProvider Services => _services;
+
+        private readonly LogContext _context = new LogContext();
+        protected LogContext Context => _context;
+
+        protected LogFrameworkBase(IServiceProvider services)
         {
-            public event Func<LogEntry, Task> OnLog;
-            public event Func<Exception, Task> OnError;
+            _services = services;
+        }
 
-            private readonly IServiceProvider _services;
-            protected IServiceProvider Services => _services;
-
-            private readonly LogPipeline<TContext> _pipeline = new();
-            protected LogPipeline<TContext> Pipeline => _pipeline;
-
-            protected readonly LogContext Context = new();
-            protected LogFrameworkBase(IServiceProvider services)
+        public async Task<LogResult> LogAsync(TRequest request)
+        {
+            try
             {
-                _services = services;
-            }
+                await NotifyProgress("Initializing Log", 0);
+                await OnInitializeAsync(request);
 
-            public async Task<LogResult> TrackAsync(Func<Task> action, string scenarioName, object meta = null)
-            {
-                try
+                await NotifyProgress("Validating", 10);
+                var validation = await ValidateAsync(request);
+                if (!validation.IsSuccess)
+                    return LogResult.Failure(validation.Message);
+
+                await NotifyProgress("Before Log", 20);
+                await BeforeLogAsync(request);
+
+                var pipeline = BuildPipeline();
+                await NotifyProgress("Processing Middlewares", 50);
+                var result = await pipeline.ExecuteAsync(request, _context, _services);
+
+                await NotifyProgress("After Log", 90);
+                await AfterLogAsync(request, result);
+
+                if (result.IsSuccess)
                 {
-                    Context.StartScenario(scenarioName, meta);
-
-                    await _pipeline.ExecuteAsync(Context, _services, async () =>
-                    {
-                        await action();
-                        return LogResult.Success();
-                    });
-
-                    Context.CompleteScenario();
-                    return LogResult.Success();
+                    if (OnLogged != null)
+                        await OnLogged(request, result.Message);
+                    await NotifyProgress("Completed", 100);
                 }
-                catch (Exception ex)
-                {
-                    Context.FailScenario(ex);
-                    if (OnError != null)
-                        await OnError(ex);
 
-                    return LogResult.Failure(ex.Message);
-                }
+                return result;
             }
-
-            protected async Task WriteAsync(string message, LogLevel level = LogLevel.Info, object data = null)
+            catch (Exception ex)
             {
-                var entry = new LogEntry
-                {
-                    ScenarioId = Context.ScenarioId,
-                    ScenarioName = Context.ScenarioName,
-                    Timestamp = DateTime.UtcNow,
-                    Level = level,
-                    Message = message,
-                    Data = data
-                };
-
-                if (OnLog != null)
-                    await OnLog(entry);
-
-                await Context.AddEntryAsync(entry);
+                if (OnError != null)
+                    await OnError(ex, "Log");
+                await HandleExceptionAsync(ex);
+                return LogResult.Failure(ex.Message);
             }
+        }
 
-            protected abstract Task InitializeAsync();
+        protected virtual Task OnInitializeAsync(TRequest request) => Task.CompletedTask;
+        protected virtual Task<LogResult> ValidateAsync(TRequest request) => Task.FromResult(LogResult.Success());
+        protected virtual Task BeforeLogAsync(TRequest request) => Task.CompletedTask;
+        protected virtual Task AfterLogAsync(TRequest request, LogResult result) => Task.CompletedTask;
+        protected virtual Task HandleExceptionAsync(Exception ex) => Task.CompletedTask;
+
+        protected async Task NotifyProgress(string msg, double? percent = null)
+        {
+            if (OnProgress != null)
+                await OnProgress(msg, percent);
+        }
+
+        protected abstract LogPipeline<TRequest> BuildPipeline();
+    }
+
+    public abstract class LogFrameworkBase
+    {
+        protected readonly LogPipeline _pipeline;
+        protected readonly LogContext _context;
+
+        protected LogFrameworkBase(LogPipeline pipeline, LogContext context)
+        {
+            _pipeline = pipeline;
+            _context = context;
+        }
+
+        protected async Task LogAsync(LogLevel level, string message, string source, Exception ex = null)
+        {
+            var entry = new LogEntry
+            {
+                Level = level,
+                Message = message,
+                Source = source,
+                Exception = ex,
+                User = _context.User,
+                CorrelationId = _context.CorrelationId
+            };
+
+            await _pipeline.ExecuteAsync(entry);
         }
     }
+}
