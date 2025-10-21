@@ -97,7 +97,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var result = await _moduleService.IsValidModuleName(module.ScenarioId, module.ModuleId, module.ModuleName);
+                var result = await _moduleService.IsValidModuleNameAsync(module.ScenarioId, module.ModuleId, module.ModuleName);
 
                 return Request.CreateResponse(HttpStatusCode.OK, result ?? false);
             }

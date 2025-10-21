@@ -67,7 +67,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             var resourcesFinalized = request.Module.ExternalResources.Concat(systemResources);
 
             await _moduleService.DeleteModuleResourcesAsync(request.ModuleId.Value);
-            await _moduleService.BulkInsertModuleOutputResources(request.Module.SitePageId, resourcesFinalized);
+            await _moduleService.BulkInsertModuleOutputResourcesAsync(request.Module.SitePageId, resourcesFinalized);
 
             result.Success = true;
             return result;

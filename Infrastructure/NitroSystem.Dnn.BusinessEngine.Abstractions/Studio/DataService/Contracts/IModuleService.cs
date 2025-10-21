@@ -12,13 +12,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contrac
         Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId);
         Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew);
         Task<bool> DeleteModuleAsync(Guid moduleId);
-        Task<bool?> IsValidModuleName(Guid scenarioId, Guid? moduleId, string moduleName);
+        Task<bool?> IsValidModuleNameAsync(Guid scenarioId, Guid? moduleId, string moduleName);
 
         Task<ModuleTemplateViewModel> GetModuleTemplateViewModelAsync(Guid moduleId);
         Task<bool> UpdateModuleTemplateAsync(ModuleTemplateViewModel module);
 
         Task<ModuleDto> GetDataForModuleBuildingAsync(Guid moduleId);
         Task DeleteModuleResourcesAsync(Guid moduleId);
-        Task BulkInsertModuleOutputResources(int? sitePageId,IEnumerable<ModuleResourceDto> resources);
+        Task BulkInsertModuleOutputResourcesAsync(int? sitePageId,IEnumerable<ModuleResourceDto> resources);
     }
 }
