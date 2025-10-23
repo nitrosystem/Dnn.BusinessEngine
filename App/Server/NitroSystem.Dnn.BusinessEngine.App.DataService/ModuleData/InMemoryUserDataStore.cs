@@ -80,14 +80,14 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
                 {
                     if (variable.VariableType == "AppModel")
                     {
-                        var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectoryMapPath);
+                        var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectory);
                         var instance = Activator.CreateInstance(type);
 
                         moduleData[variable.VariableName] = instance;
                     }
                     else if (variable.VariableType == "AppModelList")
                     {
-                        var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectoryMapPath);
+                        var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectory);
                         var listType = typeof(List<>).MakeGenericType(type);
                         var emptyList = Activator.CreateInstance(listType);
 
@@ -153,7 +153,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
             {
                 if (variable.VariableType == "AppModel")
                 {
-                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectoryMapPath);
+                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectory);
                     var dict = incomingData[variable.VariableName] as JObject;
                     var data = dict.ToObject(type);
 
@@ -161,7 +161,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
                 }
                 else if (variable.VariableType == "AppModelList")
                 {
-                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectoryMapPath);
+                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectory);
                     var dict = incomingData[variable.VariableName] as JArray;
                     var listType = typeof(List<>).MakeGenericType(type);
                     var data = dict.ToObject(listType);

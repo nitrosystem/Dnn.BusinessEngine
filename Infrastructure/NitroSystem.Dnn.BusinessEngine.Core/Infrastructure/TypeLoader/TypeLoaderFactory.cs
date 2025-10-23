@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Web;
 using System.IO;
 using System.Reflection;
 using System.Security;
 using System.Collections.Concurrent;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader
 {
@@ -24,7 +25,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader
             ValidatePath(relativePath, basePath, scenarioName);
 
             var key = $"{relativePath}:{typeFullName}";
-            var assemblyPath = HttpContext.Current.Server.MapPath($"{relativePath + typeFullName}.dll");
+            var assemblyPath = Constants.MapPath(relativePath) + $@"\{typeFullName}.dll";
 
             // اگر قبلاً کش شده
             if (_typeCache.TryGetValue(key, out Type cachedType))
@@ -67,7 +68,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader
 
         private void ValidatePath(string relativePath, string basePath, string scenarioName)
         {
-            var trustedPathPrefix = $"{basePath}/business-engine/{scenarioName}/";
+            var scenarioFolder = StringHelper.ToKebabCase(scenarioName);
+            var trustedPathPrefix = $"{basePath}business-engine/{scenarioFolder}/app-model-types";
 
             if (!relativePath.StartsWith(trustedPathPrefix, StringComparison.OrdinalIgnoreCase))
                 throw new SecurityException("مسیر پلاگین مجاز نیست.");
