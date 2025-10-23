@@ -67,40 +67,33 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
             return destination;
         }
 
+        public static TDestination Map<TSource, TDestination>(
+           TSource source,
+           Action<TSource, TDestination> configAction)
+           where TDestination : new()
+        {
+            var destination = Map<TSource, TDestination>(source);
+
+            configAction?.Invoke(source, destination);
+
+            return destination;
+        }
         public static async Task<TDestination> MapAsync<TSource, TDestination>(
             TSource source,
             Func<TSource, TDestination, Task> configAction = null)
             where TDestination : new()
         {
             var destination = Map<TSource, TDestination>(source);
-            if (configAction != null) await configAction(source, destination).ConfigureAwait(false);
-            return destination;
-        }
 
-        public static async Task<TDestination> MapWithConfigAsync<TSource, TDestination>(
-            TSource source,
-            Func<TSource, TDestination, Task> configAction)
-            where TDestination : new()
-        {
-            var destination = Map<TSource, TDestination>(source);
             if (configAction != null)
                 await configAction(source, destination).ConfigureAwait(false);
-            return destination;
-        }
 
-        public static TDestination MapWithConfig<TSource, TDestination>(
-            TSource source,
-            Action<TSource, TDestination> configAction)
-            where TDestination : new()
-        {
-            var destination = Map<TSource, TDestination>(source);
-            configAction?.Invoke(source, destination);
             return destination;
         }
 
         public static IEnumerable<TDestination> MapCollection<TSource, TDestination>(
             IEnumerable<TSource> sources,
-            Action<TSource, TDestination> afterMap = null)
+            Action<TSource, TDestination> configAction = null)
             where TDestination : new()
         {
             if (sources == null) return Enumerable.Empty<TDestination>();
@@ -109,7 +102,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
             return sources.Select(src =>
             {
                 var dest = Map<TSource, TDestination>(src);
-                afterMap?.Invoke(src, dest);
+                configAction?.Invoke(src, dest);
                 return dest;
             });
         }
@@ -129,7 +122,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
 
             return results;
         }
-       
+
         /// <summary>
         /// Map یک parent و لیست children به parent با استفاده از childSelector
         /// </summary>
@@ -174,7 +167,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
             //if (parents == null) yield return Enumerable.Empty<TParentDest>();
 
             // Lookup برای فرزندان
-            var lookup = (children ?? Enumerable.Empty<TChildSrc>())
+            var lookup = (children ?? Enumerable.Empty<TChildSrc>()).Where(c => childKeySelector(c) != null)
                 .GroupBy(childKeySelector)
                 .ToDictionary(g => g.Key,
                               g => g.Select(Map<TChildSrc, TChildDest>).ToList());

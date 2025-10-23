@@ -25,24 +25,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.DefinedList
 
         public async Task<DefinedListViewModel> GetDefinedListByListName(string listName)
         {
-            DefinedListViewModel definedList = null;
-
             var objDefinedListInfo = await _repository.GetByColumnAsync<DefinedListInfo>("ListName", listName);
             if (objDefinedListInfo != null)
             {
                 var items = await _repository.GetByScopeAsync<DefinedListItemInfo>(objDefinedListInfo.Id, "ViewOrder");
 
-                definedList = HybridMapper.MapWithConfig<DefinedListInfo, DefinedListViewModel>(
-                   objDefinedListInfo, (src, dest) =>
-                   {
-                       dest.Items = items.Select(item =>
-                       {
-                           return HybridMapper.Map<DefinedListItemInfo, DefinedListItemViewModel>(item);
-                       });
-                   });
+                return HybridMapper.MapWithChildren<DefinedListInfo, DefinedListViewModel, DefinedListItemInfo, DefinedListItemViewModel>(
+                    source: objDefinedListInfo,
+                    children: items,
+                    assignChildren: (parent, childs) => parent.Items = childs);
             }
 
-            return definedList;
+            return null;
         }
 
         public async Task<Guid> SaveDefinedList(DefinedListViewModel definedList, bool isNew)

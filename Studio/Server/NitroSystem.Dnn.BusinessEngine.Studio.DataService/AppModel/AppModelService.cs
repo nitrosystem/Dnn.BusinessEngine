@@ -28,25 +28,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
             var appModel = await _repository.GetAsync<AppModelInfo>(appModuleId);
             var properties = await _repository.GetByScopeAsync<AppModelPropertyInfo>(appModuleId, "ViewOrder");
 
-            var appViewModel = HybridMapper.MapWithChildren<AppModelInfo, AppModelViewModel, AppModelPropertyInfo, AppModelPropertyViewModel>(
+            return HybridMapper.MapWithChildren<AppModelInfo, AppModelViewModel, AppModelPropertyInfo, AppModelPropertyViewModel>(
                 source: appModel,
                 children: properties,
-                assignChildren: (parent, childList) => parent.Properties = childList
+                assignChildren: (parent, childs) => parent.Properties = childs
             );
-
-            return appViewModel;
-
-            //async 
-            //var appViewModel = await HybridMapperExtensions.MapWithChildrenAsync<AppModelInfo, AppModelViewModel, AppModelPropertyInfo, AppModelPropertyViewModel>(
-            //    source: appModel,
-            //    children: properties,
-            //    assignChildrenAsync: async (parent, childList) =>
-            //    {
-            //        // اگر نیاز به async داشت
-            //        parent.Properties = childList;
-            //        await Task.CompletedTask;
-            //    }
-            //);
         }
 
         public async Task<IEnumerable<AppModelViewModel>> GetAppModelsAsync(Guid scenarioId, string sortBy = "ViewOrder")
@@ -117,7 +103,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
                     var objAppModelPropertyInfo = HybridMapper.Map<AppModelPropertyViewModel, AppModelPropertyInfo>(prop);
                     objAppModelPropertyInfo.AppModelId = objAppModelInfo.Id;
 
-                await _repository.AddAsync<AppModelPropertyInfo>(objAppModelPropertyInfo);
+                    await _repository.AddAsync<AppModelPropertyInfo>(objAppModelPropertyInfo);
                 }
 
                 _unitOfWork.Commit();

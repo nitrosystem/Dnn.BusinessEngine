@@ -55,6 +55,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
             #region Module Fields Types
 
+            HybridMapper.BeforeMap<ModuleFieldTypeInfo, ModuleFieldTypeViewModel>(
+                (src, dest) => dest.Icon = src.Icon?.ReplaceFrequentTokens());
+
+            HybridMapper.BeforeMap<ModuleFieldTypeView, ModuleFieldTypeViewModel>(
+                (src, dest) => dest.Icon = src.Icon?.ReplaceFrequentTokens());
+
             HybridMapper.BeforeMap<ModuleFieldTypeTemplateInfo, ModuleFieldTypeTemplateViewModel>(
                 (src, dest) => dest.TemplateImage = src.TemplateImage?.ReplaceFrequentTokens());
 
@@ -62,7 +68,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                 (src, dest) => dest.ThemeImage = src.ThemeImage?.ReplaceFrequentTokens());
 
             #endregion
-            
+
             #region Module Fields
 
             HybridMapper.BeforeMap<ModuleFieldInfo, ModuleFieldViewModel>(

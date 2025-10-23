@@ -32,7 +32,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IBaseService _baseService;
-        private readonly IServiceFactory _serviceFactory;
         private readonly IAppModelService _appModelServices;
         private readonly IModuleService _moduleService;
         private readonly IModuleFieldService _moduleFieldService;
@@ -44,7 +43,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         public ModuleController(
             IServiceProvider serviceProvider,
             IBaseService globalService,
-            IServiceFactory serviceFactory,
             IAppModelService appModelService,
             IModuleService moduleService,
             IModuleFieldService moduleFieldService,
@@ -56,7 +54,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             _serviceProvider = serviceProvider;
             _baseService = globalService;
-            _serviceFactory = serviceFactory;
             _appModelServices = appModelService;
             _moduleService = moduleService;
             _moduleFieldService = moduleFieldService;
