@@ -4,9 +4,13 @@ using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.Expres
 using NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.DataService.Module;
 using NitroSystem.Dnn.BusinessEngine.App.DataService.Action;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
+using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middlewares;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Contracts;
+using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Services;
 
 
 namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
@@ -21,6 +25,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
             services.AddScoped<IActionService, ActionService>();
 
             services.AddScoped<IExpressionService, ExpressionService>();
+
+            services.AddScoped<IBuildBufferService, BuildBufferService>();
+            services.AddScoped<IActionWorker, ActionWorker>();
+
+            services.AddScoped<IEngineMiddleware<ActionRequest, ActionResponse>, ActionConditionMiddleware>();
+            services.AddScoped<IEngineMiddleware<ActionRequest, ActionResponse>, ActionWorkerMiddleware>();
+            services.AddScoped<IEngineMiddleware<ActionRequest, ActionResponse>, ActionSetResultMiddleware>();
+            services.AddScoped<ActionConditionMiddleware>();
+            services.AddScoped<ActionWorkerMiddleware>();
+            services.AddScoped<ActionSetResultMiddleware>();
+
+            ModuleMappingProfile.Register();
+            ActionMappingProfile.Register();
         }
     }
 }

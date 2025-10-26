@@ -1,116 +1,131 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Services
 {
-    public static class BuildBufferService
+    public class BuildBufferService : IBuildBufferService
     {
-        public static Queue<ActionTree> BuildBufferByEvent(List<ActionDto> actions)
-        {
-            foreach (var action in actions)
-            {
-                var lookup = actions.Where(p => p.ParentId != null)
-                    .GroupBy(a => a.ParentId)
-                    .ToDictionary(g => g.Key, g => g.OrderBy(x => x.ViewOrder).ToList());
+        // اگر در آینده بخواهی logger، telemetry یا config اضافه کنی، این constructor آماده است
+        //private readonly ILogger<BuildBufferService>? _logger;
 
-                actions.AddRange(CollectActions(action, lookup, new List<ActionDto>()));
+        //public BuildBufferService(ILogger<BuildBufferService>? logger = null)
+        //{
+        //    _logger = logger;
+        //}
+
+        /// <summary>
+        /// ساختن بافر اکشن‌ها بر اساس رویداد
+        /// </summary>
+        public Queue<ActionTree> BuildBufferByEvent(List<ActionDto> actions)
+        {
+            if (actions == null || actions.Count == 0)
+                return new Queue<ActionTree>();
+
+            // ساخت lookup فقط یک‌بار (ParentId -> فرزندان)
+            var lookup = actions
+                .Where(p => p.ParentId != null)
+                .GroupBy(a => a.ParentId)
+                .ToDictionary(g => g.Key, g => g.OrderBy(x => x.ViewOrder).ToList());
+
+            // از اضافه کردن همزمان جلوگیری می‌کنیم → snapshot می‌سازیم
+            var collected = new HashSet<Guid>();
+            var result = new List<ActionDto>();
+
+            foreach (var root in actions.Where(a => a.ParentId == null))
+            {
+                CollectActions(root, lookup, result, collected);
             }
 
-            var buffer = BuildActionTree(actions);
-            return buffer;
+            // در نهایت ساخت درخت اکشن‌ها
+            return BuildActionTree(result);
         }
 
-        public static Queue<ActionTree> BuildBuffer(IEnumerable<ActionDto> actions)
+        /// <summary>
+        /// ساختن بافر از لیست ورودی (بدون پردازش رویداد)
+        /// </summary>
+        public Queue<ActionTree> BuildBuffer(IEnumerable<ActionDto> actions)
         {
-            var buffer = BuildActionTree(actions);
-            return buffer;
+            if (actions == null)
+                return new Queue<ActionTree>();
+
+            return BuildActionTree(actions);
         }
 
+        /// <summary>
+        /// درخت اکشن‌ها را از روی لیست مسطح می‌سازد
+        /// </summary>
         private static Queue<ActionTree> BuildActionTree(IEnumerable<ActionDto> actions)
         {
-            // ساخت دیکشنری lookup برای دسترسی سریع به ActionTreeها
-            var lookup = actions.ToDictionary(a => a.Id, a => new ActionTree
-            {
-                Action = a,
-                CompletedActions = new Queue<ActionTree>(),
-                SuccessActions = new Queue<ActionTree>(),
-                ErrorActions = new Queue<ActionTree>()
-            });
+            var lookup = actions.ToDictionary(
+                a => a.Id,
+                a => new ActionTree
+                {
+                    Action = a,
+                    CompletedActions = new Queue<ActionTree>(),
+                    SuccessActions = new Queue<ActionTree>(),
+                    ErrorActions = new Queue<ActionTree>()
+                });
 
-            // نگهداری ریشه‌ها
             var roots = new Queue<ActionTree>();
 
             foreach (var action in actions)
             {
                 if (action.ParentId == null)
                 {
-                    // ریشه‌ها
                     roots.Enqueue(lookup[action.Id]);
+                    continue;
                 }
-                else
+
+                if (!lookup.TryGetValue(action.ParentId.Value, out var parentTree))
+                    continue;
+
+                var childTree = lookup[action.Id];
+
+                switch (action.ParentActionTriggerCondition)
                 {
-                    var parentTree = lookup[action.ParentId.Value];
-                    var childTree = lookup[action.Id];
+                    case ActionExecutionCondition.AlwaysExecute:
+                        parentTree.CompletedActions.Enqueue(childTree);
+                        break;
 
-                    switch (action.ParentActionTriggerCondition)
-                    {
-                        case ActionExecutionCondition.AlwaysExecute:
-                            parentTree.CompletedActions.Enqueue(childTree);
-                            break;
+                    case ActionExecutionCondition.ExecuteOnSuccess:
+                        parentTree.SuccessActions.Enqueue(childTree);
+                        break;
 
-                        case ActionExecutionCondition.ExecuteOnSuccess:
-                            parentTree.SuccessActions.Enqueue(childTree);
-                            break;
-
-                        case ActionExecutionCondition.ExecuteOnError:
-                            parentTree.ErrorActions.Enqueue(childTree);
-                            break;
-                    }
+                    case ActionExecutionCondition.ExecuteOnError:
+                        parentTree.ErrorActions.Enqueue(childTree);
+                        break;
                 }
             }
 
             return roots;
         }
 
-        private static IEnumerable<ActionDto> CollectActions(ActionDto root, Dictionary<Guid?, List<ActionDto>> lookup, List<ActionDto> result)
+        /// <summary>
+        /// گردآوری بازگشتی اکشن‌های فرزند
+        /// </summary>
+        private static void CollectActions(
+            ActionDto root,
+            IReadOnlyDictionary<Guid?, List<ActionDto>> lookup,
+            ICollection<ActionDto> result,
+            ISet<Guid> visited)
         {
+            if (!visited.Add(root.Id))
+                return; // جلوگیری از حلقه‌های احتمالی
+
             result.Add(root);
 
-            if (lookup.TryGetValue(root.Id, out var children))
+            if (!lookup.TryGetValue(root.Id, out var children))
+                return;
+
+            foreach (var child in children)
             {
-                foreach (var child in children)
-                {
-                    CollectActions(child, lookup, result);
-                }
+                CollectActions(child, lookup, result, visited);
             }
-
-            return result;
-        }
-
-        private static Queue<ActionTree> GetActionChilds(IEnumerable<ActionDto> actions, Queue<ActionTree> buffer, Guid parentId, ActionExecutionCondition parentResultStatus)
-        {
-            foreach (var action in actions.Where(a => a.ParentId == parentId && a.ParentActionTriggerCondition == parentResultStatus) ?? Enumerable.Empty<ActionDto>())
-            {
-                var node = new ActionTree()
-                {
-                    Action = action,
-                    CompletedActions = new Queue<ActionTree>(),
-                    SuccessActions = new Queue<ActionTree>(),
-                    ErrorActions = new Queue<ActionTree>()
-                };
-
-                GetActionChilds(actions, node.CompletedActions, action.Id, ActionExecutionCondition.AlwaysExecute);
-                GetActionChilds(actions, node.SuccessActions, action.Id, ActionExecutionCondition.ExecuteOnSuccess);
-                GetActionChilds(actions, node.ErrorActions, action.Id, ActionExecutionCondition.ExecuteOnError);
-
-                buffer.Enqueue(node);
-            }
-
-            return buffer;
         }
     }
 }

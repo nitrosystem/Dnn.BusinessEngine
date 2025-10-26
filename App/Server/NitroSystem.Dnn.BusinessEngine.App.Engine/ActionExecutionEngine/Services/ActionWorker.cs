@@ -3,13 +3,12 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.DContractsto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Services
 {
@@ -17,18 +16,15 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Servic
     {
         private readonly IActionService _actionService;
         private readonly IExpressionService _expressionService;
-        private readonly IActionCondition _actionCondition;
         private readonly IServiceLocator _serviceLocator;
 
         public ActionWorker(
             IActionService actionService,
             IExpressionService expressionService,
-            IActionCondition actionCondition,
             IServiceLocator serviceLocator)
         {
             _actionService = actionService;
             _expressionService = expressionService;
-            _actionCondition = actionCondition;
             _serviceLocator = serviceLocator;
         }
 
@@ -36,7 +32,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Servic
         {
             var result = new ActionResult();
 
-            context.Action.Params = ParseParams(context.Action.Params);
+            context.Action.Params = ParseParams(context.Action.Params, context);
 
             IActionExecutor actionController = await GetActionExtensionInstance(context.Action.ActionType);
 
@@ -52,7 +48,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Servic
             return result;
         }
 
-        private List<ActionParamDto> ParseParams(IEnumerable<ActionParamDto> actionParams)
+        private List<ActionParamDto> ParseParams(IEnumerable<ActionParamDto> actionParams, ActionExecutionContext context)
         {
             var finalizedParams = new List<ActionParamDto>();
 
@@ -60,7 +56,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Servic
             {
                 var expr = item.ParamValue as string;
                 var value = !string.IsNullOrEmpty(expr)
-                    ? _expressionService.Evaluate(expr, null)
+                    ? _expressionService.Evaluate(expr, context.ModuleData)
                     : item.ParamValue;
 
                 item.ParamValue = value;

@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Models;
+﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Models;
+using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.DContractsto
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Contracts
 {
     public interface IActionWorker
     {

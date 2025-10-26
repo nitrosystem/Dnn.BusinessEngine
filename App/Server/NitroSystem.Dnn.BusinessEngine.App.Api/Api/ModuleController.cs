@@ -9,26 +9,36 @@ using DotNetNuke.Web.Api;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.App.Api.Dto;
-using NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine;
+using System.Runtime.InteropServices;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Contracts;
+using System.Linq;
+using System.Collections.Concurrent;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {
     public class ModuleController : DnnApiController
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly IUserDataStore _userDataStore;
+        private readonly IBuildBufferService _buildBufferService;
         private readonly IModuleService _moduleService;
         private readonly IActionService _actionService;
 
         public ModuleController(
+            IServiceProvider serviceProvider,
+            IBuildBufferService buildBufferService,
             IUserDataStore userDataStore,
             IModuleService moduleService,
             IActionService actionService
         )
         {
+            _serviceProvider = serviceProvider;
             _userDataStore = userDataStore;
+            _buildBufferService = buildBufferService;
             _moduleService = moduleService;
             _actionService = actionService;
         }
@@ -42,15 +52,31 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 if (module == null) throw new Exception("Module Not Config");
 
-                var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, module.Id);
-                moduleData["_PageParam"] = UrlHelper.ParsePageParameters(pageUrl);
-
                 //await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad");
+
+                var moduleData = new ConcurrentDictionary<string, object>();
+
+                var actionIds = await _actionService.GetActionIdsAsync(moduleId, null, "OnPageLoad");
+                if (actionIds.Any())
+                {
+                    var actionsByEvent = await _actionService.GetActionsDtoForServerAsync(actionIds);
+                    var request = new ActionRequest()
+                    {
+                        ConnectionId = connectionId,
+                        ModuleId = moduleId,
+                        PageUrl = pageUrl,
+                        ByEvent = true,
+                        Actions = actionsByEvent
+                    };
+                    var actionEngine = new ActionExecutionEngine(_serviceProvider, _userDataStore, _buildBufferService);
+                    var response = await actionEngine.ExecuteAsync(request);
+
+                    moduleData = response.Data.ModuleData;
+                }
 
                 var data = _userDataStore.GetDataForClients(moduleId, moduleData);
 
                 var variables = await _moduleService.GetModuleVariables(moduleId, ModuleVariableScope.Global);
-
                 var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
                 var actions = await _actionService.GetActionsDtoForClientAsync(moduleId);
 

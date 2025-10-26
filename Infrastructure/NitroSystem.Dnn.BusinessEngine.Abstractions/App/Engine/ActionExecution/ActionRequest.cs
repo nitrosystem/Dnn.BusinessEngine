@@ -11,6 +11,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution
     {
         public string ConnectionId { get; set; }
         public Guid ModuleId { get; set; }
+        public string PageUrl { get; set; }
+        public bool ByEvent { get; set; }
         public IEnumerable<ActionDto> Actions { get; set; }
     }
 }

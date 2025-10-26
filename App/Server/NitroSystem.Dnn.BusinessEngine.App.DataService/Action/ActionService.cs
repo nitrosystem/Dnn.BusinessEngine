@@ -21,14 +21,23 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
             _repository = repository;
         }
 
+        public async Task<IEnumerable<Guid>> GetActionIdsAsync(Guid moduleId, Guid? fieldId = null, string eventName = null)
+        {
+            var actions = await _repository.GetByScopeAsync<ActionInfo>(moduleId, "ViewOrder");
+            return actions
+                .Where(a => /*a.Event == eventName &&*/  a.FieldId == fieldId)
+                .Select(a => a.Id)
+                .ToList();
+        }
+
         public async Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId, Guid? fieldId, bool executeInClientSide)
         {
             var actions = await _repository.GetByScopeAsync<ActionInfo>(moduleId, "ViewOrder");
+            var finalizedActions = actions
+                .Where(a => a.FieldId == fieldId && a.ExecuteInClientSide == executeInClientSide)
+                .ToList();
 
-            return actions.Where(a => a.FieldId == fieldId && a.ExecuteInClientSide == executeInClientSide).Select(action =>
-            {
-                return HybridMapper.Map<ActionInfo, ActionDto>(action);
-            });
+            return HybridMapper.MapCollection<ActionInfo, ActionDto>(finalizedActions);
         }
 
         public async Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId)

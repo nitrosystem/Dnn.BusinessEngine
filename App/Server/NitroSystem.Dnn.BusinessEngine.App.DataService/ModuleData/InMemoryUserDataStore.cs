@@ -154,10 +154,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
                 if (variable.VariableType == "AppModel")
                 {
                     var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectory);
-                    var dict = incomingData[variable.VariableName] as JObject;
-                    var data = dict.ToObject(type);
 
-                    moduleData.TryUpdate(variable.VariableName, data, moduleData[variable.VariableName]);
+                    moduleData.TryUpdate(variable.VariableName, incomingData[variable.VariableName], moduleData[variable.VariableName]);
                 }
                 else if (variable.VariableType == "AppModelList")
                 {

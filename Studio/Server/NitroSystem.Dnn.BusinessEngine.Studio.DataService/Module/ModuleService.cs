@@ -27,6 +27,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
         #region Module Services
 
+        public async Task<Guid> GetScenarioIdAsync(Guid moduleId)
+        {
+            return await _repository.GetColumnValueAsync<ModuleInfo, Guid>(moduleId, "ScenarioId");
+        }
+
         public async Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId)
         {
             var module = await _repository.GetAsync<ModuleView>(moduleId);

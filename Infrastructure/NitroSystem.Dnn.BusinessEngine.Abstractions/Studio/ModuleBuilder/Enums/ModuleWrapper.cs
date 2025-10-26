@@ -6,5 +6,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums
     {
         [Description("DnnPage")]
         DnnPage = 0,
+        [Description("Dashboard")]
+        Dashboard = 1,
     }
 }

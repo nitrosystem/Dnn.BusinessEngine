@@ -3,12 +3,11 @@ using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto;
 using System.Collections.Concurrent;
-using static System.Collections.Specialized.BitVector32;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middlewares
 {
@@ -30,7 +29,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middle
             {
                 foreach (var item in ctx.Action.Results)
                 {
-                    if (_service.Evaluate<bool>(item.Conditions, ctx.ModuleData))
+                    if (string.IsNullOrWhiteSpace(item.Conditions) || _service.Evaluate<bool>(item.Conditions, ctx.ModuleData))
                     {
                         var value = _service.Evaluate(item.RightExpression, ctx.ModuleData);
                         var setter = _service.BuildDataSetter(item.LeftExpression, ctx.ModuleData);
@@ -39,6 +38,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middle
                     }
                 }
             });
+
+            ctx.Result = new ActionResult() { Status = ActionResultStatus.Successful };
 
             var result = await next();
             return result;

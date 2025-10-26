@@ -113,6 +113,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="dashboard\dashboard.ascx.cs">
+      <DependentUpon>dashboard.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="dashboard\dashboard.ascx.designer.cs">
+      <DependentUpon>dashboard.ascx</DependentUpon>
+    </Compile>
     <Compile Include="module\module.ascx.cs">
       <DependentUpon>module.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -145,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\logo.ico" />
+    <Content Include="dashboard\dashboard.ascx" />
     <Content Include="data\sql-templates\create-entity.sql" />
     <Content Include="studio\module.css" />
     <Content Include="module\module.ascx" />

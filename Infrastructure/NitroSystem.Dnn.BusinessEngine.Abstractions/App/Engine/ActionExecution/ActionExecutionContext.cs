@@ -1,9 +1,7 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.Models;
+﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,14 +16,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution
     {
         public CancellationTokenSource CancellationTokenSource { get; }
         public override CancellationToken CancellationToken => CancellationTokenSource.Token;
-        public ActionDto Action { get; }
-        public ConcurrentDictionary<string, object> ModuleData { get; } // یا مدل ModuleData موجودت
+        public ActionDto Action { get; set; }
+        public ConcurrentDictionary<string, object> ModuleData { get; set; }
         public ActionResult Result { get; set; }
 
-        public ActionExecutionContext(ActionDto action, CancellationTokenSource ct)
+        public ActionExecutionContext(CancellationTokenSource ct)
         {
-            ModuleData = new ConcurrentDictionary<string, object>();
-            Action = action;
             CancellationTokenSource = ct;
         }
     }

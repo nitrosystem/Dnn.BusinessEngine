@@ -22,7 +22,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader
 
         public Type GetTypeFromAssembly(string relativePath, string typeFullName, string scenarioName, string basePath)
         {
-            ValidatePath(relativePath, basePath, scenarioName);
+            //ValidatePath(relativePath, basePath, scenarioName);
 
             var key = $"{relativePath}:{typeFullName}";
             var assemblyPath = Constants.MapPath(relativePath) + $@"\{typeFullName}.dll";
