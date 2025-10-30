@@ -1,4 +1,5 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
@@ -7,10 +8,13 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
+using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,12 +39,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             var styles = context.Get<string>("ModuleStyles");
             var outputDirectory = context.Get<string>("OutputDirectory");
             var outputRelativePath = context.Get<string>("OutputRelativePath");
+            var moduleKebabName = StringHelper.ToKebabCase(request.ModuleName);
 
             var fileTasks = new[]
             {
-                FileUtil.WriteFileContentAsync($"{outputDirectory}/{request.ModuleName}.html", moduleLayoutTemplate),
-                FileUtil.WriteFileContentAsync($"{outputDirectory}/{request.ModuleName}.js", scripts),
-                FileUtil.WriteFileContentAsync($"{outputDirectory}/{request.ModuleName}.css", styles)
+                FileUtil.WriteFileContentAsync($"{outputDirectory}/{moduleKebabName}.html", moduleLayoutTemplate),
+                FileUtil.WriteFileContentAsync($"{outputDirectory}/{moduleKebabName}.js", scripts),
+                FileUtil.WriteFileContentAsync($"{outputDirectory}/{moduleKebabName}.css", styles)
             };
 
             await Task.WhenAll(fileTasks);
@@ -52,7 +57,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             {
                 ModuleId = request.ModuleId.Value,
                 ResourceContentType = ModuleResourceContentType.Css,
-                ResourcePath = $"{outputRelativePath}/{request.ModuleName}.css",
+                ResourcePath = $"{outputRelativePath}/{moduleKebabName}.css",
                 LoadOrder = ++count
             });
 
@@ -60,13 +65,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             {
                 ModuleId = request.ModuleId.Value,
                 ResourceContentType = ModuleResourceContentType.Js,
-                ResourcePath = $"{outputRelativePath}/{request.ModuleName}.js",
+                ResourcePath = $"{outputRelativePath}/{moduleKebabName}.js",
                 LoadOrder = ++count
             });
 
             var resourcesFinalized = request.Module.ExternalResources.Concat(systemResources);
 
-            await _moduleService.DeleteModuleResourcesAsync(request.ModuleId.Value);
             await _moduleService.BulkInsertModuleOutputResourcesAsync(request.Module.SitePageId, resourcesFinalized);
 
             result.Success = true;

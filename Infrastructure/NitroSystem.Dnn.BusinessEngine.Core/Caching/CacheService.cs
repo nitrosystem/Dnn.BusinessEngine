@@ -101,5 +101,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Caching
             // همانند RemoveByPrefix ولی سریع‌تر و بدون چک مجدد
             RemoveByPrefix(prefix);
         }
+
+        public void ClearAll()
+        {
+            var cacheItems = _cache.AsEnumerable().ToList();
+            foreach (var item in cacheItems)
+            {
+                _cache.Remove(item.Key);
+            }
+
+            _cacheKeys.Clear();
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard

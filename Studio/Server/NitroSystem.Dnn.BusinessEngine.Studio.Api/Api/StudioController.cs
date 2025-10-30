@@ -40,6 +40,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     public class StudioController : DnnApiController
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly ICacheService _cacheService;
         private readonly IBrtGateService _brtGate;
         private readonly IBaseService _baseService;
         private readonly IEntityService _entityService;
@@ -50,15 +51,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         public StudioController(
             IServiceProvider serviceProvider,
+            ICacheService cacheService,
             IBrtGateService brtGate,
             IBaseService baseService,
             IEntityService entityService,
             IAppModelService appModelService,
             IServiceFactory serviceFactory,
             IDefinedListService definedListService,
-            IExtensionService extensionService)
+            IExtensionService extensionService
+            )
         {
             _serviceProvider = serviceProvider;
+            _cacheService = cacheService;
             _brtGate = brtGate;
             _baseService = baseService;
             _entityService = entityService;
@@ -66,6 +70,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _serviceFactory = serviceFactory;
             _definedListService = definedListService;
             _extensionService = extensionService;
+
         }
 
         #region Common
@@ -78,11 +83,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 HostController.Instance.Update("CrmVersion", (Host.CrmVersion + 1).ToString());
 
-                DataCache.ClearCache();
-
-                DataCache.ClearPortalCache(PortalSettings.PortalId, true);
-
-                DataCache.ClearHostCache(true);
+                _cacheService.ClearAll();
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
@@ -636,11 +637,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         #region Defined Lists
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetDefinedListByListName(string listName)
+        public async Task<HttpResponseMessage> GetDefinedListByListName(string listName = "")
         {
             try
             {
-                var definedList = await _definedListService.GetDefinedListByListName(listName);
+                var definedList = !string.IsNullOrEmpty(listName)
+                    ? await _definedListService.GetDefinedListByListName(listName)
+                    : null;
 
                 return Request.CreateResponse(HttpStatusCode.OK, definedList);
             }
@@ -656,6 +659,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
+                definedList.ScenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+
                 definedList.Id = await _definedListService.SaveDefinedList(definedList, definedList.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, definedList.Id);

@@ -11,5 +11,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts
         void Remove(string key);
         void RemoveByPrefix(string prefix);
         void ClearByPrefix(string prefix);
+        void ClearAll();
     }
 }

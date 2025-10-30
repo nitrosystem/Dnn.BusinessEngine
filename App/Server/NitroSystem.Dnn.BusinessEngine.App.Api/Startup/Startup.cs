@@ -21,6 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
         {
             services.AddSingleton<IUserDataStore, InMemoryUserDataStore>();
 
+            services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IActionService, ActionService>();
 
@@ -36,6 +37,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
             services.AddScoped<ActionWorkerMiddleware>();
             services.AddScoped<ActionSetResultMiddleware>();
 
+            DashboardMappingProfile.Register();
             ModuleMappingProfile.Register();
             ActionMappingProfile.Register();
         }

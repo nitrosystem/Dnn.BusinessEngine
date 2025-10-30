@@ -11,6 +11,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public string SkinImage { get; set; }
         public string Template { get; set; }
         public string TemplatePath { get; set; }
+        public string TemplateCssPath { get; set; }
         public string TemplateImage { get; set; }
         public string Theme { get; set; }
     }

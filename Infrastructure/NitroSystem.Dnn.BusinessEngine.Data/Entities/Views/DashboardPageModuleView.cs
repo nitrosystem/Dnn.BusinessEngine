@@ -15,10 +15,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public Guid PageId { get; set; }
         public Guid ModuleId { get; set; }
         public Guid? ParentId { get; set; }
-        public string PageName { get; set; }
+        public int Wrapper { get; set; }
         public int ModuleType { get; set; }
-        public string ModuleBuilderType { get; set; }
         public string ModuleName { get; set; }
         public string ModuleTitle { get; set; }
+        public string Template { get; set; }
     }
 }

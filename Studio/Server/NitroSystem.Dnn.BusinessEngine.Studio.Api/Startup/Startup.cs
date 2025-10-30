@@ -20,6 +20,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
 {
@@ -34,8 +35,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<IBrtGateService, InMemoryBrtGate>();
 
             services.AddScoped<IExtensionService, ExtensionService>();
-
             services.AddScoped<IDefinedListService, DefinedListService>();
+
+            services.AddScoped<IDashboardService, DashboardService>();
 
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IModuleFieldService, ModuleFieldService>();
@@ -68,6 +70,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             AppModelMappingProfile.Register();
             ServiceMappingProfile.Register();
             ModuleMappingProfile.Register();
+            DashboardMappingProfile.Register();
             ActionMappingProfile.Register();
             TemplateMappingProfile.Register();
             ExtensionMappingProfile.Register();

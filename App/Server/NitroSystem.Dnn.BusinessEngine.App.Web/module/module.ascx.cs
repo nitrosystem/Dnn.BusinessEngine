@@ -1,29 +1,19 @@
 ﻿using System;
-using System.Globalization;
 using System.Web.UI;
 using System.Web.Helpers;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Modules.Actions;
-using DotNetNuke.Data;
-using System.Data.SqlClient;
-using System.Data;
-using DotNetNuke.Common.Utilities;
 using DotNetNuke.Framework;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Models;
+using System.Collections.Generic;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
     public partial class Module : PortalModuleBase, IActionable
     {
+        private string _scenarioName;
+        private Guid? _id;
+
         #region Properties
-
-        private Guid? _id { get; set; }
-
-        private string _scenarioName { get; set; }
-
-        private string _moduleName { get; set; }
 
         private string _siteRoot
         {
@@ -56,105 +46,23 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             lnkModuleBuilder.PostBackUrl = _studioUrl;
         }
 
-        protected void Page_PreRender(object sender, EventArgs e)
-        {
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             var code = AntiForgery.GetHtml().ToHtmlString();
             pnlAntiForgery.Controls.Add(new LiteralControl(code));
 
-            var module = GetModuleLiteData();
+            var templates = ModuleService.RenderModule(this.Page, PortalSettings.HomeSystemDirectory, false,ModuleId, ref _id, out _scenarioName);
+            pnlTemplate.InnerHtml = templates.Template;
 
-            if (module != null)
+            if (_id.HasValue)
             {
-                _id = module.Id;
-                _scenarioName = module.ScenarioName;
-                _moduleName = module.ModuleName;
-
-                var connectionId = Guid.NewGuid();
-                var rtlCssClass = CultureInfo.CurrentCulture.TextInfo.IsRightToLeft ? "b--rtl" : "";
-
-                CtlPageResource.ModuleId = module.Id;
-                CtlPageResource.ModuleName = module.ModuleName;
-                CtlPageResource.DnnTabId = this.TabId;
-                CtlPageResource.IsModuleInAllTabs = this.ModuleConfiguration.AllTabs;
+                CtlPageResource.DnnTabId = TabId;
+                CtlPageResource.ModuleIds = new HashSet<Guid>(new Guid[1] { _id.Value });
                 CtlPageResource.RegisterPageResources();
-
-                var templates = GetTemplates();
-                pnlTemplate.InnerHtml = $@"
-                <div b-controller=""moduleController"" data-module=""{module.Id}"" data-connection=""{connectionId}"" class=""b--module {rtlCssClass}"">
-                    {templates.Template}
-                </div>";
             }
         }
 
         #endregion
-
-        private ModuleLiteData GetModuleLiteData()
-        {
-            var cacheKey = "BE_Modules_" + this.ModuleId;
-            var module = DataCache.GetCache<ModuleLiteData>(cacheKey);
-
-            if (module == null)
-            {
-                using (var connection = new SqlConnection(DataProvider.Instance().ConnectionString))
-                {
-                    connection.Open();
-
-                    using (var command = new SqlCommand("dbo.BusinessEngine_App_GetModuleLite", connection))
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.Parameters.AddWithValue("@SiteModuleId", this.ModuleId);
-
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                module = new ModuleLiteData()
-                                {
-                                    Id = reader["Id"] as Guid?,
-                                    ScenarioName = reader["ScenarioName"] as string,
-                                    ModuleName = reader["ModuleName"] as string,
-                                    ModuleVersion = reader["ModuleVersion"] as int?
-                                };
-
-                                DataCache.SetCache(cacheKey, module);
-                            }
-                        }
-                    }
-
-                    connection.Close();
-                }
-            }
-
-            return module;
-        }
-
-        private (string Preloader, string Template) GetTemplates()
-        {
-            var cacheKey = "BE_Modules_Template" + this.ModuleId;
-            var data = DataCache.GetCache<(string Preloader, string Template)>(cacheKey);
-            var preloader = data.Preloader;
-            var template = data.Template;
-
-            if (string.IsNullOrEmpty(template))
-            {
-                string moduleFolder = StringHelper.ToKebabCase(_moduleName);
-                string scenarioFolder = StringHelper.ToKebabCase(_scenarioName);
-                string modulePath = this.PortalSettings.HomeSystemDirectory + @"business-engine/";
-                string moduleTemplateUrl = $"{modulePath}/{scenarioFolder}/{moduleFolder}/{_moduleName}.html";
-
-                template = FileUtil.GetFileContent(MapPath(moduleTemplateUrl));
-
-                data = ("", template);
-
-                DataCache.SetCache(cacheKey, data);
-            }
-
-            return data;
-        }
 
         #region IActionable
 

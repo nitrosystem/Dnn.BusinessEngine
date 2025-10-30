@@ -25,6 +25,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
         private readonly IServiceProvider _serviceProvider;
         private readonly IUserDataStore _userDataStore;
         private readonly IBuildBufferService _buildBufferService;
+        private readonly IDashboardService _dashboardService;
         private readonly IModuleService _moduleService;
         private readonly IActionService _actionService;
 
@@ -32,6 +33,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
             IServiceProvider serviceProvider,
             IBuildBufferService buildBufferService,
             IUserDataStore userDataStore,
+            IDashboardService dashboardService,
             IModuleService moduleService,
             IActionService actionService
         )
@@ -40,22 +42,21 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
             _userDataStore = userDataStore;
             _buildBufferService = buildBufferService;
             _moduleService = moduleService;
+            _dashboardService = dashboardService;
             _actionService = actionService;
         }
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<HttpResponseMessage> GetModule(Guid moduleId, string connectionId, string pageUrl)
+        public async Task<HttpResponseMessage> GetModule(Guid moduleId, bool isDashboard, string connectionId, string pageUrl)
         {
             try
             {
-                var module = await _moduleService.GetModuleViewModelAsync(moduleId);
-                if (module == null) throw new Exception("Module Not Config");
-
-                //await _actionWorker.CallActions(moduleData, moduleId, null, "OnPageLoad");
+                var dashboard = isDashboard
+                    ? await _dashboardService.GetDashboardDtoAsync(moduleId)
+                    : null;
 
                 var moduleData = new ConcurrentDictionary<string, object>();
-
                 var actionIds = await _actionService.GetActionIdsAsync(moduleId, null, "OnPageLoad");
                 if (actionIds.Any())
                 {
@@ -82,6 +83,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
+                    dashboard,
                     fields,
                     actions,
                     data,

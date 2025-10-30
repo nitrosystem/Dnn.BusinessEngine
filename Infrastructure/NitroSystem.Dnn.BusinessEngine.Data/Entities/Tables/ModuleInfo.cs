@@ -12,6 +12,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
     {
         public Guid Id { get; set; }
         public Guid ScenarioId { get; set; }
+        public Guid? ParentId { get; set; }
         public int PortalId { get; set; }
         public int? SiteModuleId { get; set; }
         public int Wrapper { get; set; }

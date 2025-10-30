@@ -27,11 +27,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
         #region Module Services
 
-        public async Task<Guid> GetScenarioIdAsync(Guid moduleId)
-        {
-            return await _repository.GetColumnValueAsync<ModuleInfo, Guid>(moduleId, "ScenarioId");
-        }
-
         public async Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId)
         {
             var module = await _repository.GetAsync<ModuleView>(moduleId);
@@ -44,6 +39,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             var modules = await _repository.GetByScopeAsync<ModuleView>(scenarioId);
 
             return HybridMapper.MapCollection<ModuleView, ModuleViewModel>(modules);
+        }
+
+        public async Task<Guid> GetScenarioIdAsync(Guid moduleId)
+        {
+            return await _repository.GetColumnValueAsync<ModuleInfo, Guid>(moduleId, "ScenarioId");
         }
 
         public async Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew)
@@ -123,6 +123,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             var fieldsSettings = data.Item2;
             var resources = data.Item3;
             var externalResources = data.Item4;
+            var parentModuleName = module.ParentId.HasValue
+                ? await _repository.GetColumnValueAsync<ModuleInfo, string>(module.ParentId.Value, "ModuleName")
+                : string.Empty;
 
             var builder = new CollectionMappingBuilder<ModuleView, ModuleDto>();
 
@@ -155,7 +158,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
               assign: (dest, children) => dest.ExternalResources = children.ToList()
            );
 
-            var result = await builder.BuildAsync(module);
+            var result = await builder.BuildAsync(
+                source: module,
+                afterMap: async (src, dest) =>
+                {
+                    if (src.ParentId.HasValue)
+                        dest.ParentModuleName = parentModuleName;
+                });
+
             return result;
         }
 
@@ -181,3 +191,82 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
         #endregion
     }
 }
+
+//    using (var reader = await spResourceReaderTask)
+//    {
+//        while (reader.Read())
+//        {
+//            resourcesToBuild.Add(new BuildModuleResourceDto()
+//            {
+//                ModuleId = GlobalHelper.GetSafeGuid(reader["ModuleId"]),
+//                ResourceType = (ResourceType)reader["ResourceType"],
+//                ActionType = (ActionType)reader["ActionType"],
+//                ResourcePath = GlobalHelper.GetSafeString(reader["ResourcePath"]),
+//                EntryType = GlobalHelper.GetSafeString(reader["EntryType"]),
+//                Additional = GlobalHelper.GetSafeString(reader["Additional"]),
+//                CacheKey = GlobalHelper.GetSafeString(reader["CacheKey"]),
+//                Condition = GlobalHelper.GetSafeString(reader["Condition"]),
+//                LoadOrder = GlobalHelper.GetSafeInt(reader["LoadOrder"])
+//            });
+//        }
+//    }
+
+//#region Build Module Services
+
+//public async Task BuildModuleAsync(Guid moduleId, PortalSettings portalSettings, HttpContext context)
+//{
+//    
+
+//    var pageId = await spPageIdTask;
+//    
+
+//    var moduleToBuild = HybridMapper.Map<ModuleView, BuildModuleDto>(module);
+//    var fieldsToBuild = HybridMapper.MapCollection<ModuleFieldInfo, BuildModuleFieldDto>(fields,
+//        (src, dest) =>
+//        {
+//            var dict = fieldsSettings.GroupBy(c => c.FieldId)
+//                             .ToDictionary(g => g.Key, g => g.AsEnumerable());
+
+//            var items = dict.TryGetValue(src.Id, out var settings);
+//            dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+
+//            dest.GlobalSettings = ReflectionUtil.ConvertDictionaryToObject<ModuleFieldGlobalSettings>(dest.Settings);
+//        });
+
+//    var resourcesToBuild = new List<BuildModuleResourceDto>();
+//    using (var reader = await spResourceReaderTask)
+//    {
+//        while (reader.Read())
+//        {
+//            resourcesToBuild.Add(new BuildModuleResourceDto()
+//            {
+//                ModuleId = GlobalHelper.GetSafeGuid(reader["ModuleId"]),
+//                ResourceType = (ResourceType)reader["ResourceType"],
+//                ActionType = (ActionType)reader["ActionType"],
+//                ResourcePath = GlobalHelper.GetSafeString(reader["ResourcePath"]),
+//                EntryType = GlobalHelper.GetSafeString(reader["EntryType"]),
+//                Additional = GlobalHelper.GetSafeString(reader["Additional"]),
+//                CacheKey = GlobalHelper.GetSafeString(reader["CacheKey"]),
+//                Condition = GlobalHelper.GetSafeString(reader["Condition"]),
+//                LoadOrder = GlobalHelper.GetSafeInt(reader["LoadOrder"])
+//            });
+//        }
+//    }
+
+//    var status = await _buildModule.PrepareBuild(moduleToBuild, _repository, portalSettings);
+//    if (status.IsReadyToBuild)
+//    {
+//        var pageResources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("SitePageId", pageId);
+//        var pageResourcesDto = HybridMapper.MapCollection<PageResourceInfo, PageResourceDto>(pageResources);
+
+//        var finalResources = await _buildModule.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
+//        var mappedResources = HybridMapper.MapCollection<PageResourceDto, PageResourceInfo>(finalResources);
+//        await _repository.BulkInsertAsync<PageResourceInfo>(mappedResources);
+
+//        _cacheService.ClearByPrefix("BE_Modules_");
+//    }
+//    else if (status.ExceptionError != null)
+//        throw status.ExceptionError ?? throw new Exception("The module is not ready to be build!");
+//}
+
+//#endregion

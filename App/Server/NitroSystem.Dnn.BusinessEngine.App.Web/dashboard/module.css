@@ -1,0 +1,36 @@
+/* module builder button*/
+.b--module-builder {
+    box-shadow: -6px 8px 10px rgba(81,41,10,0.1),0px 2px 2px rgba(81,41,10,0.2);
+    border: .1em solid #4a4b4c;
+    border-radius: .5rem;
+    box-sizing: border-box;
+    position: absolute;
+    top: -2.15em;
+    opacity: .1;
+    font-size: 14px;
+    appearance: button;
+    margin: 0;
+    padding: .4em .5em;
+    user-select: none;
+    touch-action: manipulation;
+    text-transform: none;
+    text-decoration: none;
+    transition: all .1s cubic-bezier(.4, 0, .2, 1);
+    -webkit-user-select: none;
+    z-index: 9999;
+}
+
+    .b--module-builder:hover {
+        opacity: 1;
+        text-decoration: none;
+    }
+
+    .b--module-builder:active {
+        background-color: #f3f4f6;
+        box-shadow: -1px 2px 5px rgba(81,41,10,0.15),0px 1px 1px rgba(81,41,10,0.15);
+        transform: translateY(0.125rem);
+    }
+
+    .b--module-builder:focus {
+        box-shadow: rgba(72, 35, 7, .46) 0 0 0 4px, -6px 8px 10px rgba(81,41,10,0.1), 0px 2px 2px rgba(81,41,10,0.2);
+    }

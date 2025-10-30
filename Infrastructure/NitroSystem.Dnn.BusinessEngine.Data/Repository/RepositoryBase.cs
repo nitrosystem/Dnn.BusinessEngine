@@ -195,7 +195,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             if (!typeof(T).GetProperties().Any(p => columns.Contains(p.Name)))
                 throw new ArgumentException($"Invalid column name.");
 
-            string condition = string.Join(" or ", columns.Select(column => $"{column} = @{column}"));
+            string condition = string.Join(" and ", columns.Select(column => $"{column} = @{column}"));
 
             var table = AttributeCache.Instance.GetTableName<T>();
             var query = $"SELECT * FROM {table} WHERE {condition}";

@@ -1,4 +1,4 @@
-﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums
+﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums
 {
     public enum DashboardPageType
     {

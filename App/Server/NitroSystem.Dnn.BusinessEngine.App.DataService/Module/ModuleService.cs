@@ -52,8 +52,10 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
                                : null;
 
                     var dict = fieldsSettings.GroupBy(c => c.FieldId).ToDictionary(g => g.Key, g => g.AsEnumerable());
-                    var items = dict.TryGetValue(src.Id, out var settings);
-                    dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+                    if (dict.TryGetValue(src.Id, out var settings))
+                        dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+                    else
+                        dest.Settings = new Dictionary<string, object>();
                 }
             );
         }
@@ -64,10 +66,10 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
 
             FieldDataSourceResult result = HybridMapper.Map<FieldDataSourceInfo, FieldDataSourceResult>(dataSource);
 
-            if ((dataSource.Type == FieldDataSourceType.StaticItems || dataSource.Type == FieldDataSourceType.UseDefinedList) &&
-                dataSource.ListId != null)
+            if ((dataSource.Type == FieldDataSourceType.FieldOptions || dataSource.Type == FieldDataSourceType.DefinedList) &&
+                !string.IsNullOrEmpty(dataSource.ListName))
             {
-                result.Items = await _repository.GetByScopeAsync<DefinedListItemView>(dataSource.ListId); ;
+                result.Items = await _repository.GetByScopeAsync<DefinedListItemView>(dataSource.ListName); ;
             }
 
             return result;

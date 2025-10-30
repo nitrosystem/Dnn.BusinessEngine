@@ -54,6 +54,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dashboard\DashboardMappingProfile.cs" />
+    <Compile Include="Dashboard\DashboardService.cs" />
     <Compile Include="ModuleData\InMemoryUserDataStore.cs" />
     <Compile Include="Module\ModuleMappingProfile.cs" />
     <Compile Include="Action\ActionMappingProfile.cs" />

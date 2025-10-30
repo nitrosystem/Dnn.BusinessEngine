@@ -107,9 +107,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                 moreAssigns: (src, dest) =>
                 {
                     var dict = fieldsSettings.GroupBy(c => c.FieldId).ToDictionary(g => g.Key, g => g.AsEnumerable());
-                    var items = dict.TryGetValue(src.Id, out var settings);
-                    dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
-
+                    if (dict.TryGetValue(src.Id, out var settings))
+                        dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+                    else
+                        dest.Settings = new Dictionary<string, object>();
                 }
             );
         }

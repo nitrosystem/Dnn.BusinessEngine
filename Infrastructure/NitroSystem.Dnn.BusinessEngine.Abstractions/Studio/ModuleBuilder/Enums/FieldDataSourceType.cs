@@ -2,8 +2,8 @@
 {
     public enum FieldDataSourceType
     {
-        StaticItems = 0,
-        UseDefinedList = 1,
+        FieldOptions = 0,
+        DefinedList = 1,
         VariableData = 2
     }
 }

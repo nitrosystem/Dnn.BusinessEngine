@@ -24,6 +24,9 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -33,6 +36,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IServiceProvider _serviceProvider;
         private readonly IBaseService _baseService;
         private readonly IAppModelService _appModelServices;
+        private readonly IDashboardService _dashboardService;
         private readonly IModuleService _moduleService;
         private readonly IModuleFieldService _moduleFieldService;
         private readonly IModuleVariableService _moduleVariableService;
@@ -44,6 +48,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             IServiceProvider serviceProvider,
             IBaseService globalService,
             IAppModelService appModelService,
+            IDashboardService dashboardService,
             IModuleService moduleService,
             IModuleFieldService moduleFieldService,
             IModuleVariableService moduleVariableService,
@@ -55,6 +60,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _serviceProvider = serviceProvider;
             _baseService = globalService;
             _appModelServices = appModelService;
+            _dashboardService = dashboardService;
             _moduleService = moduleService;
             _moduleFieldService = moduleFieldService;
             _moduleVariableService = moduleVariableService;
@@ -62,6 +68,244 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _actionService = actionService;
             _templateService = templateService;
         }
+
+        #region Create Dashboard
+
+        #region 1-Basic Options
+
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetDashboardBasicOptions(Guid moduleId)
+        {
+            try
+            {
+                var dashboard = await _dashboardService.GetDashboardViewModelAsync(moduleId);
+
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    Dashboard = dashboard
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> SaveDashboardBasicInfo(DashboardViewModel dashboard)
+        {
+            try
+            {
+                var result = await _dashboardService.SaveDashboardAsync(dashboard);
+
+                return Request.CreateResponse(HttpStatusCode.OK,
+                    new { DashboardId = result.Item1, ModuleId = result.Item2 });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        #endregion
+
+        #region 2-Dashboard Appearance
+
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetDashboardAppearance(Guid moduleId)
+        {
+            try
+            {
+                var dashboard = await _dashboardService.GetDashboardAppearanceAsync(moduleId);
+                var skins = await _dashboardService.GetDashboardSkinsViewModelAsync();
+
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    Dashboard = dashboard,
+                    Skins = skins
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> SaveDashboardAppearance(DashboardAppearanceViewModel dashboard)
+        {
+            try
+            {
+                await _dashboardService.SaveDashboardAppearanceAsync(dashboard);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        #endregion
+
+        //#region 3-Dashboard Pages
+
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetDashboardPages(Guid moduleId)
+        {
+            try
+            {
+                var dashboard = await _dashboardService.GetDashboardViewModelAsync(moduleId);
+                var pages = await _dashboardService.GetDashboardPagesViewModelAsync(moduleId);
+
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    Dashboard = dashboard,
+                    Pages = pages,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetDashboardPage(Guid moduleId)
+        {
+            return await GetDashboardPage(moduleId, Guid.Empty);
+        }
+
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetDashboardPage(Guid moduleId, Guid pageId)
+        {
+            try
+            {
+                var dashboardId = await _dashboardService.GetDashboardIdAsync(moduleId);
+                var pages = await _dashboardService.GetDashboardPagesListItemAsync(moduleId);
+                var page = pageId != Guid.Empty
+                    ? await _dashboardService.GetDashboardPageViewModelAsync(pageId)
+                    : null;
+
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    DashboardId = dashboardId,
+                    Pages = pages,
+                    Page = page,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> SaveDashboardPage(DashboardPageViewModel page)
+        {
+            try
+            {
+                var result = await _dashboardService.SaveDashboardPageAsync(page);
+
+                return Request.CreateResponse(HttpStatusCode.OK, result);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> SortDashboardPages(DashboardPagesOrder dashboard)
+        {
+            try
+            {
+                await _dashboardService.SortDashboardPages(dashboard);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> UpdatePageParent(UpdateDashboardPageParent page)
+        {
+            try
+            {
+                await _dashboardService.UpdatePageParent(page);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> DeleteDashboardPage(GuidInfo postData)
+        {
+            try
+            {
+                await _dashboardService.DeletePageAsync(postData.Id);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        ////[HttpPost]
+        ////[ValidateAntiForgeryToken]
+        ////public HttpResponseMessage DeleteDashboardPageModule(GuidDTO postData)
+        ////{
+        ////    try
+        ////    {
+        ////        DashboardPageModuleRepository.Instance.DeleteModuleByModuleId(postData.Id);
+        ////        ModuleRepository.Instance.DeleteModule(postData.Id);
+
+        ////        return Request.CreateResponse(HttpStatusCode.OK);
+        ////    }
+        ////    catch (Exception ex)
+        ////    {
+
+        ////        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        ////    }
+        ////}
+
+        //#endregion
+
+        //#region 4-Dashboard Modules
+
+        //[HttpGet]
+        //public async Task<HttpResponseMessage> GetDashboardModules(Guid moduleId)
+        //{
+        //    try
+        //    {
+        //        var modules = await _dashboardService.GetDashboardPagesModule(moduleId);
+
+        //        return Request.CreateResponse(HttpStatusCode.OK, modules);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
+
+        //#endregion
+
+        #endregion
 
         #region Create Module
 
@@ -130,7 +374,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
-                var templates = await _templateService.GetTemplatesViewModelAsync(module.ModuleType);
+                var templates = module.Wrapper == ModuleWrapper.Dashboard
+                ? await _dashboardService.GetTemplates(module.ModuleType, module.ParentId.Value)
+                : await _templateService.GetTemplatesViewModelAsync(module.ModuleType);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -492,7 +738,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 request.Scope = BuildScope.Module;
                 request.BasePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(module.ScenarioName)}/";
 
-                var engine = new BuildModuleEngine(_serviceProvider);
+                var engine = new BuildModuleEngine(_serviceProvider, _moduleService);
                 await engine.ExecuteAsync(request);
 
                 return Request.CreateResponse(HttpStatusCode.OK);

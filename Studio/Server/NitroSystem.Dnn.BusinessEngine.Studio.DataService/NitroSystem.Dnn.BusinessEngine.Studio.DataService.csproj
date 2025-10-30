@@ -51,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dashboard\DashboardService.cs" />
+    <Compile Include="Dashboard\DashboardMappingProfile.cs" />
     <Compile Include="Extension\ExtensionMappingProfile.cs" />
     <Compile Include="Extension\ExtensionService.cs" />
     <Compile Include="Module\ModuleFieldService.cs" />

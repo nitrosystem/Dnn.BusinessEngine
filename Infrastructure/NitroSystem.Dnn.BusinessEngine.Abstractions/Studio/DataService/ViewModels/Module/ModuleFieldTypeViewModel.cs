@@ -17,7 +17,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public bool IsContentField { get; set; }
         public bool CanHaveValue  { get; set; }
         public bool HasDataSource { get; set; }
-        public object DefaultSettings { get; set; }
         public string ValidationPattern { get; set; }
         public string Icon { get; set; }
         public string Description { get; set; }
@@ -25,5 +24,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public int GroupViewOrder { get; set; }
         public IEnumerable<ModuleFieldTypeTemplateViewModel> Templates { get; set; }
         public IEnumerable<ModuleFieldTypeThemeViewModel> Themes { get; set; }
+        public IDictionary<string, object> DefaultSettings { get; set; }
     }
 }

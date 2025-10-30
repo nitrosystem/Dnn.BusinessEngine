@@ -46,7 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App\DataService\Contracts\IDashboardService.cs" />
     <Compile Include="App\DataService\Contracts\IUserDataStore.cs" />
+    <Compile Include="App\DataService\Dto\DashboardDto.cs" />
+    <Compile Include="App\DataService\Dto\DashboardPageDto.cs" />
     <Compile Include="App\Engine\ActionExecution\Contracts\IActionExecutor.cs" />
     <Compile Include="App\DataService\Contracts\IActionService.cs" />
     <Compile Include="App\DataService\Contracts\IModuleService.cs" />
@@ -87,7 +90,7 @@
     <Compile Include="Studio\DataService\Contracts\IModuleLibraryAndResourceService.cs" />
     <Compile Include="Studio\DataService\Contracts\IModuleVariable.cs" />
     <Compile Include="Studio\DataService\Enums\ActionTypeExecutionScope.cs" />
-    <Compile Include="Studio\DataService\Enums\DashboardPageType.cs" />
+    <Compile Include="Shared\Enums\DashboardPageType.cs" />
     <Compile Include="Studio\DataService\Enums\EntityType.cs" />
     <Compile Include="Studio\DataService\Enums\LibraryOrResource.cs" />
     <Compile Include="Studio\DataService\ListItems\ActionListItem.cs" />

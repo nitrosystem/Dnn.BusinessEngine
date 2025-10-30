@@ -12,11 +12,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
     {
         public Guid Id { get; set; }
         public Guid ListId { get; set; }
-        public int ItemLevel { get; set; }
-        public string ParentValue { get; set; }
         public string Text { get; set; }
         public string Value { get; set; }
-        public string Data { get; set; }
         public int ViewOrder { get; set; }
     }
 }

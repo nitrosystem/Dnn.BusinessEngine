@@ -16,9 +16,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public string TemplateName { get; set; }
         public string TemplateImage { get; set; }
         public string TemplatePath { get; set; }
-        public string PreviewImages { get; set; }
-        public string JsFiles { get; set; }
-        public string CssFiles { get; set; }
+        public string TemplateCssPath { get; set; }
         public string Description { get; set; }
         public int ViewOrder { get; set; }
     }

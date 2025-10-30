@@ -19,24 +19,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
     {
         #region Properties
 
-        public Guid? ModuleId { get; set; }
-
-        public string ModuleName { get; set; }
-
         public int DnnTabId { get; set; }
 
-        public bool IsModuleInAllTabs { get; set; }
+        public HashSet<Guid> ModuleIds { get; set; }
 
         public Control PanelResourcesControl { get; set; }
-
-        public string SiteRoot
-        {
-            get
-            {
-                string domainName = DotNetNuke.Common.Globals.AddHTTP(DotNetNuke.Common.Globals.GetDomainName(this.Context.Request)) + "/";
-                return domainName;
-            }
-        }
 
         public string Version
         {
@@ -65,7 +52,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
         {
             try
             {
-                if (this.ModuleId != null)
+                if (this.DnnTabId != 0)
                 {
                     if (this.Page.Header.FindControl("b-baseScript") == null)
                     {
@@ -106,9 +93,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                     var resources = ExecuteQuery<ModuleOutputResourceDto>("dbo.BusinessEngine_App_GetModuleOutputResources", CommandType.StoredProcedure,
                         new Dictionary<string, object>
                         {
-                            { "@Type", 1 } ,
                             { "@PageId",  this.DnnTabId },
-                            { "@ModuleId", this.ModuleId }
+                            { "@ModuleIds", string.Join(",", this.ModuleIds) }
                         }
                     );
 
@@ -134,7 +120,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                     //}
                 }
             }
-            catch (Exception exc) //Module failed to load
+            catch (Exception exc)
             {
                 Exceptions.ProcessModuleLoadException(this, exc);
             }
@@ -142,42 +128,10 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
 
         private void RegisterPageResources(ModuleResourceContentType resourceType, string resourcePath, int priority)
         {
-            //if (this.IsPanel && this.PanelResourcesControl != null)
-            //{
-            //	if (resourceType == "css")
-            //	{
-            //		bool notFound = true;
-
-            //		if (1 == 1 || CultureInfo.CurrentCulture.TextInfo.IsRightToLeft)
-            //		{
-            //			string rtlFilePath = string.Empty;
-            //			var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(resourcePath);
-            //			if (!string.IsNullOrEmpty(fileNameWithoutExtension) && fileNameWithoutExtension.ToLower().EndsWith(".min"))
-            //				rtlFilePath = Path.GetDirectoryName(resourcePath) + @"\" + Path.GetFileNameWithoutExtension(fileNameWithoutExtension) + ".rtl.min" + Path.GetExtension(resourcePath);
-            //			else
-            //				rtlFilePath = Path.GetDirectoryName(resourcePath) + @"\" +
-            //					Path.GetFileNameWithoutExtension(resourcePath) + ".rtl" + Path.GetExtension(resourcePath);
-
-            //			if (File.Exists(MapPath(rtlFilePath)))
-            //			{
-            //				Core.Infrastructure.ClientResources.ClientResourceManager.RegisterStyleSheet(this.PanelResourcesControl, rtlFilePath, this.Version);
-            //				notFound = false;
-            //			}
-            //		}
-
-            //		if (notFound) Core.Infrastructure.ClientResources.ClientResourceManager.RegisterStyleSheet(this.PanelResourcesControl, resourcePath, this.Version);
-
-            //	}
-            //	if (resourceType == "js")
-            //		Core.Infrastructure.ClientResources.ClientResourceManager.RegisterScript(this.PanelResourcesControl, resourcePath, this.Version);
-            //}
-            //else
-            //{
             if (resourceType == ModuleResourceContentType.Css)
                 ClientResourceManager.RegisterStyleSheet(base.Page, resourcePath, priority);
             if (resourceType == ModuleResourceContentType.Js)
                 ClientResourceManager.RegisterScript(base.Page, resourcePath, priority);
-            //}
         }
 
         private static List<T> ExecuteQuery<T>(string queryOrSp, CommandType commandType, Dictionary<string, object> parameters = null) where T : new()

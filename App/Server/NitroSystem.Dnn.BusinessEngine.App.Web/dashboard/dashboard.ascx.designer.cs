@@ -33,12 +33,12 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
         protected global::NitroSystem.Dnn.BusinessEngine.App.Web.PageResources CtlPageResource;
 
         /// <summary>
-        /// lnkDashboardBuilder control.
+        /// pnlTemplate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton lnkDashboardBuilder;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl pnlTemplate;
     }
 }

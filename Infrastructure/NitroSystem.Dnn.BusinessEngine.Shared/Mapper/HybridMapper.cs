@@ -148,6 +148,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
                 assignChildren(parentDest, childDestList);
             }
 
+            if(moreAssigns!=null)
+                moreAssigns?.Invoke(source, parentDest);
+
             return parentDest;
         }
 
@@ -178,6 +181,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Mapper
                 var key = parentKeySelector(parent);
                 if (key != null && lookup.TryGetValue(key, out var cList))
                     assignChildren(pDest, cList);
+
+                if (moreAssigns != null)
+                    moreAssigns?.Invoke(parent, pDest);
 
                 yield return pDest;
             }

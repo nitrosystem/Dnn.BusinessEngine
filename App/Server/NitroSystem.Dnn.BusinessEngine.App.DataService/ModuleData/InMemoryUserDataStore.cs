@@ -151,25 +151,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
             var variables = await _moduleService.GetModuleVariables(moduleId, ModuleVariableScope.Global);
             foreach (var variable in variables.Where(v => moduleData.Keys.Contains(v.VariableName) && incomingData.Keys.Contains(v.VariableName)))
             {
-                if (variable.VariableType == "AppModel")
-                {
-                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectory);
-
-                    moduleData.TryUpdate(variable.VariableName, incomingData[variable.VariableName], moduleData[variable.VariableName]);
-                }
-                else if (variable.VariableType == "AppModelList")
-                {
-                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, portalSettings.HomeSystemDirectory);
-                    var dict = incomingData[variable.VariableName] as JArray;
-                    var listType = typeof(List<>).MakeGenericType(type);
-                    var data = dict.ToObject(listType);
-
-                    moduleData.TryUpdate(variable.VariableName, data, moduleData[variable.VariableName]);
-                }
-                else
-                {
-                    moduleData.TryUpdate(variable.VariableName, incomingData[variable.VariableName], moduleData[variable.VariableName]);
-                }
+                moduleData.TryUpdate(variable.VariableName, incomingData[variable.VariableName], moduleData[variable.VariableName]);
             }
 
             return moduleData;

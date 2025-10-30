@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
@@ -19,7 +20,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
     {
         private readonly EnginePipeline<BuildModuleRequest, BuildModuleResponse> _pipeline;
 
-        public BuildModuleEngine(IServiceProvider services)
+        private readonly IModuleService _moduleService;
+
+        public BuildModuleEngine(IServiceProvider services, IModuleService moduleService)
             : base(services)
         {
             _pipeline = new EnginePipeline<BuildModuleRequest, BuildModuleResponse>()
@@ -27,29 +30,33 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             .Use<MergeResourcesMiddleware>()
             .Use<ResourceAggregatorMiddleware>();
 
+            _moduleService = moduleService;
+
             OnError += OnErrorHandle;
         }
 
         protected override Task OnInitializeAsync(BuildModuleRequest request)
         {
-            var moduleFolder = StringHelper.ToKebabCase(request.ModuleName);
-            var outputDirectory = Constants.MapPath(request.BasePath + moduleFolder);
-         
-            if (Directory.Exists(outputDirectory))
-                Directory.Delete(outputDirectory, true);
+            if (request.Module.Wrapper == ModuleWrapper.Dashboard)
+                request.BasePath = Path.Combine(request.BasePath, StringHelper.ToKebabCase(request.Module.ParentModuleName));
 
-            Directory.CreateDirectory(outputDirectory);
+            var moduleFolder = StringHelper.ToKebabCase(request.ModuleName);
+            var outputDirectory = Constants.MapPath($"{request.BasePath}/{moduleFolder}");
+            var relativeDirectory = $"{request.BasePath}/{moduleFolder}";
+
+            if (!Directory.Exists(outputDirectory))
+                Directory.CreateDirectory(outputDirectory);
 
             Context.Set("OutputDirectory", outputDirectory);
-            Context.Set("OutputRelativePath", request.BasePath + moduleFolder);
-
-            //var logger = Services.GetRequiredService<ILogger<BuildModuleEngine>>();
-            //Context.Items["Logger"] = logger;
-
-            //var configService = Services.GetRequiredService<IConfigService>();
-            //Context.Items["BuildConfig"] = await configService.GetConfigAsync("BuildModule");
+            Context.Set("OutputRelativePath", relativeDirectory);
 
             return base.OnInitializeAsync(request);
+        }
+
+        protected override async Task BeforeExecuteAsync(BuildModuleRequest request)
+        {
+            await _moduleService.DeleteModuleResourcesAsync(request.ModuleId.Value);
+            await base.BeforeExecuteAsync(request);
         }
 
         protected override async Task<EngineResult<object>> ValidateAsync(BuildModuleRequest request)
@@ -76,21 +83,28 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         protected override async Task<EngineResult<BuildModuleResponse>> ExecuteCoreAsync(
             BuildModuleRequest request)
         {
-            var lockService = new LockService();
-
-            var lockAcquired = await lockService.TryLockAsync(request.ModuleId.Value);
-            if (!lockAcquired)
-            {
-                throw new InvalidOperationException("This module is currently being build. Please try again in a few moments..");
-            }
-
             try
             {
-                return await _pipeline.ExecuteAsync(request, Context, Services);
+                var lockService = new LockService();
+
+                var lockAcquired = await lockService.TryLockAsync(request.ModuleId.Value);
+                if (!lockAcquired)
+                {
+                    throw new InvalidOperationException("This module is currently being build. Please try again in a few moments..");
+                }
+
+                try
+                {
+                    return await _pipeline.ExecuteAsync(request, Context, Services);
+                }
+                finally
+                {
+                    lockService.ReleaseLock(request.ModuleId.Value);
+                }
             }
-            finally
+            catch (Exception ex)
             {
-                lockService.ReleaseLock(request.ModuleId.Value);
+                throw ex;
             }
         }
 

@@ -16,6 +16,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public string SkinImage { get; set; }
         public string Template { get; set; }
         public string TemplatePath { get; set; }
+        public string TemplateCssPath { get; set; }
         public string TemplateImage { get; set; }
         public string Theme { get; set; }
     }
