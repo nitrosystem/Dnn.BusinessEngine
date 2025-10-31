@@ -34,56 +34,19 @@
             <!------------------------------------>
             <div class="col ps-5">
                 <div class="b-field">
-                    <div class="b-notify notify-small notify-note mb-2">
-                        <i class="codicon codicon-feedback b-icon-2"></i>
-                        <p class="text text-justify mb-0">
-                            <b>Very important note:</b>
-                            Be careful in choosing the name of the module because it is not possible to change the name
-                            of the module after saving the module.
-                        </p>
-                    </div>
                     <label class="form-label">Module Name</label>
-                    <div class="d-flex mb-2">
-                        <div class="col-7">
-                            <div class=" b-input-group">
-                                <input type="text" id="txtModuleName" ng-model="$.module.ModuleName"
-                                    class="b-input form-control" placeholder="Enter form name(like top examples)"
-                                    autocomplete="off" required ng-disabled="$.module.Id" />
-                                <span><i class="codicon codicon-gear"></i></span>
-                            </div>
-                        </div>
-                        <div class="col-3 ms-3">
-                            <button type="button" class="b-btn btn-text-icon btn-green-lite h-100 ps-4 pe-4"
-                                ng-click="$.validateModuleName()" ng-disabled="$.module.Id || !$.module.ModuleName">
-                                <i class=" codicon codicon-go-to-search"></i>
-                                Validate Name
-                            </button>
-                        </div>
+                    <div class=" b-input-group">
+                        <input type="text" id="txtModuleName" ng-model="$.module.ModuleName"
+                            class="b-input form-control" placeholder="Enter form name(like top examples)"
+                            autocomplete="off" required ng-disabled="$.module.Id" />
+                        <span><i class="codicon codicon-gear"></i></span>
                     </div>
-                    <div class="b-notify mb-2">
-                        <i class="codicon codicon-info b-icon-1"></i>
-                        <p class="subtext m-0">
-                            <b>Example:</b> basic-form, login, user-profile-module,...
-                        </p>
-                    </div>
-                    <div ng-if="$.moduleNameIsValid==false">
-                        <div class="b-notify notify-warning mb-2" ng-if="!$.moduleNameIsValidPattern">
-                            <i class="codicon codicon-regex b-icon-2"></i>
-                            <p class="text mb-0"> This name does not match with the pattern.</p>
-                        </div>
-                        <div class="b-notify notify-warning mb-2" ng-if="$.moduleNameIsExists">
-                            <i class="codicon codicon-references b-icon-2"></i>
-                            <p class="text mb-0"> this name is already exists on the database table.</p>
-                        </div>
-                        <div class="b-notify notify-warning mb-2"
-                            ng-if="$.moduleNameIsValidPattern && !$.moduleNameIsExists">
-                            <i class="codicon codicon-warning b-icon-2"></i>
-                            <p class="text mb-0"> This name is not valid.</p>
-                        </div>
-                    </div>
-                    <div class="b-notify notify-success mb-2" ng-if="$.moduleNameIsValid">
-                        <i class="codicon codicon-check-all b-icon-2"></i>
-                        <p class="text mb-0"> This name is valid.</p>
+                    <div ng-if="$.module.ModuleName && $.module.error.ModuleName">
+                        <p class="b-invalid">{{$.form.error.ModuleName}}</p>
+                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetModuleValidNameClick()"
+                            ng-disabled="$.running">
+                            Set Valid Name
+                        </button>
                     </div>
                 </div>
                 <div class="b-field">

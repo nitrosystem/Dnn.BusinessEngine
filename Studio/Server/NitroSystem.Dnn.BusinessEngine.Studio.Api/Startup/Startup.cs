@@ -40,6 +40,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<IDashboardService, DashboardService>();
 
             services.AddScoped<IModuleService, ModuleService>();
+            services.AddScoped<IModuleTemplateService, ModuleTemplateService>();
             services.AddScoped<IModuleFieldService, ModuleFieldService>();
             services.AddScoped<IModuleVariableService, ModuleVariableService>();
             services.AddScoped<IModuleLibraryAndResourceService, ModuleLibraryAndResourceService>();

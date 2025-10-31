@@ -1,4 +1,4 @@
-import { GlobalSettings } from "../angular-configs/global.settings";
+import { GlobalSettings } from "../angular/angular-configs/global.settings";
 import Swal from 'sweetalert2'
 
 export class GlobalService {
@@ -7,6 +7,17 @@ export class GlobalService {
         this.$timeout = $timeout;
         this.$filter = $filter;
         this.$q = $q;
+    }
+
+    normalizeName(input) {
+        // حذف همه حروف غیرانگلیسی و غیرعددی (از جمله فارسی)
+        let cleaned = input.replace(/[^A-Za-z0-9 ]+/g, " "); // تبدیل کاراکترهای خاص و فارسی به فاصله
+        // حذف همه اعداد از ابتدا و وسط رشته
+        cleaned = cleaned.replace(/[0-9]+/g, " "); // تبدیل اعداد به فاصله
+        // تقسیم بر اساس فاصله و حذف رشته‌های خالی
+        const parts = cleaned.trim().split(/\s+/).filter(Boolean);
+        // تبدیل به PascalCase
+        return parts.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join("");
     }
 
     getUrlParams(url, disableFriendlyParams) {

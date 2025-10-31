@@ -88,6 +88,7 @@
     <Compile Include="Studio\DataService\Contracts\IExtensionService.cs" />
     <Compile Include="Studio\DataService\Contracts\IModuleFieldService.cs" />
     <Compile Include="Studio\DataService\Contracts\IModuleLibraryAndResourceService.cs" />
+    <Compile Include="Studio\DataService\Contracts\IModuleTemplateService.cs" />
     <Compile Include="Studio\DataService\Contracts\IModuleVariable.cs" />
     <Compile Include="Studio\DataService\Enums\ActionTypeExecutionScope.cs" />
     <Compile Include="Shared\Enums\DashboardPageType.cs" />
@@ -105,17 +106,9 @@
     <Compile Include="Studio\DataService\ListItems\ServiceTypeListItem.cs" />
     <Compile Include="Studio\DataService\Models\DashboardPagesOrder.cs" />
     <Compile Include="Studio\DataService\Models\UpdateDashboardPageParent.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardAppearanceViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardPageModuleViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardPageViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardSkinTemplateViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardSkinViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardSkinLibraryViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardThemeViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\FieldTypeTemplateViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\FieldTypeThemeViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\FieldTypeViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Extension\ExtensionViewModel.cs" />
     <Compile Include="Studio\DataService\ViewModels\Service\ServiceParamViewModel.cs" />
     <Compile Include="Studio\Engine\BuildModule\BuildModuleRequest.cs" />

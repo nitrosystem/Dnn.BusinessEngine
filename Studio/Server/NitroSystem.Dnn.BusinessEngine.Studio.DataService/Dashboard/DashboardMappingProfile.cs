@@ -14,7 +14,6 @@ using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard;
 using System.Web.UI;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
@@ -49,54 +48,54 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
             #endregion
 
-            #region Dashboard Appearance 
+            //#region Dashboard Appearance 
 
-            HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
-                (src, dest) => dest.SkinImage = src.SkinImage?.ReplaceFrequentTokens());
+            //HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
+            //    (src, dest) => dest.SkinImage = src.SkinImage?.ReplaceFrequentTokens());
 
-            HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
-                (src, dest) => dest.TemplateImage = src.TemplateImage?.ReplaceFrequentTokens());
+            //HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
+            //    (src, dest) => dest.TemplateImage = src.TemplateImage?.ReplaceFrequentTokens());
 
-            HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
-                (src, dest) => dest.TemplatePath = src.TemplatePath?.ReplaceFrequentTokens());
+            //HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
+            //    (src, dest) => dest.TemplatePath = src.TemplatePath?.ReplaceFrequentTokens());
 
-            HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
-                (src, dest) => dest.TemplateCssPath = src.TemplateCssPath?.ReplaceFrequentTokens());
+            //HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
+            //    (src, dest) => dest.TemplateCssPath = src.TemplateCssPath?.ReplaceFrequentTokens());
 
-            HybridMapper.BeforeMap<DashboardSkinInfo, DashboardSkinViewModel>(
-                (src, dest) => dest.SkinImage = src.SkinImage?.ReplaceFrequentTokens());
+            //HybridMapper.BeforeMap<DashboardSkinInfo, DashboardSkinViewModel>(
+            //    (src, dest) => dest.SkinImage = src.SkinImage?.ReplaceFrequentTokens());
 
-            HybridMapper.BeforeMap<DashboardSkinInfo, DashboardSkinViewModel>(
-                (src, dest) => dest.CssFiles = src.CssFiles?.Split(','));
+            //HybridMapper.BeforeMap<DashboardSkinInfo, DashboardSkinViewModel>(
+            //    (src, dest) => dest.CssFiles = src.CssFiles?.Split(','));
 
-            HybridMapper.BeforeMap<DashboardSkinInfo, DashboardSkinViewModel>(
-                (src, dest) => dest.JsFiles = src.JsFiles?.Split(','));
+            //HybridMapper.BeforeMap<DashboardSkinInfo, DashboardSkinViewModel>(
+            //    (src, dest) => dest.JsFiles = src.JsFiles?.Split(','));
 
-            HybridMapper.BeforeMap<DashboardSkinViewModel, DashboardSkinInfo>(
-                (src, dest) => dest.CssFiles = string.Join(",", src.CssFiles ?? Enumerable.Empty<string>()));
+            //HybridMapper.BeforeMap<DashboardSkinViewModel, DashboardSkinInfo>(
+            //    (src, dest) => dest.CssFiles = string.Join(",", src.CssFiles ?? Enumerable.Empty<string>()));
 
-            HybridMapper.BeforeMap<DashboardSkinViewModel, DashboardSkinInfo>(
-                (src, dest) => dest.JsFiles = string.Join(",", src.JsFiles ?? Enumerable.Empty<string>()));
+            //HybridMapper.BeforeMap<DashboardSkinViewModel, DashboardSkinInfo>(
+            //    (src, dest) => dest.JsFiles = string.Join(",", src.JsFiles ?? Enumerable.Empty<string>()));
 
-            HybridMapper.BeforeMap<DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
-                (src, dest) => dest.TemplateImage = src.TemplateImage?.ReplaceFrequentTokens());
+            //HybridMapper.BeforeMap<DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
+            //    (src, dest) => dest.TemplateImage = src.TemplateImage?.ReplaceFrequentTokens());
 
-            HybridMapper.BeforeMap<DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
-                (src, dest) => dest.TemplatePath = src.TemplatePath?.ReplaceFrequentTokens());
+            //HybridMapper.BeforeMap<DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
+            //    (src, dest) => dest.TemplatePath = src.TemplatePath?.ReplaceFrequentTokens());
 
-            HybridMapper.BeforeMap<DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
-                (src, dest) => dest.ModuleType = (ModuleType)src.ModuleType);
+            //HybridMapper.BeforeMap<DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
+            //    (src, dest) => dest.ModuleType = (ModuleType)src.ModuleType);
 
-            HybridMapper.BeforeMap<DashboardSkinTemplateViewModel, DashboardSkinTemplateInfo>(
-                (src, dest) => dest.ModuleType = (int)src.ModuleType);
+            //HybridMapper.BeforeMap<DashboardSkinTemplateViewModel, DashboardSkinTemplateInfo>(
+            //    (src, dest) => dest.ModuleType = (int)src.ModuleType);
 
-            HybridMapper.BeforeMap<DashboardSkinTemplateInfo, TemplateViewModel>(
-                (src, dest) => dest.TemplatePath = src.TemplatePath?.ReplaceFrequentTokens());
+            //HybridMapper.BeforeMap<DashboardSkinTemplateInfo, TemplateViewModel>(
+            //    (src, dest) => dest.TemplatePath = src.TemplatePath?.ReplaceFrequentTokens());
 
-            HybridMapper.BeforeMap<DashboardSkinTemplateInfo, TemplateViewModel>(
-                (src, dest) => dest.TemplateImage = src.TemplateImage?.ReplaceFrequentTokens());
+            //HybridMapper.BeforeMap<DashboardSkinTemplateInfo, TemplateViewModel>(
+            //    (src, dest) => dest.TemplateImage = src.TemplateImage?.ReplaceFrequentTokens());
 
-            #endregion
+            //#endregion
 
             #region Dashboard Page
 

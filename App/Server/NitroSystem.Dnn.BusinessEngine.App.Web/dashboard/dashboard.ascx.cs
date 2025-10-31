@@ -4,27 +4,26 @@ using System;
 using System.Web.Helpers;
 using System.Web.UI;
 using DotNetNuke.Framework;
-using DotNetNuke.Data;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Models;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using System.Data.SqlClient;
 using System.Data;
-using System.Globalization;
-using DotNetNuke.Common.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 using System.Collections.Generic;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Caching;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
     public partial class Dashboard : PortalModuleBase, IActionable
     {
-        private string _siteRoot;
+        private readonly ICacheService _cacheService;
+        private readonly string _siteRoot;
         private string _scenarioName;
         private Guid? _id;
 
         public Dashboard()
         {
+            _cacheService = new CacheService();
+
             var root = ServicesFramework.GetServiceFrameworkRoot();
             _siteRoot = root == "/"
                 ? string.Empty
@@ -80,14 +79,14 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                     pageModuleName = reader["ParentModuleName"] as string;
 
                     var parentFolder = StringHelper.ToKebabCase(pageModuleName) + "/";
-                    var childTemplates = ModuleService.RenderModule(this.Page, PortalSettings.HomeSystemDirectory, false, null, ref pageModuleId, out _scenarioName, parentFolder);
+                    var childTemplates = ModuleService.RenderModule(this.Page, _cacheService, PortalSettings.HomeSystemDirectory, false, null, ref pageModuleId, out _scenarioName, parentFolder);
                     pageModuleTemplate = childTemplates.Template;
 
                     reader.Close();
                 }
             }
 
-            var templates = ModuleService.RenderModule(this.Page, PortalSettings.HomeSystemDirectory, true, ModuleId, ref _id, out _scenarioName);
+            var templates = ModuleService.RenderModule(this.Page, _cacheService, PortalSettings.HomeSystemDirectory, true, ModuleId, ref _id, out _scenarioName);
             var template = templates.Template;
             template = template.Replace("[PAGE_MODULE]", pageModuleTemplate);
             pnlTemplate.InnerHtml = template;

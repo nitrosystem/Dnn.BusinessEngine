@@ -11,7 +11,7 @@
                 <input type="radio" name="fieldDataSource" ng-value="0" ng-model="$.currentField.DataSource.Type"
                     ng-change="$.onFieldDataSourceTypeChange()" required />
                 <i class="input-helper"></i>
-                Standard(Static items)
+                Field Options
             </label>
             <label class="radio-item me-3">
                 <input type="radio" name="fieldDataSource" ng-value="1" ng-model="$.currentField.DataSource.Type"
@@ -30,16 +30,12 @@
     <!------------------------------------>
     <!--DataSource Type 0 : Static Items-->
     <!------------------------------------>
-    <div ng-if="$.currentField.DataSource.Type==0">
-        <div ng-if="$.definedList.Id">
-            <div class="b-field">
-                <label class="form-label">List Name</label>
-                <div class="b-input-group">
-                    <input type="text" class="b-input form-control" ng-model="$.definedList.ListName"
-                        placeholder="Enter List Name" />
-                    <span><i class="bi bi-card-checklist"></i></span>
-                </div>
-            </div>
+    <div class="b-field" ng-if="$.currentField.DataSource.Type===0 && !$.currentField.DataSource.ListName">
+        <label class="form-label">List Name</label>
+        <div class="b-input-group">
+            <input type="text" class="b-input form-control" ng-model="$.definedList.ListName"
+                placeholder="Enter List Name" />
+            <span><i class="bi bi-card-checklist"></i></span>
         </div>
     </div>
     <!------------------------------------>

@@ -2354,6 +2354,118 @@ body>.b-field-item .field-toolbar {
     }
 }
 
+/* --------------------------------------------------------
+        App Models
+    -----------------------------------------------------------*/
+
+.app-models-box {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    grid-auto-rows: auto;
+    gap: 1.6rem;
+    margin-bottom: 2rem;
+}
+
+.app-models-box .app-model-item {
+    color: #fff;
+    border-radius: 0.475em;
+    background-color: #3c3c3e;
+    background-clip: border-box;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.app-models-box .app-model-item .app-model-title-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: 0.9rem 0.9rem 0.4rem;
+}
+
+.app-models-box .app-model-item .app-model-title-wrapper>i {
+    color: #f55385;
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+}
+
+.app-models-box .app-model-item .app-model-title-wrapper .app-model-title {
+    margin: 0;
+}
+
+.app-models-box .app-model-item .app-model-title-wrapper .action-tools {
+    display: flex;
+    margin-left: auto;
+}
+
+.app-models-box .app-model-item .app-model-title-wrapper .action-tools button {
+    background: none;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    color: #f18cab;
+    margin-left: 0.4rem;
+    cursor: pointer;
+}
+
+.app-models-box .app-model-item .app-model-title-wrapper .action-tools button:hover {
+    color: #fff;
+}
+
+.app-models-box .app-model-item .app-model-subtitle {
+    padding-left: 2.8rem;
+    padding-bottom: 0.6rem;
+    margin-bottom: 0;
+    font-size: 0.85rem;
+    color: #b0b0b0;
+    border-bottom: solid 0.1rem #545456;
+    max-width: 19rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre;
+}
+
+.app-models-box .app-model-item .app-model-props {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: list-item;
+}
+
+.app-models-box .app-model-item .app-model-props .prop-item {
+    padding: 0.9rem;
+    border-bottom: solid 0.1rem #545456;
+}
+
+.app-models-box .app-model-item .app-model-props .prop-item .prop-title-wrapper {
+    display: flex;
+}
+
+.app-models-box .app-model-item .app-model-props .prop-item .prop-title {
+    color: #eee;
+    font-size: 0.85rem;
+    margin: 0;
+    display: inline-flex;
+}
+
+.app-models-box .app-model-item .app-model-props .prop-item .prop-title-wrapper>i {
+    margin-left: auto;
+    display: inline-flex;
+}
+
+@media only screen and (max-width: 1100px) {
+    .app-models-box .app-model-item {
+        min-width: 12rem;
+    }
+
+    .app-models-box .app-model-item .app-model-props .prop-item .prop-title {
+        font-size: 0.75rem;
+        font-weight: 300;
+        max-width: 9rem;
+        overflow: hidden;
+    }
+}
 
 /* --------------------------------------------------------
         Services
@@ -3248,7 +3360,7 @@ body>.b-field-item .field-toolbar {
 
 .dashboard-skin .skin-content .skin-templates {
     flex-basis: 30%;
-    height: 100vh;
+    height: 32rem;
     padding: 1rem;
     border: solid .1rem goldenrod;
     box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;

@@ -1,0 +1,58 @@
+<div ng-controller="createDashboardModulesController as $">
+    <div ng-include="$.moduleBuilderTemplate"></div>
+    <!------------------------------------>
+    <!--Dashboard Modules Sidebar Menu-->
+    <!------------------------------------>
+    <div class="dashboard-modules">
+        <div id="sidebarMenu{{$.moduleId}}" class="all-modules-wrapper">
+            <div class="items-wrapper b-sidebar-explorer " style="direction: rtl;">
+                <ul class="exp-items p-0">
+                    <li class="text-center mb-3">
+                        <a href="" class="exp-label text-decoration-none text-light" role="button"
+                            ng-click="$.onDashboardModuleClick()">DASHBOARD MODULE BUILDER</a>
+                    </li>
+                    <li ng-repeat="item in $.modules" class="exp-item exp-has-childs">
+                        <a class="exp-label collapsed" data-bs-toggle="collapse"
+                            data-bs-target="#exp{{item.ModuleName}}">
+                            <i class="codicon codicon-chevron-down exp-arrow-icon"></i>
+                            <i class="codicon codicon-eye-closed visible-icon" ng-if="!item.PageIsVisible"
+                                title="Hidden In Dashboard MenuF"></i>
+                            {{item.PageName}}
+                        </a>
+                        <ul class="exp-sub-items collapse" id="exp{{item.ModuleName}}">
+                            <li class="exp-item">
+                                <a class="exp-label collapsed ng-binding" ng-click="$.onModuleClick(item)"
+                                    data-bs-toggle="collapse" data-bs-target="#expModuleItem0">
+                                    <i class="codicon codicon-window"></i>
+                                    {{item.ModuleName}}
+                                    <span class="small-text"
+                                        title="{{item.ModuleTitle}}">({{item.ModuleTitle}})</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <small class="mb-2 text-info text-hide-modules">Press Esc To Hide Menu</small>
+                <button type="button" class="b-btn btn-action btn-hide-modules" ng-click="$.onHideSidebarMenuClick()">
+                    <i class="codicon codicon-close ms-0"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Wizard Step Action Buttons-->
+    <!------------------------------------>
+    <div class="d-flex mb-2 mt-auto b-splitter border-top pt-3 mb-4">
+        <div class="justify-content-start">
+            <!-- Previous Button -->
+            <button type="button" class="b-btn btn-danger me-2" ng-click="$.onPreviousStepClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-arrow-left me-0"></i>
+            </button>
+            <!-- Next Button -->
+            <button type="button" class="b-btn btn-blue me-2" ng-click="$.onNextStepClick()" ng-disabled="$.running">
+                <i class="codicon codicon-arrow-right me-0"></i>
+            </button>
+        </div>
+    </div>
+</div>

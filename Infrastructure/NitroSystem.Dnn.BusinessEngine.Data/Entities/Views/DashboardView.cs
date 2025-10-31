@@ -14,12 +14,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public Guid ModuleId { get; set; }
         public Guid ScenarioId { get; set; }
         public int PortalId { get; set; }
-        public int DnnModuleId { get; set; }
+        public int SiteModuleId { get; set; }
         public string AuthorizationViewDashboard { get; set; }
         public string ModuleName { get; set; }
         public string ModuleTitle { get; set; }
-        public string SkinName { get; set; }
-        public string SkinPath { get; set; }
         public string Template { get; set; }
         public string Theme { get; set; }
         public object Settings { get; set; }

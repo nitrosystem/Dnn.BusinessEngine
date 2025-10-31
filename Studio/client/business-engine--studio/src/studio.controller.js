@@ -1,16 +1,16 @@
-import { GlobalSettings } from "./angular-configs/global.settings";
-import { activityBarItems } from "./angular-configs/activity-bar.config";
+import { GlobalSettings } from "./angular/angular-configs/global.settings";
+import { activityBarItems } from "./angular/angular-configs/activity-bar.config";
 
-import createScenarioTemplate from "./scenario-management/scenarios/create-scenario.html";
-import entitiesTemplate from "./scenario-management/entities/entities.html";
-import createEntityTemplate from "./scenario-management/entities/create-entity.html";
-import appModelsTemplate from "./scenario-management/app-models/app-models.html";
-import createAppModelTemplate from "./scenario-management/app-models/create-app-model.html";
-import servicesTemplate from "./scenario-management/services/services.html";
-import createServiceTemplate from "./scenario-management/services/create-service.html";
+import createScenarioTemplate from "./create-scenario/scenarios/create-scenario.html";
+import entitiesTemplate from "./create-scenario/entities/entities.html";
+import createEntityTemplate from "./create-scenario/entities/create-entity.html";
+import appModelsTemplate from "./create-scenario/app-models/app-models.html";
+import createAppModelTemplate from "./create-scenario/app-models/create-app-model.html";
+import servicesTemplate from "./create-scenario/services/services.html";
+import createServiceTemplate from "./create-scenario/services/create-service.html";
+import createDashboardTemplate from "./create-dashboard/create-dashboard.html";
 import createModuleTemplate from "./create-module/create-module.html";
 import createActionTemplate from "./create-module/6-actions/create-action.html";
-import providerSettingsTemplate from "./providers/provider-settings.html";
 import extensionsTemplate from "./extensions/extensions.html";
 
 export class StudioController {
@@ -85,7 +85,7 @@ export class StudioController {
             this.$rootScope.currentTab.isChanged = true;
         });
 
-        this.activityBarItems = activityBarItems;
+        this.$rootScope.activityBarItems = activityBarItems;
         this.onActivityBarItemClick("explorer");
         this.$rootScope.explorerExpandedItems = [];
 
@@ -286,7 +286,7 @@ export class StudioController {
     onActivityBarItemClick(name, title, disableActivityBarCallback) {
         if (this.$rootScope.currentActivityBar == name) return;
 
-        _.filter(this.activityBarItems, (i) => { return i.name == name; }).map((i) => {
+        _.filter(this.$rootScope.activityBarItems, (i) => { return i.name == name; }).map((i) => {
             if (!i.sidebarPaneDisabled) this.$rootScope.currentActivityBar = name;
 
             if (title) i.title = title;
@@ -333,14 +333,10 @@ export class StudioController {
     }
 
     getBaseUrl(moduleType, id) {
-        moduleType = moduleType ? moduleType : GlobalSettings.moduleType;
-
-        var baseUrl = GlobalSettings.siteRoot + "DesktopModules/BusinessEngine/Studio.aspx?s={s}&p={p}&a={a}&m={m}{d}";
+        var baseUrl = "/DesktopModules/BusinessEngine/Studio.aspx?s={s}&sr={sr}&m={m}";
         baseUrl = baseUrl.replace("{s}", GlobalSettings.scenarioName);
-        baseUrl = baseUrl.replace("{p}", GlobalSettings.portalId);
-        baseUrl = baseUrl.replace("{a}", GlobalSettings.portalAliasId);
+        baseUrl = baseUrl.replace("{sr}", GlobalSettings.siteRoot);
         baseUrl = baseUrl.replace("{m}", moduleType);
-        baseUrl = baseUrl.replace("{d}", GlobalSettings.dnnModuleId && !id && !GlobalSettings.moduleId ? "&d=" + GlobalSettings.dnnModuleId : "");
 
         return baseUrl;
     }
@@ -351,6 +347,7 @@ export class StudioController {
         const params = this.globalService.getUrlParams(document.URL, true);
         for (const param in params) {
             if (
+                param == "dashboard" ||
                 param == "module" ||
                 param == "field" ||
                 param == "type" ||
@@ -358,6 +355,7 @@ export class StudioController {
                 param == "key" ||
                 param == "st" ||
                 param == "mt" ||
+                param == "d" ||
                 param == "ru"
             ) {
                 const paramValue = this.globalService.getParameterByName(param);
@@ -407,6 +405,16 @@ export class StudioController {
                 result.icon = "table";
                 result.content = createServiceTemplate;
                 break;
+            case "create-dashboard":
+                result.title = "New Dashboard";
+                result.icon = "layout-sidebar-left";
+                result.content = createDashboardTemplate;
+                break;
+            case "create-dashboard-page":
+                result.title = "Edit Page";
+                result.icon = "copy";
+                result.content = createDashboardPageTemplate;
+                break;
             case "create-module":
                 result.title = "Create Module";
                 result.content = createModuleTemplate;
@@ -416,11 +424,6 @@ export class StudioController {
                 result.title = "New Action";
                 result.icon = "symbol-event";
                 result.content = createActionTemplate;
-                break;
-            case "provider-settings":
-                result.title = "Provider Settings";
-                result.content = providerSettingsTemplate;
-                result.icon = "window";
                 break;
             case "extensions":
                 result.title = "Extensions";

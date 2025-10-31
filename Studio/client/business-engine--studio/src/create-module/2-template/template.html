@@ -51,7 +51,7 @@
                         <h3 class="group-label">
                             <span class="group-icon">
                                 <i class="codicon codicon-server-process"></i>
-                            </span> Installed Templates
+                            </span> Templates
                         </h3>
                         <span class="group-collapse">
                             <i class="codicon codicon-chevron-up"></i>
@@ -159,6 +159,9 @@
                 <div class="d-flex flex-column w-100">
                     <div class="template-layout-designer">
                         <label class="header-label">Layout Template</label>
+                        <!------------------------------------>
+                        <!--Template Tabs Html/Css-->
+                        <!------------------------------------>
                         <div class="tabs-container layout-edit pb-0 mb-0">
                             <ul class="nav nav-tabs b-tab" role="tablist">
                                 <li class="nav-item" role="presentation">
@@ -178,7 +181,7 @@
                                 <div class="tab-pane fade show active" id="html-editor-preview{{$.module.Id}}"
                                     role="tabpanel" aria-labelledby="html-tab-preview{{$.module.Id}}">
                                     <div monaco-editor ng-model="$.module.LayoutTemplate" data-language="html"
-                                        data-height="100vh" read-only="true">
+                                        data-height="50vh" read-only="true">
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="css-editor-preview{{$.module.Id}}" role="tabpanel"
@@ -186,17 +189,6 @@
                                     <div monaco-editor ng-model="$.module.LayoutCss" data-language="css"
                                         data-height="450px">
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="field-types-wrapper">
-                        <label class="header-label">Custom Template For Field Types</label>
-                        <div class="field-types">
-                            <div class="field-type" ng-repeat="fieldType in $.template.FieldTypes">
-                                <span class="field-type">{{fieldType.FieldType}}</span>
-                                <div class="icon-wrapper">
-                                    <img ng-src="{{fieldType.Icon}}" />
                                 </div>
                             </div>
                         </div>

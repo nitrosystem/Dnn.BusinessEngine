@@ -190,21 +190,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             ), cacheAttr.timeOut);
         }
 
-        public async Task<IEnumerable<T>> GetItemsByColumnsAsync<T>(string[] columns, object values) where T : class, IEntity, new()
+        public async Task<IEnumerable<T>> GetItemsByColumnsAsync<T>(string[] columns, object values)
+            where T : class, IEntity, new()
         {
             if (!typeof(T).GetProperties().Any(p => columns.Contains(p.Name)))
                 throw new ArgumentException($"Invalid column name.");
 
-            string condition = string.Join(" and ", columns.Select(column => $"{column} = @{column}"));
+            string condition = string.Join(" and ", columns.Select(column =>
+            {
+                var prop = values.GetType().GetProperty(column);
+                var value = prop?.GetValue(values, null);
+                return value == null ? $"{column} IS NULL" : $"{column} = @{column}";
+            }));
 
             var table = AttributeCache.Instance.GetTableName<T>();
             var query = $"SELECT * FROM {table} WHERE {condition}";
 
-            return await
-            _unitOfWork.Connection.QueryAsync<T>(
-                query,
-                values
-            );
+            return await _unitOfWork.Connection.QueryAsync<T>(query, values);
         }
 
         public async Task<IEnumerable<T>> GetAllAsync<T>(params string[] orderColumns) where T : class, IEntity, new()

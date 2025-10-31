@@ -1,4 +1,4 @@
-import { GlobalSettings } from "../../angular-configs/global.settings";
+import { GlobalSettings } from "../../angular/angular-configs/global.settings";
 import Swal from 'sweetalert2'
 import moment from "moment";
 import 'animate.css';
@@ -25,7 +25,6 @@ export class CreateModuleModuleBuilderController {
         validationService,
         notificationService,
         eventService,
-        hubService,
         $deferredBroadcast,
         moduleDesignerService
     ) {
@@ -45,7 +44,6 @@ export class CreateModuleModuleBuilderController {
         this.validationService = validationService;
         this.notifyService = notificationService;
         this.eventService = eventService;
-        this.hubService = hubService;
 
         this.moduleDesignerService = moduleDesignerService;
 
@@ -201,7 +199,6 @@ export class CreateModuleModuleBuilderController {
 
             let objects = {};
             let variablesAsFieldValueProperty = {};
-
             _.forEach(data.Variables, (variable) => {
                 const baseObject = _.reduce(variable.Properties, (acc, prop) => {
                     acc[prop.PropertyName] = {};
@@ -990,6 +987,8 @@ export class CreateModuleModuleBuilderController {
 
         this.fieldDataSourceBackup = _.clone(this.currentField.DataSource || {});
 
+        this.currentField.DataSource = this.currentField.DataSource || {};
+
         this.onFieldDataSourceTypeChange();
 
         delete this.running;
@@ -999,17 +998,20 @@ export class CreateModuleModuleBuilderController {
     }
 
     onFieldDataSourceTypeChange() {
-        if (!this.currentField.DataSource || !this.currentField.DataSource.Type) {
+        if (!this.currentField.DataSource.Type && !this.currentField.DataSource.ListName)
+            this.currentField.DataSource.ListName = this.currentField.FieldName + '_Options';
+
+        if (this.currentField.DataSource.Type === 0 && this.currentField.DataSource.ListName) {
             this.running = "get-field-data-source";
             this.awaitAction = {
                 title: "Loading Field Data Source",
                 subtitle: "Just a moment for loading the field data source...",
             };
 
-            this.apiService.get("Studio", "GetDefinedListByFieldId", {
-                fieldId: this.currentField.Id,
+            this.apiService.get("Studio", "GetDefinedListByListName", {
+                listName: this.currentField.DataSource.ListName,
             }).then((data) => {
-                this.definedList = data ?? { Items: [] };
+                this.definedList = data ?? { ListName: this.currentField.DataSource.ListName, Items: [] };
 
                 delete this.awaitAction;
                 delete this.running;
@@ -1021,10 +1023,9 @@ export class CreateModuleModuleBuilderController {
                 this.notifyService.error(error.data.Message);
 
                 delete this.running;
-            }
-            );
+            });
         }
-        else if (this.currentField.DataSource && this.currentField.DataSource.Type == 1) {
+        else if (this.currentField.DataSource.Type === 1) {
             if (this.definedLists) {
                 this.onDefinedListChange();
                 return;
@@ -1036,7 +1037,7 @@ export class CreateModuleModuleBuilderController {
                 subtitle: "Just a moment for loading the defined lists...",
             };
 
-            this.apiService.get("Module", "GetDefinedLists", { fieldId: this.currentField.Id, }).then((data) => {
+            this.apiService.get("Module", "GetDefinedLists").then((data) => {
                 this.definedLists = data;
 
                 this.onDefinedListChange();
@@ -1053,16 +1054,13 @@ export class CreateModuleModuleBuilderController {
                 delete this.running;
             });
         }
-        else if (this.currentField.DataSource && this.currentField.DataSource.Type == 2) {
+        else if (this.currentField.DataSource.Type === 2) {
             this.onDataSourceVariableChange();
         }
     }
 
     onSaveFieldDataSourceClick($event) {
-        if (this.currentField.DataSource.Type == 0) {
-            if (!this.definedList.ListName) this.definedList.ListName = this.currentField.FieldName + '_Options';
-            this.definedList.FieldId = this.currentField.Id;
-
+        if (this.currentField.DataSource.Type === 0) {
             this.saveDefinedList($event).then(() => {
                 this.saveDataSource($event);
             });

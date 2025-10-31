@@ -1,4 +1,4 @@
-import { GlobalSettings } from "../../angular-configs/global.settings";
+import { GlobalSettings } from "../../angular/angular-configs/global.settings";
 import Swal from 'sweetalert2'
 import 'animate.css';
 
@@ -47,7 +47,7 @@ export class CreateModuleBasicOptionsController {
         };
 
         this.apiService.get("Module", "GetModuleBasicOptions", { ...(id && { moduleId: id }) }).then((data) => {
-            this.module = data ?? { ScenarioId: GlobalSettings.scenarioId };
+            this.module = data || { ScenarioId: GlobalSettings.scenarioId };
             this.oldModule = angular.copy(this.module);
 
             delete this.running;
@@ -69,6 +69,12 @@ export class CreateModuleBasicOptionsController {
             },
             ModuleName: {
                 id: "txtModuleName",
+                rule: (value) => {
+                    if (/^[A-Z][A-Za-z0-9]*$/.test(value) == false)
+                        return "Module name is not valid";
+                    else
+                        return true;
+                },
                 required: true,
             },
             ModuleTitle: {
@@ -82,55 +88,8 @@ export class CreateModuleBasicOptionsController {
         );
     }
 
-    validateModuleName() {
-        var $defer = this.$q.defer();
-
-        if (this.module.Id)
-            $defer.resolve();
-        else if (_.isEmpty(this.module.ModuleName)) {
-            this.moduleNameIsValid = false;
-            this.moduleNameIsEmpty = true;
-            this.moduleNameIsValidPattern = true;
-
-            $defer.reject();
-        } else if (/^[a-z]{1}[a-z|0-9|-]{1,30}$/gim.test(this.module.ModuleName) == false) {
-            this.moduleNameIsValid = false;
-            this.moduleNameIsValidPattern = false;
-
-            $defer.reject();
-        } else {
-            this.running = "check-module-name";
-            this.awaitAction = {
-                title: "Checking Module Name",
-                subtitle: "Just a moment for checking name of the module...",
-            };
-
-            this.moduleNameIsValidPattern = true;
-
-            this.apiService.post("Module", "CheckModuleName", {
-                ScenarioId: this.module.ScenarioId,
-                ModuleId: this.module.Id,
-                ModuleName: this.module.ModuleName
-            }).then((data) => {
-                this.moduleNameIsValid = data;
-
-                if (data) $defer.resolve();
-                else $defer.reject();
-
-                delete this.awaitAction;
-                delete this.running;
-            }, (error) => {
-                this.awaitAction.isError = true;
-                this.awaitAction.subtitle = error.statusText;
-                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-                $defer.reject();
-
-                delete this.running;
-            });
-        }
-
-        return $defer.promise;
+    onSetModuleValidNameClick() {
+        this.module.ModuleName = this.globalService.normalizeName(this.module.ModuleName);
     }
 
     onSaveModuleClick() {
@@ -143,49 +102,52 @@ export class CreateModuleBasicOptionsController {
         if (Object.keys(changes).length === 0)
             $defer.resolve(true);
         else if (this.form.valid) {
-            this.validateModuleName().then(() => {
-                const id = this.globalService.getParameterByName("id");
-                if (!isNaN(id)) this.module.SiteModuleId = id;
+            const id = this.globalService.getParameterByName("id");
+            this.module.Id = id;
 
-                this.running = "save-module";
-                this.awaitAction = {
-                    title: "Saving Module",
-                    subtitle: "Just a moment for saving the module...",
-                };
+            if (!this.module.SiteModuleId) {
+                const siteModuleId = this.globalService.getParameterByName("d");
+                this.module.SiteModuleId = siteModuleId;
+            }
 
-                this.currentTabKey = this.$rootScope.currentTab.key;
+            this.running = "save-module";
+            this.awaitAction = {
+                title: "Saving Module",
+                subtitle: "Just a moment for saving the module...",
+            };
 
-                this.apiService.post("Module", "SaveModuleBasicOptions", this.module).then((data) => {
-                    this.notifyService.success("Module updated has been successfully");
+            this.currentTabKey = this.$rootScope.currentTab.key;
 
-                    this.$rootScope.refreshSidebarExplorerItems();
+            this.apiService.post("Module", "SaveModuleBasicOptions", this.module).then((data) => {
+                this.notifyService.success("Module updated has been successfully");
 
-                    let isNew = !this.module.Id;
+                this.$rootScope.refreshSidebarExplorerItems();
 
-                    this.module.Id = data;
-                    this.oldModule = angular.copy(this.module);
+                let isNew = !this.module.Id;
 
-                    this.$scope.$emit("onUpdateCurrentTab", {
-                        id: this.module.Id,
-                        title: this.module.ModuleName,
-                        key: this.currentTabKey,
-                    });
+                this.module.Id = data;
+                this.oldModule = angular.copy(this.module);
 
-                    $defer.resolve(true);
-
-                    delete this.awaitAction;
-                    delete this.running;
-                }, (error) => {
-                    this.awaitAction.isError = true;
-                    this.awaitAction.subtitle = error.statusText;
-                    this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-                    this.notifyService.error(error.data.Message);
-
-                    $defer.reject();
-
-                    delete this.running;
+                this.$scope.$emit("onUpdateCurrentTab", {
+                    id: this.module.Id,
+                    title: this.module.ModuleName,
+                    key: this.currentTabKey,
                 });
+
+                $defer.resolve(true);
+
+                delete this.awaitAction;
+                delete this.running;
+            }, (error) => {
+                this.awaitAction.isError = true;
+                this.awaitAction.subtitle = error.statusText;
+                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+
+                this.notifyService.error(error.data.Message);
+
+                $defer.reject();
+
+                delete this.running;
             });
         }
 
@@ -198,10 +160,6 @@ export class CreateModuleBasicOptionsController {
 
     onCancelModuleClick() {
         this.onCloseWindow();
-    }
-
-    onCloseWindow() {
-        this.$scope.$emit('onCloseModule');
     }
 
     onPreviousStepClick() {
@@ -234,5 +192,9 @@ export class CreateModuleBasicOptionsController {
         task.wait(() => {
             return this.onSaveModuleClick();
         });
+    }
+
+    onCloseWindow() {
+        this.$scope.$emit('onCloseModule');
     }
 }

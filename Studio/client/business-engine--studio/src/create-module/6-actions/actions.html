@@ -194,7 +194,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="col-5 b-splitter border-end">
+                <div class="col-6 b-splitter border-end">
                     <h5 class="h5 text-white">{{action.ActionName}}</h5>
                     <p class="text-mute mb-3">
                         {{action.Event}}
@@ -215,19 +215,27 @@
                     <div ng-if="!action.ExecuteInClientSide" class="d-flex align-items-center mb-3">
                         <i class="codicon codicon-workspace-trusted me-2 b-icon-1_5"></i> Server Side Action
                     </div>
-                    <div ng-if="action.FieldType" class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center mb-3">
                         <i class="codicon codicon-archive me-2 b-icon-1_5"></i> 
-                        {{action.FieldType}}
+                        <span ng-if="!action.Params.length" class="me-1">No</span>
+                        <span ng-if="action.Params.length">{{action.Params.length}}</span>
+                        Params
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="codicon codicon-beaker me-2 b-icon-1_5"></i> 
+                        <span ng-if="!action.Results.length" class="me-1">No</span>
+                        <span ng-if="action.Results.length">{{action.Results.length}}</span>
+                        Results
                     </div>
                 </div>
                 <div class="col-1">
-                    <button type="button" class="b-btn mb-2" ng-click="$.onEditActionClick(action.Id,action.FieldType,action.FieldId)">
+                    <button type="button" class="b-btn btn-action btn-sm mb-3" ng-click="$.onEditActionClick(action.Id,action.FieldType,action.FieldId)">
                         <i class="codicon codicon-edit me-0"></i>
                     </button>
-                    <button type="button" class="b-btn mb-2" ng-click="$.onDeleteActionClick(action.Id,$index)">
+                    <button type="button" class="b-btn btn-action btn-sm mb-3" ng-click="$.onDeleteActionClick(action.Id,$index)">
                         <i class="codicon codicon-trash me-0"></i>
                     </button>
-                    <a class="b-btn" href="#actionMoreData{{action.Id}}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">
+                    <a class="b-btn btn-action btn-sm" href="#actionMoreData{{action.Id}}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">
                         <i class="codicon codicon-chevron-down me-0"></i>
                     </a>
                 </div>

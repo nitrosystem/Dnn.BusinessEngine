@@ -1,5 +1,4 @@
 ﻿using DotNetNuke.Common.Utilities;
-using DotNetNuke.Data;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
@@ -11,20 +10,18 @@ using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 {
     public class ModuleLibraryAndResourceService : IModuleLibraryAndResourceService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
 
-        public ModuleLibraryAndResourceService(IUnitOfWork unitOfWork, IRepositoryBase repository)
+        public ModuleLibraryAndResourceService(ICacheService cacheService, IRepositoryBase repository)
         {
-            _unitOfWork = unitOfWork;
+            _cacheService = cacheService;
             _repository = repository;
         }
 
@@ -88,8 +85,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                 await _repository.ExecuteStoredProcedureAsync("dbo.BusinessEngine_Studio_SortModuleCustomResources",
                     new { JsonData = items.ToJson() });
 
-            DataCache.ClearCache("BE_ModuleCustomLibraries_");
-            DataCache.ClearCache("BE_ModuleCustomResources_");
+            _cacheService.ClearByPrefix("BE_ModuleCustomLibraries_");
+            _cacheService.ClearByPrefix("BE_ModuleCustomResources_");
         }
 
         public async Task<bool> DeleteModuleCustomLibraryAsync(Guid moduleId)

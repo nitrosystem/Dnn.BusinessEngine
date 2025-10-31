@@ -20,7 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
     {
         private readonly IRepositoryBase _repository;
 
-        public ModuleService(IUnitOfWork unitOfWork, ICacheService cacheService, IRepositoryBase repository)
+        public ModuleService(IRepositoryBase repository)
         {
             _repository = repository;
         }
@@ -76,31 +76,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
         public async Task<bool> DeleteModuleAsync(Guid moduleId)
         {
             return await _repository.DeleteAsync<ModuleInfo>(moduleId);
-        }
-
-        #endregion
-
-        #region Module Template Services
-
-        public async Task<ModuleTemplateViewModel> GetModuleTemplateViewModelAsync(Guid moduleId)
-        {
-            var module = await _repository.GetAsync<ModuleInfo>(moduleId);
-
-            return HybridMapper.Map<ModuleInfo, ModuleTemplateViewModel>(module);
-        }
-
-        public async Task<bool> UpdateModuleTemplateAsync(ModuleTemplateViewModel module)
-        {
-            var objModuleInfo = HybridMapper.Map<ModuleTemplateViewModel, ModuleInfo>(module);
-
-            return await _repository.UpdateAsync(
-                objModuleInfo,
-                "Template",
-                "Theme",
-                "PreloadingTemplate",
-                "LayoutTemplate",
-                "LayoutCss"
-            );
         }
 
         #endregion
@@ -191,82 +166,3 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
         #endregion
     }
 }
-
-//    using (var reader = await spResourceReaderTask)
-//    {
-//        while (reader.Read())
-//        {
-//            resourcesToBuild.Add(new BuildModuleResourceDto()
-//            {
-//                ModuleId = GlobalHelper.GetSafeGuid(reader["ModuleId"]),
-//                ResourceType = (ResourceType)reader["ResourceType"],
-//                ActionType = (ActionType)reader["ActionType"],
-//                ResourcePath = GlobalHelper.GetSafeString(reader["ResourcePath"]),
-//                EntryType = GlobalHelper.GetSafeString(reader["EntryType"]),
-//                Additional = GlobalHelper.GetSafeString(reader["Additional"]),
-//                CacheKey = GlobalHelper.GetSafeString(reader["CacheKey"]),
-//                Condition = GlobalHelper.GetSafeString(reader["Condition"]),
-//                LoadOrder = GlobalHelper.GetSafeInt(reader["LoadOrder"])
-//            });
-//        }
-//    }
-
-//#region Build Module Services
-
-//public async Task BuildModuleAsync(Guid moduleId, PortalSettings portalSettings, HttpContext context)
-//{
-//    
-
-//    var pageId = await spPageIdTask;
-//    
-
-//    var moduleToBuild = HybridMapper.Map<ModuleView, BuildModuleDto>(module);
-//    var fieldsToBuild = HybridMapper.MapCollection<ModuleFieldInfo, BuildModuleFieldDto>(fields,
-//        (src, dest) =>
-//        {
-//            var dict = fieldsSettings.GroupBy(c => c.FieldId)
-//                             .ToDictionary(g => g.Key, g => g.AsEnumerable());
-
-//            var items = dict.TryGetValue(src.Id, out var settings);
-//            dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
-
-//            dest.GlobalSettings = ReflectionUtil.ConvertDictionaryToObject<ModuleFieldGlobalSettings>(dest.Settings);
-//        });
-
-//    var resourcesToBuild = new List<BuildModuleResourceDto>();
-//    using (var reader = await spResourceReaderTask)
-//    {
-//        while (reader.Read())
-//        {
-//            resourcesToBuild.Add(new BuildModuleResourceDto()
-//            {
-//                ModuleId = GlobalHelper.GetSafeGuid(reader["ModuleId"]),
-//                ResourceType = (ResourceType)reader["ResourceType"],
-//                ActionType = (ActionType)reader["ActionType"],
-//                ResourcePath = GlobalHelper.GetSafeString(reader["ResourcePath"]),
-//                EntryType = GlobalHelper.GetSafeString(reader["EntryType"]),
-//                Additional = GlobalHelper.GetSafeString(reader["Additional"]),
-//                CacheKey = GlobalHelper.GetSafeString(reader["CacheKey"]),
-//                Condition = GlobalHelper.GetSafeString(reader["Condition"]),
-//                LoadOrder = GlobalHelper.GetSafeInt(reader["LoadOrder"])
-//            });
-//        }
-//    }
-
-//    var status = await _buildModule.PrepareBuild(moduleToBuild, _repository, portalSettings);
-//    if (status.IsReadyToBuild)
-//    {
-//        var pageResources = await _repository.GetItemsByColumnAsync<PageResourceInfo>("SitePageId", pageId);
-//        var pageResourcesDto = HybridMapper.MapCollection<PageResourceInfo, PageResourceDto>(pageResources);
-
-//        var finalResources = await _buildModule.ExecuteBuildAsync(moduleToBuild, fieldsToBuild, resourcesToBuild, pageId, portalSettings, context);
-//        var mappedResources = HybridMapper.MapCollection<PageResourceDto, PageResourceInfo>(finalResources);
-//        await _repository.BulkInsertAsync<PageResourceInfo>(mappedResources);
-
-//        _cacheService.ClearByPrefix("BE_Modules_");
-//    }
-//    else if (status.ExceptionError != null)
-//        throw status.ExceptionError ?? throw new Exception("The module is not ready to be build!");
-//}
-
-//#endregion

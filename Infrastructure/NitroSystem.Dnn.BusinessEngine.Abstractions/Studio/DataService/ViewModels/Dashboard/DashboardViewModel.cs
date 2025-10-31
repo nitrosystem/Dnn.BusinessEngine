@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard
 {
     public class DashboardViewModel : IViewModel
     {
@@ -10,10 +10,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard
         public Guid ScenarioId { get; set; }
         public Guid ModuleId { get; set; }
         public int PortalId { get; set; }
-        public int DnnModuleId { get; set; }
+        public int SiteModuleId { get; set; }
         public string ModuleName { get; set; }
         public string ModuleTitle { get; set; }
-        public string Skin { get; set; }
         public string Template { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }

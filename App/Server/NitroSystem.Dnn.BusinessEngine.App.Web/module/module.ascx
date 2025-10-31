@@ -4,7 +4,10 @@
 <asp:PlaceHolder ID="pnlAntiForgery" runat="server"></asp:PlaceHolder>
 <b:PageResource ID="CtlPageResource" runat="server" />
 
-<asp:LinkButton ID="lnkModuleBuilder" CssClass="b--module-builder" Text="Studio" runat="server"></asp:LinkButton>
+<%if (IsAdmin)
+    {%>
+<a href="<%=StudioUrl%>" target="_blank" class="b--module-builder">Studio</a>
+<%} %>
 
 <div id="pnlTemplate" runat="server"></div>
 

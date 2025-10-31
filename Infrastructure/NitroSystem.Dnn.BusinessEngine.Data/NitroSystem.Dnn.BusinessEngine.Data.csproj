@@ -67,9 +67,6 @@
     <Compile Include="Entities\Tables\DashboardInfo.cs" />
     <Compile Include="Entities\Tables\DashboardPageInfo.cs" />
     <Compile Include="Entities\Tables\DashboardPageModuleInfo.cs" />
-    <Compile Include="Entities\Tables\DashboardSkinInfo.cs" />
-    <Compile Include="Entities\Tables\DashboardSkinTemplateInfo.cs" />
-    <Compile Include="Entities\Views\DashboardAppearanceView.cs" />
     <Compile Include="Entities\Views\DashboardPageLiteView.cs" />
     <Compile Include="Entities\Views\DashboardPageModuleView.cs" />
     <Compile Include="Entities\Views\DashboardPageView.cs" />

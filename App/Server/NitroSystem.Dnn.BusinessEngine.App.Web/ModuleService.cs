@@ -9,17 +9,19 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Data.Repository;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Caching;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web
 {
     public class ModuleService
     {
-        public static (string Preloader, string Template) RenderModule(Page page, string baseUrl, bool isDashboard, int? siteModuleId, ref Guid? moduleId, out string scenarioName, string parentFolder = "")
+        public static (string Preloader, string Template) RenderModule(Page page, ICacheService cacheService, string baseUrl, bool isDashboard, int? siteModuleId, ref Guid? moduleId, out string scenarioName, string parentFolder = "")
         {
             var preloader = string.Empty;
             var template = string.Empty;
 
-            var module = GetModuleLiteData(siteModuleId, ref moduleId);
+            var module = GetModuleLiteData(cacheService, siteModuleId, ref moduleId);
             if (module != null)
             {
                 var connectionId = Guid.NewGuid();
@@ -29,7 +31,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                 var moduleKebabName = StringHelper.ToKebabCase(module.ModuleName);
                 var modulePath = $"{baseUrl}/business-engine/{scenarioFolder}/{parentFolder}{moduleKebabName}";
 
-                var templates = GetTemplates(module.Id.Value, modulePath, moduleKebabName);
+                var templates = GetTemplates(cacheService, module.Id.Value, modulePath, moduleKebabName);
                 template = $@"
                 <div b-controller=""moduleController"" data-module=""{module.Id}"" data-dashboard=""{isDashboard}"" data-connection=""{connectionId}"" class=""b--module {rtlCssClass}"">
                     {templates.Template}
@@ -47,13 +49,13 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             return (preloader, template);
         }
 
-        private static ModuleLiteData GetModuleLiteData(int? siteModuleId, ref Guid? moduleId)
+        private static ModuleLiteData GetModuleLiteData(ICacheService cacheService, int? siteModuleId, ref Guid? moduleId)
         {
             var cacheKey = "BE_Modules_" + (siteModuleId != null
                 ? siteModuleId.Value.ToString()
                 : moduleId.Value.ToString());
 
-            var module = DataCache.GetCache<ModuleLiteData>(cacheKey);
+            var module = cacheService.Get<ModuleLiteData>(cacheKey);
             if (module == null)
             {
                 var reader = ExecuteSqlCommand.ExecuteSqlReader(CommandType.StoredProcedure, "dbo.BusinessEngine_App_GetModuleLite",
@@ -73,7 +75,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                         ModuleVersion = reader["ModuleVersion"] as int?
                     };
 
-                    DataCache.SetCache(cacheKey, module);
+                    cacheService.Set<ModuleLiteData>(cacheKey, module);
 
                     reader.Close();
                 }
@@ -86,14 +88,14 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             return module;
         }
 
-        private static (string Preloader, string Template) GetTemplates(Guid moduleId, string modulePath, string moduleKebabName)
+        private static (string Preloader, string Template) GetTemplates(ICacheService cacheService, Guid moduleId, string modulePath, string moduleKebabName)
         {
             var cacheKey = "BE_Modules_Template" + moduleId;
-            var data = DataCache.GetCache<(string Preloader, string Template)>(cacheKey);
+            var data = cacheService.Get<(string Preloader, string Template)>(cacheKey);
             var preloader = data.Preloader;
             var template = data.Template;
 
-            if (1 == 1 || string.IsNullOrEmpty(template))
+            if (string.IsNullOrEmpty(template))
             {
                 string modulePreloaderUrl = $"{modulePath}/{moduleKebabName}.preloader.html";
                 string moduleTemplateUrl = $"{modulePath}/{moduleKebabName}.html";
@@ -102,7 +104,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                 template = FileUtil.GetFileContent(Constants.MapPath(moduleTemplateUrl));
 
                 data = (preloader, template);
-                DataCache.SetCache(cacheKey, data);
+                cacheService.Set<(string Preloader, string Template)>(cacheKey, data);
             }
 
             return data;

@@ -1,5 +1,3 @@
-import { GlobalSettings } from "../../angular-configs/global.settings";
-
 export class CreateModuleCreateActionController {
     constructor(
         $scope,
@@ -76,7 +74,6 @@ export class CreateModuleCreateActionController {
             actionId: actionId,
             fieldType: fieldType,
         }).then((data) => {
-            //this.module = data.Module;
             this.actionTypes = data.ActionTypes;
             this.actions = data.Actions;
             this.variables = data.Variables;
@@ -111,21 +108,19 @@ export class CreateModuleCreateActionController {
                 });
             }
 
-            let objects = {};
-
+            this.objects = {};
             _.forEach(data.Variables, (variable) => {
-                objects[variable.VariableName] = {};
-                let obj = objects[variable.VariableName];
+                const baseObject = _.reduce(variable.Properties, (acc, prop) => {
+                    acc[prop.PropertyName] = {};
+                    return acc;
+                }, {});
 
-                _.forEach(variable.Properties, (prop) => {
-                    obj[prop.PropertyName] = {};
-                });
-
-                 if (variable.VariableType == 'AppModelList')
-                    objects[variable.VariableName] = [obj];
+                if (variable.VariableType === 'AppModelList') {
+                    this.objects[variable.VariableName] = [baseObject];
+                } else {
+                    this.objects[variable.VariableName] = baseObject;
+                }
             });
-
-            this.objects = objects;
 
             this.onFocusModule();
             this.setForm();
@@ -202,6 +197,11 @@ export class CreateModuleCreateActionController {
             this.$scope,
             "$.action"
         );
+    }
+
+    onEventChange() {
+        if (this.action.Event !== 'OnActionCompleted')
+            this.action.ParentId = null;
     }
 
     gotoStep(step) {

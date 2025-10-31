@@ -143,9 +143,9 @@
             </div>
             <div class="col-1">
                 <div class="b-input-group">
-                    <button type="button" class="b-btn btn-submit ps-3 pe-3" ng-click="$.onSearchClick()"
+                    <button type="button" class="b-input form-control ps-1" ng-click="$.onSearchClick()"
                         ng-disabled="$.running">
-                        <i class="codicon codicon-search m-0" ng-disabled="$.running"></i>
+                        <i class="codicon codicon-search" ng-disabled="$.running"></i>
                     </button>
                 </div>
             </div>
@@ -153,7 +153,7 @@
                 <!------------------------------------>
                 <!--Install New Extenions-->
                 <!------------------------------------>
-                <button type="button" class="b-btn btn-text-icon btn-action" ng-click="$.onInstallExtensionClick()"
+                <button type="button" class="b-btn btn-text-icon btn-submit" ng-click="$.onInstallExtensionClick()"
                     ng-disabled="$.running">
                     <i class="codicon codicon-plus" ng-disabled="$.running"></i>
                     Install New Extension
@@ -161,14 +161,71 @@
             </div>
         </div>
         <!------------------------------------>
-        <!--Extensions-->
+        <!--Available Extensions-->
+        <!------------------------------------>
+        <div class="b-group" ng-if="$.availableExtensions.length">
+            <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpAvailableExtensions">
+                <h3 class="group-label">
+                    <span class="group-icon">
+                        <i class="codicon codicon-server-process"></i>
+                    </span>Available Extensions
+                </h3>
+                <span class="group-collapse">
+                    <i class="codicon codicon-chevron-up"></i>
+                </span>
+            </div>
+            <div id="grpAvailableExtensions" class="group-content collapse show">
+                <div class="b-table theme-gray">
+                    <div class="table-body pt-3">
+                        <div class="d-flex columns-name">
+                            <div class="col-1">
+                                <i class="codicon codicon-extensions fs2-rem"></i>
+                            </div>
+                            <div class="col-8 my-auto">Extension Name</div>
+                            <div class="col-2 my-auto">...</div>
+                        </div>
+                        <div class="d-flex table-row"
+                            ng-repeat="item in $.availableExtensions | fuzzyBy: 'extensionName' : $.filter.Extension">
+                            <div class="col-1 my-auto">
+                                <i class="codicon codicon-extensions fs2-rem b-color-{{$index+1}}"></i>
+                            </div>
+                            <div class="col-8 my-auto text-light">
+                                {{item}}
+                            </div>
+                            <div class="col-2 my-auto text-light">
+                                <div class="b-btn-group">
+                                    <!------------------------------------>
+                                    <!--Install New Extenions-->
+                                    <!------------------------------------>
+                                    <button type="button" class="b-btn btn-submit"
+                                        ng-click="$.onInstallAvailableExtension(item,$index)" ng-disabled="$.running">
+                                        INSTALL
+                                    </button>
+                                    <button type="button" class="b-btn btn-submit dropdown-toggle dropdown-toggle-split"
+                                        ng-disabled="$.running" data-bs-toggle="dropdown" aria-expanded="false">
+                                    </button>
+                                    <div class="dropdown-menu b-dropdown-menu">
+                                        <a class="dropdown-item"
+                                            ng-href="/DesktopModules/BusinessEngine/install/{{item}}" target="_blank">
+                                            <i class="codicon codicon-cloud-download me-2"></i> Download Extension
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!--Installed Extensions-->
         <!------------------------------------>
         <div class="b-group">
             <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpExtensions">
                 <h3 class="group-label">
                     <span class="group-icon">
                         <i class="codicon codicon-server-process"></i>
-                    </span> Extensions
+                    </span>Installed Extensions
                 </h3>
                 <span class="group-collapse">
                     <i class="codicon codicon-chevron-up"></i>

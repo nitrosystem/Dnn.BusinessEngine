@@ -22,11 +22,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Template
             _moduleService = moduleService;
         }
 
-        public async Task<IEnumerable<TemplateViewModel>> GetTemplatesViewModelAsync(ModuleType moduleType)
+        public async Task<IEnumerable<TemplateViewModel>> GetTemplatesViewModelAsync(ModuleType moduleType, Guid? parentId)
         {
-            var templates = await _repository.GetAllAsync<TemplateInfo>();
+            var templates = await _repository.GetItemsByColumnsAsync<TemplateInfo>(
+                new string[2] { "ModuleType", "ParentId" },
+                new
+                {
+                    ModuleType = moduleType,
+                    ParentId = parentId
+                });
             var themes = await _repository.GetAllAsync<TemplateThemeInfo>();
-
             var builder = new CollectionMappingBuilder<TemplateInfo, TemplateViewModel>();
 
             builder.AddChildAsync<TemplateThemeInfo, TemplateThemeViewModel, Guid>(

@@ -1,5 +1,3 @@
-import { GlobalSettings } from "../../angular-configs/global.settings";
-
 export class CreateModuleActionsController {
     constructor($scope, $rootScope, $q, globalService, apiService, studioService, notificationService) {
         "ngInject";

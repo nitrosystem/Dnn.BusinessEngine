@@ -11,7 +11,6 @@ using DotNetNuke.Web.Api;
 using DotNetNuke.Entities.Host;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Controllers;
-using DotNetNuke.Common.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
@@ -29,10 +28,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
-using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension;
+
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -84,6 +80,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 HostController.Instance.Update("CrmVersion", (Host.CrmVersion + 1).ToString());
 
                 _cacheService.ClearAll();
+
+                HttpRuntime.UnloadAppDomain();
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }

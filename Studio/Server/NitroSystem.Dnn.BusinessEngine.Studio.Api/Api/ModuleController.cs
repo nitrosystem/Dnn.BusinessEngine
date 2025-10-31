@@ -24,9 +24,9 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -38,6 +38,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IAppModelService _appModelServices;
         private readonly IDashboardService _dashboardService;
         private readonly IModuleService _moduleService;
+        private readonly IModuleTemplateService _moduleTemplateService;
         private readonly IModuleFieldService _moduleFieldService;
         private readonly IModuleVariableService _moduleVariableService;
         private readonly IModuleLibraryAndResourceService _moduleLibraryAndResourceService;
@@ -50,6 +51,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             IAppModelService appModelService,
             IDashboardService dashboardService,
             IModuleService moduleService,
+            IModuleTemplateService moduleTemplateService,
             IModuleFieldService moduleFieldService,
             IModuleVariableService moduleVariableService,
             IModuleLibraryAndResourceService moduleLibraryAndResourceService,
@@ -62,6 +64,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _appModelServices = appModelService;
             _dashboardService = dashboardService;
             _moduleService = moduleService;
+            _moduleTemplateService = moduleTemplateService;
             _moduleFieldService = moduleFieldService;
             _moduleVariableService = moduleVariableService;
             _moduleLibraryAndResourceService = moduleLibraryAndResourceService;
@@ -110,45 +113,45 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         #endregion
 
-        #region 2-Dashboard Appearance
+        //#region 2-Dashboard Appearance
 
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetDashboardAppearance(Guid moduleId)
-        {
-            try
-            {
-                var dashboard = await _dashboardService.GetDashboardAppearanceAsync(moduleId);
-                var skins = await _dashboardService.GetDashboardSkinsViewModelAsync();
+        //[HttpGet]
+        //public async Task<HttpResponseMessage> GetDashboardAppearance(Guid moduleId)
+        //{
+        //    try
+        //    {
+        //        var dashboard = await _dashboardService.GetDashboardAppearanceAsync(moduleId);
+        //        var skins = await _dashboardService.GetDashboardSkinsViewModelAsync();
 
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    Dashboard = dashboard,
-                    Skins = skins
-                });
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //        return Request.CreateResponse(HttpStatusCode.OK, new
+        //        {
+        //            Dashboard = dashboard,
+        //            Skins = skins
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveDashboardAppearance(DashboardAppearanceViewModel dashboard)
-        {
-            try
-            {
-                await _dashboardService.SaveDashboardAppearanceAsync(dashboard);
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<HttpResponseMessage> SaveDashboardAppearance(DashboardAppearanceViewModel dashboard)
+        //{
+        //    try
+        //    {
+        //        await _dashboardService.SaveDashboardAppearanceAsync(dashboard);
 
-                return Request.CreateResponse(HttpStatusCode.OK);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //        return Request.CreateResponse(HttpStatusCode.OK);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
 
-        #endregion
+        //#endregion
 
         //#region 3-Dashboard Pages
 
@@ -374,9 +377,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
-                var templates = module.Wrapper == ModuleWrapper.Dashboard
-                ? await _dashboardService.GetTemplates(module.ModuleType, module.ParentId.Value)
-                : await _templateService.GetTemplatesViewModelAsync(module.ModuleType);
+                var parentId = module.ParentId.HasValue
+                    ? await _moduleTemplateService.GetTemplateIdAsync(module.ParentId.Value)
+                    :null;
+                var templates = await _templateService.GetTemplatesViewModelAsync(module.ModuleType, parentId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -396,7 +400,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var isUpdated = await _moduleService.UpdateModuleTemplateAsync(module);
+                var isUpdated = await _moduleTemplateService.UpdateTemplateAsync(module);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isUpdated);
             }

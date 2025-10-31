@@ -33,15 +33,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
         protected global::NitroSystem.Dnn.BusinessEngine.App.Web.PageResources CtlPageResource;
 
         /// <summary>
-        /// lnkModuleBuilder control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton lnkModuleBuilder;
-
-        /// <summary>
         /// pnlTemplate control.
         /// </summary>
         /// <remarks>

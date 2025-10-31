@@ -12,12 +12,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
     {
         public Guid Id { get; set; }
         public Guid ExtensionId { get; set; }
+        public Guid? ParentId { get; set; }
         public int ModuleType { get; set; }
         public string TemplateName { get; set; }
         public string TemplateImage { get; set; }
         public string TemplatePath { get; set; }
+        public string TemplateCssPath { get; set; }
         public string PreviewImages { get; set; }
-        public string Version { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }

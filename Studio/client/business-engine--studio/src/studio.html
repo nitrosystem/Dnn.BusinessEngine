@@ -13,7 +13,7 @@
     <div class="activity-bar">
         <div class="top-actions">
             <ul class="actions-container">
-                <li class="action-item" ng-repeat="item in $.activityBarItems"
+                <li class="action-item" ng-repeat="item in $.$rootScope.activityBarItems | filter:{visible:true}" 
                     ng-class="{'active':item.name==$.$rootScope.currentActivityBar}">
                     <a class="action-label" role="button" title="{{item.title}}" b-custom-tooltip
                         data-bs-placement="right" ng-click="$.onActivityBarItemClick(item.name)">

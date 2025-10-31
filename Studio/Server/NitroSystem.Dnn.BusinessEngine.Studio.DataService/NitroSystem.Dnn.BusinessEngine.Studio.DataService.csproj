@@ -57,6 +57,7 @@
     <Compile Include="Extension\ExtensionService.cs" />
     <Compile Include="Module\ModuleFieldService.cs" />
     <Compile Include="Module\ModuleLibraryAndResourceService.cs" />
+    <Compile Include="Module\ModuleTemplateService.cs" />
     <Compile Include="Module\ModuleVariableService.cs" />
     <Compile Include="Service\ServiceMappingProfile.cs" />
     <Compile Include="Action\ActionMappingProfile.cs" />

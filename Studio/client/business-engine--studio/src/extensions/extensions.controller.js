@@ -1,5 +1,3 @@
-import { GlobalSettings } from "../angular-configs/global.settings";
-
 export class ExtensionsController {
     constructor(
         $scope,
@@ -8,7 +6,6 @@ export class ExtensionsController {
         Upload,
         studioService,
         globalService,
-        hubService,
         apiService,
         notificationService) {
         "ngInject";
@@ -18,7 +15,6 @@ export class ExtensionsController {
         this.$timeout = $timeout;
         this.uploadService = Upload;
         this.globalService = globalService;
-        this.hubService = hubService;
         this.apiService = apiService;
         this.notifyService = notificationService;
 
@@ -41,7 +37,7 @@ export class ExtensionsController {
         };
 
         this.apiService.get("Studio", "GetExtensions").then((data) => {
-            this.extensions = data;
+            this.extensions = data.Extensions;
             this.availableExtensions = data.AvailableExtensions;
 
             this.onFocusModule();
@@ -99,6 +95,34 @@ export class ExtensionsController {
         }
     }
 
+    onInstallAvailableExtension(item, $index) {
+        this.running = "install-available-extensions";
+        this.awaitAction = {
+            title: `Unzip & Ready ${item.extensionFile}`,
+            subtitle: `Just a moment for unzip ${item.extensionName} file and ready to install...`,
+            extIndex: $index
+        };
+
+        this.apiService.post("Studio", "InstallAvailableExtension", item).then((data) => {
+            this.workingMode = "install-extension";
+            this.$scope.$emit("onShowRightWidget");
+            this.extInstalingStep = 4;
+
+            this.availableExtensions.splice($index, 1);
+
+            delete this.running;
+            delete this.awaitAction;
+        }, (error) => {
+            if (error.status == 401) this.$rootScope.$broadcast('onUnauthorized401', { error: error }); // if user is logoff then refresh page for redirect to login page
+
+            this.awaitAction.isError = true;
+            this.awaitAction.subtitle = error.statusText;
+            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+
+            delete this.running;
+        });
+    }
+
     onInstallExtensionStepClick() {
         this.extInstalingStep = 3;
 
@@ -108,10 +132,6 @@ export class ExtensionsController {
             subtitle: "Just a moment for installing extension...",
             showProgress: true,
         };
-
-        let hubID = this.hubService.subscribe('extension', 'extension-' + this.extension.InstallTemporaryItemId, 'install-extension', this, this.monitoring, () => {
-            this.awaitAction.showProgress = false;
-        });
 
         this.apiService.postWithMonitoring("Studio", "InstallExtension", hubID, null, {
             installTemporaryItemId: this.extension.InstallTemporaryItemId

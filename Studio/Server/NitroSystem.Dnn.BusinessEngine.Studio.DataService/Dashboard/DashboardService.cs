@@ -14,7 +14,6 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Studio.Services.ViewModels.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Template;
@@ -105,85 +104,85 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
 
         #endregion
 
-        #region Dashboard Appearance
+        //#region Dashboard Appearance
 
-        public async Task<DashboardAppearanceViewModel> GetDashboardAppearanceAsync(Guid moduleId)
-        {
-            var dashboard = await _repository.GetByColumnAsync<DashboardAppearanceView>("ModuleId", moduleId);
+        //public async Task<DashboardAppearanceViewModel> GetDashboardAppearanceAsync(Guid moduleId)
+        //{
+        //    var dashboard = await _repository.GetByColumnAsync<DashboardAppearanceView>("ModuleId", moduleId);
 
-            return HybridMapper.Map<DashboardAppearanceView, DashboardAppearanceViewModel>(dashboard);
-        }
+        //    return HybridMapper.Map<DashboardAppearanceView, DashboardAppearanceViewModel>(dashboard);
+        //}
 
-        public async Task SaveDashboardAppearanceAsync(DashboardAppearanceViewModel dashboard)
-        {
-            _unitOfWork.BeginTransaction();
+        //public async Task SaveDashboardAppearanceAsync(DashboardAppearanceViewModel dashboard)
+        //{
+        //    _unitOfWork.BeginTransaction();
 
-            try
-            {
-                var objDashboardInfo = HybridMapper.Map<DashboardAppearanceViewModel, DashboardInfo>(dashboard);
-                await _repository.UpdateAsync<DashboardInfo>(objDashboardInfo, "SkinId");
+        //    try
+        //    {
+        //        var objDashboardInfo = HybridMapper.Map<DashboardAppearanceViewModel, DashboardInfo>(dashboard);
+        //        await _repository.UpdateAsync<DashboardInfo>(objDashboardInfo, "SkinId");
 
-                var templatePath = Constants.MapPath(dashboard.TemplatePath);
-                var templateCssPath = Constants.MapPath(dashboard.TemplateCssPath);
-                var layoutTemplate = await FileUtil.GetFileContentAsync(templatePath);
-                var layoutCss = await FileUtil.GetFileContentAsync(templateCssPath);
+        //        var templatePath = Constants.MapPath(dashboard.TemplatePath);
+        //        var templateCssPath = Constants.MapPath(dashboard.TemplateCssPath);
+        //        var layoutTemplate = await FileUtil.GetFileContentAsync(templatePath);
+        //        var layoutCss = await FileUtil.GetFileContentAsync(templateCssPath);
 
-                var objModuleInfo = new ModuleInfo()
-                {
-                    Id = dashboard.ModuleId,
-                    Template = dashboard.Template,
-                    LayoutTemplate = layoutTemplate,
-                    LayoutCss = layoutCss
-                };
-                await _repository.UpdateAsync<ModuleInfo>(objModuleInfo, "Template", "LayoutTemplate", "LayoutCss");
+        //        var objModuleInfo = new ModuleInfo()
+        //        {
+        //            Id = dashboard.ModuleId,
+        //            Template = dashboard.Template,
+        //            LayoutTemplate = layoutTemplate,
+        //            LayoutCss = layoutCss
+        //        };
+        //        await _repository.UpdateAsync<ModuleInfo>(objModuleInfo, "Template", "LayoutTemplate", "LayoutCss");
 
-                _unitOfWork.Commit();
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
+        //        _unitOfWork.Commit();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _unitOfWork.Rollback();
 
-                throw;
-            }
-        }
+        //        throw;
+        //    }
+        //}
 
-        public async Task<IEnumerable<DashboardSkinViewModel>> GetDashboardSkinsViewModelAsync()
-        {
-            var skins = await _repository.GetAllAsync<DashboardSkinInfo>("SkinName");
-            var templates = await _repository.GetAllAsync<DashboardSkinTemplateInfo>("ViewOrder");
+        //public async Task<IEnumerable<DashboardSkinViewModel>> GetDashboardSkinsViewModelAsync()
+        //{
+        //    var skins = await _repository.GetAllAsync<DashboardSkinInfo>("SkinName");
+        //    var templates = await _repository.GetAllAsync<DashboardSkinTemplateInfo>("ViewOrder");
 
-            return HybridMapper.MapWithChildren<DashboardSkinInfo, DashboardSkinViewModel, DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
-                parents: skins,
-                children: templates,
-                parentKeySelector: s => s.Id,
-                childKeySelector: t => t.SkinId,
-                assignChildren: (parent, childs) => parent.Templates = childs.Where(t => t.ModuleType == ModuleType.Dashboard).ToList()
-            );
-        }
+        //    return HybridMapper.MapWithChildren<DashboardSkinInfo, DashboardSkinViewModel, DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
+        //        parents: skins,
+        //        children: templates,
+        //        parentKeySelector: s => s.Id,
+        //        childKeySelector: t => t.SkinId,
+        //        assignChildren: (parent, childs) => parent.Templates = childs.Where(t => t.ModuleType == ModuleType.Dashboard).ToList()
+        //    );
+        //}
 
-        public async Task<IEnumerable<TemplateViewModel>> GetTemplates(ModuleType moduleType, Guid moduleId)
-        {
-            var skinId = await _repository.GetColumnValueAsync<DashboardInfo, Guid>("SkinId", "ModuleId", moduleId);
-            var templates = await _repository.GetItemsByColumnsAsync<DashboardSkinTemplateInfo>(new string[2] { "SkinId", "ModuleType" },
-                new
-                {
-                    SkinId = skinId,
-                    ModuleType = moduleType
-                });
+        //public async Task<IEnumerable<TemplateViewModel>> GetTemplates(ModuleType moduleType, Guid moduleId)
+        //{
+        //    var skinId = await _repository.GetColumnValueAsync<DashboardInfo, Guid>("SkinId", "ModuleId", moduleId);
+        //    var templates = await _repository.GetItemsByColumnsAsync<DashboardSkinTemplateInfo>(new string[2] { "SkinId", "ModuleType" },
+        //        new
+        //        {
+        //            SkinId = skinId,
+        //            ModuleType = moduleType
+        //        });
 
-            return HybridMapper.MapCollection<DashboardSkinTemplateInfo, TemplateViewModel>(
-               sources: templates,
-               configAction: (src, dest) =>
-               {
-                   if (!string.IsNullOrEmpty(src.TemplateCssPath))
-                   {
-                       var theme = new TemplateThemeViewModel() { ThemeCssPath = src.TemplateCssPath };
-                       dest.Themes = new List<TemplateThemeViewModel>() { theme };
-                   }
-               });
-        }
+        //    return HybridMapper.MapCollection<DashboardSkinTemplateInfo, TemplateViewModel>(
+        //       sources: templates,
+        //       configAction: (src, dest) =>
+        //       {
+        //           if (!string.IsNullOrEmpty(src.TemplateCssPath))
+        //           {
+        //               var theme = new TemplateThemeViewModel() { ThemeCssPath = src.TemplateCssPath };
+        //               dest.Themes = new List<TemplateThemeViewModel>() { theme };
+        //           }
+        //       });
+        //}
 
-        #endregion
+        //#endregion
 
         #region Dashboard Pages
 

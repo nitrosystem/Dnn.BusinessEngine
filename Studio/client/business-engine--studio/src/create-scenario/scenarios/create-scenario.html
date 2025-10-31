@@ -1,0 +1,193 @@
+<div ng-controller="createScenarioController as $" class="create-Scenario"
+    ng-class="{'was-validated':$.form.validated}">
+    <b-content-widget data-title="Create Scenario" data-icon="table" data-module-type="create-Scenario"
+        data-subtitle="Add or edit scenario" data-await-action="$.awaitAction" data-module="$"
+        extra-icon1="codicon codicon-git-stash-pop" extra-icon1-title="Export Scenario"
+        extra-icon1-method="onShowExportScenarioWinClick" extra-icon2="codicon codicon-git-stash"
+        extra-icon2-title="Import External Scenario" extra-icon2-method="onShowImportScenarioWinClick">
+        <div class="d-flex">
+            <div class="col-7 b-splitter border-end pe-5">
+                <div class="b-field">
+                    <label class="form-label">Scenario Name</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtScenarioName" ng-model="$.scenario.ScenarioName"
+                            class="b-input form-control" placeholder="Scenario name - example : TicketSystem"
+                            autocomplete="off" required />
+                        <span>
+                            <i class="codicon codicon-gear"></i>
+                        </span>
+                    </div>
+                    <div ng-if="$.scenario.ScenarioName && $.form.error.ScenarioName">
+                        <p class="b-invalid">{{$.form.error.ScenarioName}}</p>
+                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetValidNameClick()">Set Valid Name</button>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Scenario Title</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtScenarioTitle" ng-model="$.scenario.ScenarioTitle"
+                            class="b-input form-control" placeholder="Enter Scenario name(must be unique)"
+                            autocomplete="off" required />
+                        <span>
+                            <i class="codicon codicon-gear"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Database Object Prefix</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtDatabaseObjectPrefix" ng-model="$.scenario.DatabaseObjectPrefix"
+                            class="b-input form-control" placeholder="Enter Scenario name(must be unique)"
+                            autocomplete="off" required />
+                        <span>
+                            <i class="codicon codicon-gear"></i>
+                        </span>
+                    </div>
+                    <div ng-if="$.scenario.DatabaseObjectPrefix && $.form.error.DatabaseObjectPrefix">
+                        <p class="b-invalid">{{$.form.error.DatabaseObjectPrefix}}</p>
+                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetValidDbObjectPrefixClick()">Set Valid Name</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col ps-5">
+                <div class="b-notify notify-info mb-4">
+                    <i class="codicon codicon-info b-icon-2"></i>
+                    <div class="text">
+                        <h4 class="label">Low Risk!</h4>
+                        <span class="subtext">
+                            If you want to clean the scenario sections.You can render all the scenario modules.
+                            this work have low risk but can clean output pages and modules.
+                        </span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <button type="button" class="b-btn btn-text-icon btn-action btn-lg btn-full"
+                        ng-click="$.onRenderScenarioModulesClick()" ng-disabled="$.running||1==1">
+                        <i class="codicon codicon-save"
+                            ng-class="{'loading-circle mini':$.running=='render-all-modules'}"></i>
+                        Render All Scenario Modules
+                    </button>
+                </div>
+            </div>
+        </div>
+        <hr class="mb-4" />
+        <div class="mb-1 d-flex justify-content-end mt-auto">
+            <div class="me-auto" ng-if="$.scenario.Id">
+                <button type="button" class="b-btn btn-text-icon btn-danger" ng-click="$.onDeleteScenarioClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-trash"></i>
+                    Delete Scenario
+                </button>
+            </div>
+            <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveScenarioClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-save" ng-class="{'loading-circle mini':$.running=='save-Scenario'}"></i>
+                Save Scenario
+            </button>
+            <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelScenarioClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-circle-slash"></i>
+                Cancel
+            </button>
+        </div>
+    </b-content-widget>
+    <!------------------------------------>
+    <!--Export Scenario-->
+    <!------------------------------------>
+    <b-right-widget ng-if="$.workingMode=='export-scenario'" data-title="Export scenario" data-icon="git-stash-pop"
+        data-subtitle="export scenario components(Entities,Services,Actions,Modules,...)"
+        data-await-action="$.awaitAction" class="b-export-scenario" data-module="$" data-reload-method="onPageLoad"
+        data-close-method="onCloseWindow">
+        <div class="export-scenario">
+            <div class="b-field">
+                <label class="form-label">Package Type</label>
+                <div class="b-input-group">
+                    <label class="b-input form-control">Scenario Full Components</label>
+                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Package Name</label>
+                <div class="b-input-group">
+                    <label class="b-input form-control">{{$.export.PackageName}}</label>
+                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Package Version</label>
+                <div class="b-input-group">
+                    <input type="text" ng-model="$.export.PackageVersion" class="b-input form-control"
+                        placeholder="Enter package version pattern: xx.xx.xx" autocomplete="off" required />
+                    <span><i class="codicon codicon-versions"></i></span>
+                </div>
+                <p class="b-invalid">{{$.form.error.PackageVersion}}</p>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Description</label>
+                <div class="b-input-group">
+                    <textarea rows="3" ng-model="$.export.Description" class="b-input form-control"
+                        placeholder="Enter package description"></textarea>
+                    <span><i class="codicon codicon-code-oss"></i></span>
+                </div>
+            </div>
+            <!------------------------------------>
+            <!--Buttons-->
+            <!------------------------------------>
+            <hr class="mb-4" />
+            <div class="mb-1 d-flex">
+                <button type="button" class="b-btn btn-text-icon me-2" ng-click="$.onExportScenarioClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-git-stash-pop"></i>
+                    Export
+                </button>
+                <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelExportScenarioClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-circle-slash"></i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </b-right-widget>
+    <!------------------------------------>
+    <!--Import Scenario->
+    <!------------------------------------>
+    <b-right-widget ng-if="$.workingMode=='import-scenario'" data-title="Export scenario" data-icon="git-stash-pop"
+        data-subtitle="export scenario components(Entities,Services,Actions,Modules,...)"
+        data-await-action="$.awaitAction" class="b-import-scenario" data-module="$" data-reload-method="onPageLoad"
+        data-close-method="onCloseWindow">
+        <div class="import-scenario">
+            <div class="b-field">
+                <label class="form-label">Package Type</label>
+                <div class="b-input-group">
+                    <label class="b-input form-control">Scenario Full Components</label>
+                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Import File</label>
+                <div class="b-input-group">
+                    <input type="file" class="b-input form-control" accept=".zip"
+                        ngf-select="$.onImportScenarioFileUploadChange($file, $invalidFiles)" ngf-max-size="103809024"
+                        ngf-fix-orientation="true" />
+                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                </div>
+            </div>
+            <!------------------------------------>
+            <!--Buttons-->
+            <!------------------------------------>
+            <hr class="mb-4" />
+            <div class="mb-1 d-flex">
+                <button type="button" class="b-btn btn-text-icon me-2" ng-click="$.onImportScenarioClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-git-stash"></i>
+                    Import
+                </button>
+                <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelImportScenarioClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-circle-slash"></i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </b-right-widget>
+</div>

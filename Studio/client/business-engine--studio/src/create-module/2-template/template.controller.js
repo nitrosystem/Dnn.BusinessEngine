@@ -43,7 +43,7 @@ export class CreateModuleTemplateController {
         };
 
         this.apiService.get("Module", "GetTemplates", { moduleId: id }).then((data) => {
-            this.templates = data.InstalledTemplates;
+            this.templates = data.Templates;
             this.module = data.Module;
             this.oldModule = angular.copy(this.module);
 
@@ -140,7 +140,7 @@ export class CreateModuleTemplateController {
             this.apiService.post("Module", "SaveModuleTemplate", this.module).then((data) => {
                 if (data) this.notifyService.success("The module template has been save successfully");
 
-                $defer.resolve(datat);
+                $defer.resolve(data);
 
                 delete this.running;
                 delete this.awaitAction;
