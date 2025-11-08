@@ -104,91 +104,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
 
         #endregion
 
-        //#region Dashboard Appearance
-
-        //public async Task<DashboardAppearanceViewModel> GetDashboardAppearanceAsync(Guid moduleId)
-        //{
-        //    var dashboard = await _repository.GetByColumnAsync<DashboardAppearanceView>("ModuleId", moduleId);
-
-        //    return HybridMapper.Map<DashboardAppearanceView, DashboardAppearanceViewModel>(dashboard);
-        //}
-
-        //public async Task SaveDashboardAppearanceAsync(DashboardAppearanceViewModel dashboard)
-        //{
-        //    _unitOfWork.BeginTransaction();
-
-        //    try
-        //    {
-        //        var objDashboardInfo = HybridMapper.Map<DashboardAppearanceViewModel, DashboardInfo>(dashboard);
-        //        await _repository.UpdateAsync<DashboardInfo>(objDashboardInfo, "SkinId");
-
-        //        var templatePath = Constants.MapPath(dashboard.TemplatePath);
-        //        var templateCssPath = Constants.MapPath(dashboard.TemplateCssPath);
-        //        var layoutTemplate = await FileUtil.GetFileContentAsync(templatePath);
-        //        var layoutCss = await FileUtil.GetFileContentAsync(templateCssPath);
-
-        //        var objModuleInfo = new ModuleInfo()
-        //        {
-        //            Id = dashboard.ModuleId,
-        //            Template = dashboard.Template,
-        //            LayoutTemplate = layoutTemplate,
-        //            LayoutCss = layoutCss
-        //        };
-        //        await _repository.UpdateAsync<ModuleInfo>(objModuleInfo, "Template", "LayoutTemplate", "LayoutCss");
-
-        //        _unitOfWork.Commit();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _unitOfWork.Rollback();
-
-        //        throw;
-        //    }
-        //}
-
-        //public async Task<IEnumerable<DashboardSkinViewModel>> GetDashboardSkinsViewModelAsync()
-        //{
-        //    var skins = await _repository.GetAllAsync<DashboardSkinInfo>("SkinName");
-        //    var templates = await _repository.GetAllAsync<DashboardSkinTemplateInfo>("ViewOrder");
-
-        //    return HybridMapper.MapWithChildren<DashboardSkinInfo, DashboardSkinViewModel, DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
-        //        parents: skins,
-        //        children: templates,
-        //        parentKeySelector: s => s.Id,
-        //        childKeySelector: t => t.SkinId,
-        //        assignChildren: (parent, childs) => parent.Templates = childs.Where(t => t.ModuleType == ModuleType.Dashboard).ToList()
-        //    );
-        //}
-
-        //public async Task<IEnumerable<TemplateViewModel>> GetTemplates(ModuleType moduleType, Guid moduleId)
-        //{
-        //    var skinId = await _repository.GetColumnValueAsync<DashboardInfo, Guid>("SkinId", "ModuleId", moduleId);
-        //    var templates = await _repository.GetItemsByColumnsAsync<DashboardSkinTemplateInfo>(new string[2] { "SkinId", "ModuleType" },
-        //        new
-        //        {
-        //            SkinId = skinId,
-        //            ModuleType = moduleType
-        //        });
-
-        //    return HybridMapper.MapCollection<DashboardSkinTemplateInfo, TemplateViewModel>(
-        //       sources: templates,
-        //       configAction: (src, dest) =>
-        //       {
-        //           if (!string.IsNullOrEmpty(src.TemplateCssPath))
-        //           {
-        //               var theme = new TemplateThemeViewModel() { ThemeCssPath = src.TemplateCssPath };
-        //               dest.Themes = new List<TemplateThemeViewModel>() { theme };
-        //           }
-        //       });
-        //}
-
-        //#endregion
-
         #region Dashboard Pages
 
-        public async Task<IEnumerable<DashboardPageViewModel>> GetDashboardPagesViewModelAsync(Guid moduleId)
+        public async Task<IEnumerable<DashboardPageViewModel>> GetDashboardPagesViewModelAsync(Guid dashboardModuleId)
         {
-            var dashboardId = await GetDashboardIdAsync(moduleId);
+            var dashboardId = await GetDashboardIdAsync(dashboardModuleId);
             var pages = await _repository.GetByScopeAsync<DashboardPageInfo>(dashboardId.Value);
 
             return await BuildPageTree(pages);
@@ -196,22 +116,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
 
         public async Task<IEnumerable<DashboardPageListItem>> GetDashboardPagesListItemAsync(Guid dashboardModuleId)
         {
-            var pages = await _repository.GetByScopeAsync<DashboardPageListItemView>(dashboardModuleId);
+            var dashboardId = await GetDashboardIdAsync(dashboardModuleId);
+            var pages = await _repository.GetItemsByColumnAsync<DashboardPageInfo>("", dashboardId, "PageName");
 
-            return HybridMapper.MapCollection<DashboardPageListItemView, DashboardPageListItem>(pages);
+            return HybridMapper.MapCollection<DashboardPageInfo, DashboardPageListItem>(pages);
         }
 
         public async Task<DashboardPageViewModel> GetDashboardPageViewModelAsync(Guid pageId)
         {
-            var page = await _repository.GetAsync<DashboardPageView>(pageId);
+            var page = await _repository.GetAsync<DashboardPageInfo>(pageId);
 
-            return await HybridMapper.MapAsync<DashboardPageView, DashboardPageViewModel>(
+            return await HybridMapper.MapAsync<DashboardPageInfo, DashboardPageViewModel>(
                source: page,
                configAction: async (src, dest) =>
                {
                    if (dest.PageType == DashboardPageType.Standard)
                    {
-                       var module = await _repository.GetByColumnAsync<DashboardPageModuleView>("ModuleId", page.ModuleId);
+                       var module = await _repository.GetByColumnAsync<DashboardPageModuleView>("PageId", src.Id);
                        dest.Module = HybridMapper.Map<DashboardPageModuleView, DashboardPageModuleViewModel>(module);
                    }
                }
@@ -235,13 +156,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
                     objDashboardPageInfo.ViewOrder = await _repository.ExecuteStoredProcedureScalerAsync<int?>(
                         "dbo.BusinessEngine_Studio_GetLastDashboardPage", "",
                         new { objDashboardPageInfo.ParentId }) ?? 1;
-                    ids[0] = objDashboardPageInfo.Id = await _repository.AddAsync(objDashboardPageInfo);
+                    ids[0] = objDashboardPageInfo.Id = await _repository.AddAsync<DashboardPageInfo>(objDashboardPageInfo);
                 }
                 else
                 {
                     ids[0] = page.Id;
 
-                    var isUpdated = await _repository.UpdateAsync(objDashboardPageInfo);
+                    var isUpdated = await _repository.UpdateAsync<DashboardPageInfo>(objDashboardPageInfo);
                     if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objDashboardPageInfo);
                 }
 
@@ -254,19 +175,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
                         source: page.Module,
                         configAction: async (src, dest) =>
                         {
+                            dest.Id = src.ModuleId;
                             dest.ParentId = page.DashboardModuleId;
-                            dest.ScenarioId = await _moduleService.GetScenarioIdAsync(page.DashboardModuleId);
+                            dest.ScenarioId = await _repository.GetColumnValueAsync<ModuleInfo, Guid>("ScenarioId", "Id", page.DashboardModuleId);
                         }
                     );
+
                     if (objModuleInfo.Id == Guid.Empty)
                     {
-                        ids[1] = objModuleInfo.Id = await _repository.AddAsync(objModuleInfo);
+                        ids[1] = objModuleInfo.Id = await _repository.AddAsync<ModuleInfo>(objModuleInfo);
                     }
                     else
                     {
                         ids[1] = objModuleInfo.Id;
 
-                        var isUpdated = await _repository.UpdateAsync(objModuleInfo, "ModuleType", "ModuleName", "ModuleTitle");
+                        var isUpdated = await _repository.UpdateAsync<ModuleInfo>(objModuleInfo, "ParentId", "ModuleType", "ModuleName", "ModuleTitle");
                         if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleInfo);
                     }
 
@@ -274,17 +197,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
                         ----->> Save Page Module (3) ==> Save Business Engine Dashboard Page Module <<-----
                      ------------------------------------------------------------------------------*/
                     var objDashboardPageModuleInfo = HybridMapper.Map<DashboardPageModuleViewModel, DashboardPageModuleInfo>(page.Module);
-                    objDashboardPageModuleInfo.PageId = objDashboardPageInfo.Id;
-                    objDashboardPageModuleInfo.ModuleId = objModuleInfo.Id;
                     if (objDashboardPageModuleInfo.Id == Guid.Empty)
                     {
-                        ids[2] = objDashboardPageModuleInfo.Id = await _repository.AddAsync(objDashboardPageModuleInfo);
+                        ids[2] = objDashboardPageModuleInfo.Id = await _repository.AddAsync<DashboardPageModuleInfo>(objDashboardPageModuleInfo);
                     }
                     else
                     {
                         ids[2] = objDashboardPageModuleInfo.Id;
 
-                        var isUpdated = await _repository.UpdateAsync(objDashboardPageModuleInfo);
+                        var isUpdated = await _repository.UpdateAsync<DashboardPageModuleInfo>(objDashboardPageModuleInfo);
                         if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objDashboardPageModuleInfo);
                     }
                 }
@@ -352,6 +273,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
                        var module = await _repository.GetByColumnAsync<DashboardPageModuleView>("PageId", src.Id);
                        dest.Module = HybridMapper.Map<DashboardPageModuleView, DashboardPageModuleViewModel>(module);
                    }
+
                    dest.Pages = await PopulateDashboardPages(src.Id, lookup);
                }
             );

@@ -35,11 +35,21 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
             return HybridMapper.Map<ModuleView, ModuleDto>(module);
         }
 
+        public async Task<string> GetModuleNameAsync(Guid moduleId)
+        {
+            return await _repository.GetColumnValueAsync<ModuleInfo, string>(moduleId, "ModuleName");
+        }
+
+        public async Task<string> GetScenarioNameAsync(Guid moduleId)
+        {
+            return await _repository.GetColumnValueAsync<ModuleView, string>(moduleId, "ScenarioName");
+        }
+
         #endregion
 
         #region Module Field Services
 
-        public async Task<IEnumerable<ModuleFieldDto>> GetFieldsViewModelAsync(Guid moduleId)
+        public async Task<IEnumerable<ModuleFieldDto>> GetFieldsDtoAsync(Guid moduleId)
         {
             var fields = await _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId, "ViewOrder");
             var fieldsSettings = await _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("ModuleId", moduleId);
@@ -56,6 +66,24 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
                         dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
                     else
                         dest.Settings = new Dictionary<string, object>();
+                }
+            );
+        }
+
+        public async Task<ModuleFieldDto> GetFieldDtoAsync(Guid fieldId, bool includeDataSource = false)
+        {
+            var field = await _repository.GetAsync<ModuleFieldInfo>(fieldId);
+            var fieldSettings = await _repository.GetByScopeAsync<ModuleFieldSettingInfo>(fieldId);
+
+            return await HybridMapper.MapAsync<ModuleFieldInfo, ModuleFieldDto>(field,
+                async (src, dest) =>
+                {
+                    if (includeDataSource)
+                        dest.DataSource = src.HasDataSource && !string.IsNullOrWhiteSpace(src.DataSource)
+                               ? await GetFieldDataSource(src.DataSource)
+                               : null;
+
+                    dest.Settings = fieldSettings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
                 }
             );
         }
@@ -79,7 +107,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
 
         #region Module Variables
 
-        public async Task<IEnumerable<ModuleVariableDto>> GetModuleVariables(Guid moduleId, ModuleVariableScope scope)
+        public async Task<IEnumerable<ModuleVariableDto>> GetVariables(Guid moduleId, ModuleVariableScope scope)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<ModuleVariableView, AppModelPropertyInfo>(
                 "BusinessEngine_App_GetModuleVariables", "BE_ModuleVariables_App_" + moduleId,
@@ -102,7 +130,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
            );
         }
 
-        public async Task<IEnumerable<ModuleClientVariableDto>> GetModuleClientVariables(Guid moduleId)
+        public async Task<IEnumerable<ModuleClientVariableDto>> GetClientVariables(Guid moduleId)
         {
             var variables = await _repository.GetByScopeAsync<ModuleVariableInfo>(moduleId);
 

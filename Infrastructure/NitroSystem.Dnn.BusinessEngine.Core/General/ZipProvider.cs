@@ -2,7 +2,7 @@
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.General
 {
-    public static class General
+    public static class ZipProvider
 
     {
         public static string Zip(string filename, string sourceDirectory, bool recurse = true)

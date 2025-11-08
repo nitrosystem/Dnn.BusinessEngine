@@ -6,20 +6,25 @@ using DotNetNuke.Entities.Modules.Actions;
 using DotNetNuke.Framework;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Caching;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
     public partial class Module : PortalModuleBase, IActionable
     {
         private readonly ICacheService _cacheService;
+        private readonly IExecuteSqlCommand _sqlCommand;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly string _siteRoot;
         private string _scenarioName;
         private Guid? _id;
 
         public Module()
         {
-            _cacheService = new CacheService();
+            _cacheService = DependencyProvider.GetService<ICacheService>();
+            _sqlCommand = DependencyProvider.GetService<IExecuteSqlCommand>();
+            _unitOfWork = DependencyProvider.GetService<IUnitOfWork>();
 
             var root = ServicesFramework.GetServiceFrameworkRoot();
             _siteRoot = root == "/"
@@ -56,7 +61,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             var code = AntiForgery.GetHtml().ToHtmlString();
             pnlAntiForgery.Controls.Add(new LiteralControl(code));
 
-            var templates = ModuleService.RenderModule(this.Page, _cacheService, PortalSettings.HomeSystemDirectory, false, ModuleId, ref _id, out _scenarioName);
+            var templates = ModuleService.RenderModule(this.Page, _cacheService, _sqlCommand, _unitOfWork, PortalSettings.HomeSystemDirectory, false, ModuleId, ref _id, out _scenarioName);
             pnlTemplate.InnerHtml = templates.Template;
 
             if (_id.HasValue)

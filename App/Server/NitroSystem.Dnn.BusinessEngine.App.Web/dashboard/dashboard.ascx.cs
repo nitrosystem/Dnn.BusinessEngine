@@ -1,28 +1,32 @@
-﻿using DotNetNuke.Entities.Modules;
-using DotNetNuke.Entities.Modules.Actions;
-using System;
+﻿using System;
+using System.Data;
 using System.Web.Helpers;
 using System.Web.UI;
-using DotNetNuke.Framework;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-using System.Data;
-using NitroSystem.Dnn.BusinessEngine.Data.Repository;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
+using DotNetNuke.Framework;
+using DotNetNuke.Entities.Modules;
+using DotNetNuke.Entities.Modules.Actions;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Caching;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
     public partial class Dashboard : PortalModuleBase, IActionable
     {
         private readonly ICacheService _cacheService;
+        private readonly IExecuteSqlCommand _sqlCommand;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly string _siteRoot;
         private string _scenarioName;
         private Guid? _id;
 
         public Dashboard()
         {
-            _cacheService = new CacheService();
+            _cacheService = DependencyProvider.GetService<ICacheService>();
+            _sqlCommand = DependencyProvider.GetService<IExecuteSqlCommand>();
+            _unitOfWork = DependencyProvider.GetService<IUnitOfWork>();
 
             var root = ServicesFramework.GetServiceFrameworkRoot();
             _siteRoot = root == "/"
@@ -65,28 +69,41 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             var pageName = Request.QueryString["page"];
             if (!string.IsNullOrEmpty(pageName))
             {
-                var reader = ExecuteSqlCommand.ExecuteSqlReader(CommandType.Text,
-                     "SELECT ModuleId,ParentModuleName FROM dbo.BusinessEngineView_DashboardPageModules WHERE SiteModuleId = @SiteModuleId AND PageName = @PageName",
-                     new Dictionary<string, object>()
-                     {
-                            { "@SiteModuleId", ModuleId },
-                            { "@PageName", pageName }
-                     });
-
-                if (reader.Read())
+                (pageModuleId, pageModuleName) = _cacheService.Get<(Guid?, string)>("Be_Modules_DashboardPage" + pageName);
+                if (pageModuleId == null)
                 {
-                    pageModuleId = reader["ModuleId"] as Guid?;
-                    pageModuleName = reader["ParentModuleName"] as string;
+                    var commandText = @"
+                        SELECT pm.ModuleId,d.ModuleName as ParentModuleName
+                        FROM dbo.BusinessEngine_DashboardPageModules pm 
+	                        INNER JOIN dbo.BusinessEngine_DashboardPages p on pm.PageId = p.Id
+	                        INNER JOIN dbo.BusinessEngineView_Dashboards d on d.id = p.DashboardId
+                        WHERE d.SiteModuleId = @SiteModuleId and p.PageName = @PageName";
+                    var param = new
+                    {
+                        SiteModuleId = ModuleId,
+                        PageName = pageName
+                    };
 
+                    using (var reader = _sqlCommand.ExecuteSqlReader(_unitOfWork, CommandType.Text, commandText, param))
+                    {
+                        if (reader.Read())
+                        {
+                            pageModuleId = reader["ModuleId"] as Guid?;
+                            pageModuleName = reader["ParentModuleName"] as string;
+                            _cacheService.Set<(Guid?, string)>("Be_Modules_DashboardPage" + pageName, (pageModuleId, pageModuleName));
+                        }
+                    }
+                }
+
+                if (pageModuleId.HasValue)
+                {
                     var parentFolder = StringHelper.ToKebabCase(pageModuleName) + "/";
-                    var childTemplates = ModuleService.RenderModule(this.Page, _cacheService, PortalSettings.HomeSystemDirectory, false, null, ref pageModuleId, out _scenarioName, parentFolder);
+                    var childTemplates = ModuleService.RenderModule(this.Page, _cacheService, _sqlCommand, _unitOfWork, PortalSettings.HomeSystemDirectory, false, null, ref pageModuleId, out _scenarioName, parentFolder);
                     pageModuleTemplate = childTemplates.Template;
-
-                    reader.Close();
                 }
             }
 
-            var templates = ModuleService.RenderModule(this.Page, _cacheService, PortalSettings.HomeSystemDirectory, true, ModuleId, ref _id, out _scenarioName);
+            var templates = ModuleService.RenderModule(this.Page, _cacheService, _sqlCommand, _unitOfWork, PortalSettings.HomeSystemDirectory, true, ModuleId, ref _id, out _scenarioName);
             var template = templates.Template;
             template = template.Replace("[PAGE_MODULE]", pageModuleTemplate);
             pnlTemplate.InnerHtml = template;

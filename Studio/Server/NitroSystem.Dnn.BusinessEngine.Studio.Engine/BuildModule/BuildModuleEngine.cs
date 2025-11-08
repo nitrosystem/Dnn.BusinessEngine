@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
@@ -20,9 +21,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
     {
         private readonly EnginePipeline<BuildModuleRequest, BuildModuleResponse> _pipeline;
 
+        private readonly ICacheService _cacheService;
         private readonly IModuleService _moduleService;
 
-        public BuildModuleEngine(IServiceProvider services, IModuleService moduleService)
+        public BuildModuleEngine(IServiceProvider services, ICacheService cacheService, IModuleService moduleService)
             : base(services)
         {
             _pipeline = new EnginePipeline<BuildModuleRequest, BuildModuleResponse>()
@@ -30,6 +32,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             .Use<MergeResourcesMiddleware>()
             .Use<ResourceAggregatorMiddleware>();
 
+            _cacheService = cacheService;
             _moduleService = moduleService;
 
             OnError += OnErrorHandle;
@@ -108,9 +111,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             }
         }
 
+        protected override async Task AfterExecuteAsync(BuildModuleRequest request, EngineResult<BuildModuleResponse> result)
+        {
+            if (result.Data.IsSuccess)
+            {
+                await _moduleService.BulkInsertModuleOutputResourcesAsync(request.Module.SitePageId, result.Data.FinalizedResources);
+
+                _cacheService.RemoveByPrefix("BE_Modules_");
+            }
+
+        }
         private Task OnErrorHandle(Exception ex, string phase)
         {
-            throw new NotImplementedException();
+            throw ex;
         }
     }
 }

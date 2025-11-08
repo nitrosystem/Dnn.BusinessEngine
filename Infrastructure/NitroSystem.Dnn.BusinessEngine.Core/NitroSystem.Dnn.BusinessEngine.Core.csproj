@@ -80,6 +80,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="websocket-sharp, Version=1.0.2.59611, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\WebSocketSharp.1.0.3-rc11\lib\websocket-sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\AttributeCache.cs" />
@@ -102,15 +105,31 @@
     <Compile Include="EventBus\EventSubscriber.cs" />
     <Compile Include="EventBus\IEvent.cs" />
     <Compile Include="General\GarbageCollector.cs" />
-    <Compile Include="General\General.cs" />
+    <Compile Include="General\ZipProvider.cs" />
     <Compile Include="General\LockService.cs" />
     <Compile Include="General\BatchExecutor.cs" />
     <Compile Include="General\ParallelBatchExecutor.cs" />
     <Compile Include="EngineBase\SmartMaterializer.cs" />
+    <Compile Include="ImportExport\Enums\BaseEntityType.cs" />
+    <Compile Include="ImportExport\Enums\ComponentType.cs" />
+    <Compile Include="ImportExport\Enums\OperationType.cs" />
+    <Compile Include="ImportExport\Attributes\ExportableAttribute.cs" />
+    <Compile Include="ImportExport\Export\BackgroundJobManager.cs" />
+    <Compile Include="ImportExport\Export\Components\ComponentBase.cs" />
+    <Compile Include="ImportExport\Contracts\IComponent.cs" />
+    <Compile Include="ImportExport\Export\Components\ScenarioComponent.cs" />
+    <Compile Include="ImportExport\Export\ExportableBase.cs" />
+    <Compile Include="ImportExport\Export\ExportFramework.cs" />
+    <Compile Include="ImportExport\Export\ExportWorker.cs" />
+    <Compile Include="ImportExport\Contracts\ICustomTask.cs" />
+    <Compile Include="ImportExport\Export\Tasks\SaveModelsAsJsonTask.cs" />
+    <Compile Include="ImportExport\Export\Tasks\ZipTask.cs" />
+    <Compile Include="ImportExport\Models\ManifestModel.cs" />
     <Compile Include="Infrastructure\Brt\Contracts\IBrtGateService.cs" />
     <Compile Include="Infrastructure\Brt\Disposable.cs" />
     <Compile Include="Infrastructure\Brt\InMemoryBrtGate.cs" />
     <Compile Include="Infrastructure\Brt\Models\BrtPermit.cs" />
+    <Compile Include="Infrastructure\Reflection\ReflectionService.cs" />
     <Compile Include="Infrastructure\TypeLoader\ITypeLoaderFactory.cs" />
     <Compile Include="Caching\CacheService.cs" />
     <Compile Include="Infrastructure\ExpressionParser\ExpressionBuilder\ExpressionFunctions.cs" />
@@ -130,6 +149,9 @@
     <Compile Include="Infrastructure\ServiceLocator\ServiceLocator.cs" />
     <Compile Include="Infrastructure\TypeLoader\TypeLoaderFactory.cs" />
     <Compile Include="Infrastructure\TypeLoader\TypeDescriptor.cs" />
+    <Compile Include="PushingServer\NotificationBehavior.cs" />
+    <Compile Include="PushingServer\PushingServer.cs" />
+    <Compile Include="PushingServer\WebSocketPushingServer.cs" />
     <Compile Include="Security\ErrorHandling.cs" />
     <Compile Include="Mapper\CustomMapper.cs" />
     <Compile Include="Mapper\IMapper.cs" />

@@ -28,6 +28,9 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Utilities;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
@@ -81,7 +84,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
                 _cacheService.ClearAll();
 
-                HttpRuntime.UnloadAppDomain();
+                //HttpRuntime.UnloadAppDomain();
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
@@ -789,6 +792,31 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             };
             await _brtGate.RegisterPermitAsync(permit);
             return permit.Id;
+        }
+
+        #endregion
+
+        #region Export Export
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage ExportScenario(ManifestModel manifest)
+        {
+            try
+            {
+                manifest.PackageType = "Scenario Full Components";
+
+                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+                var basePath = PortalSettings.HomeSystemDirectoryMapPath;
+
+                ExportWorker.ExportScenario(_serviceProvider, manifest, basePath, scenarioId);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
         }
 
         #endregion

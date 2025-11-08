@@ -2,26 +2,34 @@
 using System.Data;
 using System.Web.UI;
 using System.Globalization;
-using DotNetNuke.Common.Utilities;
+using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Data.Repository;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Caching;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web
 {
     public class ModuleService
     {
-        public static (string Preloader, string Template) RenderModule(Page page, ICacheService cacheService, string baseUrl, bool isDashboard, int? siteModuleId, ref Guid? moduleId, out string scenarioName, string parentFolder = "")
+        public static (string Preloader, string Template) RenderModule(
+            Page page,
+            ICacheService cacheService,
+            IExecuteSqlCommand sqlCommand,
+            IUnitOfWork unitOfWork,
+            string baseUrl,
+            bool isDashboard,
+            int? siteModuleId,
+            ref Guid? moduleId,
+            out string scenarioName,
+            string parentFolder = "")
         {
             var preloader = string.Empty;
             var template = string.Empty;
 
-            var module = GetModuleLiteData(cacheService, siteModuleId, ref moduleId);
+            var module = GetModuleLiteData(cacheService, sqlCommand, unitOfWork, siteModuleId, ref moduleId);
             if (module != null)
             {
                 var connectionId = Guid.NewGuid();
@@ -49,7 +57,12 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             return (preloader, template);
         }
 
-        private static ModuleLiteData GetModuleLiteData(ICacheService cacheService, int? siteModuleId, ref Guid? moduleId)
+        private static ModuleLiteData GetModuleLiteData(
+            ICacheService cacheService,
+            IExecuteSqlCommand sqlCommand,
+            IUnitOfWork unitOfWork,
+            int? siteModuleId,
+            ref Guid? moduleId)
         {
             var cacheKey = "BE_Modules_" + (siteModuleId != null
                 ? siteModuleId.Value.ToString()
@@ -58,26 +71,27 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             var module = cacheService.Get<ModuleLiteData>(cacheKey);
             if (module == null)
             {
-                var reader = ExecuteSqlCommand.ExecuteSqlReader(CommandType.StoredProcedure, "dbo.BusinessEngine_App_GetModuleLite",
-                    new Dictionary<string, object>()
-                    {
-                        {"@SiteModuleId", siteModuleId },
-                        {"@ModuleId", moduleId }
-                    });
-
-                if (reader.Read())
+                var commandText = "dbo.BusinessEngine_App_GetModuleLite";
+                var param = new
                 {
-                    module = new ModuleLiteData()
+                    SiteModuleId = siteModuleId,
+                    ModuleId = moduleId
+                };
+
+                using (var reader = sqlCommand.ExecuteSqlReader(unitOfWork, CommandType.StoredProcedure, commandText, param))
+                {
+                    if (reader.Read())
                     {
-                        Id = reader["Id"] as Guid?,
-                        ScenarioName = reader["ScenarioName"] as string,
-                        ModuleName = reader["ModuleName"] as string,
-                        ModuleVersion = reader["ModuleVersion"] as int?
-                    };
+                        module = new ModuleLiteData()
+                        {
+                            Id = reader["Id"] as Guid?,
+                            ScenarioName = reader["ScenarioName"] as string,
+                            ModuleName = reader["ModuleName"] as string,
+                            ModuleVersion = reader["ModuleVersion"] as int?
+                        };
 
-                    cacheService.Set<ModuleLiteData>(cacheKey, module);
-
-                    reader.Close();
+                        cacheService.Set<ModuleLiteData>(cacheKey, module);
+                    }
                 }
             }
 
@@ -88,7 +102,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             return module;
         }
 
-        private static (string Preloader, string Template) GetTemplates(ICacheService cacheService, Guid moduleId, string modulePath, string moduleKebabName)
+        private static (string Preloader, string Template) GetTemplates(
+            ICacheService cacheService,
+            Guid moduleId,
+            string modulePath,
+            string moduleKebabName)
         {
             var cacheKey = "BE_Modules_Template" + moduleId;
             var data = cacheService.Get<(string Preloader, string Template)>(cacheKey);

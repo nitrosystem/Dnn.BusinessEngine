@@ -34,8 +34,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                                                     ModuleCustomLibraryResourceView, ModuleCustomLibraryResourceViewModel>(
                 parents: libraries,
                 children: resources,
-            parentKeySelector: p => p.Id,
-            childKeySelector: c => c.LibraryId,
+                parentKeySelector: p => p.Id,
+                childKeySelector: c => c.LibraryId,
                 assignChildren: (parent, childs) => parent.Resources = childs
             );
         }

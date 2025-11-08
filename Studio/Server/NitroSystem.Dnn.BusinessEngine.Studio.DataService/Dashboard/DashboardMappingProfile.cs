@@ -48,55 +48,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
             #endregion
 
-            //#region Dashboard Appearance 
-
-            //HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
-            //    (src, dest) => dest.SkinImage = src.SkinImage?.ReplaceFrequentTokens());
-
-            //HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
-            //    (src, dest) => dest.TemplateImage = src.TemplateImage?.ReplaceFrequentTokens());
-
-            //HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
-            //    (src, dest) => dest.TemplatePath = src.TemplatePath?.ReplaceFrequentTokens());
-
-            //HybridMapper.BeforeMap<DashboardAppearanceView, DashboardAppearanceViewModel>(
-            //    (src, dest) => dest.TemplateCssPath = src.TemplateCssPath?.ReplaceFrequentTokens());
-
-            //HybridMapper.BeforeMap<DashboardSkinInfo, DashboardSkinViewModel>(
-            //    (src, dest) => dest.SkinImage = src.SkinImage?.ReplaceFrequentTokens());
-
-            //HybridMapper.BeforeMap<DashboardSkinInfo, DashboardSkinViewModel>(
-            //    (src, dest) => dest.CssFiles = src.CssFiles?.Split(','));
-
-            //HybridMapper.BeforeMap<DashboardSkinInfo, DashboardSkinViewModel>(
-            //    (src, dest) => dest.JsFiles = src.JsFiles?.Split(','));
-
-            //HybridMapper.BeforeMap<DashboardSkinViewModel, DashboardSkinInfo>(
-            //    (src, dest) => dest.CssFiles = string.Join(",", src.CssFiles ?? Enumerable.Empty<string>()));
-
-            //HybridMapper.BeforeMap<DashboardSkinViewModel, DashboardSkinInfo>(
-            //    (src, dest) => dest.JsFiles = string.Join(",", src.JsFiles ?? Enumerable.Empty<string>()));
-
-            //HybridMapper.BeforeMap<DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
-            //    (src, dest) => dest.TemplateImage = src.TemplateImage?.ReplaceFrequentTokens());
-
-            //HybridMapper.BeforeMap<DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
-            //    (src, dest) => dest.TemplatePath = src.TemplatePath?.ReplaceFrequentTokens());
-
-            //HybridMapper.BeforeMap<DashboardSkinTemplateInfo, DashboardSkinTemplateViewModel>(
-            //    (src, dest) => dest.ModuleType = (ModuleType)src.ModuleType);
-
-            //HybridMapper.BeforeMap<DashboardSkinTemplateViewModel, DashboardSkinTemplateInfo>(
-            //    (src, dest) => dest.ModuleType = (int)src.ModuleType);
-
-            //HybridMapper.BeforeMap<DashboardSkinTemplateInfo, TemplateViewModel>(
-            //    (src, dest) => dest.TemplatePath = src.TemplatePath?.ReplaceFrequentTokens());
-
-            //HybridMapper.BeforeMap<DashboardSkinTemplateInfo, TemplateViewModel>(
-            //    (src, dest) => dest.TemplateImage = src.TemplateImage?.ReplaceFrequentTokens());
-
-            //#endregion
-
             #region Dashboard Page
 
             HybridMapper.BeforeMap<DashboardPageInfo, DashboardPageViewModel>(
@@ -107,15 +58,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
             HybridMapper.BeforeMap<DashboardPageInfo, DashboardPageViewModel>(
                 (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
-
-            HybridMapper.BeforeMap<DashboardPageView, DashboardPageViewModel>(
-                (src, dest) => dest.AuthorizationViewPage = src.AuthorizationViewPage?.Split(','));
-
-            HybridMapper.BeforeMap<DashboardPageView, DashboardPageViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
-
-            HybridMapper.BeforeMap<DashboardPageView, DashboardPageViewModel>(
-                (src, dest) => dest.PageType = (DashboardPageType)src.PageType);
 
             HybridMapper.BeforeMap<DashboardPageViewModel, DashboardPageInfo>(
                 (src, dest) => dest.PageType = (int)src.PageType);
@@ -145,8 +87,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             HybridMapper.BeforeMap<DashboardPageModuleViewModel, ModuleInfo>(
                 (src, dest) => dest.Id = src.ModuleId);
 
-            HybridMapper.BeforeMap<DashboardPageModuleView, ModuleInfo>(
-                (src, dest) => dest.Id = src.ModuleId);
 
             #endregion
         }

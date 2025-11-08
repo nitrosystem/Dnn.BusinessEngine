@@ -75,7 +75,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
                 var portalSettings = PortalSettings.Current;
                 var moduleData = new ConcurrentDictionary<string, object>();
 
-                var variables = await _moduleService.GetModuleVariables(moduleId, ModuleVariableScope.ServerSide);
+                var variables = await _moduleService.GetVariables(moduleId, ModuleVariableScope.ServerSide);
                 foreach (var variable in variables)
                 {
                     if (variable.VariableType == "AppModel")
@@ -148,7 +148,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
             var portalSettings = PortalSettings.Current;
             var moduleData = await GetOrCreateModuleDataAsync(connectionId, moduleId);
 
-            var variables = await _moduleService.GetModuleVariables(moduleId, ModuleVariableScope.Global);
+            var variables = await _moduleService.GetVariables(moduleId, ModuleVariableScope.Global);
             foreach (var variable in variables.Where(v => moduleData.Keys.Contains(v.VariableName) && incomingData.Keys.Contains(v.VariableName)))
             {
                 moduleData.TryUpdate(variable.VariableName, incomingData[variable.VariableName], moduleData[variable.VariableName]);

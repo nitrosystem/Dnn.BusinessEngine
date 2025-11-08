@@ -69,11 +69,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 LoadOrder = ++count
             });
 
-            var resourcesFinalized = request.Module.ExternalResources.Concat(systemResources);
-
-            await _moduleService.BulkInsertModuleOutputResourcesAsync(request.Module.SitePageId, resourcesFinalized);
-
-            result.Success = true;
+            result.IsSuccess = true;
+            result.FinalizedResources = request.Module.ExternalResources.Concat(systemResources);
             return result;
         }
     }

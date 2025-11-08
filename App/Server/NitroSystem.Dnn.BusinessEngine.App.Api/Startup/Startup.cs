@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.DependencyInjection;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.ExpressionBuilder;
 using NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
@@ -24,8 +23,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Api.Startup
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IActionService, ActionService>();
-
-            services.AddScoped<IExpressionService, ExpressionService>();
 
             services.AddScoped<IBuildBufferService, BuildBufferService>();
             services.AddScoped<IActionWorker, ActionWorker>();

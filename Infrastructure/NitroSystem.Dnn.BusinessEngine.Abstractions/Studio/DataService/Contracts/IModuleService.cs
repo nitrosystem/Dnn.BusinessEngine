@@ -10,7 +10,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contrac
     {
         Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId);
         Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId);
-        Task<Guid> GetScenarioIdAsync(Guid moduleId);
         Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew);
         Task<bool> DeleteModuleAsync(Guid moduleId);
         Task<bool?> IsValidModuleNameAsync(Guid scenarioId, Guid? moduleId, string moduleName);

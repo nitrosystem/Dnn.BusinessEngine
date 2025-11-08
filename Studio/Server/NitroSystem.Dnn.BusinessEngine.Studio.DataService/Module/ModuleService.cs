@@ -13,6 +13,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using System.Runtime.CompilerServices;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 {
@@ -39,11 +40,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             var modules = await _repository.GetByScopeAsync<ModuleView>(scenarioId);
 
             return HybridMapper.MapCollection<ModuleView, ModuleViewModel>(modules);
-        }
-
-        public async Task<Guid> GetScenarioIdAsync(Guid moduleId)
-        {
-            return await _repository.GetColumnValueAsync<ModuleInfo, Guid>(moduleId, "ScenarioId");
         }
 
         public async Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew)
@@ -135,7 +131,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
             var result = await builder.BuildAsync(
                 source: module,
-                afterMap: async (src, dest) =>
+                afterMap: (src, dest) =>
                 {
                     if (src.ParentId.HasValue)
                         dest.ParentModuleName = parentModuleName;

@@ -34,26 +34,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             }
         }
 
-        public static SqlDataReader ExecuteSqlReader(CommandType commandType, string commandText, Dictionary<string, object> param = null)
+        public IDataReader ExecuteSqlReader(IUnitOfWork unitOfWork, CommandType commandType, string commandText, object param = null)
         {
             try
             {
-                var connection = new SqlConnection(DataProvider.Instance().ConnectionString);
-                var command = new SqlCommand(commandText, connection)
-                {
-                    CommandType = commandType
-                };
-
-                if (param != null)
-                {
-                    foreach (var kvp in param)
-                    {
-                        command.Parameters.AddWithValue(kvp.Key, kvp.Value ?? DBNull.Value);
-                    }
-                }
-
-                connection.Open();
-                return command.ExecuteReader(CommandBehavior.CloseConnection);
+                return unitOfWork.Connection.ExecuteReader(
+                    sql: commandText,
+                    param: param,
+                    commandType: commandType,
+                    transaction: unitOfWork.Transaction
+                );
             }
             catch (Exception ex)
             {

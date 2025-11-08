@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems
 {
     public class LibraryListItem
     {
+        public Guid Id { get; set; }
         public string LibraryName { get; set; }
         public string Version { get; set; }
         public string Logo { get; set; }

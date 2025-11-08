@@ -55,7 +55,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             var unzipedPath = Constants.MapPath($@"{request.BasePath}business-engine\temp\{Path.GetFileNameWithoutExtension(request.ExtensionZipFile)}");
 
             Directory.CreateDirectory(unzipedPath);
-            General.Unzip(request.ExtensionZipFile, unzipedPath);
+            ZipProvider.Unzip(request.ExtensionZipFile, unzipedPath);
 
             var files = Directory.GetFiles(unzipedPath);
             var manifestFile = files.FirstOrDefault(f => Path.GetFileName(f) == "manifest.json");

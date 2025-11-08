@@ -18,6 +18,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Template
                 (src, dest) => dest.TemplatePath = src.TemplatePath?.ReplaceFrequentTokens());
 
             HybridMapper.BeforeMap<TemplateInfo, TemplateViewModel>(
+                (src, dest) => dest.TemplateCssPath = src.TemplateCssPath?.ReplaceFrequentTokens());
+
+            HybridMapper.BeforeMap<TemplateInfo, TemplateViewModel>(
                 (src, dest) => dest.PreviewImages = ReflectionUtil.TryJsonCasting<IEnumerable<string>>(
                     src.PreviewImages?.ReplaceFrequentTokens()));
 

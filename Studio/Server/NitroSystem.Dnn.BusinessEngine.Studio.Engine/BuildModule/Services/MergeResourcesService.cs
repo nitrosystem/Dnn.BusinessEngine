@@ -8,9 +8,9 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using System.Text;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using System.Collections.Concurrent;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
@@ -19,47 +19,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
         public async Task<(string Scripts, string Styles)> MergeResourcesAsync(IEnumerable<ModuleResourceDto> resources)
         {
             var resourcesLookup = resources.ToLookup(r => r.ResourceContentType);
-            var scripts = await MergeScriptResources(resourcesLookup[ModuleResourceContentType.Js]);
-            var styles = await MergeStyleResources(resourcesLookup[ModuleResourceContentType.Css]);
-            
-            return (scripts,styles);
+            var scripts = await BuildScripts(resourcesLookup[ModuleResourceContentType.Js]);
+            var styles = await BuildStyles(resourcesLookup[ModuleResourceContentType.Css]);
+
+            return (scripts, styles);
         }
 
-        private async Task<string> MergeScriptResources(IEnumerable<ModuleResourceDto> resources)
-        {
-            var scripts = new StringBuilder();
-
-            await ParallelBatchExecutor.ExecuteInParallelBatchesAsync(
-                resources,
-                batchSize: 5,
-                maxDegreeOfParallelism: 3,
-                async batch =>
-                {
-                    var items = batch
-                        .GroupBy(r => r.ResourcePath?.ReplaceFrequentTokens())
-                        .ToDictionary(
-                            g => g.Key,
-                            g => g.First()
-                        );
-
-                    await FileUtil.LoadFilesWithCachingAsync(
-                        items.Keys,
-                        Constants.MapPath,
-                        (itemKey, fileContent) =>
-                        {
-                            if (items.TryGetValue(itemKey, out var resource))
-                            {
-                                scripts.AppendLine($@"// ----- Start Script For {resource.EntryType} ----");
-                                scripts.AppendLine(fileContent);
-                                scripts.AppendLine(Environment.NewLine);
-                            }
-                        });
-                });
-
-            return scripts.ToString();
-        }
-
-        private async Task<string> MergeStyleResources(IEnumerable<ModuleResourceDto> resources)
+        private async Task<string> BuildStyles(IEnumerable<ModuleResourceDto> resources)
         {
             var styles = new StringBuilder();
             var resourcesTypes = resources.ToLookup(r => r.IsContent);
@@ -70,12 +36,27 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 styles.AppendLine(Environment.NewLine);
             }
 
+            var mergedStyles = await MergeStyleResources(resourcesTypes[false]);
+            styles.AppendLine(mergedStyles);
+            return styles.ToString();
+        }
+
+        private async Task<string> MergeStyleResources(IEnumerable<ModuleResourceDto> resources)
+        {
+            if (resources == null)
+                throw new ArgumentNullException(nameof(resources));
+
+            var scriptChunks = new ConcurrentBag<string>();
+
             await ParallelBatchExecutor.ExecuteInParallelBatchesAsync(
-                resourcesTypes[false],
+                resources,
                 batchSize: 5,
                 maxDegreeOfParallelism: 3,
                 async batch =>
                 {
+                    // هر batch برای خودش StringBuilder جدا داره
+                    var localBuilder = new StringBuilder();
+
                     var items = batch
                         .GroupBy(r => r.ResourcePath?.ReplaceFrequentTokens())
                         .ToDictionary(
@@ -83,20 +64,101 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                             g => g.First()
                         );
 
-                    await FileUtil.LoadFilesWithCachingAsync(
+                    await FileUtil.LoadFilesAsync(
                         items.Keys,
                         Constants.MapPath,
                         (itemKey, fileContent) =>
                         {
                             if (items.TryGetValue(itemKey, out var resource))
                             {
-                                styles.AppendLine($@"/* ----- Start Script For {resource.EntryType} ---- */");
-                                styles.AppendLine(fileContent);
+                                // append فقط روی localBuilder (ایمن در برابر ترد)
+                                localBuilder.AppendLine($@"/* ----- Start Styles For {resource.EntryType} ---- */");
+                                localBuilder.AppendLine(fileContent ?? string.Empty);
+                                localBuilder.AppendLine($"/* ----- End Styles For {resource.EntryType} ----*/");
+                                localBuilder.AppendLine();
                             }
                         });
+
+                    // در پایان batch خروجی خودش را به مجموعهٔ thread-safe اضافه می‌کند
+                    if (localBuilder.Length > 0)
+                        scriptChunks.Add(localBuilder.ToString());
                 });
 
-            return styles.ToString();
+            // در انتها محتوای همه batch‌ها با ترتیب تقریبی ترکیب می‌شود
+            var finalBuilder = new StringBuilder();
+
+            foreach (var chunk in scriptChunks)
+                finalBuilder.AppendLine(chunk);
+
+            return finalBuilder.ToString();
+        }
+
+        private async Task<string> BuildScripts(IEnumerable<ModuleResourceDto> resources)
+        {
+            var scripts = new StringBuilder();
+            var resourcesTypes = resources.ToLookup(r => r.IsContent);
+            foreach (var resource in resourcesTypes[true])
+            {
+                scripts.AppendLine($@"/* ----- Start Scripts For {resource.EntryType} ---- */");
+                scripts.AppendLine(resource.Content);
+                scripts.AppendLine(Environment.NewLine);
+            }
+
+            var mergedStyles = await MergeScriptResources(resourcesTypes[false]);
+            scripts.AppendLine(mergedStyles);
+            return scripts.ToString();
+        }
+
+        private async Task<string> MergeScriptResources(IEnumerable<ModuleResourceDto> resources)
+        {
+            if (resources == null)
+                throw new ArgumentNullException(nameof(resources));
+
+            var scriptChunks = new ConcurrentBag<string>();
+
+            await ParallelBatchExecutor.ExecuteInParallelBatchesAsync(
+                resources,
+                batchSize: 5,
+                maxDegreeOfParallelism: 3,
+                async batch =>
+                {
+                    // هر batch برای خودش StringBuilder جدا داره
+                    var localBuilder = new StringBuilder();
+
+                    var items = batch
+                        .GroupBy(r => r.ResourcePath?.ReplaceFrequentTokens())
+                        .ToDictionary(
+                            g => g.Key,
+                            g => g.First()
+                        );
+
+                    await FileUtil.LoadFilesAsync(
+                        items.Keys,
+                        Constants.MapPath,
+                        (itemKey, fileContent) =>
+                        {
+                            if (items.TryGetValue(itemKey, out var resource))
+                            {
+                                // append فقط روی localBuilder (ایمن در برابر ترد)
+                                localBuilder.AppendLine($@"// ----- Start Scripts For {resource.EntryType} ----");
+                                localBuilder.AppendLine(fileContent ?? string.Empty);
+                                localBuilder.AppendLine($"// ----- End Scripts For {resource.EntryType} ----");
+                                localBuilder.AppendLine();
+                            }
+                        });
+
+                    // در پایان batch خروجی خودش را به مجموعهٔ thread-safe اضافه می‌کند
+                    if (localBuilder.Length > 0)
+                        scriptChunks.Add(localBuilder.ToString());
+                });
+
+            // در انتها محتوای همه batch‌ها با ترتیب تقریبی ترکیب می‌شود
+            var finalBuilder = new StringBuilder();
+
+            foreach (var chunk in scriptChunks)
+                finalBuilder.AppendLine(chunk);
+
+            return finalBuilder.ToString();
         }
     }
 }

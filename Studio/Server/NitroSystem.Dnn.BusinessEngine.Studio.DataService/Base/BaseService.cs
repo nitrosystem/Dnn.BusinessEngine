@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using DotNetNuke.Security.Roles;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Caching;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
@@ -13,10 +12,13 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Base;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Attributes;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base
 {
-    public class BaseService : IBaseService
+    public class BaseService : ExportableBase, IBaseService, IExportable
     {
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
@@ -62,6 +64,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base
             return HybridMapper.MapCollection<ScenarioInfo, ScenarioViewModel>(scenarios);
         }
 
+        [Exportable]
         public async Task<ScenarioViewModel> GetScenarioViewModelAsync(Guid scenarioId)
         {
             var scenario = await _repository.GetAsync<ScenarioInfo>(scenarioId);
@@ -164,5 +167,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base
         }
 
         #endregion
+
+        public async Task<T> Export<T>(string methodName, params object[] args) where T : class
+        {
+            var data = await base.Export<object>(this,typeof(BaseService), methodName, args);
+            return data as T;
+
+        }
     }
 }

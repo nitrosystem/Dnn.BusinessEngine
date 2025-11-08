@@ -34,7 +34,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
                 string zipFile = $@"{ctx.UnzipedPath}\{item.ZipFile}";
                 string targetDir = $@"{request.ModulePath}\{item.BasePath}";
 
-                General.Unzip(zipFile, targetDir);
+                ZipProvider.Unzip(zipFile, targetDir);
             }
 
             ctx.UnitOfWork.Commit();

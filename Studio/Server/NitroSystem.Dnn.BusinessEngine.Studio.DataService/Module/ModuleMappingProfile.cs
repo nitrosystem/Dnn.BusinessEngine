@@ -134,6 +134,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             #region Module For Build
 
             HybridMapper.BeforeMap<ModuleResourceSpResult, ModuleResourceDto>(
+                (src, dest) => dest.ResourcePath = src.ResourcePath?.ReplaceFrequentTokens());
+
+            HybridMapper.BeforeMap<ModuleResourceSpResult, ModuleResourceDto>(
                 (src, dest) => dest.ResourceType = (ModuleResourceType)src.ResourceType);
 
             HybridMapper.BeforeMap<ModuleResourceSpResult, ModuleResourceDto>(

@@ -12,6 +12,7 @@
         public string FieldTextCssClass { get; set; }
         public string SubtextCssClass { get; set; }
         public string RequiredMessageCssClass { get; set; }
+        public bool AllowMultiple { get; set; }
         public bool ShowLabel { get; set; }
         public bool WithIcon { get; set; }
         public string IconPosition { get; set; }

@@ -24,6 +24,35 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             _cacheService = cacheService;
         }
 
+        public async Task<IEnumerable<T>> GetAllAsync<T>(params string[] orderColumns) where T : class, IEntity, new()
+        {
+            var table = AttributeCache.Instance.GetTableName<T>();
+            var query = $"SELECT * FROM {table}";
+            var cacheAttr = AttributeCache.Instance.GetCache<T>();
+            var cacheKey = cacheAttr.key;
+            var sorts = new List<string>();
+
+            foreach (var orderColumn in orderColumns)
+            {
+                var column = orderColumn.Split(' ')[0];
+                if (!typeof(T).GetProperties().Any(p => p.Name == column))
+                    throw new ArgumentException($"Invalid column name {column}.");
+
+                sorts.Add(orderColumn);
+            }
+
+            if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
+
+            cacheKey = !string.IsNullOrEmpty(cacheKey)
+                ? cacheKey += string.Join("_", orderColumns)
+                : string.Empty;
+
+            return await _cacheService.GetOrCreateAsync<IEnumerable<T>>(cacheKey, () =>
+             _unitOfWork.Connection.QueryAsync<T>(
+                query
+            ), cacheAttr.timeOut);
+        }
+
         public async Task<T> GetAsync<T>(Guid id) where T : class, IEntity, new()
         {
             var table = AttributeCache.Instance.GetTableName<T>();
@@ -209,29 +238,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             return await _unitOfWork.Connection.QueryAsync<T>(query, values);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync<T>(params string[] orderColumns) where T : class, IEntity, new()
-        {
-            var table = AttributeCache.Instance.GetTableName<T>();
-            var query = $"SELECT * FROM {table}";
-            var cacheAttr = AttributeCache.Instance.GetCache<T>();
-
-            var sorts = new List<string>();
-            foreach (var orderColumn in orderColumns)
-            {
-                var column = orderColumn.Split(' ')[0];
-                if (!typeof(T).GetProperties().Any(p => p.Name == column))
-                    throw new ArgumentException($"Invalid column name {column}.");
-
-                sorts.Add(orderColumn);
-            }
-            if (sorts.Any()) query += $" ORDER BY {string.Join(",", sorts)}";
-
-            return await _cacheService.GetOrCreateAsync<IEnumerable<T>>(cacheAttr.key, () =>
-             _unitOfWork.Connection.QueryAsync<T>(
-                query
-            ), cacheAttr.timeOut);
-        }
-
         public async Task<(IEnumerable<T> Items, int TotalCount)> GetByPage<T>(int pageIndex, int pageSize) where T : class, IEntity, new()
         {
             var table = AttributeCache.Instance.GetTableName<T>();
@@ -304,14 +310,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             return entity.Id;
         }
 
-        /// <summary>
-        /// Performs a bulk insert of a list of entities into the specified table.
-        /// </summary>
-        /// <typeparam name="T">The entity type</typeparam>
-        /// <param name="entities">The list of entities to insert</param>
-        /// <param name="tableName">The name of the target database table</param>
-        /// <param name="transaction">Optional transaction</param>
-        /// <returns>The total number of rows inserted</returns>
         public async Task<int> BulkInsertAsync<T>(IEnumerable<T> entities) where T : class, IEntity, new()
         {
             if (entities == null || !entities.Any())
@@ -523,13 +521,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             );
         }
 
-        /// <summary>
-        /// Executes a stored procedure and returns two strongly-typed result sets.
-        /// </summary>
-        /// <summary>
-        /// Executes a stored procedure for paging and caches the final result.
-        /// This version safely disposes the GridReader and only caches the materialized data.
-        /// </summary>
         public async Task<(IEnumerable<T> Items, int TotalCount)> ExecuteStoredProcedureForPagingAsync<T>(
             string storedProcedure,
             string cacheKey,
@@ -558,13 +549,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             return result;
         }
 
-        /// <summary>
-        /// Executes a stored procedure and returns two strongly-typed result sets.
-        /// </summary>
-        /// <summary>
-        /// Executes a stored procedure for paging and caches the final result.
-        /// This version safely disposes the GridReader and only caches the materialized data.
-        /// </summary>
         public async Task<(IEnumerable<T1>, IEnumerable<T2>)> ExecuteStoredProcedureMultipleAsync<T1, T2>(
             string storedProcedure,
             string cacheKey,
@@ -593,13 +577,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
         }
 
 
-        /// <summary>
-        /// Executes a stored procedure and returns two strongly-typed result sets.
-        /// </summary>
-        /// <summary>
-        /// Executes a stored procedure for paging and caches the final result.
-        /// This version safely disposes the GridReader and only caches the materialized data.
-        /// </summary>
         public async Task<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>)> ExecuteStoredProcedureMultipleAsync<T1, T2, T3>(
             string storedProcedure,
             string cacheKey,
@@ -630,13 +607,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             return result;
         }
 
-        /// <summary>
-        /// Executes a stored procedure and returns two strongly-typed result sets.
-        /// </summary>
-        /// <summary>
-        /// Executes a stored procedure for paging and caches the final result.
-        /// This version safely disposes the GridReader and only caches the materialized data.
-        /// </summary>
         public async Task<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>)> ExecuteStoredProcedureMultipleAsync<T1, T2, T3, T4>(
             string storedProcedure,
             string cacheKey,

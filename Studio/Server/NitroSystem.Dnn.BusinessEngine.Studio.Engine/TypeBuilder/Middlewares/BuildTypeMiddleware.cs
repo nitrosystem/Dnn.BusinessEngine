@@ -6,6 +6,9 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
+using System.Configuration.Assemblies;
+using System.IO;
+using System.Web;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares
 {

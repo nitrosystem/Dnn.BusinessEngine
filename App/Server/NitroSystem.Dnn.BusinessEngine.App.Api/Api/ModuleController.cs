@@ -77,8 +77,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
 
                 var data = _userDataStore.GetDataForClients(moduleId, moduleData);
 
-                var variables = await _moduleService.GetModuleVariables(moduleId, ModuleVariableScope.Global);
-                var fields = await _moduleService.GetFieldsViewModelAsync(moduleId);
+                var variables = await _moduleService.GetVariables(moduleId, ModuleVariableScope.Global);
+                var fields = await _moduleService.GetFieldsDtoAsync(moduleId);
                 var actions = await _actionService.GetActionsDtoForClientAsync(moduleId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new

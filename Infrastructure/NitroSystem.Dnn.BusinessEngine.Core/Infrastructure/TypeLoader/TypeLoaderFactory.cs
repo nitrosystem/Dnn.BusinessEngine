@@ -52,7 +52,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader
 
             //var assembly = loader.Load(assemblyPath, typeFullName);
 
-            var assembly = Assembly.LoadFrom(assemblyPath);
+            byte[] asmBytes = File.ReadAllBytes(assemblyPath);
+            var assembly = Assembly.Load(asmBytes);
+
             ValidateAssembly(assembly);
 
             _assemblyLoadTimes[assemblyPath] = File.GetLastWriteTime(assemblyPath);

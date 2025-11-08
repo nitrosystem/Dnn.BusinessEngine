@@ -97,7 +97,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                             g => g.First()
                         );
 
-                    await FileUtil.LoadFilesWithCachingAsync(
+                    await FileUtil.LoadFilesAsync(
                         items.Keys,
                         Constants.MapPath,
                         (itemKey, fileContent) =>
@@ -140,8 +140,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             }
             catch (Exception ex)
             {
-
-                throw;
+                throw ex;
             }
 
             ProcessBuffer(index - 1);

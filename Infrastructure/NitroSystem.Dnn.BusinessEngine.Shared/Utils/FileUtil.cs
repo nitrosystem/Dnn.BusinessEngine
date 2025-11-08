@@ -68,6 +68,31 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Utils
             return results;
         }
 
+        public static async Task<IDictionary<string, string>> LoadFilesAsync(
+           IEnumerable<string> filePaths,
+           Func<string, string> mapPath = null,
+           Action<string, string> assign = null)
+        {
+            var results = new ConcurrentDictionary<string, string>();
+
+            foreach (var filePath in filePaths)
+            {
+                string resolvedPath = mapPath != null
+                    ? mapPath(filePath)
+                    : filePath;
+
+                if (File.Exists(resolvedPath))
+                {
+                    string content = await GetFileContentAsync(resolvedPath);
+                    results[filePath] = content;
+
+                    assign?.Invoke(filePath, content); // 🔥 فراخوانی assign
+                }
+            }
+
+            return results;
+        }
+
         /// <summary>
         /// پاک کردن کل کش
         /// </summary>
@@ -239,6 +264,36 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Utils
             catch (Exception ex)
             {
                 return (false, ex);
+            }
+        }
+
+        public static bool CreateTextFile(string fileName, string content, bool deleteIsExists)
+        {
+            try
+            {
+                // Check if file already exists. If yes, delete it.     
+                if (File.Exists(fileName) && deleteIsExists)
+                {
+                    File.Delete(fileName);
+                }
+
+                if (!Directory.Exists(Path.GetDirectoryName(fileName))) Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+
+                // Create a new file     
+                using (FileStream fs = File.Create(fileName))
+                {
+                    // Add some text to file    
+                    Byte[] data = new UTF8Encoding(true).GetBytes(content);
+                    fs.Write(data, 0, data.Length);
+
+                    fs.Close();
+                }
+
+                return true;
+            }
+            catch (Exception Ex)
+            {
+                return false;
             }
         }
     }

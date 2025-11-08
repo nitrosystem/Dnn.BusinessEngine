@@ -13,7 +13,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Attributes
         public static (string key, int? timeOut) GetCache<T>(this AttributeCache attributeCache) where T : class, IEntity, new()
         {
             var item = attributeCache.GetAttribute<T, CacheableAttribute>();
-            return item != null ? (item.CacheKey, item.CacheTimeOut) : (string.Empty, 0);
+            return item != null
+                ? (item.CacheKey, item.CacheTimeOut)
+                : (string.Empty, 0);
         }
 
         public static string GetScope<T>(this AttributeCache attributeCache) where T : class, IEntity, new()

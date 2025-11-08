@@ -15,14 +15,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contrac
         Task<DashboardViewModel> GetDashboardViewModelAsync(Guid moduleId);
         Task<(Guid, Guid)> SaveDashboardAsync(DashboardViewModel dashboard);
 
-        //Task<DashboardAppearanceViewModel> GetDashboardAppearanceAsync(Guid moduleId);
-        //Task SaveDashboardAppearanceAsync(DashboardAppearanceViewModel dashboard);
-        //Task<IEnumerable<DashboardSkinViewModel>> GetDashboardSkinsViewModelAsync();
-        //Task<IEnumerable<TemplateViewModel>> GetTemplates(ModuleType moduleType, Guid moduleId);
-
-        Task<IEnumerable<DashboardPageViewModel>> GetDashboardPagesViewModelAsync(Guid moduleId);
-        Task<DashboardPageViewModel> GetDashboardPageViewModelAsync(Guid pageId);
+        Task<IEnumerable<DashboardPageViewModel>> GetDashboardPagesViewModelAsync(Guid dashboardModuleId);
         Task<IEnumerable<DashboardPageListItem>> GetDashboardPagesListItemAsync(Guid dashboardModuleId);
+        Task<DashboardPageViewModel> GetDashboardPageViewModelAsync(Guid pageId);
         Task<(Guid?, Guid?, Guid?)> SaveDashboardPageAsync(DashboardPageViewModel page);
         Task SortDashboardPages(DashboardPagesOrder dashboard);
         Task UpdatePageParent(UpdateDashboardPageParent page);

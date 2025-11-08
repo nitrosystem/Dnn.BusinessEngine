@@ -27,6 +27,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -34,6 +35,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     public class ModuleController : DnnApiController
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly ICacheService _cacheService;
         private readonly IBaseService _baseService;
         private readonly IAppModelService _appModelServices;
         private readonly IDashboardService _dashboardService;
@@ -47,6 +49,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         public ModuleController(
             IServiceProvider serviceProvider,
+            ICacheService cacheService,
             IBaseService globalService,
             IAppModelService appModelService,
             IDashboardService dashboardService,
@@ -60,6 +63,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         )
         {
             _serviceProvider = serviceProvider;
+            _cacheService = cacheService;
             _baseService = globalService;
             _appModelServices = appModelService;
             _dashboardService = dashboardService;
@@ -113,47 +117,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         #endregion
 
-        //#region 2-Dashboard Appearance
-
-        //[HttpGet]
-        //public async Task<HttpResponseMessage> GetDashboardAppearance(Guid moduleId)
-        //{
-        //    try
-        //    {
-        //        var dashboard = await _dashboardService.GetDashboardAppearanceAsync(moduleId);
-        //        var skins = await _dashboardService.GetDashboardSkinsViewModelAsync();
-
-        //        return Request.CreateResponse(HttpStatusCode.OK, new
-        //        {
-        //            Dashboard = dashboard,
-        //            Skins = skins
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<HttpResponseMessage> SaveDashboardAppearance(DashboardAppearanceViewModel dashboard)
-        //{
-        //    try
-        //    {
-        //        await _dashboardService.SaveDashboardAppearanceAsync(dashboard);
-
-        //        return Request.CreateResponse(HttpStatusCode.OK);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
-
-        //#endregion
-
-        //#region 3-Dashboard Pages
+        #region 2-Dashboard Pages
 
         [HttpGet]
         public async Task<HttpResponseMessage> GetDashboardPages(Guid moduleId)
@@ -310,6 +274,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         #endregion
 
+        #endregion
+
         #region Create Module
 
         #region 1-Basic Options
@@ -379,7 +345,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 var parentId = module.ParentId.HasValue
                     ? await _moduleTemplateService.GetTemplateIdAsync(module.ParentId.Value)
-                    :null;
+                    : null;
                 var templates = await _templateService.GetTemplatesViewModelAsync(module.ModuleType, parentId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
@@ -742,7 +708,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 request.Scope = BuildScope.Module;
                 request.BasePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(module.ScenarioName)}/";
 
-                var engine = new BuildModuleEngine(_serviceProvider, _moduleService);
+                var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService);
                 await engine.ExecuteAsync(request);
 
                 return Request.CreateResponse(HttpStatusCode.OK);

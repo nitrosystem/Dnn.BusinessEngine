@@ -9,9 +9,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
     public class DashboardPageViewModel : IViewModel
     {
         public Guid Id { get; set; }
+        public Guid? ParentId { get; set; }
+        public Guid ScenarioId { get; set; }
         public Guid DashboardId { get; set; }
         public Guid DashboardModuleId { get; set; }
-        public Guid? ParentId { get; set; }
         public Guid? ExistingPageId { get; set; }
         public string PageName { get; set; }
         public string Title { get; set; }
@@ -30,6 +31,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public IEnumerable<DashboardPageViewModel> Pages { get; set; }
         public IDictionary<string, object> Settings { get; set; }
         public bool IsChild { get { return ParentId.HasValue; } }
-        public bool IncludeModule { get { return Module != null ? true : false; } }
     }
 }

@@ -13,6 +13,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public Guid Id { get; set; }
         public Guid PageId { get; set; }
         public Guid ModuleId { get; set; }
-        public int ViewOrder { get; set; }
     }
 }

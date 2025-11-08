@@ -1,228 +1,230 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F4C66D02-6CBE-4AFD-93E1-16C56E69E86E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NitroSystem.Dnn.BusinessEngine.Abstractions</RootNamespace>
-    <AssemblyName>NitroSystem.Dnn.BusinessEngine.Abstractions</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <LangVersion>8.0</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="App\DataService\Contracts\IDashboardService.cs" />
-    <Compile Include="App\DataService\Contracts\IUserDataStore.cs" />
-    <Compile Include="App\DataService\Dto\DashboardDto.cs" />
-    <Compile Include="App\DataService\Dto\DashboardPageDto.cs" />
-    <Compile Include="App\Engine\ActionExecution\Contracts\IActionExecutor.cs" />
-    <Compile Include="App\DataService\Contracts\IActionService.cs" />
-    <Compile Include="App\DataService\Contracts\IModuleService.cs" />
-    <Compile Include="App\Engine\ActionExecution\Contracts\IBuildBufferService.cs" />
-    <Compile Include="App\Engine\ActionExecution\Dto\ActionDto.cs" />
-    <Compile Include="App\Engine\ActionExecution\Dto\ActionParamDto.cs" />
-    <Compile Include="App\Engine\ActionExecution\Dto\ActionResultDto.cs" />
-    <Compile Include="App\DataService\Dto\ModuleClientVariableDto.cs" />
-    <Compile Include="App\DataService\Dto\ModuleDto.cs" />
-    <Compile Include="App\DataService\Dto\ModuleFieldDto.cs" />
-    <Compile Include="App\DataService\Dto\ModuleVariableDto.cs" />
-    <Compile Include="App\Engine\ActionExecution\ActionExecutionContext.cs" />
-    <Compile Include="App\Engine\ActionExecution\ActionRequest.cs" />
-    <Compile Include="App\Engine\ActionExecution\ActionResponse.cs" />
-    <Compile Include="App\Web\Models\Models\ModuleLiteData.cs" />
-    <Compile Include="App\Web\Models\Models\ModuleOutputResourceDto .cs" />
-    <Compile Include="Core\Contracts\IPropertyDefinition.cs" />
-    <Compile Include="Core\EngineBase\Contracts\IEngineContext.cs" />
-    <Compile Include="Core\EvenFramework\Contracts\IEvent.cs" />
-    <Compile Include="Core\EvenFramework\Contracts\IEventDispatcher.cs" />
-    <Compile Include="Core\EvenFramework\Contracts\IEventObserver.cs" />
-    <Compile Include="Core\EvenFramework\Contracts\IEventPolicy.cs" />
-    <Compile Include="Core\EvenFramework\Models\EventResult.cs" />
-    <Compile Include="Shared\Enums\AppModelType.cs" />
-    <Compile Include="Shared\Enums\ModuleVariableScope.cs" />
-    <Compile Include="App\DataService\Enums\VariableType.cs" />
-    <Compile Include="App\Engine\ActionExecution\Models\ActionTree.cs" />
-    <Compile Include="App\Engine\ActionExecution\Contracts\IActionCondition.cs" />
-    <Compile Include="App\Engine\ActionExecution\Contracts\IActionResult.cs" />
-    <Compile Include="App\Engine\ActionExecution\Contracts\IActionWorker.cs" />
-    <Compile Include="App\Engine\ActionExecution\Enums\ActionResultStatus.cs" />
-    <Compile Include="App\Engine\ActionExecution\Models\ActionResult.cs" />
-    <Compile Include="Core\Contracts\ICacheService.cs" />
-    <Compile Include="Core\Contracts\IServiceLocator.cs" />
-    <Compile Include="Studio\DataService\Contracts\IDashbaordService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IExtensionService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IModuleFieldService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IModuleLibraryAndResourceService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IModuleTemplateService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IModuleVariable.cs" />
-    <Compile Include="Studio\DataService\Enums\ActionTypeExecutionScope.cs" />
-    <Compile Include="Shared\Enums\DashboardPageType.cs" />
-    <Compile Include="Studio\DataService\Enums\EntityType.cs" />
-    <Compile Include="Studio\DataService\Enums\LibraryOrResource.cs" />
-    <Compile Include="Studio\DataService\ListItems\ActionListItem.cs" />
-    <Compile Include="Studio\DataService\ListItems\ActionTypeListItem.cs" />
-    <Compile Include="Studio\DataService\ListItems\DashboardPageListItem.cs" />
-    <Compile Include="Studio\DataService\ListItems\EntityColumnListItem.cs" />
-    <Compile Include="Studio\DataService\ListItems\EntityListItem.cs" />
-    <Compile Include="Studio\DataService\ListItems\LibraryListItem.cs" />
-    <Compile Include="Studio\DataService\ListItems\LibraryResourceListItem.cs" />
-    <Compile Include="Studio\DataService\ListItems\ModuleFieldTypeCustomEventListItem.cs" />
-    <Compile Include="Studio\DataService\ListItems\ModuleFieldTypeListItem.cs" />
-    <Compile Include="Studio\DataService\ListItems\ServiceTypeListItem.cs" />
-    <Compile Include="Studio\DataService\Models\DashboardPagesOrder.cs" />
-    <Compile Include="Studio\DataService\Models\UpdateDashboardPageParent.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardPageModuleViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardPageViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Extension\ExtensionViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Service\ServiceParamViewModel.cs" />
-    <Compile Include="Studio\Engine\BuildModule\BuildModuleRequest.cs" />
-    <Compile Include="Studio\Engine\BuildModule\BuildModuleResponse.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Contracts\IResourceAggregatorService.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Dto\ModuleFieldTypeDto.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Dto\ModuleResourceDto.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Contracts\IBuildLayoutService.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Contracts\IMergeResourcesService.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Contracts\IBuildModuleEngine .cs" />
-    <Compile Include="Studio\Engine\BuildModule\Contracts\IModuleBuildLockService.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Dto\ModuleDto.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Dto\ModuleFieldDto.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Enums\ModuleExternalResourceType.cs" />
-    <Compile Include="Shared\Enums\ModuleResourceContentType.cs" />
-    <Compile Include="Data\IDatabaseMetadataRepository.cs" />
-    <Compile Include="Data\IExecuteSqlCommand.cs" />
-    <Compile Include="Data\IRepositoryBase.cs" />
-    <Compile Include="Core\Contracts\IUnitOfWork.cs" />
-    <Compile Include="Core\EngineBase\Events\Delegates.cs" />
-    <Compile Include="Studio\Engine\InstallExtension\InstallExtensionContext.cs" />
-    <Compile Include="Studio\Engine\InstallExtension\InstallExtensionRequest.cs" />
-    <Compile Include="Studio\Engine\InstallExtension\InstallExtensionResponse.cs" />
-    <Compile Include="Studio\Engine\InstallExtension\Models\ExtensionAssembly.cs" />
-    <Compile Include="Studio\Engine\InstallExtension\Models\ExtensionManifest.cs" />
-    <Compile Include="Studio\Engine\InstallExtension\Models\ExtensionOwner.cs" />
-    <Compile Include="Studio\Engine\InstallExtension\Models\ExtensionResource.cs" />
-    <Compile Include="Studio\Engine\InstallExtension\Models\ExtensionSqlProvider.cs" />
-    <Compile Include="Studio\Engine\InstallExtension\Enums\SqlProviderType.cs" />
-    <Compile Include="Studio\Engine\TypeBuilder\TypeBuilderRequest.cs" />
-    <Compile Include="Studio\Engine\TypeBuilder\TypeBuilderResponse.cs" />
-    <Compile Include="Studio\ModuleBuilder\Enums\FieldDataSourceType.cs" />
-    <Compile Include="Studio\ModuleBuilder\Enums\ModuleType.cs" />
-    <Compile Include="Studio\ModuleBuilder\Enums\ModuleWrapper.cs" />
-    <Compile Include="Studio\ModuleBuilder\Models\FieldDataSourceInfo.cs" />
-    <Compile Include="Studio\ModuleBuilder\Models\FieldDataSourceResult.cs" />
-    <Compile Include="Studio\ModuleBuilder\Models\FieldValueInfo.cs" />
-    <Compile Include="Studio\ModuleBuilder\Models\ModuleFieldGlobalSettings.cs" />
-    <Compile Include="App\PageResourceDto.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Enums\BuildScope.cs" />
-    <Compile Include="Studio\Engine\BuildModule\Enums\ModuleResourceType.cs" />
-    <Compile Include="Core\EngineBase\Contracts\IBackgroundTaskQueue.cs" />
-    <Compile Include="Core\EngineBase\Contracts\IEngine.cs" />
-    <Compile Include="Core\EngineBase\Contracts\IEngineMiddleware.cs" />
-    <Compile Include="Core\EngineBase\EngineContext.cs" />
-    <Compile Include="Core\EngineBase\EngineResult.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Shared\Contracts\IEntity.cs" />
-    <Compile Include="Shared\Contracts\IExpressionService.cs" />
-    <Compile Include="Shared\Contracts\IExtensionServiceFactory.cs" />
-    <Compile Include="Shared\Contracts\IExtensionServiceViewModel.cs" />
-    <Compile Include="Shared\Contracts\IViewModel.cs" />
-    <Compile Include="Shared\Enums\ActionExecutionCondition.cs" />
-    <Compile Include="Shared\Models\ExpressionInfo.cs" />
-    <Compile Include="Shared\Models\GuidInfo.cs" />
-    <Compile Include="Shared\Models\PagingInfo.cs" />
-    <Compile Include="Shared\Models\ParamInfo.cs" />
-    <Compile Include="Shared\Models\PropertyInfo.cs" />
-    <Compile Include="Shared\Models\SortInfo.cs" />
-    <Compile Include="Shared\Models\TableColumnInfo.cs" />
-    <Compile Include="Studio\DataService\Contracts\IActionService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IAppModelService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IBaseService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IDefinedListService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IEntityService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IModuleService.cs" />
-    <Compile Include="Studio\DataService\Contracts\IServiceFactory.cs" />
-    <Compile Include="Studio\DataService\Contracts\ITemplateService.cs" />
-    <Compile Include="Studio\DataService\ListItems\ModuleVariableListItem.cs" />
-    <Compile Include="Studio\DataService\Models\PaneFieldsOrder.cs" />
-    <Compile Include="Studio\DataService\Models\UpdateModuleField.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Action\ActionParamViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Action\ActionResultViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Action\ActionViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\AppModel\AppModelPropertyViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\AppModel\AppModelViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Base\DefinedListItemViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Base\DefinedListViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Base\ExplorerItemViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Base\GroupViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Base\ScenarioViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Base\StudioLibraryViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Entity\EntityColumnViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Entity\EntityViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Module\ModuleCustomLibraryResourceViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Module\ModuleCustomLibraryViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Module\ModuleCustomResourceViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Module\ModuleFieldTypeTemplateViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Module\ModuleFieldTypeThemeViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Module\ModuleFieldTypeViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Module\ModuleFieldViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Module\ModuleVariableViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Module\ModuleViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Service\ServiceViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Module\ModuleTemplateViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Template\TemplateThemeViewModel.cs" />
-    <Compile Include="Studio\DataService\ViewModels\Template\TemplateViewModel.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Core\EngineBase\Enums\" />
-    <Folder Include="Core\EvenFramework\Enums\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
-      <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
-      <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+		<ProjectGuid>{F4C66D02-6CBE-4AFD-93E1-16C56E69E86E}</ProjectGuid>
+		<OutputType>Library</OutputType>
+		<AppDesignerFolder>Properties</AppDesignerFolder>
+		<RootNamespace>NitroSystem.Dnn.BusinessEngine.Abstractions</RootNamespace>
+		<AssemblyName>NitroSystem.Dnn.BusinessEngine.Abstractions</AssemblyName>
+		<TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+		<FileAlignment>512</FileAlignment>
+		<TargetFrameworkProfile />
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>full</DebugType>
+		<Optimize>false</Optimize>
+		<OutputPath>bin\Debug\</OutputPath>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+		<LangVersion>preview</LangVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<OutputPath>bin\Release\</OutputPath>
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+		<LangVersion>9.0</LangVersion>
+	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="System" />
+		<Reference Include="System.Core" />
+		<Reference Include="System.Drawing" />
+		<Reference Include="System.Net" />
+		<Reference Include="System.Net.Http" />
+		<Reference Include="System.Transactions" />
+		<Reference Include="System.Web" />
+		<Reference Include="System.Xml.Linq" />
+		<Reference Include="System.Data.DataSetExtensions" />
+		<Reference Include="Microsoft.CSharp" />
+		<Reference Include="System.Data" />
+		<Reference Include="System.Xml" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="App\DataService\Contracts\IDashboardService.cs" />
+		<Compile Include="App\DataService\Contracts\IUserDataStore.cs" />
+		<Compile Include="App\DataService\Dto\DashboardDto.cs" />
+		<Compile Include="App\DataService\Dto\DashboardPageDto.cs" />
+		<Compile Include="App\Engine\ActionExecution\Contracts\IActionExecutor.cs" />
+		<Compile Include="App\DataService\Contracts\IActionService.cs" />
+		<Compile Include="App\DataService\Contracts\IModuleService.cs" />
+		<Compile Include="App\Engine\ActionExecution\Contracts\IBuildBufferService.cs" />
+		<Compile Include="App\Engine\ActionExecution\Dto\ActionDto.cs" />
+		<Compile Include="App\Engine\ActionExecution\Dto\ActionParamDto.cs" />
+		<Compile Include="App\Engine\ActionExecution\Dto\ActionResultDto.cs" />
+		<Compile Include="App\DataService\Dto\ModuleClientVariableDto.cs" />
+		<Compile Include="App\DataService\Dto\ModuleDto.cs" />
+		<Compile Include="App\DataService\Dto\ModuleFieldDto.cs" />
+		<Compile Include="App\DataService\Dto\ModuleVariableDto.cs" />
+		<Compile Include="App\Engine\ActionExecution\ActionExecutionContext.cs" />
+		<Compile Include="App\Engine\ActionExecution\ActionRequest.cs" />
+		<Compile Include="App\Engine\ActionExecution\ActionResponse.cs" />
+		<Compile Include="App\Web\Models\Models\ModuleLiteData.cs" />
+		<Compile Include="App\Web\Models\Models\ModuleOutputResourceDto .cs" />
+		<Compile Include="Core\Contracts\IPropertyDefinition.cs" />
+		<Compile Include="Core\EngineBase\Contracts\IEngineContext.cs" />
+		<Compile Include="Core\EvenFramework\Contracts\IEvent.cs" />
+		<Compile Include="Core\EvenFramework\Contracts\IEventDispatcher.cs" />
+		<Compile Include="Core\EvenFramework\Contracts\IEventObserver.cs" />
+		<Compile Include="Core\EvenFramework\Contracts\IEventPolicy.cs" />
+		<Compile Include="Core\EvenFramework\Models\EventResult.cs" />
+		<Compile Include="Shared\Contracts\IExportable.cs" />
+		<Compile Include="Shared\Enums\AppModelType.cs" />
+		<Compile Include="Shared\Enums\ModuleVariableScope.cs" />
+		<Compile Include="App\DataService\Enums\VariableType.cs" />
+		<Compile Include="App\Engine\ActionExecution\Models\ActionTree.cs" />
+		<Compile Include="App\Engine\ActionExecution\Contracts\IActionCondition.cs" />
+		<Compile Include="App\Engine\ActionExecution\Contracts\IActionResult.cs" />
+		<Compile Include="App\Engine\ActionExecution\Contracts\IActionWorker.cs" />
+		<Compile Include="App\Engine\ActionExecution\Enums\ActionResultStatus.cs" />
+		<Compile Include="App\Engine\ActionExecution\Models\ActionResult.cs" />
+		<Compile Include="Core\Contracts\ICacheService.cs" />
+		<Compile Include="Core\Contracts\IServiceLocator.cs" />
+		<Compile Include="Studio\DataService\Contracts\IDashbaordService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IExtensionService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IModuleFieldService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IModuleLibraryAndResourceService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IModuleTemplateService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IModuleVariable.cs" />
+		<Compile Include="Studio\DataService\Enums\ActionTypeExecutionScope.cs" />
+		<Compile Include="Shared\Enums\DashboardPageType.cs" />
+		<Compile Include="Studio\DataService\Enums\EntityType.cs" />
+		<Compile Include="Studio\DataService\Enums\LibraryOrResource.cs" />
+		<Compile Include="Studio\DataService\ListItems\ActionListItem.cs" />
+		<Compile Include="Studio\DataService\ListItems\ActionTypeListItem.cs" />
+		<Compile Include="Studio\DataService\ListItems\DashboardPageListItem.cs" />
+		<Compile Include="Studio\DataService\ListItems\EntityColumnListItem.cs" />
+		<Compile Include="Studio\DataService\ListItems\EntityListItem.cs" />
+		<Compile Include="Studio\DataService\ListItems\LibraryListItem.cs" />
+		<Compile Include="Studio\DataService\ListItems\LibraryResourceListItem.cs" />
+		<Compile Include="Studio\DataService\ListItems\ModuleFieldTypeCustomEventListItem.cs" />
+		<Compile Include="Studio\DataService\ListItems\ModuleFieldTypeListItem.cs" />
+		<Compile Include="Studio\DataService\ListItems\ServiceTypeListItem.cs" />
+		<Compile Include="Studio\DataService\Models\DashboardPagesOrder.cs" />
+		<Compile Include="Studio\DataService\Models\UpdateDashboardPageParent.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardPageModuleViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardPageViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Dashboard\DashboardViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Extension\ExtensionViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Service\ServiceParamViewModel.cs" />
+		<Compile Include="Studio\Engine\BuildModule\BuildModuleRequest.cs" />
+		<Compile Include="Studio\Engine\BuildModule\BuildModuleResponse.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Contracts\IResourceAggregatorService.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Dto\ModuleFieldTypeDto.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Dto\ModuleResourceDto.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Contracts\IBuildLayoutService.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Contracts\IMergeResourcesService.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Contracts\IBuildModuleEngine .cs" />
+		<Compile Include="Studio\Engine\BuildModule\Contracts\IModuleBuildLockService.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Dto\ModuleDto.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Dto\ModuleFieldDto.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Enums\ModuleExternalResourceType.cs" />
+		<Compile Include="Shared\Enums\ModuleResourceContentType.cs" />
+		<Compile Include="Data\IDatabaseMetadataRepository.cs" />
+		<Compile Include="Data\IExecuteSqlCommand.cs" />
+		<Compile Include="Data\IRepositoryBase.cs" />
+		<Compile Include="Core\Contracts\IUnitOfWork.cs" />
+		<Compile Include="Core\EngineBase\Events\Delegates.cs" />
+		<Compile Include="Studio\Engine\InstallExtension\InstallExtensionContext.cs" />
+		<Compile Include="Studio\Engine\InstallExtension\InstallExtensionRequest.cs" />
+		<Compile Include="Studio\Engine\InstallExtension\InstallExtensionResponse.cs" />
+		<Compile Include="Studio\Engine\InstallExtension\Models\ExtensionAssembly.cs" />
+		<Compile Include="Studio\Engine\InstallExtension\Models\ExtensionManifest.cs" />
+		<Compile Include="Studio\Engine\InstallExtension\Models\ExtensionOwner.cs" />
+		<Compile Include="Studio\Engine\InstallExtension\Models\ExtensionResource.cs" />
+		<Compile Include="Studio\Engine\InstallExtension\Models\ExtensionSqlProvider.cs" />
+		<Compile Include="Studio\Engine\InstallExtension\Enums\SqlProviderType.cs" />
+		<Compile Include="Studio\Engine\TypeBuilder\TypeBuilderRequest.cs" />
+		<Compile Include="Studio\Engine\TypeBuilder\TypeBuilderResponse.cs" />
+		<Compile Include="Studio\ModuleBuilder\Enums\FieldDataSourceType.cs" />
+		<Compile Include="Studio\ModuleBuilder\Enums\ModuleType.cs" />
+		<Compile Include="Studio\ModuleBuilder\Enums\ModuleWrapper.cs" />
+		<Compile Include="Studio\ModuleBuilder\Models\FieldDataSourceInfo.cs" />
+		<Compile Include="Studio\ModuleBuilder\Models\FieldDataSourceResult.cs" />
+		<Compile Include="Studio\ModuleBuilder\Models\FieldValueInfo.cs" />
+		<Compile Include="Studio\ModuleBuilder\Models\ModuleFieldGlobalSettings.cs" />
+		<Compile Include="App\PageResourceDto.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Enums\BuildScope.cs" />
+		<Compile Include="Studio\Engine\BuildModule\Enums\ModuleResourceType.cs" />
+		<Compile Include="Core\EngineBase\Contracts\IBackgroundTaskQueue.cs" />
+		<Compile Include="Core\EngineBase\Contracts\IEngine.cs" />
+		<Compile Include="Core\EngineBase\Contracts\IEngineMiddleware.cs" />
+		<Compile Include="Core\EngineBase\EngineContext.cs" />
+		<Compile Include="Core\EngineBase\EngineResult.cs" />
+		<Compile Include="Properties\AssemblyInfo.cs" />
+		<Compile Include="Shared\Contracts\IEntity.cs" />
+		<Compile Include="Shared\Contracts\IExpressionService.cs" />
+		<Compile Include="Shared\Contracts\IExtensionServiceFactory.cs" />
+		<Compile Include="Shared\Contracts\IExtensionServiceViewModel.cs" />
+		<Compile Include="Shared\Contracts\IViewModel.cs" />
+		<Compile Include="Shared\Enums\ActionExecutionCondition.cs" />
+		<Compile Include="Shared\Models\ExpressionInfo.cs" />
+		<Compile Include="Shared\Models\GuidInfo.cs" />
+		<Compile Include="Shared\Models\PagingInfo.cs" />
+		<Compile Include="Shared\Models\ParamInfo.cs" />
+		<Compile Include="Shared\Models\PropertyInfo.cs" />
+		<Compile Include="Shared\Models\SortInfo.cs" />
+		<Compile Include="Shared\Models\TableColumnInfo.cs" />
+		<Compile Include="Studio\DataService\Contracts\IActionService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IAppModelService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IBaseService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IDefinedListService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IEntityService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IModuleService.cs" />
+		<Compile Include="Studio\DataService\Contracts\IServiceFactory.cs" />
+		<Compile Include="Studio\DataService\Contracts\ITemplateService.cs" />
+		<Compile Include="Studio\DataService\ListItems\ModuleVariableListItem.cs" />
+		<Compile Include="Studio\DataService\Models\PaneFieldsOrder.cs" />
+		<Compile Include="Studio\DataService\Models\UpdateModuleField.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Action\ActionParamViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Action\ActionResultViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Action\ActionViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\AppModel\AppModelPropertyViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\AppModel\AppModelViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Base\DefinedListItemViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Base\DefinedListViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Base\ExplorerItemViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Base\GroupViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Base\ScenarioViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Base\StudioLibraryViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Entity\EntityColumnViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Entity\EntityViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Module\ModuleCustomLibraryResourceViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Module\ModuleCustomLibraryViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Module\ModuleCustomResourceViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Module\ModuleFieldTypeTemplateViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Module\ModuleFieldTypeThemeViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Module\ModuleFieldTypeViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Module\ModuleFieldViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Module\ModuleVariableViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Module\ModuleViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Service\ServiceViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Module\ModuleTemplateViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Template\TemplateThemeViewModel.cs" />
+		<Compile Include="Studio\DataService\ViewModels\Template\TemplateViewModel.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Core\EngineBase\Enums\" />
+		<Folder Include="Core\EvenFramework\Enums\" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
+			<Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
+			<Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
+		</ProjectReference>
+	</ItemGroup>
+	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+	<PropertyGroup>
+		<PostBuildEvent>
+		</PostBuildEvent>
+	</PropertyGroup>
+	<!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

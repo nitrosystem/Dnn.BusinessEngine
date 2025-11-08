@@ -56,9 +56,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
             }
             catch (Exception ex)
             {
-                if (OnError != null) await OnError(ex, "Execute");
-                await HandleExceptionAsync(ex);
-                return EngineResult<TResponse>.Failure(ex.Message);
+                throw ex;
+                //if (OnError != null) await OnError(ex, "Execute");
+                //await HandleExceptionAsync(ex);
+                //return EngineResult<TResponse>.Failure(ex.Message);
             }
         }
 
