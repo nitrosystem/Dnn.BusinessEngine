@@ -23,25 +23,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Helpers
 
             return kebab.ToLowerInvariant();
         }
-
-        public static string BuildKey(string baseKey, params string[] parts)
-        {
-            // ترکیب کلید پایه با بخش‌های اضافه
-            var rawKey = string.IsNullOrEmpty(baseKey)
-                ? string.Join("_", parts)
-                : baseKey + "_" + string.Join("_", parts);
-
-            // اگر خیلی کوتاه بود، همون رو برگردون
-            if (rawKey.Length <= 200)
-                return rawKey;
-
-            // در غیر این صورت هش کن
-            using var sha256 = SHA256.Create();
-            var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawKey));
-            var hash = Convert.ToBase64String(hashBytes);
-
-            // کلید نهایی: ترکیب baseKey با هش
-            return string.IsNullOrEmpty(baseKey) ? hash : $"{baseKey}_{hash}";
-        }
     }
 }

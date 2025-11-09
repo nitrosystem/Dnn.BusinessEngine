@@ -729,13 +729,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
+                var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 var results = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, pageIndex, pageSize, searchText, actionType, sortBy);
-
                 var actions = results.Items;
                 var totalCount = results.TotalCount;
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
+                    Module = module,
                     Actions = actions,
                     Page = new PagingInfo(totalCount, pageSize, pageIndex)
                 });

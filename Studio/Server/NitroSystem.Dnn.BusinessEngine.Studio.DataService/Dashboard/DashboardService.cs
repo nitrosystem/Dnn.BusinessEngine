@@ -117,7 +117,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
         public async Task<IEnumerable<DashboardPageListItem>> GetDashboardPagesListItemAsync(Guid dashboardModuleId)
         {
             var dashboardId = await GetDashboardIdAsync(dashboardModuleId);
-            var pages = await _repository.GetItemsByColumnAsync<DashboardPageInfo>("", dashboardId, "PageName");
+            var pages = await _repository.GetItemsByColumnAsync<DashboardPageInfo>("DashboardId", dashboardId, "PageName");
 
             return HybridMapper.MapCollection<DashboardPageInfo, DashboardPageListItem>(pages);
         }
