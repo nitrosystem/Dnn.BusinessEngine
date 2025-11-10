@@ -14,12 +14,16 @@ using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.Condit
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
     public class BuildLayoutService : IBuildLayoutService
     {
-        #region Members
+
+        private readonly IServiceLocator _serviceLocator;
+        private readonly IModuleFieldService _moduleFieldService;
 
         private ConcurrentDictionary<(string fieldType, string template), string> _fieldTypes = new
                 ConcurrentDictionary<(string fieldType, string template), string>();
@@ -38,7 +42,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 [[IF:CanHaveValue == true && IsRequired == true:
                     <p b-show=""[FIELD].isValidated==true && [FIELD].isValid==false && [FIELD].requiredError==true"" class=""[[Settings.RequiredMessageCssClass??b-field-invalid-message]]"">[[Settings.RequiredMessage]]</p>
                 ]]
-                [[IF:CanHaveValue == true && GlobalSettings.EnableValidationPattern == true && Settings.ValidationPattern != null:
+                [[IF:CanHaveValue == true && GlobalSettings.EnableValidationPattern == true && GlobalSettings.ValidationPattern != null:
                     <p b-show=""[FIELD].isValidated && ![FIELD].isValid && [FIELD].patternError"" class=""[[Settings.ValidationMessageCssClass??b-field-pattern-message]]"">[[Settings.ValidationMessage]]</p>
                 ]]
                 [[IF:GlobalSettings.Subtext != null:
@@ -46,7 +50,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 ]]
             </div>";
 
-        #endregion
+        public BuildLayoutService(IServiceLocator serviceLocator, IModuleFieldService moduleFieldService)
+        {
+            _serviceLocator = serviceLocator;
+            _moduleFieldService = moduleFieldService;
+        }
 
         public async Task<string> BuildLayoutAsync(string moduleLayoutTemplate, IEnumerable<ModuleFieldDto> fields)
         {
@@ -75,7 +83,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             _htmlDoc = new HtmlDocument();
             _htmlDoc.LoadHtml(moduleLayoutTemplate);
 
-            ProcessBuffer(_buffer.Count);
+            await ProcessBuffer(_buffer.Count);
 
             return _htmlDoc.DocumentNode.OuterHtml;
         }
@@ -120,11 +128,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             foreach (var childField in childs)
             {
                 _buffer.Enqueue(childField);
-                CreateBuffer(childField);
+                if (field.ParentId.HasValue) CreateBuffer(childField);
             }
         }
 
-        private void ProcessBuffer(int index)
+        private async Task ProcessBuffer(int index)
         {
             if (index <= 0) return;
 
@@ -133,7 +141,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             try
             {
                 var node = GetPaneNode(field.PaneName);
-                var fieldHtml = ParseFieldTemplate(field);
+                var fieldHtml = await ParseFieldTemplate(field);
                 var htmlNode = HtmlNode.CreateNode(fieldHtml);
 
                 node.AppendChild(htmlNode);
@@ -143,10 +151,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 throw ex;
             }
 
-            ProcessBuffer(index - 1);
+            await ProcessBuffer(index - 1);
         }
 
-        private string ParseFieldTemplate(ModuleFieldDto field)
+        private async Task<string> ParseFieldTemplate(ModuleFieldDto field)
         {
             var fieldKey = (field.FieldType, field.Template);
             _fieldTypes.TryGetValue(fieldKey, out var fieldTemplate);
@@ -161,6 +169,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
             try
             {
+                if (field.IsParent && field.IsGroupField && !string.IsNullOrEmpty(field.FieldTypeGeneratePanesBusinessControllerClass))
+                {
+                    var type = await _moduleFieldService.GenerateFieldTypePanesBusinessControllerClassAsync(field.FieldType);
+                    if (!string.IsNullOrEmpty(type))
+                    {
+                        var controller = _serviceLocator.GetInstance<IFieldTypePaneGeneration>(type);
+                        var panes = await controller.GeneratePanes(field);
+                        fieldTemplate = fieldTemplate.Replace("[FIELDPANES]", panes ?? string.Empty);
+                    }
+                }
+
                 fieldTemplate = _fieldLayout.Replace("[FIELD-COMPONENT]", fieldTemplate);
 
                 string json = Newtonsoft.Json.JsonConvert.SerializeObject(field);

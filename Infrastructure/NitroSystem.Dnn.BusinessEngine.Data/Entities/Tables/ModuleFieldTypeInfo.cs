@@ -24,6 +24,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public bool IsContentField { get; set; }
         public object DefaultSettings { get; set; }
         public string ValidationPattern { get; set; }
+        public string GeneratePanesBusinessControllerClass { get; set; }
         public string Icon { get; set; }
         public bool IsEnabled { get; set; }
         public string Description { get; set; }

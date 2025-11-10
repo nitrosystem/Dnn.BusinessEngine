@@ -23,6 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public string DataSource { get; set; }
         public string ShowConditions { get; set; }
         public string AuthorizationViewField { get; set; }
+        public string FieldTypeGeneratePanesBusinessControllerClass { get; set; }
         public int ViewOrder { get; set; }
     }
 }

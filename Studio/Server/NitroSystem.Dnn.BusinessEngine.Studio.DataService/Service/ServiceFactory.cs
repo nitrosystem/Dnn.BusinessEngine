@@ -6,14 +6,11 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ServiceLocator;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Service;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
-using System.Resources;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
@@ -109,7 +106,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
             return (result, totalCount);
         }
 
-        public async Task<(Guid ServiceId, Guid? ExtensionServiceId)> SaveServiceAsync(ServiceViewModel service, string extensionServiceJson, bool isNew)
+        public async Task<(Guid ServiceId, Guid? ExtensionServiceId)> SaveServiceAsync(
+            ServiceViewModel service,
+            string extensionServiceJson,
+            bool isNew)
         {
             var lockKey = service.Id == Guid.Empty ? Guid.NewGuid() : service.Id;
             var semaphore = _serviceLocks.GetOrAdd(lockKey, _ => new SemaphoreSlim(1, 1));

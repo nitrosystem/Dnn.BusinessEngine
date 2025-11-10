@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
@@ -13,11 +14,8 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
@@ -80,6 +78,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
         public async Task<string> GetFieldTypeIconAsync(string fieldType)
         {
             return await _repository.GetColumnValueAsync<ModuleFieldTypeInfo, string>("Icon", "FieldType", fieldType);
+        }
+
+        public async Task<string> GenerateFieldTypePanesBusinessControllerClassAsync(string fieldType)
+        {
+            return await _repository.GetColumnValueAsync<ModuleFieldTypeInfo, string>("GeneratePanesBusinessControllerClass", "FieldType", fieldType);
         }
 
         #endregion
@@ -189,7 +192,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
         public async Task<bool> UpdateFieldPaneAsync(PaneFieldsOrder data)
         {
-            return await _repository.UpdateColumnAsync<ModuleFieldInfo>("PaneName", data.PaneName, data.FieldId);
+            var objModuleFieldInfo = new ModuleFieldInfo()
+            {
+                Id = data.FieldId,
+                ParentId = data.ParentId,
+                PaneName = data.PaneName
+            };
+
+            return await _repository.UpdateAsync<ModuleFieldInfo>(objModuleFieldInfo, "ParentId", "PaneName");
         }
 
         public async Task SortFieldsAsync(PaneFieldsOrder data)
