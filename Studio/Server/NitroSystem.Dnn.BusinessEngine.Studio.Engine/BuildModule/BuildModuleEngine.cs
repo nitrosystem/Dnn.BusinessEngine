@@ -102,7 +102,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                 }
                 finally
                 {
-                    lockService.ReleaseLock(request.ModuleId.Value);
+                    await lockService.ReleaseLockAsync(request.ModuleId.Value);
                 }
             }
             catch (Exception ex)

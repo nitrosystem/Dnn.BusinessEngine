@@ -148,7 +148,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             }
             catch (Exception ex)
             {
-                throw ex;
+                //throw ex;
             }
 
             await ProcessBuffer(index - 1);

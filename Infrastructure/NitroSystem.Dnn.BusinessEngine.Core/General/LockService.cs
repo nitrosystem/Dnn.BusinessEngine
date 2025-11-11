@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.General
 {
-    public class LockService 
+    public class LockService
     {
         // Stores a semaphore per module to synchronize build operations.
         private static readonly Dictionary<object, SemaphoreSlim> _locks = new Dictionary<object, SemaphoreSlim>();
@@ -45,6 +45,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.General
                     semaphore.Release();
                 }
             }
+        }
+
+        /// <summary>
+        /// Async-compatible version of ReleaseLock.
+        /// Useful when calling from async methods for clarity.
+        /// </summary>
+        public Task ReleaseLockAsync(object lockId)
+        {
+            ReleaseLock(lockId);
+            return Task.CompletedTask;
         }
     }
 }

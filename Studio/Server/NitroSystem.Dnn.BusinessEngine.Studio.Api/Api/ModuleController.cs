@@ -25,9 +25,11 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask;
+using Microsoft.Extensions.DependencyInjection;
+using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework;
+using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -46,6 +48,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IModuleLibraryAndResourceService _moduleLibraryAndResourceService;
         private readonly IActionService _actionService;
         private readonly ITemplateService _templateService;
+        private readonly BackgroundFramework _backgroundFramework;
 
         public ModuleController(
             IServiceProvider serviceProvider,
@@ -59,7 +62,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             IModuleVariableService moduleVariableService,
             IModuleLibraryAndResourceService moduleLibraryAndResourceService,
             IActionService actionService,
-            ITemplateService templateService
+            ITemplateService templateService,
+            BackgroundFramework backgroundFramework
         )
         {
             _serviceProvider = serviceProvider;
@@ -74,6 +78,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _moduleLibraryAndResourceService = moduleLibraryAndResourceService;
             _actionService = actionService;
             _templateService = templateService;
+            _backgroundFramework = backgroundFramework;
         }
 
         #region Create Dashboard
@@ -323,7 +328,25 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var moduleId = await _moduleService.SaveModuleAsync(module, module.Id == Guid.Empty);
+                bool isNew = module.Id == Guid.Empty;
+
+                var oldModuleName = !isNew
+                    ? await _moduleService.GetModuleNameAsync(module.Id)
+                    : string.Empty;
+
+                var moduleId = await _moduleService.SaveModuleAsync(module, isNew);
+
+                if (!string.IsNullOrEmpty(oldModuleName) && oldModuleName != module.ModuleName)
+                {
+                    var request = await GetDataForBuildModule(module.Id);
+                    var task = new BackgroundTaskRequest()
+                    {
+                        Task = new BuildModuleTask(_serviceProvider, _cacheService, _moduleService, request, module.Id.ToString(), "Build Module"),
+                        NotificationChannel = request.Module.ScenarioName
+                    };
+
+                    _backgroundFramework.Enqueue(task);
+                }
 
                 return Request.CreateResponse(HttpStatusCode.OK, moduleId);
             }
@@ -701,13 +724,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var module = await _moduleService.GetDataForModuleBuildingAsync(moduleId);
-
-                var request = new BuildModuleRequest();
-                request.Module = module;
-                request.Scope = BuildScope.Module;
-                request.BasePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(module.ScenarioName)}/";
-
+                var request = await GetDataForBuildModule(moduleId);
                 var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService);
                 await engine.ExecuteAsync(request);
 
@@ -909,6 +926,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
         //    }
         //}
+
+        #endregion
+
+        #region Private Methods
+
+        private async Task<BuildModuleRequest> GetDataForBuildModule(Guid moduleId)
+        {
+            var module = await _moduleService.GetDataForModuleBuildingAsync(moduleId);
+            var request = new BuildModuleRequest();
+            request.Module = module;
+            request.Scope = BuildScope.Module;
+            request.BasePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(module.ScenarioName)}/";
+
+            return request;
+        }
 
         #endregion
 

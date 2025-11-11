@@ -28,6 +28,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
         #region Module Services
 
+        public async Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId)
+        {
+            var modules = await _repository.GetByScopeAsync<ModuleView>(scenarioId);
+
+            return HybridMapper.MapCollection<ModuleView, ModuleViewModel>(modules);
+        }
+        
         public async Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId)
         {
             var module = await _repository.GetAsync<ModuleView>(moduleId);
@@ -35,11 +42,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             return HybridMapper.Map<ModuleView, ModuleViewModel>(module);
         }
 
-        public async Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId)
+        public async Task<string> GetModuleNameAsync(Guid moduleId)
         {
-            var modules = await _repository.GetByScopeAsync<ModuleView>(scenarioId);
-
-            return HybridMapper.MapCollection<ModuleView, ModuleViewModel>(modules);
+            return await _repository.GetColumnValueAsync<ModuleInfo, string>(moduleId, "ModuleName");
         }
 
         public async Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew)
