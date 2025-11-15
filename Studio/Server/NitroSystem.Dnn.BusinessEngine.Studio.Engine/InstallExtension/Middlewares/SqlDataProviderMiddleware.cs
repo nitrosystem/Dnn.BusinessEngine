@@ -12,9 +12,6 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares
 {

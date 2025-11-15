@@ -1,10 +1,11 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Contracts
 {
     public interface IActionWorker
     {
-        Task<ActionResult> CallAction(ActionExecutionContext context);
+        Task<ActionResult> CallAction(IEngineContext context);
     }
 }

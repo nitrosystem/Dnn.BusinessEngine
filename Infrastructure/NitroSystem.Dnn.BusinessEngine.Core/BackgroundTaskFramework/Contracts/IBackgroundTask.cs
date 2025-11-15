@@ -13,7 +13,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Contracts
     {
         string TaskId { get; }
         string Name { get; }
-        /// Implement the work. Should honor cancellation and report progress.
         Task RunAsync(CancellationToken token, IProgress<ProgressInfo> progress);
     }
 }

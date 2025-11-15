@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using DotNetNuke.Entities.Users;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
@@ -20,11 +23,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
     public class BuildModuleEngine : EngineBase<BuildModuleRequest, BuildModuleResponse>
     {
         private readonly EnginePipeline<BuildModuleRequest, BuildModuleResponse> _pipeline;
-
         private readonly ICacheService _cacheService;
         private readonly IModuleService _moduleService;
+        private readonly WorkflowEventManager _eventManager;
 
-        public BuildModuleEngine(IServiceProvider services, ICacheService cacheService, IModuleService moduleService)
+        public BuildModuleEngine(IServiceProvider services, ICacheService cacheService, IModuleService moduleService, WorkflowEventManager eventManager)
             : base(services)
         {
             _pipeline = new EnginePipeline<BuildModuleRequest, BuildModuleResponse>()
@@ -34,6 +37,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 
             _cacheService = cacheService;
             _moduleService = moduleService;
+            _eventManager = eventManager;
 
             OnError += OnErrorHandle;
         }
@@ -58,7 +62,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 
         protected override async Task BeforeExecuteAsync(BuildModuleRequest request)
         {
-            await _moduleService.DeleteModuleResourcesAsync(request.ModuleId.Value);
+            await _eventManager.ExecuteTasksAsync<object>("BuildModuleWorkflow", "BuildModule", "DeleteModuleResourcesAsync", request.UserId, false,
+                   (Expression<Func<Task>>)(() => _moduleService.DeleteModuleResourcesAsync(request.ModuleId.Value))
+                );
+
             await base.BeforeExecuteAsync(request);
         }
 

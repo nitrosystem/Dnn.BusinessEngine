@@ -6,6 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask
@@ -15,6 +16,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask
         private readonly IServiceProvider _serviceProvider;
         private readonly ICacheService _cacheService;
         private readonly IModuleService _moduleService;
+        private readonly WorkflowEventManager _eventManager;
         private readonly BuildModuleRequest _request;
 
         public string TaskId { get; }
@@ -24,6 +26,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask
             IServiceProvider serviceProvider,
             ICacheService cacheService,
             IModuleService moduleService,
+            WorkflowEventManager eventManager,
             BuildModuleRequest request,
             string taskId,
             string name)
@@ -31,6 +34,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask
             _serviceProvider = serviceProvider;
             _cacheService = cacheService;
             _moduleService = moduleService;
+            _eventManager = eventManager;
             _request = request;
 
             TaskId = taskId;
@@ -39,7 +43,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask
 
         public async Task RunAsync(CancellationToken token, IProgress<ProgressInfo> progress)
         {
-            var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService);
+            var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService, _eventManager);
             await engine.ExecuteAsync(_request);
         }
     }

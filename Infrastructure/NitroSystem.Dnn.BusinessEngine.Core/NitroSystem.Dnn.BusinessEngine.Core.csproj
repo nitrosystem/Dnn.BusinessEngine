@@ -56,6 +56,9 @@
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Extensions.Logging.Abstractions.5.0.0\lib\net461\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.JScript" />
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -102,17 +105,19 @@
     <Compile Include="BackgroundTaskFramework\PriorityTaskQueue.cs" />
     <Compile Include="ClientResources\ClientResourceManager.cs" />
     <Compile Include="EngineBase\BackgroundTaskQueue.cs" />
-    <Compile Include="EngineBase\BackgroundWorker.cs" />
     <Compile Include="EngineBase\EngineBase.cs" />
-    <Compile Include="EngineBase\EngineContextExtensions.cs" />
+    <Compile Include="EngineBase\EngineContext.cs" />
     <Compile Include="EngineBase\EnginePipeline.cs" />
-    <Compile Include="EvenFramework\EventDispatcher.cs" />
-    <Compile Include="EvenFramework\EventFramework.cs" />
-    <Compile Include="EvenFramework\EventWrapper.cs" />
-    <Compile Include="EvenFramework\LoggingObserver.cs" />
     <Compile Include="EventBus\EventBus.cs" />
     <Compile Include="EventBus\EventSubscriber.cs" />
     <Compile Include="EventBus\IEvent.cs" />
+    <Compile Include="Workflow\WorkflowEventManager.cs" />
+    <Compile Include="Workflow\Extensions\MethodProfilerExtensions.cs" />
+    <Compile Include="Workflow\Models\MethodProfileResult.cs" />
+    <Compile Include="Workflow\Models\TaskInfo.cs" />
+    <Compile Include="Workflow\Models\TaskResourceUsage.cs" />
+    <Compile Include="Workflow\ResourceProfiler.cs" />
+    <Compile Include="Workflow\SaveTaskBatchJob.cs" />
     <Compile Include="General\GarbageCollector.cs" />
     <Compile Include="General\ZipProvider.cs" />
     <Compile Include="General\LockService.cs" />

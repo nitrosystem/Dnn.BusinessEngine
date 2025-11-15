@@ -17,7 +17,7 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares;
 
-namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension
 {
     public class InstallExtensionEngine : EngineBase<InstallExtensionRequest, InstallExtensionResponse>
     {

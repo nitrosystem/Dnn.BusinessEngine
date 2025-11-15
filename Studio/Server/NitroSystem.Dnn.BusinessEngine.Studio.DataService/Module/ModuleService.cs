@@ -12,8 +12,6 @@ using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using System.Runtime.CompilerServices;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 {
@@ -34,7 +32,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
             return HybridMapper.MapCollection<ModuleView, ModuleViewModel>(modules);
         }
-        
+
         public async Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId)
         {
             var module = await _repository.GetAsync<ModuleView>(moduleId);
@@ -155,13 +153,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             var outputResources = HybridMapper.MapCollection<ModuleResourceDto, ModuleOutputResourceInfo>(resources,
                 (src, dest) => dest.SitePageId = sitePageId);
 
-            try
-            {
-                await _repository.BulkInsertAsync<ModuleOutputResourceInfo>(outputResources);
-            }
-            catch (Exception ex)
-            {
-            }
+            await _repository.BulkInsertAsync<ModuleOutputResourceInfo>(outputResources);
         }
 
         #endregion

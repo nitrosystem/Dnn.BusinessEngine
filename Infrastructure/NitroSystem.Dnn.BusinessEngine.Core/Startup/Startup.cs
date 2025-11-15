@@ -9,6 +9,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.Expres
 using NitroSystem.Dnn.BusinessEngine.Core.PushingServer.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.PushingServer;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework;
+using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Startup
 {
@@ -23,6 +24,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Startup
             services.AddScoped<IExpressionService, ExpressionService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
+
+            services.AddSingleton<WorkflowEventManager>();
+            services.AddSingleton<ResourceProfiler>();
 
             services.AddSingleton<INotificationServerHost, NotificationServerHost>();
             services.AddSingleton<NotificationServer>();

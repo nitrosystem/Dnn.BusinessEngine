@@ -10,6 +10,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension
 using System.IO;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares
 {

@@ -1,4 +1,5 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
@@ -31,14 +32,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             _moduleService = moduleService;
         }
 
-        public async Task<BuildModuleResponse> FinalizeResourcesAsync(BuildModuleRequest request, EngineContext context)
+        public async Task<BuildModuleResponse> FinalizeResourcesAsync(BuildModuleRequest request, IEngineContext context)
         {
+            var ctx = context as EngineContext;
             var result = new BuildModuleResponse();
-            var moduleLayoutTemplate = context.Get<string>("ModuleLayoutTemplate");
-            var scripts = context.Get<string>("ModuleScripts");
-            var styles = context.Get<string>("ModuleStyles");
-            var outputDirectory = context.Get<string>("OutputDirectory");
-            var outputRelativePath = context.Get<string>("OutputRelativePath");
+            var moduleLayoutTemplate = ctx.Get<string>("ModuleLayoutTemplate");
+            var scripts = ctx.Get<string>("ModuleScripts");
+            var styles = ctx.Get<string>("ModuleStyles");
+            var outputDirectory = ctx.Get<string>("OutputDirectory");
+            var outputRelativePath = ctx.Get<string>("OutputRelativePath");
             var moduleKebabName = StringHelper.ToKebabCase(request.ModuleName);
 
             var fileTasks = new[]

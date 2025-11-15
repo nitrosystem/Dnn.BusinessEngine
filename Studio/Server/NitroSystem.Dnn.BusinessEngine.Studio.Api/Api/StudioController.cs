@@ -408,113 +408,113 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         #endregion
 
-        #region App Models
+        //#region App Models
 
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetAppModels(int pageIndex, int pageSize, string searchText = null,
-            string sortBy = "Newest")
-        {
-            try
-            {
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+        //[HttpGet]
+        //public async Task<HttpResponseMessage> GetAppModels(int pageIndex, int pageSize, string searchText = null,
+        //    string sortBy = "Newest")
+        //{
+        //    try
+        //    {
+        //        var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, pageIndex, pageSize, searchText, sortBy);
+        //        var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, pageIndex, pageSize, searchText, sortBy);
 
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    AppModels = appModels.Items,
-                    Page = new PagingInfo(appModels.TotalCount, pageSize, pageIndex)
-                });
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //        return Request.CreateResponse(HttpStatusCode.OK, new
+        //        {
+        //            AppModels = appModels.Items,
+        //            Page = new PagingInfo(appModels.TotalCount, pageSize, pageIndex)
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
 
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetAppModel()
-        {
-            return await GetAppModel(Guid.Empty);
-        }
+        //[HttpGet]
+        //public async Task<HttpResponseMessage> GetAppModel()
+        //{
+        //    return await GetAppModel(Guid.Empty);
+        //}
 
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetAppModel(Guid appModelId)
-        {
-            try
-            {
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-                var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, null, "Title");
-                var appModel = await _appModelServices.GetAppModelAsync(appModelId);
-                var propertyTypes = Constants.VariableTypes.Select(kvp => new { Text = kvp.Key, Value = kvp.Value });
+        //[HttpGet]
+        //public async Task<HttpResponseMessage> GetAppModel(Guid appModelId)
+        //{
+        //    try
+        //    {
+        //        var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+        //        var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, null, "Title");
+        //        var appModel = await _appModelServices.GetAppModelAsync(appModelId);
+        //        var propertyTypes = Constants.VariableTypes.Select(kvp => new { Text = kvp.Key, Value = kvp.Value });
 
-                return Request.CreateResponse(HttpStatusCode.OK, new
-                {
-                    AppModels = appModels,
-                    AppModel = appModel,
-                    PropertyTypes = propertyTypes,
-                });
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //        return Request.CreateResponse(HttpStatusCode.OK, new
+        //        {
+        //            AppModels = appModels,
+        //            AppModel = appModel,
+        //            PropertyTypes = propertyTypes,
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> SaveAppModel(AppModelViewModel appModel)
-        {
-            try
-            {
-                var scenarioName = await _baseService.GetScenarioNameAsync(appModel.ScenarioId);
-                var properties = HybridMapper.MapCollection<AppModelPropertyViewModel, PropertyDefinition>(appModel.Properties);
-                var request = new TypeBuilderRequest()
-                {
-                    ScenarioName = scenarioName,
-                    BasePath = PortalSettings.HomeSystemDirectory,
-                    ModelName = appModel.ModelName,
-                    Version = "01.00.00",
-                    Properties = properties.Cast<IPropertyDefinition>().ToList()
-                };
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<HttpResponseMessage> SaveAppModel(AppModelViewModel appModel)
+        //{
+        //    try
+        //    {
+        //        var scenarioName = await _baseService.GetScenarioNameAsync(appModel.ScenarioId);
+        //        var properties = HybridMapper.MapCollection<AppModelPropertyViewModel, PropertyDefinition>(appModel.Properties);
+        //        var request = new TypeBuilderRequest()
+        //        {
+        //            ScenarioName = scenarioName,
+        //            BasePath = PortalSettings.HomeSystemDirectory,
+        //            ModelName = appModel.ModelName,
+        //            Version = "01.00.00",
+        //            Properties = properties.Cast<IPropertyDefinition>().ToList()
+        //        };
 
-                var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromSeconds(70));
-                using (await _brtGate.OpenGateAsync(permitId))
-                {
-                    var typeBuilder = new TypeBuilderEngine(_serviceProvider, _brtGate, permitId);
-                    var response = await typeBuilder.ExecuteAsync(request);
+        //        var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromSeconds(70));
+        //        using (await _brtGate.OpenGateAsync(permitId))
+        //        {
+        //            var typeBuilder = new TypeBuilderEngine(_serviceProvider, _brtGate, permitId);
+        //            var response = await typeBuilder.ExecuteAsync(request);
 
-                    appModel.TypeRelativePath = response.Data.RelativePath;
-                    appModel.TypeFullName = response.Data.TypeFullName;
-                }
+        //            appModel.TypeRelativePath = response.Data.RelativePath;
+        //            appModel.TypeFullName = response.Data.TypeFullName;
+        //        }
 
-                appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty);
+        //        appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty);
 
-                return Request.CreateResponse(HttpStatusCode.OK, appModel);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //        return Request.CreateResponse(HttpStatusCode.OK, appModel);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> DeleteAppModel(GuidInfo postData)
-        {
-            try
-            {
-                var isDeleted = await _appModelServices.DeleteAppModelAsync(postData.Id);
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<HttpResponseMessage> DeleteAppModel(GuidInfo postData)
+        //{
+        //    try
+        //    {
+        //        var isDeleted = await _appModelServices.DeleteAppModelAsync(postData.Id);
 
-                return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //        return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
 
-        #endregion
+        //#endregion
 
         #region Services
 
@@ -674,103 +674,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         #endregion
 
-        #region Extensions
+        //#region Extensions
 
-        [HttpGet]
-        public async Task<HttpResponseMessage> GetExtensions()
-        {
-            try
-            {
-                var extensions = await _extensionService.GetExtensionsViewModelAsync();
-                var availableExtensions = _extensionService.GetAvailableExtensionsViewModel();
-
-                return Request.CreateResponse(HttpStatusCode.OK,
-                    new { Extensions = extensions, AvailableExtensions = availableExtensions });
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> onInstallAvailableExtension([FromUri] string extensionFilename)
-        {
-            try
-            {
-                var scenarioID = Guid.Parse(Request.Headers.GetValues("ScenarioID").First());
-
-                var basePath = Constants.MapPath("~/DesktopModules/BusinessEngine/install");
-                var filename = Path.Combine(basePath, extensionFilename);
-                var result = await InstallExtension(filename);
-
-                File.Delete(filename);
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> InstallExtension()
-        {
-            try
-            {
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
-                if (!Request.Content.IsMimeMultipartContent())
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
-
-                // Create temp upload folder
-                var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
-                if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
-
-                var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
-                await Request.Content.ReadAsMultipartAsync(streamProvider);
-
-                var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
-
-                return await InstallExtension(filename);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        private async Task<HttpResponseMessage> InstallExtension(string filename)
-        {
-            var request = new InstallExtensionRequest()
-            {
-                BasePath = PortalSettings.HomeSystemDirectory,
-                ModulePath = Constants.MapPath("/DesktopModules/BusinessEngine"),
-                ExtensionZipFile = filename,
-            };
-
-            var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromMinutes(10));
-            using (await _brtGate.OpenGateAsync(permitId))
-            {
-                var installExtension = new InstallExtensionEngine(_serviceProvider, _brtGate, _extensionService, permitId);
-                var response = await installExtension.ExecuteAsync(request);
-            }
-
-            return Request.CreateResponse(HttpStatusCode.OK);
-        }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<HttpResponseMessage> DeleteExtension(GuidInfo postData)
+        //[HttpGet]
+        //public async Task<HttpResponseMessage> GetExtensions()
         //{
         //    try
         //    {
-        //        var result = await _extensionService.UninstallExtension(postData.Id);
+        //        var extensions = await _extensionService.GetExtensionsViewModelAsync();
+        //        var availableExtensions = _extensionService.GetAvailableExtensionsViewModel();
 
-        //        return Request.CreateResponse(HttpStatusCode.OK, result);
+        //        return Request.CreateResponse(HttpStatusCode.OK,
+        //            new { Extensions = extensions, AvailableExtensions = availableExtensions });
         //    }
         //    catch (Exception ex)
         //    {
@@ -778,7 +693,92 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         //    }
         //}
 
-        #endregion
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<HttpResponseMessage> onInstallAvailableExtension([FromUri] string extensionFilename)
+        //{
+        //    try
+        //    {
+        //        var scenarioID = Guid.Parse(Request.Headers.GetValues("ScenarioID").First());
+
+        //        var basePath = Constants.MapPath("~/DesktopModules/BusinessEngine/install");
+        //        var filename = Path.Combine(basePath, extensionFilename);
+        //        var result = await InstallExtension(filename);
+
+        //        File.Delete(filename);
+
+        //        return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<HttpResponseMessage> InstallExtension()
+        //{
+        //    try
+        //    {
+        //        var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+
+        //        if (!Request.Content.IsMimeMultipartContent())
+        //            return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
+
+        //        // Create temp upload folder
+        //        var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
+        //        if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+        //        var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
+        //        await Request.Content.ReadAsMultipartAsync(streamProvider);
+
+        //        var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
+
+        //        return await InstallExtension(filename);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
+
+        //private async Task<HttpResponseMessage> InstallExtension(string filename)
+        //{
+        //    var request = new InstallExtensionRequest()
+        //    {
+        //        BasePath = PortalSettings.HomeSystemDirectory,
+        //        ModulePath = Constants.MapPath("/DesktopModules/BusinessEngine"),
+        //        ExtensionZipFile = filename,
+        //    };
+
+        //    var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromMinutes(10));
+        //    using (await _brtGate.OpenGateAsync(permitId))
+        //    {
+        //        var installExtension = new InstallExtensionEngine(_serviceProvider, _brtGate, _extensionService, permitId);
+        //        var response = await installExtension.ExecuteAsync(request);
+        //    }
+
+        //    return Request.CreateResponse(HttpStatusCode.OK);
+        //}
+
+        ////[HttpPost]
+        ////[ValidateAntiForgeryToken]
+        ////public async Task<HttpResponseMessage> DeleteExtension(GuidInfo postData)
+        ////{
+        ////    try
+        ////    {
+        ////        var result = await _extensionService.UninstallExtension(postData.Id);
+
+        ////        return Request.CreateResponse(HttpStatusCode.OK, result);
+        ////    }
+        ////    catch (Exception ex)
+        ////    {
+        ////        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        ////    }
+        ////}
+
+        //#endregion
 
         #region private Methods
 

@@ -4,6 +4,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
 {
@@ -18,8 +19,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
 
         public async Task<EngineResult<BuildModuleResponse>> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<EngineResult<BuildModuleResponse>>> next)
         {
-            var ctx = context as EngineContext;
-            BuildModuleResponse response = await _service.FinalizeResourcesAsync(request, ctx);
+            BuildModuleResponse response = await _service.FinalizeResourcesAsync(request, context);
             return EngineResult<BuildModuleResponse>.Success(response);
         }
     }

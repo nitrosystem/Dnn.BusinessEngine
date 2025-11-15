@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard
 {
@@ -12,7 +11,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public Guid? ParentId { get; set; }
         public Guid ScenarioId { get; set; }
         public Guid DashboardId { get; set; }
-        public Guid DashboardModuleId { get; set; }
         public Guid? ExistingPageId { get; set; }
         public string PageName { get; set; }
         public string Title { get; set; }

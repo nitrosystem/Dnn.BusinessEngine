@@ -14,13 +14,12 @@ using NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Workflow;
+using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Workflow;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
 {
@@ -47,6 +46,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IActionService, ActionService>();
             services.AddScoped<ITemplateService, TemplateService>();
+            services.AddScoped<IWorkflowEventService, WorkflowEventService>();
 
             services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, BuildLayoutMiddleware>();
             services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, MergeResourcesMiddleware>();
@@ -58,13 +58,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<IMergeResourcesService, MergeResourcesService>();
             services.AddScoped<IResourceAggregatorService, ResourceAggregatorService>();
 
-            services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, BuildLayoutMiddleware>();
-            services.AddScoped<BuildTypeMiddleware>();
+            //services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, BuildLayoutMiddleware>();
+            //services.AddScoped<BuildTypeMiddleware>();
 
-            services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, SqlDataProviderMiddleware>();
-            services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, ResourcesMiddleware>();
-            services.AddScoped<SqlDataProviderMiddleware>();
-            services.AddScoped<ResourcesMiddleware>();
+            //services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, SqlDataProviderMiddleware>();
+            //services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, ResourcesMiddleware>();
+            //services.AddScoped<SqlDataProviderMiddleware>();
+            //services.AddScoped<ResourcesMiddleware>();
 
             BaseMappingProfile.Register();
             EntityMappingProfile.Register();

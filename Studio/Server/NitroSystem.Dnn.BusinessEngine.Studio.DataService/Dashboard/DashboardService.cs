@@ -171,13 +171,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
                     /*------------------------------------------------------------------------------
                             ----->> Save Module (2) ==> Save Business Engine Module <<-----
                      ------------------------------------------------------------------------------*/
-                    var objModuleInfo = await HybridMapper.MapAsync<DashboardPageModuleViewModel, ModuleInfo>(
+                    var objModuleInfo = HybridMapper.Map<DashboardPageModuleViewModel, ModuleInfo>(
                         source: page.Module,
-                        configAction: async (src, dest) =>
+                        configAction: (src, dest) =>
                         {
                             dest.Id = src.ModuleId;
-                            dest.ParentId = page.DashboardModuleId;
-                            dest.ScenarioId = await _repository.GetColumnValueAsync<ModuleInfo, Guid>("ScenarioId", "Id", page.DashboardModuleId);
                         }
                     );
 
@@ -189,7 +187,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
                     {
                         ids[1] = objModuleInfo.Id;
 
-                        var isUpdated = await _repository.UpdateAsync<ModuleInfo>(objModuleInfo, "ParentId", "ModuleType", "ModuleName", "ModuleTitle");
+                        var isUpdated = await _repository.UpdateAsync<ModuleInfo>(objModuleInfo, "ModuleType", "ModuleName", "ModuleTitle");
                         if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleInfo);
                     }
 

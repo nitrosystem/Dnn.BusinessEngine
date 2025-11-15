@@ -9,6 +9,8 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Services
 {
@@ -28,17 +30,19 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Servic
             _serviceLocator = serviceLocator;
         }
 
-        public async Task<ActionResult> CallAction(ActionExecutionContext context)
+        public async Task<ActionResult> CallAction(IEngineContext context)
         {
+            var ctx = context as ActionExecutionContext;
+
             var result = new ActionResult();
 
-            context.Action.Params = ParseParams(context.Action.Params, context);
+            ctx.Action.Params = ParseParams(ctx.Action.Params, ctx);
 
-            IActionExecutor actionController = await GetActionExtensionInstance(context.Action.ActionType);
+            IActionExecutor actionController = await GetActionExtensionInstance(ctx.Action.ActionType);
 
             try
             {
-                result = await actionController.ExecuteAsync(context);
+                result = await actionController.ExecuteAsync(ctx);
             }
             catch (Exception)
             {

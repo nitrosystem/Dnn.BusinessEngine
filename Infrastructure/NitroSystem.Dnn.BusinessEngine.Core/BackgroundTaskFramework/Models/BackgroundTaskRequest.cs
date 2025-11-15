@@ -13,5 +13,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Models
         public int RetryCount { get; set; } = 0;
         public DateTime EnqueuedAt { get; set; } = DateTime.UtcNow;
         public string NotificationChannel { get; set; }
+
+        public BackgroundTaskRequest(IBackgroundTask task, TaskPriority priority = TaskPriority.Normal, string notificationChannel = "")
+        {
+            Task = task;
+            Priority = priority;
+            NotificationChannel = notificationChannel;
+        }
     }
 }

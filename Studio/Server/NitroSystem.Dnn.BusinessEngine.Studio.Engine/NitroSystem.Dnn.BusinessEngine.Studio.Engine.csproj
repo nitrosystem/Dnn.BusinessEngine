@@ -69,14 +69,15 @@
     <Compile Include="BuildModule\Middlewares\MergeResourcesMiddleware.cs" />
     <Compile Include="BuildModule\Middlewares\BuildLayoutMiddleware.cs" />
     <Compile Include="BuildModule\Services\ResourceAggregatorService.cs" />
-    <Compile Include="InstallExtension\Middlewares\ResourcesMiddleware.cs" />
-    <Compile Include="InstallExtension\Middlewares\SqlDataProviderMiddleware.cs" />
-    <Compile Include="InstallExtension\InstallExtensionEngine.cs" />
-    <Compile Include="TypeBuilder\TypeBuilderEngine.cs" />
-    <Compile Include="TypeBuilder\Middlewares\BuildTypeMiddleware.cs" />
     <Compile Include="BuildModule\Services\BuildLayoutService.cs" />
     <Compile Include="BuildModule\Services\MergeResourcesService.cs" />
+    <Compile Include="InstallExtension\InstallExtensionContext.cs" />
+    <Compile Include="InstallExtension\InstallExtensionEngine.cs" />
+    <Compile Include="InstallExtension\Middlewares\ResourcesMiddleware.cs" />
+    <Compile Include="InstallExtension\Middlewares\SqlDataProviderMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeBuilder\Middlewares\BuildTypeMiddleware.cs" />
+    <Compile Include="TypeBuilder\TypeBuilderEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Abstractions\NitroSystem.Dnn.BusinessEngine.Abstractions.csproj">

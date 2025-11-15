@@ -1,10 +1,9 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+﻿using System;
+using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
 {
@@ -15,9 +14,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
         public event EngineSuccessHandler<TResponse> OnSuccess;
 
         private readonly IServiceProvider _services;
-        protected IServiceProvider Services => _services;
-
+        private readonly WorkflowEventManager _eventManager;
         private readonly EngineContext _context = new EngineContext();
+
+        protected IServiceProvider Services => _services;
         protected EngineContext Context => _context;
 
         protected EngineBase(IServiceProvider services)
@@ -69,7 +69,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
         protected abstract Task<EngineResult<TResponse>> ExecuteCoreAsync(TRequest request);
         protected virtual Task AfterExecuteAsync(TRequest request, EngineResult<TResponse> result) => Task.CompletedTask;
         protected virtual Task HandleExceptionAsync(Exception ex) => Task.CompletedTask;
-        
+
         protected async Task NotifyProgress(string msg, double? percent = null)
         {
             if (OnProgress != null) await OnProgress(msg, percent);
