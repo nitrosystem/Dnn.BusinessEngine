@@ -24,7 +24,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
             #region Service
 
             HybridMapper.BeforeMap<ServiceInfo, ServiceViewModel>(
+                (src, dest) => dest.ServiceTypeIcon = dest.ServiceTypeIcon?.ReplaceFrequentTokens());
+
+            HybridMapper.BeforeMap<ServiceInfo, ServiceViewModel>(
                 (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+
+            HybridMapper.BeforeMap<ServiceView, ServiceViewModel>(
+                (src, dest) => dest.ServiceTypeIcon = dest.ServiceTypeIcon?.ReplaceFrequentTokens());
 
             HybridMapper.BeforeMap<ServiceView, ServiceViewModel>(
                 (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));

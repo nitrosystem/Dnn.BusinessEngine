@@ -63,13 +63,24 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
         public async Task<bool?> IsValidModuleNameAsync(Guid scenarioId, Guid? moduleId, string moduleName)
         {
             return await _repository.ExecuteStoredProcedureScalerAsync<bool?>(
-                "dbo.BusinessEngine_Studio_IsValidModuleName", "BE_Modules_IsValidModuleName_" + moduleName,
+                "dbo.BusinessEngine_Studio_IsValidModuleName", "BE_Modules_IsValidModuleName_",
                 new
                 {
                     ScenarioId = scenarioId,
                     ModuleId = moduleId,
                     ModuleName = moduleName
                 });
+        }
+
+        public async Task<bool> IsRebuildRequired(Guid moduleId, string moduleName)
+        {
+            return await _repository.ExecuteStoredProcedureScalerAsync<bool>(
+               "dbo.BusinessEngine_Studio_IsRebuildRequired", "BE_Modules_IsRebuildRequired_",
+               new
+               {
+                   ModuleId = moduleId,
+                   ModuleName = moduleName
+               });
         }
 
         public async Task<bool> DeleteModuleAsync(Guid moduleId)

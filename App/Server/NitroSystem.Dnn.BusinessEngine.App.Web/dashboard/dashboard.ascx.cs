@@ -5,6 +5,7 @@ using System.Web.UI;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.Framework;
+using DotNetNuke.Entities.Host;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Modules.Actions;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
@@ -51,6 +52,14 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             get
             {
                 return this.UserInfo.IsSuperUser || this.UserInfo.IsInRole("Administrators");
+            }
+        }
+
+        public int Version
+        {
+            get
+            {
+                return Host.CrmVersion;
             }
         }
 

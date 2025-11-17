@@ -8,11 +8,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Workflow.Extensions
     {
         public static async Task<MethodProfileResult<T>> ExecuteTasksAsync<T>(
             this ResourceProfiler profiler,
+            bool isTask,
             bool isVoid,
             LambdaExpression expression)
         {
             var name = ExtractMethodName(expression);
-            var result = await profiler.ProfileAsync<T>(expression, name, isVoid);
+            var result = await profiler.ProfileAsync<T>(expression, name,isTask, isVoid);
 
             return result;
         }

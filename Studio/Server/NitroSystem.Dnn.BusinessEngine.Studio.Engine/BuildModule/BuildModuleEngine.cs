@@ -17,6 +17,7 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares;
+using System.Runtime.Remoting.Contexts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
@@ -60,15 +61,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             return base.OnInitializeAsync(request);
         }
 
-        protected override async Task BeforeExecuteAsync(BuildModuleRequest request)
-        {
-            await _eventManager.ExecuteTasksAsync<object>("BuildModuleWorkflow", "BuildModule", "DeleteModuleResourcesAsync", request.UserId, false,
-                   (Expression<Func<Task>>)(() => _moduleService.DeleteModuleResourcesAsync(request.ModuleId.Value))
-                );
-
-            await base.BeforeExecuteAsync(request);
-        }
-
         protected override async Task<EngineResult<object>> ValidateAsync(BuildModuleRequest request)
         {
             await Task.Yield();
@@ -81,13 +73,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             if (string.IsNullOrEmpty(request.ModuleName))
                 errors.Add("ModuleName is required.");
 
-            //if (!await _permissionService.HasAccessAsync(Context.UserId, "BuildModule"))
-            //    errors.Add("User does not have permission to build module.");
-
             if (errors.Any())
                 return EngineResult<object>.Failure(errors.ToArray());
 
             return EngineResult<object>.Success(null);
+        }
+
+        protected override async Task BeforeExecuteAsync(BuildModuleRequest request)
+        {
+            await _eventManager.ExecuteTaskAsync<object>(request.ModuleId.Value.ToString(), request.UserId,
+                "BuildModuleWorkflow", "BuildModule", "InitialEngine", false, true, true,
+                    (Expression<Func<Task>>)(() => _moduleService.DeleteModuleResourcesAsync(request.ModuleId.Value))
+                );
+
+            await base.BeforeExecuteAsync(request);
         }
 
         protected override async Task<EngineResult<BuildModuleResponse>> ExecuteCoreAsync(
@@ -122,7 +121,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         {
             if (result.Data.IsSuccess)
             {
-                await _moduleService.BulkInsertModuleOutputResourcesAsync(request.Module.SitePageId, result.Data.FinalizedResources);
+                var response = await _eventManager.ExecuteTaskAsync<object>(request.ModuleId.Value.ToString(), request.UserId,
+                   "BuildModuleWorkflow", "BuildModule", "ResourceAggregatorMiddleware", false, true, true,
+                  (Expression<Func<Task>>)(() => _moduleService.BulkInsertModuleOutputResourcesAsync(request.Module.SitePageId, result.Data.FinalizedResources))
+               );
 
                 _cacheService.RemoveByPrefix("BE_Modules_");
             }

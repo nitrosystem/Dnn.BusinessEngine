@@ -1,37 +1,19 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+﻿using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
-using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Caching;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
     public class ResourceAggregatorService : IResourceAggregatorService
     {
-        private readonly IModuleService _moduleService;
-
-        public ResourceAggregatorService(IModuleService moduleService)
-        {
-            _moduleService = moduleService;
-        }
-
         public async Task<BuildModuleResponse> FinalizeResourcesAsync(BuildModuleRequest request, IEngineContext context)
         {
             var ctx = context as EngineContext;

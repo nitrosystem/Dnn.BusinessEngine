@@ -7,6 +7,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
     public class DashboardPageModuleViewModel : IViewModel
     {
         public Guid Id { get; set; }
+        public Guid ScenarioId { get; set; }
         public Guid PageId { get; set; }
         public Guid? ParentId { get; set; }
         public Guid ModuleId { get; set; }

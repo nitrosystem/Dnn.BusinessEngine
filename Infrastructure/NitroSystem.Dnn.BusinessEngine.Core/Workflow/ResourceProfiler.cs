@@ -15,7 +15,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Workflow
             _process = Process.GetCurrentProcess();
         }
 
-        public async Task<MethodProfileResult<T>> ProfileAsync<T>(LambdaExpression expression, string name, bool isVoid)
+        public async Task<MethodProfileResult<T>> ProfileAsync<T>(LambdaExpression expression, string name, bool isTask, bool isVoid)
         {
             var sw = Stopwatch.StartNew();
             var cpuStart = _process.TotalProcessorTime;
@@ -35,17 +35,27 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Workflow
                 var lambda = Expression.Lambda(expression.Body, expression.Parameters);
                 var del = lambda.Compile(); // -> Delegate
 
-                if (isVoid)
+                if (isTask && isVoid)
                 {
                     // Func<Task>
                     dynamic task = del.DynamicInvoke();
                     await task;
                 }
-                else
+                else if (isTask && !isVoid)
                 {
                     // Func<Task<T>>
                     dynamic task = del.DynamicInvoke();
                     result = await task;
+                }
+                if (!isTask && isVoid)
+                {
+                    var action = (Action)expression.Compile();
+                    action();
+                }
+                else if (!isTask && !isVoid)
+                {
+                    var func = (Func<T>)expression.Compile();
+                    result = func();
                 }
 
                 data.EndTime = DateTime.Now;

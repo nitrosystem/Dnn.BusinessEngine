@@ -26,13 +26,13 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework;
-using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
-using DotNetNuke.Framework.Providers;
-using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
+using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask;
+using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Enums;
+using System.Web.UI;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -186,7 +186,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
+                bool rebuild = false;
+                if (page.PageType == DashboardPageType.Standard && page.Module != null && page.Module.ModuleId != Guid.Empty)
+                    rebuild = await _moduleService.IsRebuildRequired(page.Module.ModuleId, page.Module.ModuleName);
+
                 var result = await _dashboardService.SaveDashboardPageAsync(page);
+
+                if (rebuild)
+                {
+                    var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+                    var scenarioName = await _baseService.GetScenarioNameAsync(scenarioId);
+                    var basePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(scenarioName)}/";
+                    var job = new BuildModuleTask(_serviceProvider, _cacheService, _moduleService, _eventManager, page.Module.ModuleId, UserInfo.UserID, basePath);
+                    var req = new BackgroundTaskRequest(job, TaskPriority.Normal, scenarioName);
+
+                    _backgroundFramework.Enqueue(req);
+                }
 
                 return Request.CreateResponse(HttpStatusCode.OK, result);
             }
@@ -334,22 +349,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                bool isNew = module.Id == Guid.Empty;
-
-                var oldModuleName = !isNew
-                    ? await _moduleService.GetModuleNameAsync(module.Id)
-                    : string.Empty;
-
+                var isNew = module.Id == Guid.Empty;
+                var rebuild = !isNew
+                    ? await _moduleService.IsRebuildRequired(module.Id, module.ModuleName)
+                    : false;
+                
                 var moduleId = await _moduleService.SaveModuleAsync(module, isNew);
 
-                //if (!string.IsNullOrEmpty(oldModuleName) && oldModuleName != module.ModuleName)
-                //{
-                //    var request = await GetDataForBuildModule(module.Id);
-                //    var job = new BuildModuleTask(_serviceProvider, _cacheService, _moduleService, _eventManager, request, module.Id.ToString(), "Build Module");
-                //    var req = new BackgroundTaskRequest(job, TaskPriority.Normal, request.Module.ScenarioName);
+                if (rebuild)
+                {
+                    var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+                    var scenarioName = await _baseService.GetScenarioNameAsync(scenarioId);
+                    var basePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(scenarioName)}/";
+                    var job = new BuildModuleTask(_serviceProvider, _cacheService, _moduleService, _eventManager, module.Id, UserInfo.UserID, basePath);
+                    var req = new BackgroundTaskRequest(job, TaskPriority.Normal, scenarioName);
 
-                //    _backgroundFramework.Enqueue(req);
-                //}
+                    _backgroundFramework.Enqueue(req);
+                }
 
                 return Request.CreateResponse(HttpStatusCode.OK, moduleId);
             }
@@ -519,7 +535,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
                 var variables = await _moduleVariableService.GetModuleVariablesViewModelAsync(moduleId);
                 var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, "", "Title");
 
@@ -583,7 +598,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
                 var fieldTypes = await _moduleFieldService.GetFieldTypesViewModelAsync();
                 var fields = await _moduleFieldService.GetFieldsViewModelAsync(moduleId);
@@ -727,14 +741,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var results = await _eventManager.ExecuteTasksAsync<object>("BuildModuleWorkflow", "BuildModule", "GetDataForBuildModule", UserInfo.UserID, false,
+                var request = new BuildModuleRequest();
+                request.Scope = BuildScope.Module;
+                request.UserId = UserInfo.UserID;
+                request.Module = await _eventManager.ExecuteTaskAsync<ModuleDto>(moduleId.ToString(), UserInfo.UserID,
+                    "BuildModuleWorkflow", "BuildModule", "GetDataForBuildModule", false, true, false,
                     () => _moduleService.GetDataForModuleBuildingAsync(moduleId)
                  );
-
-                var request = new BuildModuleRequest();
-                request.UserId = UserInfo.UserID;
-                request.Module = results[0] as ModuleDto;
-                request.Scope = BuildScope.Module;
                 request.BasePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(request.Module.ScenarioName)}/";
 
                 var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService, _eventManager);
@@ -942,17 +955,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         #endregion
 
         #endregion
-
-        private async Task<(int, string)> Sum(int x, int y)
-        {
-            await Task.Yield();
-
-            return (x + y, "Test");
-        }
-
-        private async Task Test()
-        {
-            await Task.Yield();
-        }
     }
 }

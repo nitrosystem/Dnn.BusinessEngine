@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DotNetNuke.UI.WebControls;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
@@ -16,6 +17,7 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
@@ -94,26 +96,33 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             var task1 = _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId, sortBy);
             var task2 = _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("ModuleId", moduleId);
             var task3 = _repository.GetByScopeAsync<ActionInfo>(moduleId, "ParentId", "ViewOrder");
+            var task4 = _repository.GetAllAsync<ActionParamInfo>("ViewOrder");
 
-            await Task.WhenAll(task1, task2, task3);
+            await Task.WhenAll(task1, task2, task3, task4);
 
             var fields = await task1;
             var fieldsSettings = await task2;
             var actions = await task3;
+            var actionParams = await task4;
 
-            return HybridMapper.MapWithChildren<ModuleFieldInfo, ModuleFieldViewModel, ActionInfo, ActionListItem>(
-                parents: fields,
-                children: actions,
-                parentKeySelector: p => p.Id,
-                childKeySelector: c => c.FieldId,
-                assignChildren: (parent, childs) => parent.Actions = childs,
-                moreAssigns: (src, dest) =>
+            var actionList = HybridMapper.MapWithChildren<ActionInfo, ActionListItem, ActionParamInfo, ActionParamListItem>(
+                 parents: actions,
+                 children: actionParams,
+                 parentKeySelector: p => p.Id,
+                 childKeySelector: c => c.ActionId,
+                 assignChildren: (parent, childs) => parent.Params = childs
+             );
+
+            return HybridMapper.MapCollection<ModuleFieldInfo, ModuleFieldViewModel>(fields,
+                configAction: (src, dest) =>
                 {
                     var dict = fieldsSettings.GroupBy(c => c.FieldId).ToDictionary(g => g.Key, g => g.AsEnumerable());
                     if (dict.TryGetValue(src.Id, out var settings))
                         dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
                     else
                         dest.Settings = new Dictionary<string, object>();
+
+                    dest.Actions = actionList.Where(a => a.FieldId == dest.Id).ToList();
                 }
             );
         }
@@ -123,12 +132,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             var task1 = _repository.GetAsync<ModuleFieldInfo>(fieldId);
             var task2 = _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("FieldId", fieldId);
             var task3 = _repository.GetItemsByColumnAsync<ActionInfo>("FieldId", fieldId);
+            var task4 = _repository.GetAllAsync<ActionParamInfo>("ViewOrder");
 
-            await Task.WhenAll(task1, task2, task3);
+            await Task.WhenAll(task1, task2, task3, task4);
 
             var field = await task1;
             var fieldSettings = await task2;
             var actions = await task3;
+            var actionParams = await task4;
+
+            var actionList = HybridMapper.MapWithChildren<ActionInfo, ActionListItem, ActionParamInfo, ActionParamListItem>(
+                 parents: actions,
+                 children: actionParams,
+                 parentKeySelector: p => p.Id,
+                 childKeySelector: c => c.ActionId,
+                 assignChildren: (parent, childs) => parent.Params = childs
+             );
 
             return HybridMapper.MapWithChildren<ModuleFieldInfo, ModuleFieldViewModel, ActionInfo, ActionListItem>(
                   source: field,
@@ -137,6 +156,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                   moreAssigns: (src, dest) =>
                   {
                       dest.Settings = fieldSettings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+                      dest.Actions = actionList.Where(a => a.FieldId == dest.Id).ToList();
                   }
             );
         }

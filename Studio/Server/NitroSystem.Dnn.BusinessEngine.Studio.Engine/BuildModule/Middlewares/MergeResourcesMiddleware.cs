@@ -21,7 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
         {
             var ctx = context as EngineContext;
 
-            var layoutResults = await _service.MergeResourcesAsync(request.Module.Resources);
+            var layoutResults = await _service.MergeResourcesAsync(request.ModuleId.Value, request.UserId, request.Module.Resources);
 
             ctx.Set<string>("ModuleScripts", layoutResults.Scripts);
             ctx.Set<string>("ModuleStyles", layoutResults.Styles);

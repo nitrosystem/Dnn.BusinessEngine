@@ -18,15 +18,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Workflow
         private readonly IWorkflowEventService _workflowEventService;
         private readonly List<TaskInfo> _batch;
 
-        public string TaskId { get; }
+        public string TaskId => Guid.NewGuid().ToString();
         public string Name => "WorkflowEvent_SaveTaskBatchJob";
 
         public SaveTaskBatchJob(IServiceProvider serviceProvider, List<TaskInfo> batch)
         {
             _workflowEventService = serviceProvider.GetRequiredService<IWorkflowEventService>();
             _batch = batch;
-
-            TaskId = Guid.NewGuid().ToString();
         }
 
         public async Task RunAsync(CancellationToken token, IProgress<ProgressInfo> progress)

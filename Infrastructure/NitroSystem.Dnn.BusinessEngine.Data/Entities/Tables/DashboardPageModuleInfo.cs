@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_DashboardPageModules")]
-    [Cacheable("BE_DashboardPageModules_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Dashboards_Pages_Modules_", CacheItemPriority.Default, 20)]
     [Scope("PageId")]
     public class DashboardPageModuleInfo : IEntity
     {

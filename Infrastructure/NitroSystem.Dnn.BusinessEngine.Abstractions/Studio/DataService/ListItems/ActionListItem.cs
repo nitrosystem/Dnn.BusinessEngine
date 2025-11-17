@@ -1,5 +1,6 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using System;
+using System.Collections.Generic;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems
 {
@@ -12,5 +13,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListIte
         public string ActionName { get; set; }
         public string Event { get; set; }
         public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
+        public IEnumerable<ActionParamListItem> Params { get; set; }
     }
 }

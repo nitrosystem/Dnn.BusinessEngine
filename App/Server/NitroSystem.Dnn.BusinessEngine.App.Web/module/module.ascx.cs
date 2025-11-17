@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Web.UI;
 using System.Web.Helpers;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Modules.Actions;
 using DotNetNuke.Framework;
-using System.Collections.Generic;
+using DotNetNuke.Entities.Host;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
@@ -38,9 +39,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
         {
             get
             {
-                string moduleParam = _id.HasValue ? "id=" + _id.ToString() : "d=" + this.ModuleId.ToString();
+                string moduleParam = _id.HasValue ? "id=" + _id.ToString() : "d=" + ModuleId.ToString();
 
-                return ResolveUrl(string.Format("~/DesktopModules/BusinessEngine/studio.aspx?s={0}{1}&m=create-dashboard&{2}&ru={3}", _scenarioName, _siteRoot, moduleParam, this.TabId));
+                return ResolveUrl(string.Format("~/DesktopModules/BusinessEngine/studio.aspx?s={0}{1}&m=create-dashboard&{2}&ru={3}", _scenarioName, _siteRoot, moduleParam, TabId));
             }
         }
 
@@ -48,7 +49,15 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
         {
             get
             {
-                return this.UserInfo.IsSuperUser || this.UserInfo.IsInRole("Administrators");
+                return UserInfo.IsSuperUser || UserInfo.IsInRole("Administrators");
+            }
+        }
+
+        public int Version
+        {
+            get
+            {
+                return Host.CrmVersion;
             }
         }
 
@@ -61,7 +70,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             var code = AntiForgery.GetHtml().ToHtmlString();
             pnlAntiForgery.Controls.Add(new LiteralControl(code));
 
-            var templates = ModuleService.RenderModule(this.Page, _cacheService, _sqlCommand, _unitOfWork, PortalSettings.HomeSystemDirectory, false, ModuleId, ref _id, out _scenarioName);
+            var templates = ModuleService.RenderModule(Page, _cacheService, _sqlCommand, _unitOfWork, PortalSettings.HomeSystemDirectory, false, ModuleId, ref _id, out _scenarioName);
             pnlTemplate.InnerHtml = templates.Template;
 
             if (_id.HasValue)

@@ -3,35 +3,29 @@ using System.Web;
 using System.Web.Http;
 using System.Net;
 using System.Net.Http;
-using System.Data;
 using System.Linq;
-using System.IO;
 using System.Threading.Tasks;
 using DotNetNuke.Web.Api;
 using DotNetNuke.Entities.Host;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Controllers;
-using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Base;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Entity;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.AppModel;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Models;
-using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Utilities;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ImportExport.Export;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-
+using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder;
+using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -408,113 +402,113 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         #endregion
 
-        //#region App Models
+        #region App Models
 
-        //[HttpGet]
-        //public async Task<HttpResponseMessage> GetAppModels(int pageIndex, int pageSize, string searchText = null,
-        //    string sortBy = "Newest")
-        //{
-        //    try
-        //    {
-        //        var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetAppModels(int pageIndex, int pageSize, string searchText = null,
+            string sortBy = "Newest")
+        {
+            try
+            {
+                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-        //        var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, pageIndex, pageSize, searchText, sortBy);
+                var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, pageIndex, pageSize, searchText, sortBy);
 
-        //        return Request.CreateResponse(HttpStatusCode.OK, new
-        //        {
-        //            AppModels = appModels.Items,
-        //            Page = new PagingInfo(appModels.TotalCount, pageSize, pageIndex)
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    AppModels = appModels.Items,
+                    Page = new PagingInfo(appModels.TotalCount, pageSize, pageIndex)
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
-        //[HttpGet]
-        //public async Task<HttpResponseMessage> GetAppModel()
-        //{
-        //    return await GetAppModel(Guid.Empty);
-        //}
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetAppModel()
+        {
+            return await GetAppModel(Guid.Empty);
+        }
 
-        //[HttpGet]
-        //public async Task<HttpResponseMessage> GetAppModel(Guid appModelId)
-        //{
-        //    try
-        //    {
-        //        var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-        //        var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, null, "Title");
-        //        var appModel = await _appModelServices.GetAppModelAsync(appModelId);
-        //        var propertyTypes = Constants.VariableTypes.Select(kvp => new { Text = kvp.Key, Value = kvp.Value });
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetAppModel(Guid appModelId)
+        {
+            try
+            {
+                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+                var appModels = await _appModelServices.GetAppModelsAsync(scenarioId, 1, 1000, null, "Title");
+                var appModel = await _appModelServices.GetAppModelAsync(appModelId);
+                var propertyTypes = Constants.VariableTypes.Select(kvp => new { Text = kvp.Key, Value = kvp.Value });
 
-        //        return Request.CreateResponse(HttpStatusCode.OK, new
-        //        {
-        //            AppModels = appModels,
-        //            AppModel = appModel,
-        //            PropertyTypes = propertyTypes,
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    AppModels = appModels,
+                    AppModel = appModel,
+                    PropertyTypes = propertyTypes,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<HttpResponseMessage> SaveAppModel(AppModelViewModel appModel)
-        //{
-        //    try
-        //    {
-        //        var scenarioName = await _baseService.GetScenarioNameAsync(appModel.ScenarioId);
-        //        var properties = HybridMapper.MapCollection<AppModelPropertyViewModel, PropertyDefinition>(appModel.Properties);
-        //        var request = new TypeBuilderRequest()
-        //        {
-        //            ScenarioName = scenarioName,
-        //            BasePath = PortalSettings.HomeSystemDirectory,
-        //            ModelName = appModel.ModelName,
-        //            Version = "01.00.00",
-        //            Properties = properties.Cast<IPropertyDefinition>().ToList()
-        //        };
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> SaveAppModel(AppModelViewModel appModel)
+        {
+            try
+            {
+                var scenarioName = await _baseService.GetScenarioNameAsync(appModel.ScenarioId);
+                var properties = HybridMapper.MapCollection<AppModelPropertyViewModel, PropertyDefinition>(appModel.Properties);
+                var request = new TypeBuilderRequest()
+                {
+                    ScenarioName = scenarioName,
+                    BasePath = PortalSettings.HomeSystemDirectory,
+                    ModelName = appModel.ModelName,
+                    Version = "01.00.00",
+                    Properties = properties.Cast<IPropertyDefinition>().ToList()
+                };
 
-        //        var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromSeconds(70));
-        //        using (await _brtGate.OpenGateAsync(permitId))
-        //        {
-        //            var typeBuilder = new TypeBuilderEngine(_serviceProvider, _brtGate, permitId);
-        //            var response = await typeBuilder.ExecuteAsync(request);
+                var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromSeconds(70));
+                using (await _brtGate.OpenGateAsync(permitId))
+                {
+                    var typeBuilder = new TypeBuilderEngine(_serviceProvider, _brtGate, permitId);
+                    var response = await typeBuilder.ExecuteAsync(request);
 
-        //            appModel.TypeRelativePath = response.Data.RelativePath;
-        //            appModel.TypeFullName = response.Data.TypeFullName;
-        //        }
+                    appModel.TypeRelativePath = response.Data.RelativePath;
+                    appModel.TypeFullName = response.Data.TypeFullName;
+                }
 
-        //        appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty);
+                appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty);
 
-        //        return Request.CreateResponse(HttpStatusCode.OK, appModel);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
+                return Request.CreateResponse(HttpStatusCode.OK, appModel);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<HttpResponseMessage> DeleteAppModel(GuidInfo postData)
-        //{
-        //    try
-        //    {
-        //        var isDeleted = await _appModelServices.DeleteAppModelAsync(postData.Id);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> DeleteAppModel(GuidInfo postData)
+        {
+            try
+            {
+                var isDeleted = await _appModelServices.DeleteAppModelAsync(postData.Id);
 
-        //        return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
+                return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
 
-        //#endregion
+        #endregion
 
         #region Services
 

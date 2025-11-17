@@ -11,6 +11,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
     public class WorkflowEventTaskInfo : IEntity
     {
         public Guid Id { get; set; }
+        public string EntryId { get; set; }
         public int UserId { get; set; }
         public string WorkflowName { get; set; }
         public string EventName { get; set; }

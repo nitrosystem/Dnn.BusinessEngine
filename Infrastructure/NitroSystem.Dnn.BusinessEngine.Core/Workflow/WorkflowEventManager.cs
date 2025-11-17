@@ -53,10 +53,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Workflow
         }
 
         public async Task<IReadOnlyList<object>> ExecuteTasksAsync<T>(
+            string entryId,
+            int userId,
             string workflowName,
             string eventName,
             string stepName,
-            int userId,
             bool continueOnError,
             params LambdaExpression[] expressions)
         {
@@ -66,15 +67,25 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Workflow
             {
                 var bodyType = expr.ReturnType;
 
-                // -- Task<T>
+                // Case 1: async Task<T>
                 if (bodyType.IsGenericType && bodyType.GetGenericTypeDefinition() == typeof(Task<>))
                 {
-                    list.Add(await ExecuteTaskAsync<T>(workflowName, eventName, stepName, userId, continueOnError, false, expr));
+                    list.Add(await ExecuteTaskAsync<T>(entryId, userId, workflowName, eventName, stepName, continueOnError, true, false, expr));
                 }
-                // -- Task
+                // Case 2: async Task (void async)
                 else if (bodyType == typeof(Task))
                 {
-                    list.Add(await ExecuteTaskAsync<T>(workflowName, eventName, stepName, userId, continueOnError, true, expr));
+                    list.Add(await ExecuteTaskAsync<T>(entryId, userId, workflowName, eventName, stepName, continueOnError, true, true, expr));
+                }
+                // Case 3: Sync method with return value → T Method()
+                else if (!bodyType.IsGenericType && bodyType != typeof(void))
+                {
+                    list.Add(await ExecuteTaskAsync<T>(entryId, userId, workflowName, eventName, stepName, continueOnError, false, false, expr));
+                }
+                // Case 4: Sync void method
+                else if (bodyType == typeof(void))
+                {
+                    list.Add(await ExecuteTaskAsync<T>(entryId, userId, workflowName, eventName, stepName, continueOnError, false, true, expr));
                 }
             }
 
@@ -82,27 +93,28 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Workflow
         }
 
         // public API: execute set of tasks (tasks are expressions returning Task<T>)
-        private async Task<object> ExecuteTaskAsync<T>(
+        public async Task<T> ExecuteTaskAsync<T>(
+            string entryId,
+            int userId,
             string workflowName,
             string eventName,
             string stepName,
-            int userId,
             bool continueOnError,
+            bool isTask,
             bool isvoid,
             LambdaExpression expression)
         {
-            var results = new List<object>();
-
             // run and profile the tasks (ResourceProfiler.ExecuteTasksAsync should return MethodProfileResult<T> list)
-            var taskResult = await _resourceProfiler.ExecuteTasksAsync<T>(isvoid, expression);
+            var taskResult = await _resourceProfiler.ExecuteTasksAsync<T>(isTask, isvoid, expression);
             // build TaskInfo (adapt to your actual TaskInfo fields)
             var task = new TaskInfo
             {
+                EntryId = entryId,
+                UserId = userId,
                 WorkflowName = workflowName,
                 EventName = eventName,
                 StepName = stepName,
                 TaskName = taskResult.Name,
-                UserId = userId,
                 StartTime = taskResult.StartTime,
                 EndTime = taskResult.EndTime,
                 Exception = taskResult.Exception,

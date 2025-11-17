@@ -150,7 +150,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                 ? cacheAttr.key += $"_{column}_{filerColumn}_{filterValue}"
                 : string.Empty;
 
-            var query = $"SELECT {column} FROM {table} WHERE {filerColumn} = @Value";
+            var query = $"SELECT TOP 1 {column} FROM {table} WHERE {filerColumn} = @Value";
 
             return await _cacheService.GetOrCreateAsync<TColumnType>(cacheKey, () =>
              _unitOfWork.Connection.ExecuteScalarAsync<TColumnType>(

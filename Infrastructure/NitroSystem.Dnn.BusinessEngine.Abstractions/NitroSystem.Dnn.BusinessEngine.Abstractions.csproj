@@ -93,6 +93,7 @@
     <Compile Include="Studio\DataService\Enums\LibraryOrResource.cs" />
     <Compile Include="Studio\DataService\EventWorkflow\IWorkflowEventService.cs" />
     <Compile Include="Studio\DataService\ListItems\ActionListItem.cs" />
+    <Compile Include="Studio\DataService\ListItems\ActionParamListItem.cs" />
     <Compile Include="Studio\DataService\ListItems\ActionTypeListItem.cs" />
     <Compile Include="Studio\DataService\ListItems\DashboardPageListItem.cs" />
     <Compile Include="Studio\DataService\ListItems\EntityColumnListItem.cs" />

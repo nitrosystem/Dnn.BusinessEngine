@@ -9,7 +9,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
     {
         public Guid Id { get; set; }
         public Guid? ParentId { get; set; }
-        public Guid ScenarioId { get; set; }
         public Guid DashboardId { get; set; }
         public Guid? ExistingPageId { get; set; }
         public string PageName { get; set; }

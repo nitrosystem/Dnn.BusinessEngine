@@ -11,16 +11,32 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using System.Collections.Concurrent;
+using DotNetNuke.UI.UserControls;
+using System.Linq.Expressions;
+using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
     public class MergeResourcesService : IMergeResourcesService
     {
-        public async Task<(string Scripts, string Styles)> MergeResourcesAsync(IEnumerable<ModuleResourceDto> resources)
+        private readonly WorkflowEventManager _eventManager;
+
+        public MergeResourcesService(WorkflowEventManager eventManager)
+        {
+            _eventManager = eventManager;
+        }
+
+        public async Task<(string Scripts, string Styles)> MergeResourcesAsync(Guid moduleId, int userId, IEnumerable<ModuleResourceDto> resources)
         {
             var resourcesLookup = resources.ToLookup(r => r.ResourceContentType);
-            var scripts = await BuildScripts(resourcesLookup[ModuleResourceContentType.Js]);
-            var styles = await BuildStyles(resourcesLookup[ModuleResourceContentType.Css]);
+            var results = await _eventManager.ExecuteTasksAsync<object>(moduleId.ToString(), userId,
+                "BuildModuleWorkflow", "BuildModule", "MergeResourcesMiddleware", false,
+                (Expression<Func<Task<string>>>)(() => BuildScripts(resourcesLookup[ModuleResourceContentType.Js])),
+                (Expression<Func<Task<string>>>)(() => BuildStyles(resourcesLookup[ModuleResourceContentType.Css]))
+               );
+
+            var scripts = results[0] as string;
+            var styles = results[1] as string;
 
             return (scripts, styles);
         }
@@ -38,6 +54,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
             var mergedStyles = await MergeStyleResources(resourcesTypes[false]);
             styles.AppendLine(mergedStyles);
+
             return styles.ToString();
         }
 

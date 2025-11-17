@@ -22,7 +22,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
             var ctx = context as EngineContext;
             var eventManager = (context as EngineContext)?.EventManager;
 
-            var layout = await _service.BuildLayoutAsync(request.Module.LayoutTemplate, request.Module.Fields);
+            var layout = await _service.BuildLayoutAsync(request.ModuleId.Value, request.UserId, request.Module.LayoutTemplate, request.Module.Fields);
             ctx.Set<string>("ModuleLayoutTemplate", layout);
 
             var result = await next();

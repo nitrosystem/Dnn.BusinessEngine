@@ -16,6 +16,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
@@ -24,12 +25,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
         private readonly IServiceLocator _serviceLocator;
         private readonly IModuleFieldService _moduleFieldService;
+        private readonly WorkflowEventManager _eventManager;
 
         private ConcurrentDictionary<(string fieldType, string template), string> _fieldTypes = new
                 ConcurrentDictionary<(string fieldType, string template), string>();
         private IDictionary<Guid, List<ModuleFieldDto>> _fieldMap;
         private Queue<ModuleFieldDto> _buffer;
         private HtmlDocument _htmlDoc;
+        private volatile int _userId;
+        private Guid _moduleId;
 
         private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
@@ -50,14 +54,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 ]]
             </div>";
 
-        public BuildLayoutService(IServiceLocator serviceLocator, IModuleFieldService moduleFieldService)
+        public BuildLayoutService(IServiceLocator serviceLocator, IModuleFieldService moduleFieldService, WorkflowEventManager eventManager)
         {
             _serviceLocator = serviceLocator;
             _moduleFieldService = moduleFieldService;
+            _eventManager = eventManager;
         }
 
-        public async Task<string> BuildLayoutAsync(string moduleLayoutTemplate, IEnumerable<ModuleFieldDto> fields)
+        public async Task<string> BuildLayoutAsync(Guid moduleId, int userId, string moduleLayoutTemplate, IEnumerable<ModuleFieldDto> fields)
         {
+            _moduleId = moduleId;
+            _userId = userId;
+
             _fieldMap = fields
                 .GroupBy(f => f.ParentId ?? Guid.Empty)
                 .ToDictionary(
@@ -70,7 +78,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 throw new Exception("The module does not have any fields!");
             }
 
-            await LoadTemplates(fields);
+            await _eventManager.ExecuteTaskAsync<object>(moduleId.ToString(), userId,
+                "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, true,
+                    (Expression<Func<Task>>)(() => LoadTemplates(fields))
+                );
 
             _buffer = new Queue<ModuleFieldDto>();
 
@@ -141,7 +152,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             try
             {
                 var node = GetPaneNode(field.PaneName);
-                var fieldHtml = await ParseFieldTemplate(field);
+                var fieldHtml = await _eventManager.ExecuteTaskAsync<string>(_moduleId.ToString(), _userId,
+                    "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, false,
+                   (Expression<Func<Task<string>>>)(() => ParseFieldTemplate(field))
+                );
                 var htmlNode = HtmlNode.CreateNode(fieldHtml);
 
                 node.AppendChild(htmlNode);

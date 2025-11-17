@@ -147,9 +147,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
 
             try
             {
-                /*------------------------------------------------------------------------------
-                    ----->> Save Page (1) ==> Save Business Engine Dashboard Page <<-----
-                 ------------------------------------------------------------------------------*/
                 var objDashboardPageInfo = HybridMapper.Map<DashboardPageViewModel, DashboardPageInfo>(page);
                 if (page.Id == Guid.Empty)
                 {
@@ -168,9 +165,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
 
                 if (page.PageType == DashboardPageType.Standard)
                 {
-                    /*------------------------------------------------------------------------------
-                            ----->> Save Module (2) ==> Save Business Engine Module <<-----
-                     ------------------------------------------------------------------------------*/
                     var objModuleInfo = HybridMapper.Map<DashboardPageModuleViewModel, ModuleInfo>(
                         source: page.Module,
                         configAction: (src, dest) =>
@@ -190,13 +184,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
                         var isUpdated = await _repository.UpdateAsync<ModuleInfo>(objModuleInfo, "ModuleType", "ModuleName", "ModuleTitle");
                         if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleInfo);
                     }
-
-                    /*------------------------------------------------------------------------------
-                        ----->> Save Page Module (3) ==> Save Business Engine Dashboard Page Module <<-----
-                     ------------------------------------------------------------------------------*/
+                    
                     var objDashboardPageModuleInfo = HybridMapper.Map<DashboardPageModuleViewModel, DashboardPageModuleInfo>(page.Module);
                     if (objDashboardPageModuleInfo.Id == Guid.Empty)
                     {
+                        objDashboardPageModuleInfo.PageId = objDashboardPageInfo.Id;
+                        objDashboardPageModuleInfo.ModuleId = objModuleInfo.Id;
                         ids[2] = objDashboardPageModuleInfo.Id = await _repository.AddAsync<DashboardPageModuleInfo>(objDashboardPageModuleInfo);
                     }
                     else
