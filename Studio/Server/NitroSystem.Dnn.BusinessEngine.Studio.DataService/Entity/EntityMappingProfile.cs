@@ -13,20 +13,27 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
     {
         public static void Register()
         {
+            #region Entity
+
             HybridMapper.BeforeMap<EntityInfo, EntityViewModel>(
                 (src, dest) => dest.EntityType = (EntityType)src.EntityType);
 
             HybridMapper.BeforeMap<EntityInfo, EntityViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             HybridMapper.BeforeMap<EntityViewModel, EntityInfo>(
                 (src, dest) => dest.EntityType = (int)src.EntityType);
 
             HybridMapper.BeforeMap<EntityViewModel, EntityInfo>(
-                    (src, dest) => dest.Settings = JsonConvert.SerializeObject(src.Settings));
+                (src, dest) => dest.Settings = JsonConvert.SerializeObject(src.Settings));
 
             HybridMapper.BeforeMap<EntityInfo, EntityListItem>(
                 (src, dest) => dest.EntityType = (EntityType)src.EntityType);
+
+            #endregion
+
+            #region Entity Columns
+            #endregion
         }
     }
 }

@@ -24,7 +24,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
                 (src, dest) => dest.Wrapper = (ModuleWrapper)src.Wrapper);
 
             HybridMapper.BeforeMap<ModuleView, ModuleDto>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             #endregion
 

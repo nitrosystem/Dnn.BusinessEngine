@@ -30,7 +30,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                 (src, dest) => dest.Wrapper = (ModuleWrapper)src.ModuleType);
 
             HybridMapper.BeforeMap<ModuleInfo, ModuleViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             HybridMapper.BeforeMap<ModuleView, ModuleViewModel>(
                 (src, dest) => dest.ModuleType = (ModuleType)src.ModuleType);
@@ -39,7 +39,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                 (src, dest) => dest.Wrapper = (ModuleWrapper)src.Wrapper);
 
             HybridMapper.BeforeMap<ModuleView, ModuleViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             HybridMapper.BeforeMap<ModuleView, ModuleDto>(
                 (src, dest) => dest.Wrapper = (ModuleWrapper)src.Wrapper);

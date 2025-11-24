@@ -57,7 +57,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                 (src, dest) => dest.AuthorizationViewPage = src.AuthorizationViewPage?.Split(','));
 
             HybridMapper.BeforeMap<DashboardPageInfo, DashboardPageViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings));
 
             HybridMapper.BeforeMap<DashboardPageViewModel, DashboardPageInfo>(
                 (src, dest) => dest.PageType = (int)src.PageType);

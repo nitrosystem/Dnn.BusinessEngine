@@ -27,13 +27,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
                 (src, dest) => dest.ServiceTypeIcon = dest.ServiceTypeIcon?.ReplaceFrequentTokens());
 
             HybridMapper.BeforeMap<ServiceInfo, ServiceViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             HybridMapper.BeforeMap<ServiceView, ServiceViewModel>(
                 (src, dest) => dest.ServiceTypeIcon = dest.ServiceTypeIcon?.ReplaceFrequentTokens());
 
             HybridMapper.BeforeMap<ServiceView, ServiceViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             HybridMapper.BeforeMap<ServiceViewModel, ServiceInfo>(
                 (src, dest) => dest.Settings = JsonConvert.SerializeObject(src.Settings));

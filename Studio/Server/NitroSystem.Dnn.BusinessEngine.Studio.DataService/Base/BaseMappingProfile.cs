@@ -16,7 +16,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base
                (src, dest) => dest.EntityType = (EntityType)src.EntityType);
 
             HybridMapper.BeforeMap<EntityInfo, EntityViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             HybridMapper.BeforeMap<EntityViewModel, EntityInfo>(
                (src, dest) => dest.EntityType = (int)src.EntityType);

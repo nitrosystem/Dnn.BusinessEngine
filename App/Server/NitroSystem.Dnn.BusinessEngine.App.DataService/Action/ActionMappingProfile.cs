@@ -18,7 +18,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
                 (src, dest) => dest.AuthorizationRunAction = src.AuthorizationRunAction?.Split(','));
 
             HybridMapper.BeforeMap<ActionInfo, ActionDto>(
-                    (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                    (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
         }
     }
 }

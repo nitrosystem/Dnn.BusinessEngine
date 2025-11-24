@@ -19,7 +19,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
                 (src, dest) => dest.ModelType = (AppModelType)src.ModelType);
 
             HybridMapper.BeforeMap<AppModelInfo, AppModelViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings, true));
+                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             HybridMapper.BeforeMap<AppModelViewModel, AppModelInfo>(
                 (src, dest) => dest.ModelType = (int)src.ModelType);
@@ -38,7 +38,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
             #region App Model Properties
 
             HybridMapper.BeforeMap<AppModelPropertyInfo, AppModelPropertyViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings, true));
+                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             HybridMapper.BeforeMap<AppModelPropertyViewModel, AppModelPropertyInfo>(
                     (src, dest) => dest.Settings = JsonConvert.SerializeObject(src.Settings));

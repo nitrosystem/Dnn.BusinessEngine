@@ -32,7 +32,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
                 (src, dest) => dest.AuthorizationRunAction = src.AuthorizationRunAction?.Split(','));
 
             HybridMapper.BeforeMap<ActionInfo, ActionViewModel>(
-                    (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                    (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             HybridMapper.BeforeMap<ActionView, ActionViewModel>(
                 (src, dest) => dest.ActionTypeIcon = src.ActionTypeIcon?.ReplaceFrequentTokens());
@@ -44,7 +44,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
                 (src, dest) => dest.AuthorizationRunAction = src.AuthorizationRunAction?.Split(','));
 
             HybridMapper.BeforeMap<ActionView, ActionViewModel>(
-                    (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<IDictionary<string, object>>(src.Settings));
+                    (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
 
             HybridMapper.BeforeMap<ActionViewModel, ActionInfo>(
                 (src, dest) => dest.ParentActionTriggerCondition = (int?)src.ParentActionTriggerCondition);
