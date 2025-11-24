@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export.Components;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.ImportExport.Export;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export
 {

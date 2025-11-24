@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ImportExport.Export
+namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.ImportExport.Export
 {
     public class ManifestModel
     {

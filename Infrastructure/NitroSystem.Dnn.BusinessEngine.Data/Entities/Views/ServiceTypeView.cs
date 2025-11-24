@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
 {
     [Table("BusinessEngineView_ServiceTypes")]
-    [Cacheable("BE_ServiceType_View_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_ServiceTypes_View_", CacheItemPriority.Default, 20)]
     public class ServiceTypeView : IEntity
     {
         public Guid Id { get; set; }

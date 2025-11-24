@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_DashboardPages")]
-    [Cacheable("BE_DashboardPages_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Dashboards_Pages_", CacheItemPriority.Default, 20)]
     [Scope("DashboardId")]
     public class DashboardPageInfo : IEntity
     {
@@ -21,6 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public bool IsVisible { get; set; }
         public bool InheritPermissionFromDashboard { get; set; }
         public string AuthorizationViewPage { get; set; }
+        public bool IncludeModule { get; set; }
         public string Settings { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }

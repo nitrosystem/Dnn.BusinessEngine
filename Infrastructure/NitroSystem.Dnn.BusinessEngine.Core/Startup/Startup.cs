@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Core.Caching;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ServiceLocator;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.ServiceLocator;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ExpressionParser.ExpressionBuilder;
+using NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ExpressionBuilder;
 using NitroSystem.Dnn.BusinessEngine.Core.PushingServer.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.PushingServer;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework;

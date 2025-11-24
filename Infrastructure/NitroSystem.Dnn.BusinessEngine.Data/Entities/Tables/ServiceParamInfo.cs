@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_ServiceParams")]
-    [Cacheable("BE_ServiceParams_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Services_Params_", CacheItemPriority.Default, 20)]
     [Scope("ServiceId")]
     public class ServiceParamInfo : IEntity
     {

@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Attributes;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.Reflection;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export
 {

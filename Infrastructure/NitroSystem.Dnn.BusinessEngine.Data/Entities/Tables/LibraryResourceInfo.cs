@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_LibraryResources")]
-    [Cacheable("BE_LibraryResources_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Libraries_Resources_", CacheItemPriority.Default, 20)]
     [Scope("LibraryId")]
     public class LibraryResourceInfo : IEntity
     {

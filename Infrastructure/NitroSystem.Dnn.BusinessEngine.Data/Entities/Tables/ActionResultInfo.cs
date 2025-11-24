@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_ActionResults")]
-    [Cacheable("BE_ActionResults_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Actions_Results_", CacheItemPriority.Default, 20)]
     [Scope("ActionId")]
     public class ActionResultInfo : IEntity
     {

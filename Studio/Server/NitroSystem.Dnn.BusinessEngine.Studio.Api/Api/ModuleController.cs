@@ -187,7 +187,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 bool rebuild = false;
-                if (page.PageType == DashboardPageType.Standard && page.Module != null && page.Module.ModuleId != Guid.Empty)
+                if (page.PageType == DashboardPageType.Standard && page.IncludeModule)
                     rebuild = await _moduleService.IsRebuildRequired(page.Module.ModuleId, page.Module.ModuleName);
 
                 var result = await _dashboardService.SaveDashboardPageAsync(page);
@@ -353,7 +353,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var rebuild = !isNew
                     ? await _moduleService.IsRebuildRequired(module.Id, module.ModuleName)
                     : false;
-                
+
                 var moduleId = await _moduleService.SaveModuleAsync(module, isNew);
 
                 if (rebuild)

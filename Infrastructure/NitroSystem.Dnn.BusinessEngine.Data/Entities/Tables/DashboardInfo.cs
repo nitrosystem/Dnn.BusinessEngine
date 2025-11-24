@@ -11,7 +11,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
     {
         public Guid Id { get; set; }
         public Guid ModuleId { get; set; }
-        public Guid? SkinId { get; set; }
         public string AuthorizationViewDashboard { get; set; }
     }
 }

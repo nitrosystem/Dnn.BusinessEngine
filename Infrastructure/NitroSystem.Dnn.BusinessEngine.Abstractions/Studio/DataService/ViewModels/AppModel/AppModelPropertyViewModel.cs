@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.AppModel
 {
@@ -9,5 +10,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public string PropertyName { get; set; }
         public string PropertyType { get; set; }
         public int ViewOrder { get; set; }
+        public IDictionary<string, object> Settings { get; set; }
     }
 }

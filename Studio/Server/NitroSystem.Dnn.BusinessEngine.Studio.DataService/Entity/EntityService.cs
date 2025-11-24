@@ -12,11 +12,8 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Entity;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using System.Security.AccessControl;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
 {
@@ -55,7 +52,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
         public async Task<(IEnumerable<EntityViewModel> Items, int? TotalCount)> GetEntitiesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, byte? entityType, bool? isReadonly, string sortBy)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<int?, EntityInfo, EntityColumnInfo>(
-                "dbo.BusinessEngine_Studio_GetEntitiesWithColumns", "BE_Entities_GetEntitiesWithColumns",
+                "dbo.BusinessEngine_Studio_GetEntitiesWithColumns", "BE_Entities_Studio_GetEntitiesWithColumns",
                     new
                     {
                         ScenarioId = scenarioId,
@@ -67,7 +64,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
                         SortBy = sortBy
                     }
                 );
-
 
             var totalCount = results.Item1?.First();
             var entities = results.Item2;
@@ -84,10 +80,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
             return (result, totalCount);
         }
 
-        public async Task<IEnumerable<EntityListItem>> GetEntitiesListItemAsync(Guid scenarioId)
+        public async Task<IEnumerable<EntityListItem>> GetEntitiesListItemAsync(Guid scenarioId, string sortBy)
         {
-            var entities = await _repository.GetByScopeAsync<EntityInfo>(scenarioId);
-            var columns = await _repository.GetAllAsync<EntityColumnInfo>();
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<EntityInfo, EntityColumnInfo>(
+                "dbo.BusinessEngine_Studio_GetEntitiesWithColumnsListItem", "BE_Entities_Studio_GetEntitiesWithColumnsListItem",
+                    new
+                    {
+                        ScenarioId = scenarioId,
+                        SortBy = sortBy
+                    }
+                );
+
+            var entities = results.Item1;
+            var columns = results.Item2;
 
             return HybridMapper.MapWithChildren<EntityInfo, EntityListItem, EntityColumnInfo, EntityColumnListItem>(
                parents: entities,

@@ -5,6 +5,7 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Entity;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
 {
@@ -23,6 +24,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
 
             HybridMapper.BeforeMap<EntityViewModel, EntityInfo>(
                     (src, dest) => dest.Settings = JsonConvert.SerializeObject(src.Settings));
+
+            HybridMapper.BeforeMap<EntityInfo, EntityListItem>(
+                (src, dest) => dest.EntityType = (EntityType)src.EntityType);
         }
     }
 }

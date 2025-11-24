@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_TemplateThemes")]
-    [Cacheable("BE_TemplateThemes_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Templates_Themes_", CacheItemPriority.Default, 20)]
     [Scope("TemplateId")]
     public class TemplateThemeInfo : IEntity
     {

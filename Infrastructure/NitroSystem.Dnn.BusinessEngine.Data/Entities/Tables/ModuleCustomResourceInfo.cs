@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_ModuleCustomResources")]
-    [Cacheable("BE_ModuleCustomResources_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Modules_CustomResources_", CacheItemPriority.Default, 20)]
     [Scope("ModuleId")]
     public class ModuleCustomResourceInfo : IEntity
     {

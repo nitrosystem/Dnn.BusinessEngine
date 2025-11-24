@@ -524,6 +524,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             ), 20);
         }
 
+        public async Task<object> ExecuteStoredProcedureAsync(Type type, string storedProcedure, string cacheKey, IDictionary<string, object> parameters = null)
+        {
+            var stringValues = parameters?.Select(kvp => $"{kvp.Key}:{kvp.Value ?? string.Empty}")
+                                         .ToArray();
+
+            cacheKey = BuildKey(cacheKey, stringValues);
+
+            return await _cacheService.GetOrCreateAsync<object>(cacheKey, () =>
+                _unitOfWork.Connection.QuerySingleAsync(
+                    type,
+                    storedProcedure,
+                    param: parameters,
+                    transaction: _unitOfWork.Transaction,
+                    commandType: CommandType.StoredProcedure
+                ), 20);
+        }
+
         public async Task<IEnumerable<T>> ExecuteStoredProcedureAsListAsync<T>(string storedProcedure, string cacheKey, object parameters)
         {
             var stringValues = parameters?.GetType()
@@ -538,6 +555,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                     storedProcedure,
                     parameters,
                     _unitOfWork.Transaction,
+                    commandType: CommandType.StoredProcedure
+                ), 20);
+        }
+
+        public async Task<IEnumerable<object>> ExecuteStoredProcedureAsListAsync(Type type, string storedProcedure, string cacheKey, IDictionary<string, object> parameters = null)
+        {
+            var stringValues = parameters?.Select(kvp => $"{kvp.Key}:{kvp.Value ?? string.Empty}")
+                                          .ToArray();
+
+            cacheKey = BuildKey(cacheKey, stringValues);
+
+            return await _cacheService.GetOrCreateAsync<IEnumerable<object>>(cacheKey, () =>
+                _unitOfWork.Connection.QueryAsync(
+                    type,
+                    storedProcedure,
+                    param: parameters,
+                    transaction: _unitOfWork.Transaction,
                     commandType: CommandType.StoredProcedure
                 ), 20);
         }
@@ -561,7 +595,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
             // Query DB and dispose GridReader properly
             (IEnumerable<T> Items, int TotalCount) result;
-            using (var grid = 
+            using (var grid =
                 await _unitOfWork.Connection.QueryMultipleAsync(
                 storedProcedure,
                 parameters,
@@ -574,6 +608,39 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             }
 
             // Cache the final materialized result
+            _cacheService.Set(cacheKey, result);
+            return result;
+        }
+
+        public async Task<(IEnumerable<object> Items, int TotalCount)> ExecuteStoredProcedureForPagingAsync(
+            Type type,
+            string storedProcedure,
+            string cacheKey,
+            IDictionary<string, object> parameters = null)
+        {
+            // استخراج مقادیر پارامترها بدون Reflection
+            var stringValues = parameters?.Select(kvp => $"{kvp.Key}:{kvp.Value ?? string.Empty}")
+                                         .ToArray();
+
+            cacheKey = BuildKey(cacheKey, stringValues);
+
+            // بررسی کش
+            var cachedResult = _cacheService.Get<(IEnumerable<object>, int)?>(cacheKey);
+            if (cachedResult != null)
+                return cachedResult.Value;
+
+            (IEnumerable<object> Items, int TotalCount) result;
+            using (var grid = await _unitOfWork.Connection.QueryMultipleAsync(
+                storedProcedure,
+                parameters,
+                _unitOfWork.Transaction,
+                commandType: CommandType.StoredProcedure))
+            {
+                var totalCount = await grid.ReadSingleAsync<int>();
+                var items = await grid.ReadAsync(type);
+                result = (items.ToList(), totalCount); // Materialize
+            }
+
             _cacheService.Set(cacheKey, result);
             return result;
         }

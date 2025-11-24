@@ -18,6 +18,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public string ComponentSubParams { get; set; }
         public int ExecutionScope { get; set; }
         public bool HasResults { get; set; }
+        //public int CacheState { get; set; }
         public string BusinessControllerClass { get; set; }
         public string ActionJsPath { get; set; }
         public string Icon { get; set; }

@@ -14,7 +14,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public Guid ModuleId { get; set; }
         public Guid ScenarioId { get; set; }
         public int PortalId { get; set; }
-        public int SiteModuleId { get; set; }
+        public int? SiteModuleId { get; set; }
         public string AuthorizationViewDashboard { get; set; }
         public string ModuleName { get; set; }
         public string ModuleTitle { get; set; }

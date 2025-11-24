@@ -8,7 +8,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.BrtPath.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares;

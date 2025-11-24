@@ -4,8 +4,8 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeGeneration;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration;
+using NitroSystem.Dnn.BusinessEngine.Core.BrtPath.Contracts;
 using System.Configuration.Assemblies;
 using System.IO;
 using System.Web;
@@ -23,6 +23,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares
 
         public async Task<EngineResult<TypeBuilderResponse>> InvokeAsync(IEngineContext context, TypeBuilderRequest request, Func<Task<EngineResult<TypeBuilderResponse>>> next)
         {
+            await Task.Yield();
+
             var ctx = context as EngineContext;
             var permitId = ctx.Get<Guid>("PermitId");
             var outputPath = ctx.Get<string>("OutputDirectory");

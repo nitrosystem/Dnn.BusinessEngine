@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using DotNetNuke.Entities.Portals;
 using Newtonsoft.Json.Linq;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.TypeLoader;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;

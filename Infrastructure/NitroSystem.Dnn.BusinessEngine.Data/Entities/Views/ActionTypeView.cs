@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
 {
     [Table("BusinessEngineView_ActionTypes")]
-    [Cacheable("BE_ActionType_View_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_ActionTypes_View_", CacheItemPriority.Default, 20)]
     public class ActionTypeView : IEntity
     {
         public Guid Id { get; set; }
@@ -18,6 +18,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public string ComponentSubParams { get; set; }
         public int ExecutionScope { get; set; }
         public bool HasResults { get; set; }
+        //public int CacheState { get; set; }
         public string BusinessControllerClass { get; set; }
         public string ActionJsPath { get; set; }
         public string Icon { get; set; }

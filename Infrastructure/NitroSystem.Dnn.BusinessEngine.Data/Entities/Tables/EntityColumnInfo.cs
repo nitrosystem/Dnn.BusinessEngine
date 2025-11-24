@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_EntityColumns")]
-    [Cacheable("BE_EntityColumns_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Entities_Columns_", CacheItemPriority.Default, 20)]
     [Scope("EntityId")]
     public class EntityColumnInfo : IEntity
     {

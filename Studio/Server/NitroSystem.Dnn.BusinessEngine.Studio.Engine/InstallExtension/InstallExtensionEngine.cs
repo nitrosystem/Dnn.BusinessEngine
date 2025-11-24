@@ -12,7 +12,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Brt.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.BrtPath.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares;

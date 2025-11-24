@@ -20,6 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
         public AppModelType ModelType { get; set; }
+        public IDictionary<string, object> Settings { get; set; }
         public IEnumerable<AppModelPropertyViewModel> Properties { get; set; }
     }
 }

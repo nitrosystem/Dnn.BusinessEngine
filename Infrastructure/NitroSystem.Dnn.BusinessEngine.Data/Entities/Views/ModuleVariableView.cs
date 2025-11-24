@@ -9,7 +9,7 @@ using System.Web.Caching;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
 {
     [Table("BusinessEngine_ModuleVariables")]
-    [Cacheable("BE_ModuleVariables_View_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Modules_Variables_View_", CacheItemPriority.Default, 20)]
     [Scope("ModuleId")]
     public class ModuleVariableView
     {

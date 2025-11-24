@@ -21,19 +21,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositoryBase _repository;
 
-        private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> _actionLocks =
-            new ConcurrentDictionary<Guid, SemaphoreSlim>();
-
         public ActionService(IUnitOfWork unitOfWork, IRepositoryBase repository)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
         }
 
-        public async Task<IEnumerable<ActionTypeListItem>> GetActionTypesListItemAsync(string sortBy = "ViewOrder")
+        public async Task<IEnumerable<ActionTypeListItem>> GetActionTypesListItemAsync(string sortBy = "GroupViewOrder")
         {
             var actionTypes = await _repository.GetAllAsync<ActionTypeView>(sortBy);
-
             return HybridMapper.MapCollection<ActionTypeView, ActionTypeListItem>(actionTypes);
         }
 
@@ -41,7 +37,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
             Guid moduleId, Guid? fieldId, int pageIndex, int pageSize, string searchText, string actionType, string sortBy)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<int, ActionView, ActionParamInfo, ActionResultInfo>(
-                "dbo.BusinessEngine_Studio_GetActions", "BE_Actions_Studio_GetActions",
+                "dbo.BusinessEngine_Studio_GetActions", "BE_Actions_Studio_GetActions_",
                 new
                 {
                     ModuleId = moduleId,

@@ -60,16 +60,31 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Utils
             return obj;
         }
 
-        public static T TryJsonCasting<T>(string json) where T : class
+        public static T TryJsonCasting<T>(string json, bool createInstanceWhenIsNull = false) where T : class
         {
-            if (string.IsNullOrWhiteSpace(json))
+            // اگر json خالی بود
+            if (string.IsNullOrWhiteSpace(json) || json.Trim() == "null")
+            {
+                // اگر خواستیم instance جدید ساخته شود
+                if (createInstanceWhenIsNull)
+                {
+                    try
+                    {
+                        return Activator.CreateInstance<T>();
+                    }
+                    catch
+                    {
+                        return default(T);
+                    }
+                }
+
                 return default(T);
+            }
 
             json = json.Trim();
 
-            bool isJson = json.StartsWith("{") && json.EndsWith("}") ||
-                          json.StartsWith("[") && json.EndsWith("]") ||
-                          json == "null";
+            bool isJson = (json.StartsWith("{") && json.EndsWith("}")) ||
+                          (json.StartsWith("[") && json.EndsWith("]"));
 
             if (isJson)
             {
@@ -83,6 +98,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Utils
                 }
             }
 
+            // تلاش برای تبدیل مستقیم (int, guid, etc)
             try
             {
                 return Convert.ChangeType(json, typeof(T)) as T;

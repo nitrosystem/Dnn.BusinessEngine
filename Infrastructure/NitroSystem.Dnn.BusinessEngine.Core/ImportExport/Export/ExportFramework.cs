@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
-using NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export

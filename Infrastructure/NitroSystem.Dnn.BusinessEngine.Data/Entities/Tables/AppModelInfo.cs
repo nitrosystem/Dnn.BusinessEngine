@@ -17,6 +17,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public string ModelName { get; set; }
         public string TypeFullName { get; set; }
         public string TypeRelativePath { get; set; }
+        public string Settings { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }

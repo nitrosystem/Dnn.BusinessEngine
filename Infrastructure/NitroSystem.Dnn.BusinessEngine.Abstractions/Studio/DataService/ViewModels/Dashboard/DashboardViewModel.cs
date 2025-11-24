@@ -10,7 +10,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public Guid ScenarioId { get; set; }
         public Guid ModuleId { get; set; }
         public int PortalId { get; set; }
-        public int SiteModuleId { get; set; }
+        public int? SiteModuleId { get; set; }
         public string ModuleName { get; set; }
         public string ModuleTitle { get; set; }
         public string Template { get; set; }

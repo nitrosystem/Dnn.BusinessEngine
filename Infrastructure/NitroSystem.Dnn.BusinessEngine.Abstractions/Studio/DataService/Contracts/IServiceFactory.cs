@@ -10,11 +10,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contrac
 {
     public interface IServiceFactory
     {
-        Task<IEnumerable<ServiceTypeListItem>> GetServiceTypesListItemAsync();
+        Task<IEnumerable<ServiceTypeListItem>> GetServiceTypesListItemAsync(params string[] sortBy);
         Task<(ServiceViewModel Service, IExtensionServiceViewModel Extension, IDictionary<string, object> ExtensionDependency)>
             GetServiceViewModelAsync(Guid scenarioId, string serviceType, Guid serviceId);
         Task<IEnumerable<ServiceViewModel>> GetServicesViewModelAsync(Guid scenarioId, string sortBy = "ViewOrder");
-        Task<(IEnumerable<ServiceViewModel> Items, int? TotalCount)> GetServicesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, string serviceType, string sortBy);
+        Task<(IEnumerable<ServiceViewModel> Items, int? TotalCount)> GetServicesViewModelAsync(Guid scenarioId,
+            int pageIndex,
+            int pageSize,
+            string searchText,
+            string serviceDomain,
+            string serviceType,
+            string sortBy);
         Task<(Guid ServiceId, Guid? ExtensionServiceId)> SaveServiceAsync(ServiceViewModel service, string extensionServiceJson, bool isNew);
         Task<bool> UpdateGroupColumn(Guid serviceId, Guid? groupId);
         Task<bool> DeleteServiceAsync(Guid serviceId);

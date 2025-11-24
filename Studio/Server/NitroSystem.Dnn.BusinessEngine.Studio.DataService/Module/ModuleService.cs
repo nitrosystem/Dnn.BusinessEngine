@@ -63,7 +63,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
         public async Task<bool?> IsValidModuleNameAsync(Guid scenarioId, Guid? moduleId, string moduleName)
         {
             return await _repository.ExecuteStoredProcedureScalerAsync<bool?>(
-                "dbo.BusinessEngine_Studio_IsValidModuleName", "BE_Modules_IsValidModuleName_",
+                "dbo.BusinessEngine_Studio_IsValidModuleName", "BE_Modules_Studio_IsValidModuleName_",
                 new
                 {
                     ScenarioId = scenarioId,
@@ -75,7 +75,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
         public async Task<bool> IsRebuildRequired(Guid moduleId, string moduleName)
         {
             return await _repository.ExecuteStoredProcedureScalerAsync<bool>(
-               "dbo.BusinessEngine_Studio_IsRebuildRequired", "BE_Modules_IsRebuildRequired_",
+               "dbo.BusinessEngine_Studio_IsRebuildRequired", "BE_Modules_Studio_IsRebuildRequired_",
                new
                {
                    ModuleId = moduleId,
@@ -97,7 +97,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             var module = await _repository.GetAsync<ModuleView>(moduleId);
             var data = await _repository.ExecuteStoredProcedureMultipleAsync<ModuleFieldSpResult, ModuleFieldSettingSpResult,
                     ModuleResourceSpResult, ModuleResourceSpResult>(
-                "dbo.BusinessEngine_Studio_GetModuleDataForBuild", "BE_Modules_Fields_Settings_Build_" + moduleId,
+                "dbo.BusinessEngine_Studio_GetModuleDataForBuild", "BE_Modules_Fields_Settings_Studio_GetModuleDataForBuild_",
                 new
                 {
                     ModuleId = moduleId

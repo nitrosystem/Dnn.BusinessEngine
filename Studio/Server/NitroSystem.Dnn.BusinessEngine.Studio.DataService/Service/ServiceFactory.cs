@@ -24,8 +24,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
         private readonly IRepositoryBase _repository;
         private readonly IServiceLocator _serviceLocator;
 
-        private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> _serviceLocks = new ConcurrentDictionary<Guid, SemaphoreSlim>();
-
         public ServiceFactory(IUnitOfWork unitOfWork, IRepositoryBase repository, IServiceLocator serviceLocator)
         {
             _unitOfWork = unitOfWork;
@@ -33,9 +31,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
             _serviceLocator = serviceLocator;
         }
 
-        public async Task<IEnumerable<ServiceTypeListItem>> GetServiceTypesListItemAsync()
+        public async Task<IEnumerable<ServiceTypeListItem>> GetServiceTypesListItemAsync(params string[] sortBy)
         {
-            var serviceTypes = await _repository.GetAllAsync<ServiceTypeView>("GroupViewOrder", "ViewOrder");
+            var serviceTypes = await _repository.GetAllAsync<ServiceTypeView>();
 
             return HybridMapper.MapCollection<ServiceTypeView, ServiceTypeListItem>(serviceTypes);
         }
@@ -76,14 +74,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
         }
 
         public async Task<(IEnumerable<ServiceViewModel> Items, int? TotalCount)> GetServicesViewModelAsync(
-            Guid scenarioId, int pageIndex, int pageSize, string searchText, string serviceType, string sortBy)
+            Guid scenarioId,
+            int pageIndex,
+            int pageSize,
+            string searchText,
+            string serviceDomain,
+            string serviceType,
+            string sortBy)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<int?, ServiceView, ServiceParamInfo>(
-                "dbo.BusinessEngine_Studio_GetServicesWithParams", "",
+                "dbo.BusinessEngine_Studio_GetServicesWithParams", "BE_Services_Studio_GetServicesWithParams_",
                     new
                     {
                         ScenarioId = scenarioId,
                         SearchText = searchText,
+                        ServiceDomain = serviceDomain,
                         ServiceType = serviceType,
                         PageIndex = pageIndex,
                         PageSize = pageSize,
@@ -111,59 +116,46 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
             string extensionServiceJson,
             bool isNew)
         {
-            var lockKey = service.Id == Guid.Empty ? Guid.NewGuid() : service.Id;
-            var semaphore = _serviceLocks.GetOrAdd(lockKey, _ => new SemaphoreSlim(1, 1));
-
             Guid? extensionServiceId = null;
 
             var objServiceInfo = HybridMapper.Map<ServiceViewModel, ServiceInfo>(service);
             var serviceParams = HybridMapper.MapCollection<ServiceParamViewModel, ServiceParamInfo>(service.Params);
 
-            await semaphore.WaitAsync();
-
             _unitOfWork.BeginTransaction();
 
             try
             {
-                try
+                if (isNew)
+                    objServiceInfo.Id = service.Id = await _repository.AddAsync<ServiceInfo>(objServiceInfo);
+                else
                 {
-                    if (isNew)
-                        objServiceInfo.Id = service.Id = await _repository.AddAsync<ServiceInfo>(objServiceInfo);
-                    else
-                    {
-                        var isUpdated = await _repository.UpdateAsync<ServiceInfo>(objServiceInfo);
-                        if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objServiceInfo);
+                    var isUpdated = await _repository.UpdateAsync<ServiceInfo>(objServiceInfo);
+                    if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objServiceInfo);
 
-                        await _repository.DeleteByScopeAsync<ServiceParamInfo>(objServiceInfo.Id);
-                    }
-
-                    foreach (var objServiceParamInfo in serviceParams ?? Enumerable.Empty<ServiceParamInfo>())
-                    {
-                        objServiceParamInfo.ServiceId = objServiceInfo.Id;
-
-                        await _repository.AddAsync<ServiceParamInfo>(objServiceParamInfo);
-                    }
-
-                    var type = await _repository.GetColumnValueAsync<ServiceTypeInfo, string>("BusinessControllerClass", "ServiceType", service.ServiceType);
-                    if (!string.IsNullOrEmpty(type))
-                    {
-                        var extensionController = _serviceLocator.CreateInstance<IExtensionServiceFactory>(type, _unitOfWork, _repository);
-                        extensionServiceId = await extensionController.SaveService(service, extensionServiceJson);
-                    }
-
-                    _unitOfWork.Commit();
+                    await _repository.DeleteByScopeAsync<ServiceParamInfo>(objServiceInfo.Id);
                 }
-                catch (Exception ex)
+
+                foreach (var objServiceParamInfo in serviceParams ?? Enumerable.Empty<ServiceParamInfo>())
                 {
-                    _unitOfWork.Rollback();
+                    objServiceParamInfo.ServiceId = objServiceInfo.Id;
 
-                    throw ex;
+                    await _repository.AddAsync<ServiceParamInfo>(objServiceParamInfo);
                 }
+
+                var type = await _repository.GetColumnValueAsync<ServiceTypeInfo, string>("BusinessControllerClass", "ServiceType", service.ServiceType);
+                if (!string.IsNullOrEmpty(type))
+                {
+                    var extensionController = _serviceLocator.CreateInstance<IExtensionServiceFactory>(type, _unitOfWork, _repository);
+                    extensionServiceId = await extensionController.SaveService(service, extensionServiceJson);
+                }
+
+                _unitOfWork.Commit();
             }
-            finally
+            catch (Exception ex)
             {
-                semaphore.Release();
-                _serviceLocks.TryRemove(lockKey, out _);
+                _unitOfWork.Rollback();
+
+                throw ex;
             }
 
             return (objServiceInfo.Id, extensionServiceId);

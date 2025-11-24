@@ -56,7 +56,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                     ? await _dashboardService.GetDashboardDtoAsync(moduleId)
                     : null;
 
-                var moduleData = new ConcurrentDictionary<string, object>();
+                var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, moduleId);
                 var actionIds = await _actionService.GetActionIdsAsync(moduleId, null, "OnPageLoad");
                 if (actionIds.Any())
                 {
@@ -65,6 +65,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                     {
                         ConnectionId = connectionId,
                         ModuleId = moduleId,
+                        UserId = UserInfo.UserID,
                         PageUrl = pageUrl,
                         ByEvent = true,
                         Actions = actionsByEvent

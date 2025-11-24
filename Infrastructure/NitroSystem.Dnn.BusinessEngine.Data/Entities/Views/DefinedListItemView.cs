@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
 {
     [Table("BusinessEngineView_DefinedListItems")]
-    [Cacheable("BE_DefinedListItems_View_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_DefinedLists_Items_View_", CacheItemPriority.Default, 20)]
     [Scope("ListName")]
     public class DefinedListItemView : IEntity
     {

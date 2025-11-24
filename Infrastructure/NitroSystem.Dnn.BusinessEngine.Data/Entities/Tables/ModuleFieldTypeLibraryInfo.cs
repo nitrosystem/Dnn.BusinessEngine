@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_ModuleFieldTypeLibraries")]
-    [Cacheable("BE_ModuleFieldTypeLibraries_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_ModuleFieldTypes_Libraries_", CacheItemPriority.Default, 20)]
     [Scope("FieldType")]
     public class ModuleFieldTypeLibraryInfo : IEntity
     {

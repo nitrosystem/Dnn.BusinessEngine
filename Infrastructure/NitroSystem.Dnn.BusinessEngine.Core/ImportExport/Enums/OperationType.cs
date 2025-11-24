@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Import_Export.Enums
+namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.Import_Export.Enums
 {
     public enum ExportImportOperationType
     {

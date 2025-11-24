@@ -130,7 +130,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
                source: page,
                configAction: async (src, dest) =>
                {
-                   if (dest.PageType == DashboardPageType.Standard)
+                   if (dest.PageType == DashboardPageType.Standard && dest.IncludeModule)
                    {
                        var module = await _repository.GetByColumnAsync<DashboardPageModuleView>("PageId", src.Id);
                        dest.Module = HybridMapper.Map<DashboardPageModuleView, DashboardPageModuleViewModel>(module);
@@ -151,7 +151,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
                 if (page.Id == Guid.Empty)
                 {
                     objDashboardPageInfo.ViewOrder = await _repository.ExecuteStoredProcedureScalerAsync<int?>(
-                        "dbo.BusinessEngine_Studio_GetLastDashboardPage", "",
+                        "dbo.BusinessEngine_Studio_GetLastDashboardPage", "BE_Dashboards_Pages_Studio_GetLastDashboardPage_",
                         new { objDashboardPageInfo.ParentId }) ?? 1;
                     ids[0] = objDashboardPageInfo.Id = await _repository.AddAsync<DashboardPageInfo>(objDashboardPageInfo);
                 }
@@ -165,39 +165,46 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
 
                 if (page.PageType == DashboardPageType.Standard)
                 {
-                    var objModuleInfo = HybridMapper.Map<DashboardPageModuleViewModel, ModuleInfo>(
-                        source: page.Module,
-                        configAction: (src, dest) =>
+                    if (!page.IncludeModule && page.Module != null && page.Module.Id != Guid.Empty)
+                    {
+                        await _repository.DeleteAsync<ModuleInfo>(page.Module.Id);
+                    }
+                    else if (page.IncludeModule)
+                    {
+                        var objModuleInfo = HybridMapper.Map<DashboardPageModuleViewModel, ModuleInfo>(
+                            source: page.Module,
+                            configAction: (src, dest) =>
+                            {
+                                dest.Id = src.ModuleId;
+                            }
+                        );
+
+                        if (objModuleInfo.Id == Guid.Empty)
                         {
-                            dest.Id = src.ModuleId;
+                            ids[1] = objModuleInfo.Id = await _repository.AddAsync<ModuleInfo>(objModuleInfo);
                         }
-                    );
+                        else
+                        {
+                            ids[1] = objModuleInfo.Id;
 
-                    if (objModuleInfo.Id == Guid.Empty)
-                    {
-                        ids[1] = objModuleInfo.Id = await _repository.AddAsync<ModuleInfo>(objModuleInfo);
-                    }
-                    else
-                    {
-                        ids[1] = objModuleInfo.Id;
+                            var isUpdated = await _repository.UpdateAsync<ModuleInfo>(objModuleInfo, "ModuleType", "ModuleName", "ModuleTitle");
+                            if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleInfo);
+                        }
 
-                        var isUpdated = await _repository.UpdateAsync<ModuleInfo>(objModuleInfo, "ModuleType", "ModuleName", "ModuleTitle");
-                        if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleInfo);
-                    }
-                    
-                    var objDashboardPageModuleInfo = HybridMapper.Map<DashboardPageModuleViewModel, DashboardPageModuleInfo>(page.Module);
-                    if (objDashboardPageModuleInfo.Id == Guid.Empty)
-                    {
-                        objDashboardPageModuleInfo.PageId = objDashboardPageInfo.Id;
-                        objDashboardPageModuleInfo.ModuleId = objModuleInfo.Id;
-                        ids[2] = objDashboardPageModuleInfo.Id = await _repository.AddAsync<DashboardPageModuleInfo>(objDashboardPageModuleInfo);
-                    }
-                    else
-                    {
-                        ids[2] = objDashboardPageModuleInfo.Id;
+                        var objDashboardPageModuleInfo = HybridMapper.Map<DashboardPageModuleViewModel, DashboardPageModuleInfo>(page.Module);
+                        if (objDashboardPageModuleInfo.Id == Guid.Empty)
+                        {
+                            objDashboardPageModuleInfo.PageId = objDashboardPageInfo.Id;
+                            objDashboardPageModuleInfo.ModuleId = objModuleInfo.Id;
+                            ids[2] = objDashboardPageModuleInfo.Id = await _repository.AddAsync<DashboardPageModuleInfo>(objDashboardPageModuleInfo);
+                        }
+                        else
+                        {
+                            ids[2] = objDashboardPageModuleInfo.Id;
 
-                        var isUpdated = await _repository.UpdateAsync<DashboardPageModuleInfo>(objDashboardPageModuleInfo);
-                        if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objDashboardPageModuleInfo);
+                            var isUpdated = await _repository.UpdateAsync<DashboardPageModuleInfo>(objDashboardPageModuleInfo);
+                            if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objDashboardPageModuleInfo);
+                        }
                     }
                 }
 
@@ -259,7 +266,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
                sources: lookup[parentId],
                configAction: async (src, dest) =>
                {
-                   if (dest.PageType == DashboardPageType.Standard)
+                   if (dest.PageType == DashboardPageType.Standard && dest.IncludeModule)
                    {
                        var module = await _repository.GetByColumnAsync<DashboardPageModuleView>("PageId", src.Id);
                        dest.Module = HybridMapper.Map<DashboardPageModuleView, DashboardPageModuleViewModel>(module);

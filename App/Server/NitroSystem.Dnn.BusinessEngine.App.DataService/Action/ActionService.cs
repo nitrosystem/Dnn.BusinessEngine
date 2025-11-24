@@ -25,7 +25,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
         {
             var actions = await _repository.GetByScopeAsync<ActionInfo>(moduleId, "ViewOrder");
             return actions
-                .Where(a => /*a.Event == eventName &&*/  a.FieldId == fieldId)
+                .Where(a => a.Event == eventName && a.FieldId == fieldId)
                 .Select(a => a.Id)
                 .ToList();
         }
@@ -43,7 +43,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
         public async Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo, ActionResultInfo>(
-                "BusinessEngine_App_GetActionsForClient", "BE_Actions_ForClient_" + moduleId,
+                "dbo.BusinessEngine_App_GetActionsForClient", "BE_Actions_ForClient_",
                     new
                     {
                         ModuleId = moduleId,
@@ -78,7 +78,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
         public async Task<IEnumerable<ActionDto>> GetActionsDtoForServerAsync(IEnumerable<Guid> actionIds)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo, ActionResultInfo>(
-                "BusinessEngine_App_GetActionsForServer", "BE_Actions_ForServer_" + string.Join("_", actionIds),
+                "dbo.BusinessEngine_App_GetActionsForServer", "BE_Actions_ForServer_",
                     new
                     {
                         ActionIds = JsonConvert.SerializeObject(actionIds)

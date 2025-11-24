@@ -53,7 +53,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
         public async Task<(IEnumerable<AppModelViewModel> Items, int? TotalCount)> GetAppModelsAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, string sortBy)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<int?, AppModelInfo, AppModelPropertyInfo>(
-                    "BusinessEngine_Studio_GetAppModelsWithProperties", "",
+                    "dbo.BusinessEngine_Studio_GetAppModelsWithProperties", "BE_AppModels_Studio_GetAppModelsWithProperties_",
                     new
                     {
                         ScenarioId = scenarioId,

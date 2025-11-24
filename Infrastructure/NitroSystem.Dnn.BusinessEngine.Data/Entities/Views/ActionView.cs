@@ -20,6 +20,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public string Event { get; set; }
         public int? ParentActionTriggerCondition { get; set; }
         public bool ExecuteInClientSide { get; set; }
+        public bool SetCache { get; set; }
+        public bool ClearCache { get; set; }
+        public string CacheKey { get; set; }
         public string AuthorizationRunAction { get; set; }
         public string Preconditions { get; set; }
         public string Conditions { get; set; }

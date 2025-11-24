@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.Infrastructure.Export.Tasks
+namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.Export.Tasks
 {
     public class ZipTask : ICustomTask
     {

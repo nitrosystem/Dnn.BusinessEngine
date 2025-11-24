@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
 {
     [Table("BusinessEngineView_ModuleFieldTypes")]
-    [Cacheable("BE_FieldType_View_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_ModuleFieldTypes_View_", CacheItemPriority.Default, 20)]
     public class ModuleFieldTypeView : IEntity
     {
         public Guid Id { get; set; }

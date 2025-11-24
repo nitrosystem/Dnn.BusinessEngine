@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Web.UI;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
@@ -16,17 +17,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public string Url { get; set; }
         public bool IsVisible { get; set; }
         public bool InheritPermissionFromDashboard { get; set; }
-        public int ViewOrder { get; set; }
+        public bool IncludeModule { get; set; }
+        public bool IsChild { get { return ParentId.HasValue; } }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }
         public DateTime LastModifiedOnDate { get; set; }
         public int LastModifiedByUserId { get; set; }
+        public int ViewOrder { get; set; }
         public DashboardPageType PageType { get; set; }
         public IEnumerable<string> AuthorizationViewPage { get; set; }
         public DashboardPageModuleViewModel Module { get; set; }
         public IEnumerable<DashboardPageViewModel> Pages { get; set; }
         public IDictionary<string, object> Settings { get; set; }
-        public bool IsChild { get { return ParentId.HasValue; } }
     }
 }

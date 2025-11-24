@@ -110,7 +110,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
         public async Task<IEnumerable<ModuleVariableDto>> GetVariables(Guid moduleId, ModuleVariableScope scope)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<ModuleVariableView, AppModelPropertyInfo>(
-                "BusinessEngine_App_GetModuleVariables", "BE_ModuleVariables_App_" + moduleId,
+                "dbo.BusinessEngine_App_GetModuleVariables", "BE_ModuleVariables_App_",
                     new
                     {
                         ModuleId = moduleId,

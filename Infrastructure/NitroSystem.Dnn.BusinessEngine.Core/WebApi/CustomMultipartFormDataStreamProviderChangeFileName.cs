@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using DotNetNuke.Entities.Host;
 
-namespace NitroSystem.Dnn.BusinessEngine.Utilities
+namespace NitroSystem.Dnn.BusinessEngine.Core.WebApi
 {
     public class CustomMultipartFormDataStreamProviderChangeFileName : MultipartFormDataStreamProvider
     {

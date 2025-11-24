@@ -113,7 +113,6 @@
     <Compile Include="Entities\Views\DefinedListItemView.cs" />
     <Compile Include="Entities\Views\ModuleView.cs" />
     <Compile Include="Entities\Views\ServiceView.cs" />
-    <Compile Include="Entities\Views\ModuleFieldTypeLibraryView.cs" />
     <Compile Include="Entities\Views\ModuleFieldTypeView.cs" />
     <Compile Include="Entities\Views\ActionTypeView.cs" />
     <Compile Include="Entities\Views\LibraryView.cs" />

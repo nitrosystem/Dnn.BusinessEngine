@@ -5,6 +5,7 @@
     border-radius: .5rem;
     box-sizing: border-box;
     position: absolute;
+    left: 0;
     top: -2.15em;
     opacity: .1;
     font-size: 14px;

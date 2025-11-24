@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_ModuleVariables")]
-    [Cacheable("BE_ModuleVariables_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Modules_Variables_", CacheItemPriority.Default, 20)]
     [Scope("ModuleId")]
     public class ModuleVariableInfo : IEntity
     {

@@ -15,6 +15,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public string ActionName { get; set; }
         public string Event { get; set; }
         public bool ExecuteInClientSide { get; set; }
+        public bool SetCache { get; set; }
+        public bool ClearCache { get; set; }
+        public string CacheKey { get; set; }
         public string Preconditions { get; set; }
         public string Conditions { get; set; }
         public string ActionTypeIcon { get; set; }

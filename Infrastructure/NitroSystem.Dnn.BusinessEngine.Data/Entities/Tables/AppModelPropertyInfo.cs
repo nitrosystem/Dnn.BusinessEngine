@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngine_AppModelProperties")]
-    [Cacheable("BE_AppModelProperties_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_AppModels_Properties_", CacheItemPriority.Default, 20)]
     [Scope("AppModelId")]
     public class AppModelPropertyInfo : IEntity
     {
@@ -14,6 +14,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public Guid AppModelId { get; set; }
         public string PropertyName { get; set; }
         public string PropertyType { get; set; }
+        public string Settings { get; set; }
         public int ViewOrder { get; set; }
     }
 }

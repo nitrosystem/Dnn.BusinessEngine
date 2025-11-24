@@ -44,14 +44,24 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts
 
         Task<T> ExecuteStoredProcedureScalerAsync<T>(string storedProcedure, string cacheKey, object parameters);
 
-        Task<IDataReader> ExecuteStoredProcedureAsDataReaderAsync(string storedProcedure, string cacheKey, object parameters);
+        //Task<T> ExecuteStoredProcedureAsync<T>(Type type, string storedProcedure, string cacheKey, object parameters = null);
+
+        Task<object> ExecuteStoredProcedureAsync(Type type, string storedProcedure, string cacheKey, IDictionary<string, object> parameters = null);
 
         Task<IEnumerable<T>> ExecuteStoredProcedureAsListAsync<T>(string storedProcedure, string cacheKey, object parameters);
 
+        Task<IEnumerable<object>> ExecuteStoredProcedureAsListAsync(Type type, string storedProcedure, string cacheKey, IDictionary<string, object> parameters = null);
+
         Task<(IEnumerable<T> Items, int TotalCount)> ExecuteStoredProcedureForPagingAsync<T>(
-           string storedProcedure,
-           string cacheKey,
-           object parameters = null);
+            string storedProcedure,
+            string cacheKey,
+            object parameters = null);
+
+        Task<(IEnumerable<object> Items, int TotalCount)> ExecuteStoredProcedureForPagingAsync(
+            Type type,
+            string storedProcedure,
+            string cacheKey,
+            IDictionary<string, object> parameters = null);
 
         Task<(IEnumerable<T1>, IEnumerable<T2>)> ExecuteStoredProcedureMultipleAsync<T1, T2>(
            string storedProcedure,

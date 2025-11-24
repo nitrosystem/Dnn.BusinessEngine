@@ -47,6 +47,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
         {
             _ctx.ModuleData = await _userDataStore.GetOrCreateModuleDataAsync(request.ConnectionId, request.ModuleId);
             _ctx.ModuleData["_PageParam"] = UrlHelper.ParsePageParameters(request.PageUrl);
+            _ctx.ModuleData["_CurrentUserId"] = request.UserId;
 
             await base.OnInitializeAsync(request);
         }

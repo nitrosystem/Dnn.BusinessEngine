@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
 {
     [Table("BusinessEngineView_ModuleCustomLibraries")]
-    [Cacheable("BE_ModuleCustomLibraries_View_", CacheItemPriority.Default, 20)]
+    [Cacheable("BE_Modules_CustomLibraries_View_", CacheItemPriority.Default, 20)]
     [Scope("ModuleId")]
     public class ModuleCustomLibraryView : IEntity
     {
