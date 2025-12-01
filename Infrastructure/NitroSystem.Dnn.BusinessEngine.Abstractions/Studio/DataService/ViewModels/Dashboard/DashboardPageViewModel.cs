@@ -14,6 +14,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public Guid? ExistingPageId { get; set; }
         public string PageName { get; set; }
         public string Title { get; set; }
+        public string Icon { get; set; }
         public string Url { get; set; }
         public bool IsVisible { get; set; }
         public bool InheritPermissionFromDashboard { get; set; }
@@ -29,6 +30,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public IEnumerable<string> AuthorizationViewPage { get; set; }
         public DashboardPageModuleViewModel Module { get; set; }
         public IEnumerable<DashboardPageViewModel> Pages { get; set; }
-        public IDictionary<string, object> Settings { get; set; }
     }
 }

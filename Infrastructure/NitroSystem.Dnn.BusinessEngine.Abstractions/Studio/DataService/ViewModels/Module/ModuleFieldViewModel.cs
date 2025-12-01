@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module
@@ -31,8 +31,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
         public IEnumerable<string> AuthorizationViewField { get; set; }
-        public FieldDataSourceInfo DataSource { get; set; }
-        public IEnumerable<FieldValueInfo> ConditionalValues { get; set; }
+        public ModuleFieldDataSourceInfo DataSource { get; set; }
+        public IEnumerable<ModuleFieldValueInfo> ConditionalValues { get; set; }
         public IEnumerable<ActionListItem> Actions { get; set; }
         public IDictionary<string, object> Settings { get; set; }
     }

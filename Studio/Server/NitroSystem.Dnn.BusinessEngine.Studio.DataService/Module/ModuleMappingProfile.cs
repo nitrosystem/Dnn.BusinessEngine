@@ -1,19 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
-using System.Linq;
-using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 {
@@ -81,12 +81,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
             HybridMapper.BeforeMap<ModuleFieldInfo, ModuleFieldViewModel>(
                 (src, dest) => dest.DataSource = src.HasDataSource
-                ? ReflectionUtil.TryJsonCasting<FieldDataSourceInfo>(src.DataSource)
+                ? ReflectionUtil.TryJsonCasting<ModuleFieldDataSourceInfo>(src.DataSource)
                 : null
             );
 
             HybridMapper.BeforeMap<ModuleFieldInfo, ModuleFieldViewModel>(
-                (src, dest) => dest.ConditionalValues = ReflectionUtil.TryJsonCasting<IEnumerable<FieldValueInfo>>(src.ConditionalValues));
+                (src, dest) => dest.ConditionalValues = ReflectionUtil.TryJsonCasting<IEnumerable<ModuleFieldValueInfo>>(src.ConditionalValues));
 
             HybridMapper.AfterMap<ModuleFieldSpResult, ModuleFieldDto>(
                 (src, dest) =>
@@ -111,7 +111,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             #region Module Custom Library & Resource
 
             HybridMapper.BeforeMap<ModuleCustomLibraryResourceView, ModuleCustomLibraryResourceViewModel>(
-                (src, dest) => dest.ResourceContentType = (ModuleResourceContentType)src.ResourceContentType);
+                (src, dest) => dest.ResourceContentType = (ResourceContentType)src.ResourceContentType);
 
             HybridMapper.BeforeMap<ModuleCustomLibraryResourceViewModel, ModuleCustomLibraryResourceView>(
                 (src, dest) => dest.ResourceContentType = (int)src.ResourceContentType);
@@ -140,7 +140,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                 (src, dest) => dest.ResourceType = (ModuleResourceType)src.ResourceType);
 
             HybridMapper.BeforeMap<ModuleResourceSpResult, ModuleResourceDto>(
-                (src, dest) => dest.ResourceContentType = (ModuleResourceContentType)src.ResourceContentType);
+                (src, dest) => dest.ResourceContentType = (ResourceContentType)src.ResourceContentType);
 
             HybridMapper.BeforeMap<ModuleResourceDto, ModuleOutputResourceInfo>(
                 (src, dest) => dest.ResourceContentType = (int)src.ResourceContentType);

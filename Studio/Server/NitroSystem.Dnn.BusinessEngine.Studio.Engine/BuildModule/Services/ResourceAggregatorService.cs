@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
@@ -9,12 +8,13 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
     public class ResourceAggregatorService : IResourceAggregatorService
     {
-        public async Task<BuildModuleResponse> FinalizeResourcesAsync(BuildModuleRequest request, IEngineContext context)
+        public async Task<BuildModuleResponse> FinalizeResourcesAsync(BuildModuleRequest request, IEngineContext context,IEngineNotifier engineNotifier)
         {
             var ctx = context as EngineContext;
             var result = new BuildModuleResponse();
@@ -40,7 +40,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             systemResources.Add(new ModuleResourceDto()
             {
                 ModuleId = request.ModuleId.Value,
-                ResourceContentType = ModuleResourceContentType.Css,
+                ResourceContentType = ResourceContentType.Css,
                 ResourcePath = $"{outputRelativePath}/{moduleKebabName}.css",
                 LoadOrder = ++count
             });
@@ -48,10 +48,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             systemResources.Add(new ModuleResourceDto()
             {
                 ModuleId = request.ModuleId.Value,
-                ResourceContentType = ModuleResourceContentType.Js,
+                ResourceContentType = ResourceContentType.Js,
                 ResourcePath = $"{outputRelativePath}/{moduleKebabName}.js",
                 LoadOrder = ++count
             });
+
+            engineNotifier.PushingNotification(request.Module.ScenarioName,
+                new
+                {
+                    Type = "ActionCenter",
+                    TaskId = $"{request.ModuleId}-BuildModule",
+                    Message = $"Finalized resources for {request.ModuleName} module",
+                    Percent = 95
+                }
+            );
 
             result.IsSuccess = true;
             result.FinalizedResources = request.Module.ExternalResources.Concat(systemResources);

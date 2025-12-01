@@ -4,6 +4,7 @@
     {
         Standard = 0,
         Url = 1,
-        ExistingPage = 2
+        ExistingPage = 2,
+        MenuSection = 3
     }
 }

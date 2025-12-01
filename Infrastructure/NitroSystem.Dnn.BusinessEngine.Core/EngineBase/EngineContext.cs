@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
 {
@@ -12,7 +12,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
 
         public virtual CancellationToken CancellationToken { get; }
         public IDictionary<string, object> Items { get; } = new Dictionary<string, object>();
-        public WorkflowEventManager EventManager { get; internal set; }
+        public WorkflowManager EventManager { get; internal set; }
 
         public EngineContext(CancellationToken cancellationToken = default)
         {

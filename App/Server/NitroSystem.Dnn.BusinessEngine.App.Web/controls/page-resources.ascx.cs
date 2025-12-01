@@ -10,8 +10,8 @@ using DotNetNuke.Entities.Host;
 using DotNetNuke.Services.Exceptions;
 using DotNetNuke.Web.Client.ClientResourceManagement;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web
 {
@@ -126,11 +126,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             }
         }
 
-        private void RegisterPageResources(ModuleResourceContentType resourceType, string resourcePath, int priority)
+        private void RegisterPageResources(ResourceContentType resourceType, string resourcePath, int priority)
         {
-            if (resourceType == ModuleResourceContentType.Css)
+            if (resourceType == ResourceContentType.Css)
                 ClientResourceManager.RegisterStyleSheet(base.Page, resourcePath, priority);
-            if (resourceType == ModuleResourceContentType.Js)
+            if (resourceType == ResourceContentType.Js)
                 ClientResourceManager.RegisterScript(base.Page, resourcePath, priority);
         }
 

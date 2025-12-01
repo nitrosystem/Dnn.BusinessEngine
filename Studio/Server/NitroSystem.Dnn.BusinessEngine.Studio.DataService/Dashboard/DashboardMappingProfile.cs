@@ -1,23 +1,9 @@
 ﻿using System.Linq;
-using System.Collections.Generic;
-using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
-using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
-using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
-using System.Web.UI;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Template;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 {
@@ -56,17 +42,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             HybridMapper.BeforeMap<DashboardPageInfo, DashboardPageViewModel>(
                 (src, dest) => dest.AuthorizationViewPage = src.AuthorizationViewPage?.Split(','));
 
-            HybridMapper.BeforeMap<DashboardPageInfo, DashboardPageViewModel>(
-                (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings));
-
             HybridMapper.BeforeMap<DashboardPageViewModel, DashboardPageInfo>(
                 (src, dest) => dest.PageType = (int)src.PageType);
 
             HybridMapper.BeforeMap<DashboardPageViewModel, DashboardPageInfo>(
                 (src, dest) => dest.AuthorizationViewPage = string.Join(",", src.AuthorizationViewPage ?? Enumerable.Empty<string>()));
-
-            HybridMapper.BeforeMap<DashboardPageViewModel, DashboardPageInfo>(
-                (src, dest) => dest.Settings = JsonConvert.SerializeObject(src.Settings));
 
             #endregion
 

@@ -6,10 +6,12 @@ using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ExpressionBuilder;
-using NitroSystem.Dnn.BusinessEngine.Core.PushingServer.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.PushingServer;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework;
 using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.PushingServer;
+using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Startup
 {
@@ -21,18 +23,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Startup
             services.AddSingleton<ICacheService, CacheService>();
             services.AddSingleton<ITypeLoaderFactory, TypeLoaderFactory>();
 
+            services.AddSingleton<LockService>();
+
             services.AddScoped<IExpressionService, ExpressionService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
 
-            services.AddSingleton<WorkflowEventManager>();
+            services.AddSingleton<WorkflowManager>();
             services.AddSingleton<ResourceProfiler>();
 
             services.AddSingleton<INotificationServerHost, NotificationServerHost>();
-            services.AddSingleton<NotificationServer>();
-            var serviceProvider = services.BuildServiceProvider();
-            var wsHost = serviceProvider.GetRequiredService<INotificationServerHost>();
-            wsHost.Start();
+            services.AddSingleton<IWebSocketManager, WebSocketManager>();
+            services.AddSingleton<INotificationServer, NotificationServerProxy>();
 
             services.AddSingleton<BackgroundFramework>(sp =>
             {

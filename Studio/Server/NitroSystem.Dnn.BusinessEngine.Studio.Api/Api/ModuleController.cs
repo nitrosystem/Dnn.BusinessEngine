@@ -51,7 +51,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IModuleLibraryAndResourceService _moduleLibraryAndResourceService;
         private readonly IActionService _actionService;
         private readonly ITemplateService _templateService;
-        private readonly WorkflowEventManager _eventManager;
+        private readonly WorkflowManager _workflow;
         private readonly BackgroundFramework _backgroundFramework;
 
         public ModuleController(
@@ -67,7 +67,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             IModuleLibraryAndResourceService moduleLibraryAndResourceService,
             IActionService actionService,
             ITemplateService templateService,
-            WorkflowEventManager eventManager,
+            WorkflowManager workflow,
             BackgroundFramework backgroundFramework
         )
         {
@@ -83,7 +83,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _moduleLibraryAndResourceService = moduleLibraryAndResourceService;
             _actionService = actionService;
             _templateService = templateService;
-            _eventManager = eventManager;
+            _workflow = workflow;
             _backgroundFramework = backgroundFramework;
         }
 
@@ -197,7 +197,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
                     var scenarioName = await _baseService.GetScenarioNameAsync(scenarioId);
                     var basePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(scenarioName)}/";
-                    var job = new BuildModuleTask(_serviceProvider, _cacheService, _moduleService, _eventManager, page.Module.ModuleId, UserInfo.UserID, basePath);
+                    var job = new BuildModuleTask(_serviceProvider, _cacheService, _moduleService, _workflow, page.Module.ModuleId, UserInfo.UserID, basePath);
                     var req = new BackgroundTaskRequest(job, TaskPriority.Normal, scenarioName);
 
                     _backgroundFramework.Enqueue(req);
@@ -361,7 +361,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
                     var scenarioName = await _baseService.GetScenarioNameAsync(scenarioId);
                     var basePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(scenarioName)}/";
-                    var job = new BuildModuleTask(_serviceProvider, _cacheService, _moduleService, _eventManager, module.Id, UserInfo.UserID, basePath);
+                    var job = new BuildModuleTask(_serviceProvider, _cacheService, _moduleService, _workflow, module.Id, UserInfo.UserID, basePath);
                     var req = new BackgroundTaskRequest(job, TaskPriority.Normal, scenarioName);
 
                     _backgroundFramework.Enqueue(req);
@@ -744,13 +744,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var request = new BuildModuleRequest();
                 request.Scope = BuildScope.Module;
                 request.UserId = UserInfo.UserID;
-                request.Module = await _eventManager.ExecuteTaskAsync<ModuleDto>(moduleId.ToString(), UserInfo.UserID,
+                request.Module = await _workflow.ExecuteTaskAsync<ModuleDto>(moduleId.ToString(), UserInfo.UserID,
                     "BuildModuleWorkflow", "BuildModule", "GetDataForBuildModule", false, true, false,
                     () => _moduleService.GetDataForModuleBuildingAsync(moduleId)
                  );
                 request.BasePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(request.Module.ScenarioName)}/";
 
-                var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService, _eventManager);
+                var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService, _workflow, true);
                 await engine.ExecuteAsync(request);
 
                 return Request.CreateResponse(HttpStatusCode.OK);

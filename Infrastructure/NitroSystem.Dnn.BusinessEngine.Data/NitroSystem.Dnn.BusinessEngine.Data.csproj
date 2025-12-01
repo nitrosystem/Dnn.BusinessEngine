@@ -61,8 +61,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Procedures\DashboardPageModuleResult.cs" />
     <Compile Include="Entities\Procedures\ModuleFieldSettingSpResult.cs" />
     <Compile Include="Entities\Procedures\ModuleFieldSpResult.cs" />
+    <Compile Include="Entities\Procedures\ModuleLiteResult.cs" />
     <Compile Include="Entities\Procedures\ModuleResourceSpResult.cs" />
     <Compile Include="Entities\Tables\WorkflowEventTaskInfo.cs" />
     <Compile Include="Entities\Tables\DashboardInfo.cs" />

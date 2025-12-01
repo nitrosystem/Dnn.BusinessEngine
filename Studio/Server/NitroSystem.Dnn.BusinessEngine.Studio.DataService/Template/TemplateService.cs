@@ -6,20 +6,17 @@ using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Template;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
-using System.Linq;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Template
 {
     public class TemplateService : ITemplateService
     {
         private readonly IRepositoryBase _repository;
-        private readonly IModuleService _moduleService;
 
         public TemplateService(IRepositoryBase repository, IModuleService moduleService)
         {
             _repository = repository;
-            _moduleService = moduleService;
         }
 
         public async Task<IEnumerable<TemplateViewModel>> GetTemplatesViewModelAsync(ModuleType moduleType, Guid? parentId)

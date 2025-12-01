@@ -10,8 +10,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contrac
 {
     public interface IEntityService
     {
-        Task<(IEnumerable<EntityViewModel> Items, int? TotalCount)> GetEntitiesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, byte? entityType, bool? isReadonly, string sortBy);
-        Task<IEnumerable<EntityListItem>> GetEntitiesListItemAsync(Guid scenarioId, string sortBy);
+        Task<(IEnumerable<EntityViewModel> Items, int? TotalCount)> GetEntitiesViewModelAsync(Guid scenarioId,
+            int pageIndex,
+            int pageSize,
+            string searchText,
+            byte? entityType,
+            bool? isReadonly,
+            string sortBy);
+        Task<IEnumerable<EntityListItem>> GetEntitiesListItemAsync(Guid scenarioId, string sortBy = "ViewOrder");
         Task<EntityViewModel> GetEntityViewModelAsync(Guid entityId);
         Task<(IEnumerable<string> Tables, IEnumerable<string> Views)> GetDatabaseObjects();
         Task<IEnumerable<TableColumnInfo>> GetDatabaseObjectColumns(string objectName);

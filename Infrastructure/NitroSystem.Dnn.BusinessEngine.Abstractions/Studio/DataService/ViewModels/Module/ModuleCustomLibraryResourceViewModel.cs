@@ -8,7 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
     {
         public Guid Id { get; set; }
         public Guid LibraryId { get; set; }
-        public ModuleResourceContentType ResourceContentType { get; set; }
+        public ResourceContentType ResourceContentType { get; set; }
         public string ResourcePath { get; set; }
         public int LoadOrder { get; set; }
     }

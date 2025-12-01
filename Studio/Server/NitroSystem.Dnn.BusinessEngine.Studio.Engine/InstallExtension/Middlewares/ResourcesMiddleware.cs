@@ -1,22 +1,20 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Runtime.Remoting.Contexts;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
-using System.IO;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares
 {
     public class ResourcesMiddleware : IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>
     {
-        public async Task<EngineResult<InstallExtensionResponse>> InvokeAsync(IEngineContext context, InstallExtensionRequest request, Func<Task<EngineResult<InstallExtensionResponse>>> next)
+        public async Task<EngineResult<InstallExtensionResponse>> InvokeAsync(IEngineContext context, InstallExtensionRequest request, Func<Task<EngineResult<InstallExtensionResponse>>> next, IEngineNotifier engineNotifier)
         {
             var ctx = context as InstallExtensionContext;
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module
 {

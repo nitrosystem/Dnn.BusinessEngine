@@ -8,12 +8,12 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Dto;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
 {
@@ -33,6 +33,19 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
             var module = await _repository.GetAsync<ModuleView>(moduleId);
 
             return HybridMapper.Map<ModuleView, ModuleDto>(module);
+        }
+
+        public ModuleLiteDto GetModuleLiteData(int? siteModuleId, Guid? moduleId = null)
+        {
+            var module = _repository.ExecuteStoredProcedure<ModuleLiteResult>(
+                "dbo.BusinessEngine_App_GetModuleLite", "Be_Modules_ModuleLiteData",
+                new
+                {
+                    SiteModuleId = siteModuleId,
+                    ModuleId = moduleId
+                });
+
+            return HybridMapper.Map<ModuleLiteResult, ModuleLiteDto>(module);
         }
 
         public async Task<string> GetModuleNameAsync(Guid moduleId)
@@ -88,13 +101,13 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
             );
         }
 
-        public async Task<FieldDataSourceResult> GetFieldDataSource(string dataSourceSettings)
+        public async Task<ModuleFieldDataSourceResult> GetFieldDataSource(string dataSourceSettings)
         {
-            var dataSource = JsonConvert.DeserializeObject<FieldDataSourceInfo>(dataSourceSettings);
+            var dataSource = JsonConvert.DeserializeObject<ModuleFieldDataSourceInfo>(dataSourceSettings);
 
-            FieldDataSourceResult result = HybridMapper.Map<FieldDataSourceInfo, FieldDataSourceResult>(dataSource);
+            ModuleFieldDataSourceResult result = HybridMapper.Map<ModuleFieldDataSourceInfo, ModuleFieldDataSourceResult>(dataSource);
 
-            if ((dataSource.Type == FieldDataSourceType.FieldOptions || dataSource.Type == FieldDataSourceType.DefinedList) &&
+            if ((dataSource.Type == ModuleFieldDataSourceType.FieldOptions || dataSource.Type == ModuleFieldDataSourceType.DefinedList) &&
                 !string.IsNullOrEmpty(dataSource.ListName))
             {
                 result.Items = await _repository.GetByScopeAsync<DefinedListItemView>(dataSource.ListName); ;

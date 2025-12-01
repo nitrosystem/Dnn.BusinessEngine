@@ -32,23 +32,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
             _databaseMetadata = databaseMetadata;
         }
 
-        public async Task<EntityViewModel> GetEntityViewModelAsync(Guid entityId)
-        {
-            var entity = await _repository.GetAsync<EntityInfo>(entityId);
-            var columns = await _repository.ExecuteStoredProcedureAsListAsync<EntityColumnInfo>(
-                "dbo.BusinessEngine_Studio_GetEntityColumns", "BE_EntityColumns_GetEntityColumns",
-                new
-                {
-                    EntityId = entityId
-                });
-
-            return HybridMapper.MapWithChildren<EntityInfo, EntityViewModel, EntityColumnInfo, EntityColumnViewModel>(
-                entity,
-                columns,
-                (parent, childs) => parent.Columns = childs
-            );
-        }
-
         public async Task<(IEnumerable<EntityViewModel> Items, int? TotalCount)> GetEntitiesViewModelAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, byte? entityType, bool? isReadonly, string sortBy)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<int?, EntityInfo, EntityColumnInfo>(
@@ -101,6 +84,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
                childKeySelector: c => c.EntityId,
                assignChildren: (parent, childs) => parent.Columns = childs
            );
+        }
+
+        public async Task<EntityViewModel> GetEntityViewModelAsync(Guid entityId)
+        {
+            var entity = await _repository.GetAsync<EntityInfo>(entityId);
+            var columns = await _repository.ExecuteStoredProcedureAsListAsync<EntityColumnInfo>(
+                "dbo.BusinessEngine_Studio_GetEntityColumns", "BE_EntityColumns_GetEntityColumns",
+                new
+                {
+                    EntityId = entityId
+                });
+
+            return HybridMapper.MapWithChildren<EntityInfo, EntityViewModel, EntityColumnInfo, EntityColumnViewModel>(
+                entity,
+                columns,
+                (parent, childs) => parent.Columns = childs
+            );
         }
 
         public async Task<(IEnumerable<string> Tables, IEnumerable<string> Views)> GetDatabaseObjects()

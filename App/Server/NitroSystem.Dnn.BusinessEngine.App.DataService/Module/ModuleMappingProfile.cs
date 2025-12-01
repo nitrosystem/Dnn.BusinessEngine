@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
-using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
 {
@@ -34,7 +32,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
                 (src, dest) => dest.AuthorizationViewField = src.AuthorizationViewField?.Split(','));
 
             HybridMapper.BeforeMap<ModuleFieldInfo, ModuleFieldDto>(
-                (src, dest) => dest.ConditionalValues = ReflectionUtil.TryJsonCasting<IEnumerable<FieldValueInfo>>(src.ConditionalValues));
+                (src, dest) => dest.ConditionalValues = ReflectionUtil.TryJsonCasting<IEnumerable<ModuleFieldValueInfo>>(src.ConditionalValues));
 
             HybridMapper.BeforeMap<ModuleVariableInfo, ModuleVariableDto>(
                 (src, dest) => dest.Scope = (ModuleVariableScope)src.Scope);

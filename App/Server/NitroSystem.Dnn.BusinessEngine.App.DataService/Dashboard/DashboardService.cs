@@ -7,6 +7,8 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using System.Collections.Generic;
 using System.Linq;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
 {
@@ -33,6 +35,19 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
             );
         }
 
+        public DashboardPageModuleDto GetDashboardPageModule(Guid dashboardModuleId, string pageName)
+        {
+            var module = _repository.ExecuteStoredProcedure<DashboardPageModuleResult>(
+                "dbo.BusinessEngine_App_GetDashboardPageModule", "Be_Modules_DashboardPageModule",
+                new
+                {
+                    DashboardModuleId = dashboardModuleId,
+                    PageName = pageName
+                });
+
+            return HybridMapper.Map<DashboardPageModuleResult, DashboardPageModuleDto>(module);
+        }
+
         private IEnumerable<DashboardPageDto> BuildPageTree(IEnumerable<DashboardPageInfo> pages)
         {
             var pageLookup = pages.ToLookup(p => p.ParentId);
@@ -49,6 +64,5 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
                }
             );
         }
-
     }
 }

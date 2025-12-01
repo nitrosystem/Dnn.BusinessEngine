@@ -1,79 +1,76 @@
 ﻿using System;
-using System.Net;
+using System.Linq;
 using WebSocketSharp.Server;
-using NitroSystem.Dnn.BusinessEngine.Core.PushingServer.Contracts;
-using System.Net.Sockets;
-using Microsoft.Extensions.DependencyInjection;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.PushingServer;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.PushingServer
 {
     public class NotificationServerHost : INotificationServerHost
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly object _lock = new object();
-        private WebSocketServer _server;
-        private bool _isStarted;
+        private WebSocketServer _wsServer;
+        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(60);
+        private System.Timers.Timer _watchdog;
 
-        public NotificationServerHost(IServiceProvider serviceProvider)
+        public int Start()
         {
-            _serviceProvider = serviceProvider;
-        }
-
-        public void Start(int port = 8081)
-        {
-            lock (_lock)
+            try
             {
-                if (_isStarted && _server?.IsListening == true)
-                {
-                    Console.WriteLine($"[NotificationServerHost] ⚠️ Server is already running on port {port}. Skipping start.");
-                    return;
-                }
+                var path = "/notify";
+                var port = GetFreePort();
 
-                try
-                {
-                    _server = new WebSocketServer(IPAddress.Any, port);
-                    _server.AddWebSocketService<NotificationServer>("/notify");
-                    _server.Start();
+                _wsServer = new WebSocketServer($"ws://0.0.0.0:{port}");
+                _wsServer.AddWebSocketService<NotificationServer>(path);
+                _wsServer.Start();
 
-                    _isStarted = true;
-                }
-                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.AddressAlreadyInUse)
-                {
-                    Console.WriteLine($"[NotificationServerHost] ⚠️ Port {port} is already in use. The server will not start again.");
-                    return; // یا log کن و رد شو
-                }
+                SetupWatchdog();
 
-                Console.WriteLine($"[NotificationServerHost] ✅ WebSocket server started on port {port}.");
+                return port;
+            }
+            catch (Exception ex)
+            {
+                return -1;
             }
         }
 
         public void Stop()
         {
-            lock (_lock)
+            if (_wsServer != null && _wsServer.IsListening)
+                _wsServer.Stop();
+            
+            _watchdog?.Stop();
+            _watchdog?.Dispose();
+        }
+
+        private void SetupWatchdog()
+        {
+            _watchdog = new System.Timers.Timer(10000);
+            _watchdog.Elapsed += (_, __) => CleanupInactiveClients();
+            _watchdog.Start();
+        }
+
+        private void CleanupInactiveClients()
+        {
+            var now = DateTime.UtcNow;
+            var inactive = NotificationServer.LastSeen
+                .Where(x => now - x.Value > _timeout)
+                .Select(x => x.Key)
+                .ToList();
+
+            foreach (var client in inactive)
             {
-                if (_server != null && _server.IsListening)
-                {
-                    _server.Stop();
-                    _isStarted = false;
-                    Console.WriteLine("[NotificationServerHost] ⏹️ WebSocket server stopped.");
-                }
-                else
-                {
-                    Console.WriteLine("[NotificationServerHost] ⚠️ Stop called but server was not running.");
-                }
+                try { client.Close(); } catch { }
             }
         }
 
-        public void Send(string channel, string message)
+        private int GetFreePort()
         {
-            var _notificationServer = _serviceProvider.GetRequiredService<NotificationServer>();
-            _notificationServer.SendToChannel(channel, message);
-        }
+            var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
+            listener.Start();
 
-        public void Broadcast(string message)
-        {
-            var _notificationServer = _serviceProvider.GetRequiredService<NotificationServer>();
-            _notificationServer.Broadcast(message);
+            int port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
+            listener.Stop();
+            
+            return port;
         }
     }
 }

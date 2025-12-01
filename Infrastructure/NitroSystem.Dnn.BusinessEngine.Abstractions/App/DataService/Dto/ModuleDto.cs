@@ -1,6 +1,6 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
 {

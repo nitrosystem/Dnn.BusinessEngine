@@ -1,5 +1,5 @@
 ﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Contracts

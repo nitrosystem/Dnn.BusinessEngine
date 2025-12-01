@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts
 {
     public interface IResourceAggregatorService
     {
-        Task<BuildModuleResponse> FinalizeResourcesAsync(BuildModuleRequest request, IEngineContext context);
+        Task<BuildModuleResponse> FinalizeResourcesAsync(BuildModuleRequest request, IEngineContext context, IEngineNotifier engineNotifier);
     }
 }

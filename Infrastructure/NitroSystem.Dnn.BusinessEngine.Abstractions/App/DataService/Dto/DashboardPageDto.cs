@@ -9,6 +9,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
         public Guid Id { get; set; }
         public string PageName { get; set; }
         public string Title { get; set; }
+        public string Icon { get; set; }
         public string Url { get; set; }
         public bool IsVisible { get; set; }
         public bool InheritPermissionFromDashboard { get; set; }
@@ -16,6 +17,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
         public IEnumerable<string> AuthorizationViewPage { get; set; }
         public IEnumerable<DashboardPageDto> Pages { get; set; }
         public DashboardPageType PageType { get; set; }
-        public IDictionary<string, object> Settings { get; set; }
     }
 }

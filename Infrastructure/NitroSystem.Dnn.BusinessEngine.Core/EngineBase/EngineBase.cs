@@ -1,28 +1,31 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Events;
-using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.PushingServer;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Events;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
 {
-    public abstract class EngineBase<TRequest, TResponse> : IEngine<TRequest, TResponse>
+    public abstract class EngineBase<TRequest, TResponse> : IEngine<TRequest, TResponse>, IEngineNotifier
     {
         public event EngineProgressHandler OnProgress;
         public event EngineErrorHandler OnError;
         public event EngineSuccessHandler<TResponse> OnSuccess;
 
         private readonly IServiceProvider _services;
-        private readonly WorkflowEventManager _eventManager;
+        private readonly INotificationServer _notificationServer;
         private readonly EngineContext _context = new EngineContext();
 
         protected IServiceProvider Services => _services;
         protected EngineContext Context => _context;
 
-        protected EngineBase(IServiceProvider services)
+        protected EngineBase(IServiceProvider services, bool notify)
         {
             _services = services;
+
+            if (notify) _notificationServer = services.GetRequiredService<INotificationServer>();
         }
 
         public async Task<EngineResult<TResponse>> ExecuteAsync(TRequest request)
@@ -56,10 +59,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
             }
             catch (Exception ex)
             {
+                if (OnError != null) await OnError(ex, Context);
                 throw ex;
-                //if (OnError != null) await OnError(ex, "Execute");
-                //await HandleExceptionAsync(ex);
-                //return EngineResult<TResponse>.Failure(ex.Message);
             }
         }
 
@@ -68,11 +69,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
         protected virtual Task BeforeExecuteAsync(TRequest request) => Task.CompletedTask;
         protected abstract Task<EngineResult<TResponse>> ExecuteCoreAsync(TRequest request);
         protected virtual Task AfterExecuteAsync(TRequest request, EngineResult<TResponse> result) => Task.CompletedTask;
-        protected virtual Task HandleExceptionAsync(Exception ex) => Task.CompletedTask;
 
-        protected async Task NotifyProgress(string msg, double? percent = null)
+        public async Task NotifyProgress(string message, double? percent)
         {
-            if (OnProgress != null) await OnProgress(msg, percent);
+            if (OnProgress != null) await OnProgress(message, percent);
+        }
+
+        public void PushingNotification(string channel, object data)
+        {
+            if (_notificationServer != null)
+                _notificationServer.SendToChannel(channel, data);
         }
     }
 }

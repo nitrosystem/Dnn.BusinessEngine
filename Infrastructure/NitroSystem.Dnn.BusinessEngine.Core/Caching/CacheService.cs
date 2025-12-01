@@ -40,6 +40,33 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Caching
             return result;
         }
 
+        public T GetOrCreate<T>(string cacheKey, Func<T> factory, int? cacheTimeout = 20)
+        {
+            if (string.IsNullOrEmpty(cacheKey)) return  factory();
+
+            var value = _cache.Get(cacheKey);
+            if (value != null) return (T)value;
+
+            // ایجاد مقدار در صورت نبودن در کش
+            var result = factory();
+            if (result != null)
+            {
+                var policy = new CacheItemPolicy
+                {
+                    AbsoluteExpiration = DateTimeOffset.Now.AddHours(cacheTimeout ?? 20)
+                };
+
+                _cache.Set(cacheKey, result, policy);
+
+                lock (_lock)
+                {
+                    _cacheKeys.Add(cacheKey);
+                }
+            }
+
+            return result;
+        }
+
         public T Get<T>(string cacheKey)
         {
             if (string.IsNullOrEmpty(cacheKey)) return default;

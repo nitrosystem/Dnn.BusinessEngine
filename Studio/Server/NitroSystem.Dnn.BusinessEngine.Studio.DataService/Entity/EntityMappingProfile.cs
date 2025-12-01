@@ -13,8 +13,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
     {
         public static void Register()
         {
-            #region Entity
-
             HybridMapper.BeforeMap<EntityInfo, EntityViewModel>(
                 (src, dest) => dest.EntityType = (EntityType)src.EntityType);
 
@@ -29,11 +27,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
 
             HybridMapper.BeforeMap<EntityInfo, EntityListItem>(
                 (src, dest) => dest.EntityType = (EntityType)src.EntityType);
-
-            #endregion
-
-            #region Entity Columns
-            #endregion
         }
     }
 }

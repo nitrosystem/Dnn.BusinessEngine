@@ -12,6 +12,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.BrtPath.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
@@ -19,18 +20,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
     {
         private readonly EnginePipeline<TypeBuilderRequest, TypeBuilderResponse> _pipeline;
         private readonly IBrtGateService _brtGate;
+        private readonly LockService _lockService;
         private readonly Guid _permitId;
 
+
         public TypeBuilderEngine(IServiceProvider services, IBrtGateService brtGate, Guid permitId)
-            : base(services)
+            : base(services, true)
         {
             _brtGate = brtGate;
             _permitId = permitId;
+            _lockService = services.GetRequiredService<LockService>();
 
-            _pipeline = new EnginePipeline<TypeBuilderRequest, TypeBuilderResponse>()
+            _pipeline = new EnginePipeline<TypeBuilderRequest, TypeBuilderResponse>(this)
             .Use<BuildTypeMiddleware>();
-
-            OnError += OnErrorHandle;
         }
 
         protected async override Task OnInitializeAsync(TypeBuilderRequest request)
@@ -90,11 +92,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             {
                 lockService.ReleaseLock(lockId);
             }
-        }
-
-        private Task OnErrorHandle(Exception ex, string phase)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase
+namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
 {
     public class EngineResult<T>
     {

@@ -8,7 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.
     {
         public Guid ModuleId { get; set; }
         public ModuleResourceType ResourceType { get; set; }
-        public ModuleResourceContentType ResourceContentType { get; set; }
+        public ResourceContentType ResourceContentType { get; set; }
         public string ResourcePath { get; set; }
         public string EntryType { get; set; }
         public bool IsContent { get; set; }

@@ -17,6 +17,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 using NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ConditionParser;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
@@ -25,7 +26,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
         private readonly IServiceLocator _serviceLocator;
         private readonly IModuleFieldService _moduleFieldService;
-        private readonly WorkflowEventManager _eventManager;
+        private readonly WorkflowManager _workflow;
 
         private ConcurrentDictionary<(string fieldType, string template), string> _fieldTypes = new
                 ConcurrentDictionary<(string fieldType, string template), string>();
@@ -33,7 +34,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
         private Queue<ModuleFieldDto> _buffer;
         private HtmlDocument _htmlDoc;
         private volatile int _userId;
-        private Guid _moduleId;
+        private ModuleDto _module;
+        private IEngineNotifier _engineNotifier;
 
         private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
@@ -54,19 +56,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 ]]
             </div>";
 
-        public BuildLayoutService(IServiceLocator serviceLocator, IModuleFieldService moduleFieldService, WorkflowEventManager eventManager)
+        public BuildLayoutService(IServiceLocator serviceLocator, IModuleFieldService moduleFieldService, WorkflowManager workflow)
         {
             _serviceLocator = serviceLocator;
             _moduleFieldService = moduleFieldService;
-            _eventManager = eventManager;
+            _workflow = workflow;
         }
 
-        public async Task<string> BuildLayoutAsync(Guid moduleId, int userId, string moduleLayoutTemplate, IEnumerable<ModuleFieldDto> fields)
+        public async Task<string> BuildLayoutAsync(ModuleDto module, int userId, IEngineNotifier engineNotifier)
         {
-            _moduleId = moduleId;
+            _module = module;
             _userId = userId;
+            _engineNotifier = engineNotifier;
 
-            _fieldMap = fields
+            _fieldMap = _module.Fields
                 .GroupBy(f => f.ParentId ?? Guid.Empty)
                 .ToDictionary(
                     g => g.Key,
@@ -78,13 +81,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 throw new Exception("The module does not have any fields!");
             }
 
-            await _eventManager.ExecuteTaskAsync<object>(moduleId.ToString(), userId,
+            await _workflow.ExecuteTaskAsync<object>(_module.Id.ToString(), _userId,
                 "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, true,
-                    (Expression<Func<Task>>)(() => LoadTemplates(fields))
+                    (Expression<Func<Task>>)(() => LoadTemplates(_module.Fields))
                 );
 
-            _buffer = new Queue<ModuleFieldDto>();
+            _engineNotifier.PushingNotification(_module.ScenarioName,
+               new
+               {
+                   Type = "ActionCenter",
+                   TaskId = $"{_module.Id}-BuildModule",
+                   Message = $"Loaded resource content of {_module.ModuleName} module",
+                   Percent = 40
+               }
+           );
 
+            _buffer = new Queue<ModuleFieldDto>();
             foreach (var item in parents)
             {
                 _buffer.Enqueue(item);
@@ -92,7 +104,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             }
 
             _htmlDoc = new HtmlDocument();
-            _htmlDoc.LoadHtml(moduleLayoutTemplate);
+            _htmlDoc.LoadHtml(_module.LayoutTemplate);
 
             await ProcessBuffer(_buffer.Count);
 
@@ -152,7 +164,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             try
             {
                 var node = GetPaneNode(field.PaneName);
-                var fieldHtml = await _eventManager.ExecuteTaskAsync<string>(_moduleId.ToString(), _userId,
+                var fieldHtml = await _workflow.ExecuteTaskAsync<string>(_module.Id.ToString(), _userId,
                     "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, false,
                    (Expression<Func<Task<string>>>)(() => ParseFieldTemplate(field))
                 );
@@ -248,6 +260,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                     fieldTemplate = fieldTemplate.Replace(match.Value, conditionResult
                         ? (match.Groups["Exp"].Value ?? "")
                         : string.Empty);
+
+                    _engineNotifier.PushingNotification(_module.ScenarioName,
+                       new
+                       {
+                           Type = "ActionCenter",
+                           TaskId = $"{_module.Id}-BuildModule",
+                           Message = $"Render template {field.FieldType} of {_module.ModuleName} module",
+                           Percent = 70
+                       }
+                    );
                 }
             }
             catch (Exception exx)

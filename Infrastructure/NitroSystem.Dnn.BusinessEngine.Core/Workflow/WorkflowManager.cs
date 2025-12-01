@@ -9,11 +9,10 @@ using NitroSystem.Dnn.BusinessEngine.Core.Workflow.Extensions;
 using NitroSystem.Dnn.BusinessEngine.Core.Workflow.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Enums;
-using DotNetNuke.Services.Search;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Workflow
 {
-    public class WorkflowEventManager : IDisposable
+    public class WorkflowManager : IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ResourceProfiler _resourceProfiler;
@@ -34,7 +33,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Workflow
         public string TaskId { get; }
         public string Name { get; }
 
-        public WorkflowEventManager(
+        public WorkflowManager(
             IServiceProvider serviceProvider,
             ResourceProfiler resourceProfiler,
             BackgroundFramework backgroundFramework,

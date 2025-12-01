@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.PushingServer;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.PushingServer;
@@ -13,7 +14,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework
 {
     public class BackgroundFramework : IDisposable
     {
-        private readonly NotificationServer _notificationServer;
+        private readonly INotificationServer _notificationServer;
         private readonly PriorityTaskQueue _queue = new();
         private readonly SemaphoreSlim _throttler;
         private readonly Dictionary<string, RunningTaskInfo> _runningTasks = new();
@@ -53,7 +54,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework
 
         public BackgroundFramework(IServiceProvider serviceProvider, int maxDegreeOfParallelism, long memoryThresholdBytes, string webSocketChannel)
         {
-            _notificationServer = serviceProvider.GetRequiredService<NotificationServer>();
+            _notificationServer = serviceProvider.GetRequiredService<INotificationServer>();
 
             MaxDegreeOfParallelism = Math.Max(1, maxDegreeOfParallelism);
             _throttler = new SemaphoreSlim(MaxDegreeOfParallelism, MaxDegreeOfParallelism);

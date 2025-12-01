@@ -30,6 +30,7 @@ using System.IO;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
 using NitroSystem.Dnn.BusinessEngine.Core.WebApi;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.PushingServer;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -38,6 +39,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ICacheService _cacheService;
+        private readonly IWebSocketManager _webSocketManager;
         private readonly IBrtGateService _brtGate;
         private readonly IBaseService _baseService;
         private readonly IEntityService _entityService;
@@ -49,6 +51,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         public StudioController(
             IServiceProvider serviceProvider,
             ICacheService cacheService,
+            IWebSocketManager webSocketManager,
             IBrtGateService brtGate,
             IBaseService baseService,
             IEntityService entityService,
@@ -60,6 +63,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             _serviceProvider = serviceProvider;
             _cacheService = cacheService;
+            _webSocketManager = webSocketManager;
             _brtGate = brtGate;
             _baseService = baseService;
             _entityService = entityService;
@@ -85,6 +89,24 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 //HttpRuntime.UnloadAppDomain();
 
                 return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public HttpResponseMessage InitWebSocket()
+        {
+            try
+            {
+                int? portId = !_webSocketManager.IsRunning
+                        ? _webSocketManager.EnsureStarted()
+                        : _webSocketManager.GetPort();
+
+                return Request.CreateResponse(HttpStatusCode.OK, portId);
             }
             catch (Exception ex)
             {

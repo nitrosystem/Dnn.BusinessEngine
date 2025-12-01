@@ -9,6 +9,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
 {
@@ -21,33 +22,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
-        }
-
-        public async Task<AppModelViewModel> GetAppModelAsync(Guid appModuleId)
-        {
-            var appModel = await _repository.GetAsync<AppModelInfo>(appModuleId);
-            var properties = await _repository.GetByScopeAsync<AppModelPropertyInfo>(appModuleId, "ViewOrder");
-
-            return HybridMapper.MapWithChildren<AppModelInfo, AppModelViewModel, AppModelPropertyInfo, AppModelPropertyViewModel>(
-                source: appModel,
-                children: properties,
-                assignChildren: (parent, childs) => parent.Properties = childs
-            );
-        }
-
-        public async Task<IEnumerable<AppModelViewModel>> GetAppModelsAsync(Guid scenarioId, string sortBy = "ViewOrder")
-        {
-            var appModels = await _repository.GetByScopeAsync<AppModelInfo>(scenarioId, sortBy);
-            var properties = await _repository.GetAllAsync<AppModelPropertyInfo>("ViewOrder");
-
-            return HybridMapper.MapWithChildren<AppModelInfo, AppModelViewModel,
-                                                AppModelPropertyInfo, AppModelPropertyViewModel>(
-                appModels,
-                properties,
-                parentKeySelector: p => p.Id,
-                childKeySelector: c => c.AppModelId,
-                assignChildren: (parent, childs) => parent.Properties = childs
-            );
         }
 
         public async Task<(IEnumerable<AppModelViewModel> Items, int? TotalCount)> GetAppModelsAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, string sortBy)
@@ -78,6 +52,33 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
             );
 
             return (result, totalCount);
+        }
+
+        public async Task<IEnumerable<AppModelListItem>> GetAppModelsListItemAsync(Guid scenarioId, string sortBy = "ViewOrder")
+        {
+            var appModels = await _repository.GetByScopeAsync<AppModelInfo>(scenarioId, sortBy);
+            var properties = await _repository.GetAllAsync<AppModelPropertyInfo>("ViewOrder");
+
+            return HybridMapper.MapWithChildren<AppModelInfo, AppModelListItem,
+                                                AppModelPropertyInfo, AppModelPropertyListItem>(
+                appModels,
+                properties,
+                parentKeySelector: p => p.Id,
+                childKeySelector: c => c.AppModelId,
+                assignChildren: (parent, childs) => parent.Properties = childs
+            );
+        }
+
+        public async Task<AppModelViewModel> GetAppModelAsync(Guid appModuleId)
+        {
+            var appModel = await _repository.GetAsync<AppModelInfo>(appModuleId);
+            var properties = await _repository.GetByScopeAsync<AppModelPropertyInfo>(appModuleId, "ViewOrder");
+
+            return HybridMapper.MapWithChildren<AppModelInfo, AppModelViewModel, AppModelPropertyInfo, AppModelPropertyViewModel>(
+                source: appModel,
+                children: properties,
+                assignChildren: (parent, childs) => parent.Properties = childs
+            );
         }
 
         public async Task<Guid> SaveAppModelAsync(AppModelViewModel appModel, bool isNew)

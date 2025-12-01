@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middlewares
 {
@@ -18,7 +18,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middle
             _service = service;
         }
 
-        public async Task<EngineResult<ActionResponse>> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<EngineResult<ActionResponse>>> next)
+        public async Task<EngineResult<ActionResponse>> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<EngineResult<ActionResponse>>> next, IEngineNotifier engineNotifier)
         {
             var ctx = context as ActionExecutionContext;
 

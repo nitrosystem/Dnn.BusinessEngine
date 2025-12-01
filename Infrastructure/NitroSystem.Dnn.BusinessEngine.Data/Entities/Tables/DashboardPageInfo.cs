@@ -17,12 +17,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public int PageType { get; set; }
         public string PageName { get; set; }
         public string Title { get; set; }
+        public string Icon { get; set; }
         public string Url { get; set; }
         public bool IsVisible { get; set; }
         public bool InheritPermissionFromDashboard { get; set; }
         public string AuthorizationViewPage { get; set; }
         public bool IncludeModule { get; set; }
-        public string Settings { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models
+﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Models
 {
     public class ModuleFieldGlobalSettings
     {
@@ -12,6 +12,8 @@
         public string FieldTextCssClass { get; set; }
         public string SubtextCssClass { get; set; }
         public string RequiredMessageCssClass { get; set; }
+        public bool IsDisabledLayout { get; set; }
+        public bool IsCustomFieldLayout { get; set; }
         public bool AllowMultiple { get; set; }
         public bool ShowLabel { get; set; }
         public bool WithIcon { get; set; }

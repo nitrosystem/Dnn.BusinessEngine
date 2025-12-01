@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Template;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts
 {

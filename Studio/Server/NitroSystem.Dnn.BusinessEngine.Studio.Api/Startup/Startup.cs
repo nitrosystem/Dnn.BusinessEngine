@@ -3,7 +3,6 @@ using DotNetNuke.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action;
@@ -23,6 +22,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Workflow;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
 {

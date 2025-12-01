@@ -11,14 +11,16 @@ using DotNetNuke.Entities.Modules.Actions;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
     public partial class Dashboard : PortalModuleBase, IActionable
     {
         private readonly ICacheService _cacheService;
-        private readonly IExecuteSqlCommand _sqlCommand;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IDashboardService _dashboardService;
+        private readonly IModuleService _moduleService;
         private readonly string _siteRoot;
         private string _scenarioName;
         private Guid? _id;
@@ -26,8 +28,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
         public Dashboard()
         {
             _cacheService = DependencyProvider.GetService<ICacheService>();
-            _sqlCommand = DependencyProvider.GetService<IExecuteSqlCommand>();
-            _unitOfWork = DependencyProvider.GetService<IUnitOfWork>();
+            _dashboardService = DependencyProvider.GetService<IDashboardService>();
+            _moduleService = DependencyProvider.GetRequiredService<IModuleService>();
 
             var root = ServicesFramework.GetServiceFrameworkRoot();
             _siteRoot = root == "/"
@@ -72,53 +74,41 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             var code = AntiForgery.GetHtml().ToHtmlString();
             pnlAntiForgery.Controls.Add(new LiteralControl(code));
 
-            Guid? pageModuleId = null;
-            var pageModuleName = "";
-            var pageModuleTemplate = string.Empty;
-            var pageName = Request.QueryString["page"];
-            if (!string.IsNullOrEmpty(pageName))
+            var dashboardModule = _moduleService.GetModuleLiteData(ModuleId);
+            if (dashboardModule != null)
             {
-                (pageModuleId, pageModuleName) = _cacheService.Get<(Guid?, string)>("Be_Modules_DashboardPage" + pageName);
-                if (pageModuleId == null)
-                {
-                    var commandText = @"
-                        SELECT pm.ModuleId,d.ModuleName as ParentModuleName
-                        FROM dbo.BusinessEngine_DashboardPageModules pm 
-	                        INNER JOIN dbo.BusinessEngine_DashboardPages p on pm.PageId = p.Id
-	                        INNER JOIN dbo.BusinessEngineView_Dashboards d on d.id = p.DashboardId
-                        WHERE d.SiteModuleId = @SiteModuleId and p.PageName = @PageName";
-                    var param = new
-                    {
-                        SiteModuleId = ModuleId,
-                        PageName = pageName
-                    };
+                _id = dashboardModule.Id;
+                _scenarioName = dashboardModule.ScenarioName;
 
-                    using (var reader = _sqlCommand.ExecuteSqlReader(_unitOfWork, CommandType.Text, commandText, param))
+                var templates = ModuleService.RenderModule(Page, dashboardModule, _cacheService, PortalSettings.HomeSystemDirectory, true);
+
+                Guid? pageModuleId = null;
+                var pageModuleTemplate = string.Empty;
+                var pageName = Request.QueryString["page"];
+                if (!string.IsNullOrEmpty(pageName))
+                {
+                    var pageModule = _dashboardService.GetDashboardPageModule(dashboardModule.Id, pageName);
+                    if (pageModule != null)
                     {
-                        if (reader.Read())
-                        {
-                            pageModuleId = reader["ModuleId"] as Guid?;
-                            pageModuleName = reader["ParentModuleName"] as string;
-                            _cacheService.Set<(Guid?, string)>("Be_Modules_DashboardPage" + pageName, (pageModuleId, pageModuleName));
-                        }
+                        var module = new ModuleLiteDto() { Id = pageModule.ModuleId, ModuleName = pageModule.ModuleName, ScenarioName = dashboardModule.ScenarioName };
+                        var parentFolder = StringHelper.ToKebabCase(dashboardModule.ModuleName) + "/";
+                        var childTemplates = ModuleService.RenderModule(Page, module, _cacheService, PortalSettings.HomeSystemDirectory, false, parentFolder);
+
+                        pageModuleTemplate = childTemplates.Template;
+                        pageModuleTemplate = pageModuleTemplate.Replace("[PAGE_ICON]", pageModule.PageIcon);
+                        pageModuleTemplate = pageModuleTemplate.Replace("[PAGE_TITLE]", pageModule.PageTitle);
+                        pageModuleTemplate = pageModuleTemplate.Replace("[PAGE_DESCRIPTION]", pageModule.PageDescription);
+
+                        pageModuleId = module.Id;
                     }
                 }
 
-                if (pageModuleId.HasValue)
-                {
-                    var parentFolder = StringHelper.ToKebabCase(pageModuleName) + "/";
-                    var childTemplates = ModuleService.RenderModule(this.Page, _cacheService, _sqlCommand, _unitOfWork, PortalSettings.HomeSystemDirectory, false, null, ref pageModuleId, out _scenarioName, parentFolder);
-                    pageModuleTemplate = childTemplates.Template;
-                }
-            }
+                var template = templates.Template;
+                template = template.Replace("[USER_DISPAYNAME]", UserInfo.DisplayName);
+                template = template.Replace("[USER_IMAGE]", $"/dnnimagehandler.ashx?mode=profilepic&userid={UserInfo.UserID}");
+                template = template.Replace("[PAGE_MODULE]", pageModuleTemplate);
+                pnlTemplate.InnerHtml = template;
 
-            var templates = ModuleService.RenderModule(this.Page, _cacheService, _sqlCommand, _unitOfWork, PortalSettings.HomeSystemDirectory, true, ModuleId, ref _id, out _scenarioName);
-            var template = templates.Template;
-            template = template.Replace("[PAGE_MODULE]", pageModuleTemplate);
-            pnlTemplate.InnerHtml = template;
-
-            if (_id.HasValue)
-            {
                 CtlPageResource.DnnTabId = TabId;
                 CtlPageResource.ModuleIds = new HashSet<Guid>(new Guid[1] { _id.Value });
 

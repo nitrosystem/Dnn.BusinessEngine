@@ -3,31 +3,29 @@ using System.Web.UI;
 using System.Web.Helpers;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using DotNetNuke.Entities.Modules;
-using DotNetNuke.Entities.Modules.Actions;
 using DotNetNuke.Framework;
 using DotNetNuke.Entities.Host;
+using DotNetNuke.Entities.Modules;
+using DotNetNuke.Entities.Modules.Actions;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
     public partial class Module : PortalModuleBase, IActionable
     {
         private readonly ICacheService _cacheService;
-        private readonly IExecuteSqlCommand _sqlCommand;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IModuleService _moduleService;
         private readonly string _siteRoot;
         private string _scenarioName;
         private Guid? _id;
 
         public Module()
         {
-            _cacheService = DependencyProvider.GetService<ICacheService>();
-            _sqlCommand = DependencyProvider.GetService<IExecuteSqlCommand>();
-            _unitOfWork = DependencyProvider.GetService<IUnitOfWork>();
-
             var root = ServicesFramework.GetServiceFrameworkRoot();
+
+            _cacheService = DependencyProvider.GetRequiredService<ICacheService>();
+            _moduleService = DependencyProvider.GetRequiredService<IModuleService>();
             _siteRoot = root == "/"
                 ? string.Empty
                 : "&sr=" + root;
@@ -40,7 +38,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             get
             {
                 string moduleParam = _id.HasValue ? "id=" + _id.ToString() : "d=" + ModuleId.ToString();
-
                 return ResolveUrl(string.Format("~/DesktopModules/BusinessEngine/studio.aspx?s={0}{1}&m=create-dashboard&{2}&ru={3}", _scenarioName, _siteRoot, moduleParam, TabId));
             }
         }
@@ -53,7 +50,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             }
         }
 
-        public int Version
+        public int HostVersion
         {
             get
             {
@@ -70,11 +67,15 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             var code = AntiForgery.GetHtml().ToHtmlString();
             pnlAntiForgery.Controls.Add(new LiteralControl(code));
 
-            var templates = ModuleService.RenderModule(Page, _cacheService, _sqlCommand, _unitOfWork, PortalSettings.HomeSystemDirectory, false, ModuleId, ref _id, out _scenarioName);
-            pnlTemplate.InnerHtml = templates.Template;
-
-            if (_id.HasValue)
+            var module = _moduleService.GetModuleLiteData(ModuleId, _id);
+            if (module != null)
             {
+                _id = module.Id;
+                _scenarioName = module.ScenarioName;
+
+                var templates = ModuleService.RenderModule(Page, module, _cacheService, PortalSettings.HomeSystemDirectory);
+                pnlTemplate.InnerHtml = templates.Template;
+
                 CtlPageResource.DnnTabId = TabId;
                 CtlPageResource.ModuleIds = new HashSet<Guid>(new Guid[1] { _id.Value });
                 CtlPageResource.RegisterPageResources();

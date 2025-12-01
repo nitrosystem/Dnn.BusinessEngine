@@ -1,6 +1,7 @@
-﻿using System;
+﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Models;
+using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto
 {
@@ -25,7 +26,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.
         public string ShowConditions { get; set; }
         public string FieldTypeGeneratePanesBusinessControllerClass { get; set; }
         public int ViewOrder { get; set; }
-        public FieldDataSourceInfo DataSource { get; set; }
+        public ModuleFieldDataSourceInfo DataSource { get; set; }
         public ModuleFieldGlobalSettings GlobalSettings { get; set; }
         public IDictionary<string, object> Settings { get; set; }
     }

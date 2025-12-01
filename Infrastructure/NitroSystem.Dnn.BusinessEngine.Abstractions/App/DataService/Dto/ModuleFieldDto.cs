@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
 {
@@ -21,8 +21,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
         public bool HasDataSource { get; set; }
         public string ShowConditions { get; set; }
         public IEnumerable<string> AuthorizationViewField { get; set; }
-        public FieldDataSourceResult DataSource { get; set; }
-        public IEnumerable<FieldValueInfo> ConditionalValues { get; set; }
+        public ModuleFieldDataSourceResult DataSource { get; set; }
+        public IEnumerable<ModuleFieldValueInfo> ConditionalValues { get; set; }
         public IDictionary<string, object> Settings { get; set; }
     }
 }

@@ -1,11 +1,7 @@
-﻿using System;
+﻿using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase
 {
     public interface IEngineContext
     {

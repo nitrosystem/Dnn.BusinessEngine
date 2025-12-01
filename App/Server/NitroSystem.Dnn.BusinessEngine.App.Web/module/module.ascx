@@ -12,7 +12,7 @@
 <div id="pnlTemplate" runat="server"></div>
 
 <script type="module">
-    import BusinessEngineApp from "/DesktopModules/BusinessEngine/client-app/business-engine.esm.js?ver=<%=this.Version%>";
+    import BusinessEngineApp from "/DesktopModules/BusinessEngine/client-app/business-engine.esm.js?ver=<%=this.HostVersion%>";
 
     const appElement = document.getElementById('<%=pnlTemplate.ClientID%>');
     BusinessEngineApp.bootstrap(appElement);

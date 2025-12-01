@@ -104,14 +104,19 @@
     <Compile Include="BackgroundTaskFramework\Models\RunningTaskInfo.cs" />
     <Compile Include="BackgroundTaskFramework\PriorityTaskQueue.cs" />
     <Compile Include="ClientResources\ClientResourceManager.cs" />
-    <Compile Include="EngineBase\BackgroundTaskQueue.cs" />
+    <Compile Include="EngineBase\Contracts\IEngineMiddleware.cs" />
+    <Compile Include="EngineBase\Contracts\IEngine.cs" />
     <Compile Include="EngineBase\EngineBase.cs" />
     <Compile Include="EngineBase\EngineContext.cs" />
     <Compile Include="EngineBase\EnginePipeline.cs" />
+    <Compile Include="EngineBase\EngineResult.cs" />
+    <Compile Include="EngineBase\Events\Delegates.cs" />
     <Compile Include="EventBus\EventBus.cs" />
     <Compile Include="EventBus\EventSubscriber.cs" />
     <Compile Include="EventBus\IEvent.cs" />
-    <Compile Include="Workflow\WorkflowEventManager.cs" />
+    <Compile Include="PushingServer\NotificationServerProxy.cs" />
+    <Compile Include="PushingServer\WebSocketManager.cs" />
+    <Compile Include="Workflow\WorkflowManager.cs" />
     <Compile Include="Workflow\Extensions\MethodProfilerExtensions.cs" />
     <Compile Include="Workflow\Models\MethodProfileResult.cs" />
     <Compile Include="Workflow\Models\TaskInfo.cs" />
@@ -163,7 +168,6 @@
     <Compile Include="Reflection\ServiceLocator\ServiceLocator.cs" />
     <Compile Include="Reflection\TypeLoader\TypeLoaderFactory.cs" />
     <Compile Include="Reflection\TypeLoader\TypeDescriptor.cs" />
-    <Compile Include="PushingServer\Contracts\INotificationServerHost.cs" />
     <Compile Include="PushingServer\NotificationServer.cs" />
     <Compile Include="PushingServer\NotificationServerHost.cs" />
     <Compile Include="Security\ErrorHandling.cs" />
@@ -189,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="BehaviorKnowledgeBase\base.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

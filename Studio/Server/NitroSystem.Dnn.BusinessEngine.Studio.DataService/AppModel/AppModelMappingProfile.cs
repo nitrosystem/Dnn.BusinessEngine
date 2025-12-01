@@ -6,6 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
 {
@@ -32,6 +33,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
 
             HybridMapper.BeforeMap<AppModelPropertyViewModel, PropertyDefinition>(
                 (src, dest) => dest.ClrType = src.PropertyType);
+
+            HybridMapper.BeforeMap<AppModelInfo, AppModelListItem>(
+                (src, dest) => dest.ModelType = (AppModelType)src.ModelType);
 
             #endregion
 

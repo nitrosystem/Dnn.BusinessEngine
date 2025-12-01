@@ -7,34 +7,26 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
-using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Template;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Dashboard
 {
     public class DashboardService : IDashboardService
     {
-        private readonly IModuleService _moduleService;
         private readonly IRepositoryBase _repository;
         private readonly IUnitOfWork _unitOfWork;
 
         public DashboardService(
             IUnitOfWork unitOfWork,
-            IRepositoryBase repository,
-            IModuleService moduleService)
+            IRepositoryBase repository)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
-            _moduleService = moduleService;
         }
 
         #region Dashboard Services

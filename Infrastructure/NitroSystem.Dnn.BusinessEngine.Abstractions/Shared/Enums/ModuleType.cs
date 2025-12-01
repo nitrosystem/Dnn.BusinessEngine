@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.ModuleBuilder.Enums
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums
 {
     public enum ModuleType
     {

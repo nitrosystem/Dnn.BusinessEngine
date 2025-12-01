@@ -27,20 +27,18 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
         private readonly ActionExecutionContext _ctx;
 
         public ActionExecutionEngine(IServiceProvider services, IUserDataStore userDataStore, IBuildBufferService buildBufferService)
-            : base(services)
+            : base(services, false)
         {
             _userDataStore = userDataStore;
             _buildBufferService = buildBufferService;
 
-            _pipeline = new EnginePipeline<ActionRequest, ActionResponse>()
+            _pipeline = new EnginePipeline<ActionRequest, ActionResponse>(this)
             .Use<ActionConditionMiddleware>()
             .Use<ActionWorkerMiddleware>()
             .Use<ActionSetResultMiddleware>();
 
             var cts = new CancellationTokenSource();
             _ctx = new ActionExecutionContext(cts);
-
-            OnError += OnErrorHandle;
         }
 
         protected override async Task OnInitializeAsync(ActionRequest request)
@@ -117,11 +115,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
 
             double ratio = (double)index / total;
             return ratio * 100;
-        }
-
-        private Task OnErrorHandle(Exception ex, string phase)
-        {
-            throw new NotImplementedException();
         }
     }
 }
