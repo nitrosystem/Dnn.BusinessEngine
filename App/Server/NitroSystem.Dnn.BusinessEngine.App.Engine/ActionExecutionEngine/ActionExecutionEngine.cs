@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middlewares;
@@ -43,7 +42,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
 
         protected override async Task OnInitializeAsync(ActionRequest request)
         {
-            _ctx.ModuleData = await _userDataStore.GetOrCreateModuleDataAsync(request.ConnectionId, request.ModuleId);
+            _ctx.ModuleData = await _userDataStore.GetOrCreateModuleDataAsync(request.ConnectionId, request.ModuleId, request.BasePath);
             _ctx.ModuleData["_PageParam"] = UrlHelper.ParsePageParameters(request.PageUrl);
             _ctx.ModuleData["_CurrentUserId"] = request.UserId;
 
@@ -52,9 +51,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
 
         protected override Task BeforeExecuteAsync(ActionRequest request)
         {
-            _buffer = request.ByEvent
-                ? _buildBufferService.BuildBufferByEvent(request.Actions.ToList())
-                : _buildBufferService.BuildBuffer(request.Actions);
+            _buffer = _buildBufferService.BuildBuffer(request.Actions.ToList());
 
             return base.BeforeExecuteAsync(request);
         }
@@ -66,16 +63,19 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
                 int total = _buffer.Count;
                 int index = 0;
 
+                EngineResult<ActionResponse> result = null;
+
+
                 while (_buffer.Any())
                 {
                     var node = _buffer.Dequeue();
 
                     _ctx.Action = node.Action;
 
-                    await _pipeline.ExecuteAsync(request, _ctx, Services);
+                    result = await _pipeline.ExecuteAsync(request, _ctx, Services);
 
                     await _userDataStore.UpdateModuleData(request.ConnectionId, request.ModuleId,
-                        _ctx.ModuleData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
+                        _ctx.ModuleData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value), request.BasePath);
 
                     if (_ctx.Result.Status == ActionResultStatus.Successful)
                     {
@@ -93,8 +93,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine
                     await NotifyProgress($"Executed action {node.Action.Id}", CalculateProgress(index++, total));
                 }
 
-                return EngineResult<ActionResponse>.Success(new ActionResponse { ModuleData = _ctx.ModuleData });
-
+                return EngineResult<ActionResponse>.Success(result.Data);
             }
             catch (Exception ex)
             {

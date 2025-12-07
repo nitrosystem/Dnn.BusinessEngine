@@ -6,7 +6,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution
 {
     public interface IBuildBufferService
     {
-        Queue<ActionTree> BuildBufferByEvent(List<ActionDto> actions);
-        Queue<ActionTree> BuildBuffer(IEnumerable<ActionDto> actions);
+        Queue<ActionTree> BuildBuffer(List<ActionDto> actions);
     }
 }

@@ -10,6 +10,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Mod
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Enums;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Services
 {
@@ -29,13 +30,13 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Servic
             _serviceLocator = serviceLocator;
         }
 
-        public async Task<ActionResult> CallAction(IEngineContext context)
+        public async Task<ActionResult> CallAction(IEngineContext context, ActionRequest request)
         {
             var ctx = context as ActionExecutionContext;
 
             var result = new ActionResult();
 
-            ctx.Action.Params = ParseParams(ctx.Action.Params, ctx);
+            ctx.Action.Params = ParseParams(ctx.Action.Params, ctx, request);
 
             IActionExecutor actionController = await GetActionExtensionInstance(ctx.Action.ActionType);
 
@@ -51,18 +52,21 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Servic
             return result;
         }
 
-        private List<ActionParamDto> ParseParams(IEnumerable<ActionParamDto> actionParams, ActionExecutionContext context)
+        private List<ActionParamDto> ParseParams(IEnumerable<ActionParamDto> actionParams, ActionExecutionContext context, ActionRequest request)
         {
             var finalizedParams = new List<ActionParamDto>();
 
             foreach (var item in actionParams)
             {
                 var expr = item.ParamValue as string;
-                var value = !string.IsNullOrEmpty(expr)
-                    ? _expressionService.Evaluate(expr, context.ModuleData)
-                    : item.ParamValue;
 
-                item.ParamValue = value;
+                if (string.IsNullOrEmpty(expr) && request.ExtraParams != null && request.ExtraParams.TryGetValue(item.ParamName, out var val))
+                    item.ParamValue = val;
+                else
+                    item.ParamValue = !string.IsNullOrEmpty(expr)
+                        ? _expressionService.Evaluate(expr, context.ModuleData)
+                        : item.ParamValue;
+
                 finalizedParams.Add(item);
             }
 

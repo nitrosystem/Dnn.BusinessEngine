@@ -9,6 +9,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api.Dto
         public Guid ModuleId { get; set; }
         public string PageUrl { get; set; }
         public Dictionary<string,object> Data { get; set; }
+        public Dictionary<string,object> ExtraParams { get; set; }
         public IEnumerable<Guid> ActionIds { get; set; }
     }
 }

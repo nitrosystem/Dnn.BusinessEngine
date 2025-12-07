@@ -26,6 +26,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public bool IsGroupField { get; set; }
         public bool HasDataSource { get; set; }
         public string DataSource { get; set; }
+        public bool IsShown { get; set; }
         public string ShowConditions { get; set; }
         public string ConditionalValues { get; set; }
         public string AuthorizationViewField { get; set; }

@@ -56,29 +56,26 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                     ? await _dashboardService.GetDashboardDtoAsync(moduleId)
                     : null;
 
-                var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, moduleId);
+                var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, moduleId, PortalSettings.HomeSystemDirectory);
                 var actionIds = await _actionService.GetActionIdsAsync(moduleId, null, "OnPageLoad");
                 if (actionIds.Any())
                 {
-                    var actionsByEvent = await _actionService.GetActionsDtoForServerAsync(actionIds);
+                    var pageActions = await _actionService.GetActionsDtoForServerAsync(actionIds);
                     var request = new ActionRequest()
                     {
                         ConnectionId = connectionId,
                         ModuleId = moduleId,
                         UserId = UserInfo.UserID,
                         PageUrl = pageUrl,
-                        ByEvent = true,
-                        Actions = actionsByEvent
+                        BasePath = PortalSettings.HomeSystemDirectory,
+                        Actions = pageActions
                     };
                     var actionEngine = new ActionExecutionEngine(_serviceProvider, _userDataStore, _buildBufferService);
-                    var response = await actionEngine.ExecuteAsync(request);
-
-                    moduleData = response.Data.ModuleData;
+                    await actionEngine.ExecuteAsync(request);
                 }
 
-                var data = _userDataStore.GetDataForClients(moduleId, moduleData);
-
-                var variables = await _moduleService.GetVariables(moduleId, ModuleVariableScope.Global);
+                var data = _userDataStore.GetDataForClients(connectionId, moduleId);
+                var variables = await _moduleService.GetVariables(moduleId, ModuleVariableScope.Global, ModuleVariableScope.ClientSide);
                 var fields = await _moduleService.GetFieldsDtoAsync(moduleId);
                 var actions = await _actionService.GetActionsDtoForClientAsync(moduleId);
 
@@ -110,14 +107,24 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
         {
             try
             {
-                var moduleData = await _userDataStore.UpdateModuleData(action.ConnectionId, action.ModuleId, action.Data);
+                var moduleData = await _userDataStore.UpdateModuleData(action.ConnectionId, action.ModuleId, action.Data, PortalSettings.HomeSystemDirectoryMapPath);
                 moduleData["_PageParam"] = UrlHelper.ParsePageParameters(action.PageUrl);
 
-                //await _actionWorker.CallActions(action.ActionIds, moduleData);
+                var actions = await _actionService.GetActionsDtoForServerAsync(action.ActionIds);
+                var request = new ActionRequest()
+                {
+                    ConnectionId = action.ConnectionId,
+                    ModuleId = action.ModuleId,
+                    UserId = UserInfo.UserID,
+                    PageUrl = action.PageUrl,
+                    BasePath = PortalSettings.HomeSystemDirectory,
+                    ExtraParams = action.ExtraParams,
+                    Actions = actions,
+                };
+                var actionEngine = new ActionExecutionEngine(_serviceProvider, _userDataStore, _buildBufferService);
+                var response = await actionEngine.ExecuteAsync(request);
 
-                var data = _userDataStore.GetDataForClients(action.ModuleId, moduleData);
-
-                return Request.CreateResponse(HttpStatusCode.OK, new { data });
+                return Request.CreateResponse(HttpStatusCode.OK, new { data = response.Data.ResultData });
             }
             catch (Exception ex)
             {
@@ -127,13 +134,13 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
 
         [AllowAnonymous]
         [HttpPost]
-        public HttpResponseMessage PingConnection(ActionDto user)
+        public HttpResponseMessage DisconnectUser(ConnectionUserDto user)
         {
             try
             {
-                _userDataStore.Ping(user.ConnectionId);
+                _userDataStore.DisconnectUser(user.ConnectionId, user.ModuleId);
 
-                return Request.CreateResponse(HttpStatusCode.OK, true);
+                return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {

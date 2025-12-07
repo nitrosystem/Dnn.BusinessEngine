@@ -1,9 +1,6 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution
 {
@@ -13,7 +10,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution
         public Guid ModuleId { get; set; }
         public int UserId { get; set; }
         public string PageUrl { get; set; }
-        public bool ByEvent { get; set; }
+        public string BasePath { get; set; }
         public IEnumerable<ActionDto> Actions { get; set; }
+        public Dictionary<string, object> ExtraParams { get; set; }
     }
 }

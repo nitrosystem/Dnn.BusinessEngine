@@ -23,6 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public bool IsRequired { get; set; }
         public bool IsGroupField { get; set; }
         public bool HasDataSource { get; set; }
+        public bool IsShown { get; set; }
         public string ShowConditions { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }

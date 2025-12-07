@@ -16,7 +16,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts
 
         Task<IEnumerable<ModuleFieldDto>> GetFieldsDtoAsync(Guid moduleId);
         Task<ModuleFieldDto> GetFieldDtoAsync(Guid fieldId, bool includeDataSource = false);
-        Task<IEnumerable<ModuleVariableDto>> GetVariables(Guid moduleId, ModuleVariableScope scope);
+
+        Task<IEnumerable<ModuleVariableDto>> GetVariables(Guid moduleId, ModuleVariableScope fromScope, ModuleVariableScope toScope);
         Task<IEnumerable<ModuleClientVariableDto>> GetClientVariables(Guid moduleId);
     }
 }

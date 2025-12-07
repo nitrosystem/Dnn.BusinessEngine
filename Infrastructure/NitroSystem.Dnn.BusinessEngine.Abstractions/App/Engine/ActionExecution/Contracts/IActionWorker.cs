@@ -6,6 +6,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution
 {
     public interface IActionWorker
     {
-        Task<ActionResult> CallAction(IEngineContext context);
+        Task<ActionResult> CallAction(IEngineContext context, ActionRequest request);
     }
 }

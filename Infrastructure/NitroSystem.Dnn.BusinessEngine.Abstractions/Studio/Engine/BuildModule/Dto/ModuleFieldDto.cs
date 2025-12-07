@@ -23,6 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.
         public bool IsGroupField { get; set; }
         public bool IsParent { get; set; }
         public bool HasDataSource { get; set; }
+        public bool IsShown { get; set; }
         public string ShowConditions { get; set; }
         public string FieldTypeGeneratePanesBusinessControllerClass { get; set; }
         public int ViewOrder { get; set; }

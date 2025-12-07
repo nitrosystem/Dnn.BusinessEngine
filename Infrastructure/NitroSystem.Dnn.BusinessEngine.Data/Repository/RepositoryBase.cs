@@ -14,6 +14,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Data.Common;
 using System.Collections;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 {
@@ -43,7 +44,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var table = AttributeCache.Instance.GetTableName<T>();
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
             var cacheKey = !string.IsNullOrEmpty(cacheAttr.key)
-                ? BuildCacheKey(cacheAttr.key, null, orderColumns)
+                ? CacheKeyBuilder.BuildCacheKey(cacheAttr.key, null, orderColumns)
                 : string.Empty;
 
             var query = $"SELECT * FROM {table}" +
@@ -176,7 +177,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var scopeColumn = AttributeCache.Instance.GetScope<T>();
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
             var cacheKey = !string.IsNullOrEmpty(cacheAttr.key)
-                ? BuildCacheKey($"{cacheAttr.key}_{value}_", null, orderColumns)
+                ? CacheKeyBuilder.BuildCacheKey($"{cacheAttr.key}_{value}_", null, orderColumns)
                 : string.Empty;
 
             var query = $"SELECT * FROM {table} WHERE {scopeColumn} = @Value" +
@@ -211,7 +212,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var table = AttributeCache.Instance.GetTableName<T>();
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
             var cacheKey = !string.IsNullOrEmpty(cacheAttr.key)
-                ? BuildCacheKey($"{cacheAttr.key}_{column}_{value}_", null, orderColumns)
+                ? CacheKeyBuilder.BuildCacheKey($"{cacheAttr.key}_{column}_{value}_", null, orderColumns)
                 : string.Empty;
 
             var query = $"SELECT * FROM {table} WHERE {column} = @Value" +
@@ -236,7 +237,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var table = AttributeCache.Instance.GetTableName<T>();
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
             var cacheKey = !string.IsNullOrEmpty(cacheAttr.key)
-               ? BuildCacheKey(cacheAttr.key, values, columns)
+               ? CacheKeyBuilder.BuildCacheKey(cacheAttr.key, values, columns)
                : string.Empty;
 
             var condition = string.Join(" and ", columns.Select(column =>
@@ -485,7 +486,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
         public async Task<T> ExecuteStoredProcedureScalerAsync<T>(string storedProcedure, string cacheKey, object parameters)
         {
-            cacheKey = BuildCacheKey(cacheKey, parameters);
+            cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             return await _cacheService.GetOrCreateAsync<T>(cacheKey, () =>
                 _unitOfWork.Connection.ExecuteScalarAsync<T>(
@@ -498,7 +499,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
         public async Task<T> ExecuteStoredProcedureAsync<T>(string storedProcedure, string cacheKey, object parameters)
         {
-            cacheKey = BuildCacheKey(cacheKey, parameters);
+            cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             return await _cacheService.GetOrCreateAsync<T>(cacheKey, () =>
                 _unitOfWork.Connection.QuerySingleAsync<T>(
@@ -511,7 +512,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
         public T ExecuteStoredProcedure<T>(string storedProcedure, string cacheKey, object parameters)
         {
-            cacheKey = BuildCacheKey(cacheKey, parameters);
+            cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             return _cacheService.GetOrCreate<T>(cacheKey, () =>
                 _unitOfWork.Connection.QuerySingle<T>(
@@ -524,7 +525,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
         public async Task<IDataReader> ExecuteStoredProcedureAsDataReaderAsync(string storedProcedure, string cacheKey, object parameters)
         {
-            cacheKey = BuildCacheKey(cacheKey, parameters);
+            cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             return await _cacheService.GetOrCreateAsync<IDataReader>(cacheKey, () =>
                 _unitOfWork.Connection.ExecuteReaderAsync(
@@ -541,7 +542,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             string cacheKey,
             object parameters = null)
         {
-            cacheKey = BuildCacheKey(cacheKey, parameters);
+            cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             return await _cacheService.GetOrCreateAsync<object>(cacheKey, () =>
                 _unitOfWork.Connection.QuerySingleAsync(
@@ -555,7 +556,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
         public async Task<IEnumerable<T>> ExecuteStoredProcedureAsListAsync<T>(string storedProcedure, string cacheKey, object parameters)
         {
-            cacheKey = BuildCacheKey(cacheKey, parameters);
+            cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             return await _cacheService.GetOrCreateAsync<IEnumerable<T>>(cacheKey, () =>
                 _unitOfWork.Connection.QueryAsync<T>(
@@ -572,7 +573,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             string cacheKey,
             object parameters = null)
         {
-            cacheKey = BuildCacheKey(cacheKey, parameters);
+            cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             return await _cacheService.GetOrCreateAsync<IEnumerable<object>>(cacheKey, () =>
                 _unitOfWork.Connection.QueryAsync(
@@ -585,13 +586,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
         }
 
         public async Task<(IEnumerable<object> Items, int TotalCount)> ExecuteStoredProcedureForPagingAsync(
-    Type type,
-    string storedProcedure,
-    string cacheKey,
-    object parameters = null)
+            Type type,
+            string storedProcedure,
+            string cacheKey,
+            object parameters = null)
         {
             // --- ساختن کلید کش به‌صورت پایدار ---
-            string finalCacheKey = BuildCacheKey(cacheKey, parameters);
+            string finalCacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             // --- بررسی کش ---
             var cached = _cacheService.Get<(IEnumerable<object>, int)?>(finalCacheKey);
@@ -623,7 +624,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             string cacheKey,
             object parameters = null)
         {
-            cacheKey = BuildCacheKey(cacheKey, parameters);
+            cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             // Check cache first
             var cachedResult = _cacheService.Get<(IEnumerable<T1>, IEnumerable<T2>)?>(cacheKey);
@@ -653,7 +654,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             string cacheKey,
             object parameters = null)
         {
-            cacheKey = BuildCacheKey(cacheKey, parameters);
+            cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             // Check cache first
             var cachedResult = string.IsNullOrEmpty(cacheKey)
@@ -685,7 +686,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             string cacheKey,
             object parameters = null)
         {
-            cacheKey = BuildCacheKey(cacheKey, parameters);
+            cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             // Check cache first
             var cachedResult = _cacheService.Get<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>)?>(cacheKey);
@@ -709,55 +710,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             // Cache the final materialized result
             _cacheService.Set(cacheKey, result);
             return result;
-        }
-
-        private string BuildCacheKey(string baseKey, object parameters = null, string[] columns = null)
-        {
-            var parts = BuildKeyParts(parameters, columns);
-
-            if (parts.Count == 0)
-                return baseKey;
-
-            string raw = $"{baseKey}-{string.Join("|", parts)}";
-
-            if (raw.Length <= 200)
-                return raw;
-
-            using var sha = SHA256.Create();
-            var hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(raw));
-            var hash = Convert.ToBase64String(hashBytes);
-
-            return $"{baseKey}-{hash}";
-        }
-
-
-        private static List<string> BuildKeyParts(object parameters, string[] columns = null)
-        {
-            var list = new List<string>();
-
-            // بخش ۱ → پارامترهای object (مثل متد ذخیره‌سازی صفحه‌بندی)
-            if (parameters != null)
-            {
-                var props = parameters.GetType()
-                    .GetProperties()
-                    .OrderBy(p => p.Name)
-                    .ToArray();
-
-                foreach (var p in props)
-                {
-                    var val = p.GetValue(parameters);
-                    list.Add(val == null ? $"{p.Name}=null" : $"{p.Name}={val}");
-                }
-            }
-
-            // بخش ۲ → ستون‌ها (مثل متد GetItemsByColumnsAsync)
-            if (columns != null && columns.Length > 0)
-            {
-                foreach (var c in columns.OrderBy(f => f))
-                    list.Add($"col_{c}");
-            }
-
-            return list;
         }
     }
 }

@@ -28,6 +28,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
             if (notify) _notificationServer = services.GetRequiredService<INotificationServer>();
         }
 
+        public virtual TResponse CreateEmptyResponse()
+        {
+            return Activator.CreateInstance<TResponse>();
+        }
+
+        public async Task<EngineResult<TResponse>> ExecutePipelineAsync(TRequest request, Func<Task<EngineResult<TResponse>>> next)
+        {
+            return await next();
+        }
+
         public async Task<EngineResult<TResponse>> ExecuteAsync(TRequest request)
         {
             try

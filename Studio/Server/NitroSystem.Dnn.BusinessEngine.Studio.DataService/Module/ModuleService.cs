@@ -12,6 +12,8 @@ using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Models;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 {
@@ -124,6 +126,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                    var dict = fieldsSettings.GroupBy(c => c.FieldId).ToDictionary(g => g.Key, g => g.AsEnumerable());
                    if (dict.TryGetValue(src.Id, out var settings))
                        dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
+
+                   dest.GlobalSettings = ReflectionUtil.ConvertDictionaryToObject<ModuleFieldGlobalSettings>(dest.Settings) ?? new ModuleFieldGlobalSettings();
 
                    await Task.CompletedTask;
                }

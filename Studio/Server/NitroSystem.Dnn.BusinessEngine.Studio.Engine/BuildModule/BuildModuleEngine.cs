@@ -120,9 +120,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         {
             var lockAcquired = await _lockService.TryLockAsync(request.ModuleId.Value);
             if (!lockAcquired)
-            {
                 throw new InvalidOperationException("This module is currently being build. Please try again in a few moments..");
-            }
 
             try
             {

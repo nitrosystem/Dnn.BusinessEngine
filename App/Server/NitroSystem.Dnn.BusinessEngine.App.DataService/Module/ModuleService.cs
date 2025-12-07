@@ -37,7 +37,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
 
         public ModuleLiteDto GetModuleLiteData(int? siteModuleId, Guid? moduleId = null)
         {
-            var module = _repository.ExecuteStoredProcedure<ModuleLiteResult>(
+            var module = _repository.ExecuteStoredProcedure<ModuleLiteSpResult>(
                 "dbo.BusinessEngine_App_GetModuleLite", "Be_Modules_ModuleLiteData",
                 new
                 {
@@ -45,7 +45,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
                     ModuleId = moduleId
                 });
 
-            return HybridMapper.Map<ModuleLiteResult, ModuleLiteDto>(module);
+            return HybridMapper.Map<ModuleLiteSpResult, ModuleLiteDto>(module);
         }
 
         public async Task<string> GetModuleNameAsync(Guid moduleId)
@@ -64,7 +64,13 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
 
         public async Task<IEnumerable<ModuleFieldDto>> GetFieldsDtoAsync(Guid moduleId)
         {
-            var fields = await _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId, "ViewOrder");
+            var fields = await _repository.GetItemsByColumnsAsync<ModuleFieldInfo>(
+                new string[2] { "ModuleId", "IsShown" },
+                new
+                {
+                    ModuleId = moduleId,
+                    IsShown = true
+                });
             var fieldsSettings = await _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("ModuleId", moduleId);
 
             return await HybridMapper.MapCollectionAsync<ModuleFieldInfo, ModuleFieldDto>(fields,
@@ -120,14 +126,15 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
 
         #region Module Variables
 
-        public async Task<IEnumerable<ModuleVariableDto>> GetVariables(Guid moduleId, ModuleVariableScope scope)
+        public async Task<IEnumerable<ModuleVariableDto>> GetVariables(Guid moduleId, ModuleVariableScope fromScope, ModuleVariableScope toScope)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<ModuleVariableView, AppModelPropertyInfo>(
-                "dbo.BusinessEngine_App_GetModuleVariables", "BE_ModuleVariables_App_",
+                "dbo.BusinessEngine_App_GetModuleVariables", "BE_Modules_Variables_App_",
                     new
                     {
                         ModuleId = moduleId,
-                        Scope = scope,
+                        FromScope = fromScope,
+                        ToScope = toScope,
                     }
                 );
 

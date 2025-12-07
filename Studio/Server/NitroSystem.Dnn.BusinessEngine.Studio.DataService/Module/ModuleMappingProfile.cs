@@ -88,12 +88,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             HybridMapper.BeforeMap<ModuleFieldInfo, ModuleFieldViewModel>(
                 (src, dest) => dest.ConditionalValues = ReflectionUtil.TryJsonCasting<IEnumerable<ModuleFieldValueInfo>>(src.ConditionalValues));
 
-            HybridMapper.AfterMap<ModuleFieldSpResult, ModuleFieldDto>(
-                (src, dest) =>
-                {
-                    dest.GlobalSettings = ReflectionUtil.ConvertDictionaryToObject<ModuleFieldGlobalSettings>(dest.Settings) ?? new ModuleFieldGlobalSettings();
-                });
-
             HybridMapper.BeforeMap<ModuleFieldViewModel, ModuleFieldInfo>(
                 (src, dest) => dest.AuthorizationViewField = string.Join(",", src.AuthorizationViewField ?? Enumerable.Empty<string>()));
 

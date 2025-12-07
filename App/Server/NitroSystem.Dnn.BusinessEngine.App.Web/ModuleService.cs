@@ -21,8 +21,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
         {
             var preloader = string.Empty;
             var template = string.Empty;
-            var connectionId = Guid.NewGuid();
-            var rtlCssClass = CultureInfo.CurrentCulture.TextInfo.IsRightToLeft ? "b--rtl" : "";
             var scenarioFolder = StringHelper.ToKebabCase(module.ScenarioName);
             var moduleKebabName = StringHelper.ToKebabCase(module.ModuleName);
             var modulePath = $"{baseUrl}/business-engine/{scenarioFolder}/{parentFolder}{moduleKebabName}";
@@ -39,7 +37,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                 preloader = FileUtil.GetFileContent(Constants.MapPath(modulePreloaderUrl));
                 template = FileUtil.GetFileContent(Constants.MapPath(moduleTemplateUrl));
                 template = $@"
-                <div b-controller=""moduleController"" data-module=""{module.Id}"" data-dashboard=""{isDashboard}"" data-connection=""{connectionId}"" class=""b--module {rtlCssClass}"">
+                <div b-controller=""moduleController"" data-module=""{module.Id}"" data-dashboard=""{isDashboard}"" data-connection=""[CONNECTION_ID]"" class=""b--module [RTL_CLASS]"">
                     {template}
                 </div>";
 

@@ -1,9 +1,11 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+﻿using System;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models
 {
     public class ModuleFieldDataSourceInfo
     {
+        public Guid ActionId { get; set; }
         public string ListName { get; set; }
         public string VariableName { get; set; }
         public string ValueField { get; set; }

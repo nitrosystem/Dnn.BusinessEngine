@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Web.Helpers;
 using System.Web.UI;
 using System.Collections.Generic;
@@ -9,10 +8,10 @@ using DotNetNuke.Entities.Host;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Modules.Actions;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Dto;
+using System.Globalization;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
 {
@@ -80,6 +79,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                 _id = dashboardModule.Id;
                 _scenarioName = dashboardModule.ScenarioName;
 
+                var connectionId = Guid.NewGuid().ToString();
+                var rtlCssClass = CultureInfo.CurrentCulture.TextInfo.IsRightToLeft
+                    ? "b--rtl"
+                    : "";
+
                 var templates = ModuleService.RenderModule(Page, dashboardModule, _cacheService, PortalSettings.HomeSystemDirectory, true);
 
                 Guid? pageModuleId = null;
@@ -95,6 +99,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                         var childTemplates = ModuleService.RenderModule(Page, module, _cacheService, PortalSettings.HomeSystemDirectory, false, parentFolder);
 
                         pageModuleTemplate = childTemplates.Template;
+                        pageModuleTemplate = pageModuleTemplate.Replace("[CONNECTION_ID]", connectionId);
+                        pageModuleTemplate = pageModuleTemplate.Replace("[RTL_CLASS]", rtlCssClass);
                         pageModuleTemplate = pageModuleTemplate.Replace("[PAGE_ICON]", pageModule.PageIcon);
                         pageModuleTemplate = pageModuleTemplate.Replace("[PAGE_TITLE]", pageModule.PageTitle);
                         pageModuleTemplate = pageModuleTemplate.Replace("[PAGE_DESCRIPTION]", pageModule.PageDescription);
@@ -104,6 +110,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                 }
 
                 var template = templates.Template;
+                template = template.Replace("[CONNECTION_ID]", connectionId);
+                template = template.Replace("[RTL_CLASS]", rtlCssClass);
                 template = template.Replace("[USER_DISPAYNAME]", UserInfo.DisplayName);
                 template = template.Replace("[USER_IMAGE]", $"/dnnimagehandler.ashx?mode=profilepic&userid={UserInfo.UserID}");
                 template = template.Replace("[PAGE_MODULE]", pageModuleTemplate);

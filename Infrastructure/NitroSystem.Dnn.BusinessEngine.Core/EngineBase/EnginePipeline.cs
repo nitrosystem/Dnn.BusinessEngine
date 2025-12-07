@@ -31,9 +31,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
             IEngineContext context,
             IServiceProvider services)
         {
-            // ساخت chain از middlewareها
-            Func<Task<EngineResult<TResponse>>> next = () =>
-                Task.FromResult(EngineResult<TResponse>.Success(default(TResponse)));
+            Func<Task<EngineResult<TResponse>>> next =
+             () => Task.FromResult(
+                 EngineResult<TResponse>.Success(_engine.CreateEmptyResponse())
+             );
 
             foreach (var factory in _middlewares.AsEnumerable().Reverse())
             {
@@ -42,7 +43,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
                 next = () => middleware.InvokeAsync(context, request, prevNext, (IEngineNotifier)_engine);
             }
 
-            return await next();
+            return await _engine.ExecutePipelineAsync(request, next);
         }
     }
 }

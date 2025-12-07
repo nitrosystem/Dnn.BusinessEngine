@@ -2,7 +2,7 @@
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures
 {
-    public class ModuleLiteResult
+    public class ModuleLiteSpResult
     {
         public Guid Id { get; set; }
         public string ScenarioName { get; set; }

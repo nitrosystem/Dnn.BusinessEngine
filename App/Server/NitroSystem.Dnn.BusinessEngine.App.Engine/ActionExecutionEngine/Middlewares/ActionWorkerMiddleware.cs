@@ -23,7 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middle
         {
             var ctx = context as ActionExecutionContext;
 
-            var actionResult = await _actionWorker.CallAction(ctx);
+            var actionResult = await _actionWorker.CallAction(ctx, request);
             ctx.Set<ActionResult>("ActionResult", actionResult);
 
             var result = await next();

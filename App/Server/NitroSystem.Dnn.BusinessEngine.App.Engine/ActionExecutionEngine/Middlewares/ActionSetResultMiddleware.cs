@@ -26,6 +26,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middle
             var ctx = context as ActionExecutionContext;
             var actionResult = ctx.Get<ActionResult>("ActionResult");
 
+            var actionResults = new ConcurrentDictionary<string, object>();
+
             WithServiceResult(ctx.ModuleData, actionResult.Data, () =>
             {
                 foreach (var item in ctx.Action.Results)
@@ -34,8 +36,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middle
                     {
                         var value = _service.Evaluate(item.RightExpression, ctx.ModuleData);
                         var setter = _service.BuildDataSetter(item.LeftExpression, ctx.ModuleData);
-
                         setter(value);
+
+                        actionResults.TryAdd(item.LeftExpression, value);
                     }
                 }
             });
@@ -43,6 +46,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Middle
             ctx.Result = new ActionResult() { Status = ActionResultStatus.Successful };
 
             var result = await next();
+            result.Data.ResultData = actionResults;
             return result;
         }
 

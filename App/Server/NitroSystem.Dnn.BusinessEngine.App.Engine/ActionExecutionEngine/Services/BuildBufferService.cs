@@ -18,10 +18,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Servic
         //    _logger = logger;
         //}
 
-        /// <summary>
-        /// ساختن بافر اکشن‌ها بر اساس رویداد
-        /// </summary>
-        public Queue<ActionTree> BuildBufferByEvent(List<ActionDto> actions)
+        public Queue<ActionTree> BuildBuffer(List<ActionDto> actions)
         {
             if (actions == null || actions.Count == 0)
                 return new Queue<ActionTree>();
@@ -43,17 +40,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecutionEngine.Servic
 
             // در نهایت ساخت درخت اکشن‌ها
             return BuildActionTree(result);
-        }
-
-        /// <summary>
-        /// ساختن بافر از لیست ورودی (بدون پردازش رویداد)
-        /// </summary>
-        public Queue<ActionTree> BuildBuffer(IEnumerable<ActionDto> actions)
-        {
-            if (actions == null)
-                return new Queue<ActionTree>();
-
-            return BuildActionTree(actions);
         }
 
         /// <summary>

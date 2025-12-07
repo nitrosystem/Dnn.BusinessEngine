@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures
 {
-   public class DashboardPageModuleResult
+   public class DashboardPageModuleSpResult
     {
         public Guid ModuleId { get; set; }
         public string ModuleName { get; set; }

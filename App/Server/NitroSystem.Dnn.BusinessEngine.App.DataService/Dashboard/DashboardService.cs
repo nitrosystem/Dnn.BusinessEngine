@@ -37,7 +37,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
 
         public DashboardPageModuleDto GetDashboardPageModule(Guid dashboardModuleId, string pageName)
         {
-            var module = _repository.ExecuteStoredProcedure<DashboardPageModuleResult>(
+            var module = _repository.ExecuteStoredProcedure<DashboardPageModuleSpResult>(
                 "dbo.BusinessEngine_App_GetDashboardPageModule", "Be_Modules_DashboardPageModule",
                 new
                 {
@@ -45,7 +45,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
                     PageName = pageName
                 });
 
-            return HybridMapper.Map<DashboardPageModuleResult, DashboardPageModuleDto>(module);
+            return HybridMapper.Map<DashboardPageModuleSpResult, DashboardPageModuleDto>(module);
         }
 
         private IEnumerable<DashboardPageDto> BuildPageTree(IEnumerable<DashboardPageInfo> pages)

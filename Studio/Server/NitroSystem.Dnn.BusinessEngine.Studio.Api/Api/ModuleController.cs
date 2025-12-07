@@ -599,6 +599,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
                 var module = await _moduleService.GetModuleViewModelAsync(moduleId);
+                var actions = await _actionService.GetActionsListItemAsync(moduleId);
                 var fieldTypes = await _moduleFieldService.GetFieldTypesViewModelAsync();
                 var fields = await _moduleFieldService.GetFieldsViewModelAsync(moduleId);
                 var variables = await _moduleVariableService.GetModuleVariablesListItemAsync(moduleId);
@@ -606,6 +607,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     Module = module,
+                    Actions = actions,
                     FieldTypes = fieldTypes,
                     Fields = fields,
                     Variables = variables.Where(v => v.Scope != ModuleVariableScope.ServerSide)

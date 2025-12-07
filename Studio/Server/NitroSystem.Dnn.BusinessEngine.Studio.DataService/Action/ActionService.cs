@@ -74,6 +74,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
             return (result, totalCount);
         }
 
+        public async Task<IEnumerable<ActionListItem>> GetActionsListItemAsync(Guid moduleId, string sortBy = "ViewOrder")
+        {
+            var actions = await _repository.GetByScopeAsync<ActionInfo>(moduleId, sortBy);
+
+            return HybridMapper.MapCollection<ActionInfo, ActionListItem>(actions);
+        }
+
         public async Task<ActionViewModel> GetActionViewModelAsync(Guid actionId)
         {
             var action = await _repository.GetAsync<ActionView>(actionId);

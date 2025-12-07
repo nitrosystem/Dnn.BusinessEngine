@@ -21,6 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public bool IsGroupField { get; set; }
         public bool HasDataSource { get; set; }
         public string DataSource { get; set; }
+        public bool IsShown { get; set; }
         public string ShowConditions { get; set; }
         public string AuthorizationViewField { get; set; }
         public string FieldTypeGeneratePanesBusinessControllerClass { get; set; }

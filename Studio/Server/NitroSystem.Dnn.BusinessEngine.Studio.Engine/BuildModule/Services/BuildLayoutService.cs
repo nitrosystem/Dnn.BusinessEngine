@@ -41,7 +41,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
         private readonly string _fieldLayout =
             @"<div [[IF:ShowConditions != null && ShowConditions != """":b-if=""[[ShowConditions]]""]] class=""[[Settings.CssClass??b-field]]"" [[IF:CanHaveValue == true:b-class=""{'b-field-invalid':[FIELD].isValidated==true && ([FIELD].requiredError==true || [FIELD].patternError==true)}""]]>
-                [[IF:FieldText != null:
+                [[IF:GlobalSettings.IsHiddenFieldText == false && FieldText != null:
                     <label class=""[[Settings.FieldTextCssClass??b-field-label]]"">[[FieldText]]</label>
                 ]]
                 [FIELD-COMPONENT]
@@ -163,14 +163,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
             try
             {
-                var node = GetPaneNode(field.PaneName);
-                var fieldHtml = await _workflow.ExecuteTaskAsync<string>(_module.Id.ToString(), _userId,
-                    "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, false,
-                   (Expression<Func<Task<string>>>)(() => ParseFieldTemplate(field))
-                );
-                var htmlNode = HtmlNode.CreateNode(fieldHtml);
+                if (field.IsShown)
+                {
+                    var node = GetPaneNode(field.PaneName);
+                    var fieldHtml = await _workflow.ExecuteTaskAsync<string>(_module.Id.ToString(), _userId,
+                        "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, false,
+                       (Expression<Func<Task<string>>>)(() => ParseFieldTemplate(field))
+                    );
 
-                node.AppendChild(htmlNode);
+                    var htmlNode = HtmlNode.CreateNode(fieldHtml);
+                    node.AppendChild(htmlNode);
+                }
             }
             catch (Exception ex)
             {
@@ -206,7 +209,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                     }
                 }
 
-                fieldTemplate = _fieldLayout.Replace("[FIELD-COMPONENT]", fieldTemplate);
+                if (field.GlobalSettings.IsDisabledLayout && !string.IsNullOrEmpty(field.ShowConditions))
+                    fieldTemplate = fieldTemplate.Replace("[TOKENS]", @"[[IF:ShowConditions != null && ShowConditions != """":b-if=""[[ShowConditions]]""]][TOKENS]");
+                if (!field.GlobalSettings.IsDisabledLayout && field.GlobalSettings.IsCustomFieldLayout)
+                    fieldTemplate = (field.GlobalSettings.CustomFieldLayout ?? _fieldLayout).Replace("[FIELD-COMPONENT]", fieldTemplate);
+                else if (!field.GlobalSettings.IsDisabledLayout)
+                    fieldTemplate = _fieldLayout.Replace("[FIELD-COMPONENT]", fieldTemplate);
+
+                if(!string.IsNullOrWhiteSpace(field.GlobalSettings.CustomStyles))
+                    fieldTemplate = fieldTemplate.Replace("[TOKENS]", $@" style=""{field.GlobalSettings.CustomStyles}""[TOKENS]");
 
                 string json = Newtonsoft.Json.JsonConvert.SerializeObject(field);
                 JObject jObject = JObject.Parse(json);
@@ -276,7 +287,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             {
             }
 
-            return fieldTemplate;
+            return fieldTemplate.Replace("[TOKENS]", "");
         }
 
         private HtmlNode GetPaneNode(string pane)
