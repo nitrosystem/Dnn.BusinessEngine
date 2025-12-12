@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Procedures\DashboardPageModuleSpResult.cs" />
+    <Compile Include="Entities\Procedures\GroupItemResult.cs" />
     <Compile Include="Entities\Procedures\ModuleFieldSettingSpResult.cs" />
     <Compile Include="Entities\Procedures\ModuleFieldSpResult.cs" />
     <Compile Include="Entities\Procedures\ModuleLiteSpResult.cs" />

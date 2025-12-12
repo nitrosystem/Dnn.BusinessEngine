@@ -16,6 +16,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public string ModuleTitle { get; set; }
         public string Template { get; set; }
         public string Theme { get; set; }
+        public string PreloadingTemplate { get; set; }
         public string LayoutTemplate { get; set; }
         public string LayoutCss { get; set; }
         public string Description { get; set; }

@@ -12,8 +12,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
     {
         public Guid Id { get; set; }
         public Guid? ScenarioId { get; set; }
+        public string GroupDomain { get; set; }
         public string GroupType { get; set; }
-        public string ObjectType { get; set; }
         public string GroupName { get; set; }
         public string Description { get; set; }
         public bool IsSystemGroup { get; set; }

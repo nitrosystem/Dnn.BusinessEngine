@@ -13,6 +13,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
 {
@@ -77,10 +78,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
         public async Task<IEnumerable<ActionListItem>> GetActionsListItemAsync(Guid moduleId, string sortBy = "ViewOrder")
         {
             var actions = await _repository.GetByScopeAsync<ActionInfo>(moduleId, sortBy);
-
             return HybridMapper.MapCollection<ActionInfo, ActionListItem>(actions);
         }
 
+        public async Task<IEnumerable<string>> GetActionKeysAsync()
+        {
+            var actions = await _repository.GetAllAsync<ActionInfo>("CacheKey");
+            return actions.Where(a => (CacheOperation)a.CacheOperation == CacheOperation.SetCache).Select(a => a.CacheKey);
+        }
         public async Task<ActionViewModel> GetActionViewModelAsync(Guid actionId)
         {
             var action = await _repository.GetAsync<ActionView>(actionId);

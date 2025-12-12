@@ -80,9 +80,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
         {
             if (target == LibraryOrResource.Library)
                 await _repository.ExecuteStoredProcedureAsync("dbo.BusinessEngine_Studio_SortModuleCustomLibraries",
+                    "BE_Modules_SortModuleCustomLibraries_",
                     new { JsonData = items.ToJson() });
             else if (target == LibraryOrResource.Resource)
                 await _repository.ExecuteStoredProcedureAsync("dbo.BusinessEngine_Studio_SortModuleCustomResources",
+                    "BE_Modules_SortModuleCustomResources_",
                     new { JsonData = items.ToJson() });
 
             _cacheService.ClearByPrefix("BE_ModuleCustomLibraries_");

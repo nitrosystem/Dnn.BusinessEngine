@@ -18,7 +18,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contrac
         Task<Guid> SaveScenarioAsync(ScenarioViewModel scenario, bool isNew);
         Task<bool> DeleteScenarioAsync(Guid id);
 
-        Task<IEnumerable<GroupViewModel>> GetGroupsViewModelAsync(Guid scenarioId, string groupType = null);
+        Task<IEnumerable<GroupViewModel>> GetGroupsViewModelAsync(Guid scenarioId, string groupType);
+        Task<IEnumerable<ExplorerItemViewModel>> GetGroupItemsAsync(Guid groupId, string groupType);
+
         Task<Guid> SaveGroupAsync(GroupViewModel group, bool isNew);
         Task<bool> DeleteGroupAsync(Guid groupId);
 

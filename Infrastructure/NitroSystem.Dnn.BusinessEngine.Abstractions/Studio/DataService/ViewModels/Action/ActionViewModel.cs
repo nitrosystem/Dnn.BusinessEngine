@@ -15,8 +15,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public string ActionName { get; set; }
         public string Event { get; set; }
         public bool ExecuteInClientSide { get; set; }
-        public bool SetCache { get; set; }
-        public bool ClearCache { get; set; }
         public string CacheKey { get; set; }
         public string Preconditions { get; set; }
         public string Conditions { get; set; }
@@ -33,6 +31,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
         public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
+        public CacheOperation CacheOperation { get; set; }
+        public IEnumerable<string> CacheKeys { get; set; }
         public IEnumerable<string> AuthorizationRunAction { get; set; }
         public IEnumerable<ActionParamViewModel> Params { get; set; }
         public IEnumerable<ActionResultViewModel> Results { get; set; }

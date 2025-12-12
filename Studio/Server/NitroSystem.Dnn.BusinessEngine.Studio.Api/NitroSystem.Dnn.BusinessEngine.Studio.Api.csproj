@@ -82,7 +82,7 @@
   <ItemGroup>
     <Compile Include="Api\ModuleController.cs" />
     <Compile Include="Api\StudioController.cs" />
-    <Compile Include="Dto\ExplorerItemDto.cs" />
+    <Compile Include="Dto\GroupItemDto.cs" />
     <Compile Include="Dto\CheckModuleNameDto.cs" />
     <Compile Include="Dto\SaveServiceDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

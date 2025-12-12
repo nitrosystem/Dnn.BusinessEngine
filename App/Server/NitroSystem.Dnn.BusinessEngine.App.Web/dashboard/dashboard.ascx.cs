@@ -98,7 +98,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                         var parentFolder = StringHelper.ToKebabCase(dashboardModule.ModuleName) + "/";
                         var childTemplates = ModuleService.RenderModule(Page, module, _cacheService, PortalSettings.HomeSystemDirectory, false, parentFolder);
 
-                        pageModuleTemplate = childTemplates.Template;
+                        pageModuleTemplate = childTemplates.Preloader + childTemplates.Template;
                         pageModuleTemplate = pageModuleTemplate.Replace("[CONNECTION_ID]", connectionId);
                         pageModuleTemplate = pageModuleTemplate.Replace("[RTL_CLASS]", rtlCssClass);
                         pageModuleTemplate = pageModuleTemplate.Replace("[PAGE_ICON]", pageModule.PageIcon);
@@ -109,7 +109,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                     }
                 }
 
-                var template = templates.Template;
+                var template = templates.Preloader + templates.Template;
                 template = template.Replace("[CONNECTION_ID]", connectionId);
                 template = template.Replace("[RTL_CLASS]", rtlCssClass);
                 template = template.Replace("[USER_DISPAYNAME]", UserInfo.DisplayName);

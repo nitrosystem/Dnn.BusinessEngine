@@ -55,9 +55,9 @@
     <Compile Include="App\DataService\Contracts\IActionService.cs" />
     <Compile Include="App\DataService\Contracts\IModuleService.cs" />
     <Compile Include="App\Engine\ActionExecution\Contracts\IBuildBufferService.cs" />
-    <Compile Include="App\Engine\ActionExecution\Dto\ActionDto.cs" />
-    <Compile Include="App\Engine\ActionExecution\Dto\ActionParamDto.cs" />
-    <Compile Include="App\Engine\ActionExecution\Dto\ActionResultDto.cs" />
+    <Compile Include="App\DataService\Dto\ActionDto.cs" />
+    <Compile Include="App\DataService\Dto\ActionParamDto.cs" />
+    <Compile Include="App\DataService\Dto\ActionResultDto.cs" />
     <Compile Include="App\DataService\Dto\ModuleClientVariableDto.cs" />
     <Compile Include="App\DataService\Dto\ModuleDto.cs" />
     <Compile Include="App\DataService\Dto\ModuleFieldDto.cs" />
@@ -75,6 +75,7 @@
     <Compile Include="Core\PushingServer\IWebSocketManager.cs" />
     <Compile Include="Shared\Contracts\IExportable.cs" />
     <Compile Include="Shared\Enums\AppModelType.cs" />
+    <Compile Include="Shared\Enums\CacheOperation.cs" />
     <Compile Include="Shared\Enums\ModuleVariableScope.cs" />
     <Compile Include="App\DataService\Enums\VariableType.cs" />
     <Compile Include="App\Engine\ActionExecution\Models\ActionTree.cs" />

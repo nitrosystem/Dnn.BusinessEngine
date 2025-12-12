@@ -15,6 +15,9 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Attributes;
+using DotNetNuke.Entities.Urls;
+using System.Globalization;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base
 {
@@ -108,13 +111,34 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base
 
         #region Group
 
-        public async Task<IEnumerable<GroupViewModel>> GetGroupsViewModelAsync(Guid scenarioId, string groupType = null)
+        public async Task<IEnumerable<GroupViewModel>> GetGroupsViewModelAsync(Guid scenarioId, string groupDomain)
         {
-            var groups = await _repository.GetByScopeAsync<GroupInfo>(scenarioId);
-            if (!string.IsNullOrEmpty(groupType)) groups = groups.Where(g => g.GroupType == groupType);
+            var groups = await _repository.GetItemsByColumnsAsync<GroupInfo>(
+                new string[2] { "ScenarioId", "GroupDomain" },
+                new
+                {
+                    ScenarioId = scenarioId,
+                    GroupDomain = groupDomain
+                }
+            );
 
             return HybridMapper.MapCollection<GroupInfo, GroupViewModel>(groups);
         }
+
+        public async Task<IEnumerable<ExplorerItemViewModel>> GetGroupItemsAsync(Guid groupId, string groupType)
+        {
+
+            var items = await _repository.ExecuteStoredProcedureAsListAsync<GroupItemResult>(
+                "dbo.BusinessEngine_Studio_GetGroupItems", "",
+                new
+                {
+                    GroupId = groupId,
+                    GroupType = groupType
+                });
+
+            return HybridMapper.MapCollection<GroupItemResult, ExplorerItemViewModel>(items);
+        }
+
 
         public async Task<Guid> SaveGroupAsync(GroupViewModel group, bool isNew)
         {
@@ -170,7 +194,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base
 
         public async Task<T> Export<T>(string methodName, params object[] args) where T : class
         {
-            var data = await base.Export<object>(this,typeof(BaseService), methodName, args);
+            var data = await base.Export<object>(this, typeof(BaseService), methodName, args);
             return data as T;
 
         }

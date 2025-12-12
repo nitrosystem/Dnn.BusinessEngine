@@ -225,6 +225,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
         public async Task SortFieldsAsync(PaneFieldsOrder data)
         {
             await _repository.ExecuteStoredProcedureAsync("dbo.BusinessEngine_Studio_SortModuleFields",
+                "BE_Modules_SortModuleFields_",
                 new
                 {
                     ModuleId = data.ModuleId,

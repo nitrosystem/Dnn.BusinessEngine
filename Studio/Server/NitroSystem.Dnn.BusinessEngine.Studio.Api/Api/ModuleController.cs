@@ -825,6 +825,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var actions = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, 1, 1000, null, null, "ActionName");
                 var variables = await _moduleVariableService.GetModuleVariablesListItemAsync(moduleId);
                 var events = Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
+                var actionKeys = await _actionService.GetActionKeysAsync();
                 var action = actionId != Guid.Empty
                         ? await _actionService.GetActionViewModelAsync(actionId)
                         : null;
@@ -840,6 +841,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     Actions = actions.Items,
                     Variables = variables,
                     Events = events,
+                    ActionKeys = actionKeys,
                     Action = action,
                 });
             }

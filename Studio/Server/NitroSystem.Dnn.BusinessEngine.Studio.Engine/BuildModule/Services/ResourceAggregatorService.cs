@@ -32,6 +32,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 FileUtil.WriteFileContentAsync($"{outputDirectory}/{moduleKebabName}.css", styles)
             };
 
+            if (!string.IsNullOrWhiteSpace(request.Module.PreloadingTemplate))
+                fileTasks.Append(FileUtil.WriteFileContentAsync($"{outputDirectory}/{moduleKebabName}.preloader.html", request.Module.PreloadingTemplate));
+
             await Task.WhenAll(fileTasks);
 
             int count = request.Module.ExternalResources.Count();

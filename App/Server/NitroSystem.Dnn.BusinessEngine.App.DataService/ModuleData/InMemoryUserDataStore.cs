@@ -38,7 +38,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
         public async Task<ConcurrentDictionary<string, object>> GetOrCreateModuleDataAsync(string connectionId, Guid moduleId, string basePath)
         {
             var userModules = _store.GetOrAdd(connectionId, _ => new Dictionary<Guid, ConcurrentDictionary<string, object>>());
-            var locker = _locks.GetOrAdd(connectionId, _ => new SemaphoreSlim(1, 1));
+            var lockId = connectionId + moduleId;
+            var locker = _locks.GetOrAdd(lockId , _ => new SemaphoreSlim(1, 1));
 
             await locker.WaitAsync();
             try

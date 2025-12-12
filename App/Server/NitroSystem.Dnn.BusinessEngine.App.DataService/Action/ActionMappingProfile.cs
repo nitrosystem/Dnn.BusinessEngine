@@ -3,7 +3,8 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
+using System.Linq;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
 {
@@ -15,10 +16,13 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
                 (src, dest) => dest.ParentActionTriggerCondition = (ActionExecutionCondition?)src.ParentActionTriggerCondition);
 
             HybridMapper.BeforeMap<ActionInfo, ActionDto>(
-                (src, dest) => dest.AuthorizationRunAction = src.AuthorizationRunAction?.Split(','));
+                (src, dest) => dest.CacheOperation = (CacheOperation)src.CacheOperation);
 
             HybridMapper.BeforeMap<ActionInfo, ActionDto>(
-                    (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
+                (src, dest) => dest.CacheKeys = src.CacheKey?.Split(',') ?? Enumerable.Empty<string>());
+
+            HybridMapper.BeforeMap<ActionInfo, ActionDto>(
+                (src, dest) => dest.AuthorizationRunAction = src.AuthorizationRunAction?.Split(','));
         }
     }
 }

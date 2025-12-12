@@ -29,16 +29,31 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
                 (src, dest) => dest.ParentActionTriggerCondition = (ActionExecutionCondition?)src.ParentActionTriggerCondition);
 
             HybridMapper.BeforeMap<ActionInfo, ActionViewModel>(
+                (src, dest) => dest.CacheOperation = (CacheOperation)src.CacheOperation);
+
+            HybridMapper.BeforeMap<ActionInfo, ActionViewModel>(
+                (src, dest) => dest.CacheKeys = src.CacheKey?.Split(','));
+
+            HybridMapper.BeforeMap<ActionInfo, ActionViewModel>(
                 (src, dest) => dest.AuthorizationRunAction = src.AuthorizationRunAction?.Split(','));
 
             HybridMapper.BeforeMap<ActionInfo, ActionViewModel>(
                     (src, dest) => dest.Settings = ReflectionUtil.TryJsonCasting<Dictionary<string, object>>(src.Settings, true));
+
+            HybridMapper.BeforeMap<ActionInfo, ActionViewModel>(
+                (src, dest) => dest.CacheKeys = src.CacheKey?.Split(','));
 
             HybridMapper.BeforeMap<ActionView, ActionViewModel>(
                 (src, dest) => dest.ActionTypeIcon = src.ActionTypeIcon?.ReplaceFrequentTokens());
 
             HybridMapper.BeforeMap<ActionView, ActionViewModel>(
                 (src, dest) => dest.ParentActionTriggerCondition = (ActionExecutionCondition?)src.ParentActionTriggerCondition);
+
+            HybridMapper.BeforeMap<ActionView, ActionViewModel>(
+                (src, dest) => dest.CacheOperation = (CacheOperation)src.CacheOperation);
+
+            HybridMapper.BeforeMap<ActionView, ActionViewModel>(
+                (src, dest) => dest.CacheKeys = src.CacheKey?.Split(','));
 
             HybridMapper.BeforeMap<ActionView, ActionViewModel>(
                 (src, dest) => dest.AuthorizationRunAction = src.AuthorizationRunAction?.Split(','));
@@ -48,6 +63,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
 
             HybridMapper.BeforeMap<ActionViewModel, ActionInfo>(
                 (src, dest) => dest.ParentActionTriggerCondition = (int?)src.ParentActionTriggerCondition);
+
+            HybridMapper.BeforeMap<ActionViewModel, ActionInfo>(
+                (src, dest) => dest.CacheOperation = (int)src.CacheOperation);
+
+            HybridMapper.BeforeMap<ActionViewModel, ActionInfo>(
+                (src, dest) => dest.CacheKey = src.CacheOperation == CacheOperation.ClearCache
+                    ? string.Join(",", src.CacheKeys ?? Enumerable.Empty<string>())
+                    : src.CacheKey
+                );
 
             HybridMapper.BeforeMap<ActionViewModel, ActionInfo>(
                 (src, dest) => dest.AuthorizationRunAction = string.Join(",", src.AuthorizationRunAction ?? Enumerable.Empty<string>()));

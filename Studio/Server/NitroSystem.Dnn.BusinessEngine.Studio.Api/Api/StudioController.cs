@@ -165,18 +165,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> UpdateItemGroup(ExplorerItemDto item)
+        public async Task<HttpResponseMessage> UpdateItemGroup(GroupItemDto item)
         {
             try
             {
                 bool result = false;
 
-                switch (item.ItemType)
+                switch (item.GroupType)
                 {
                     case "Entity":
                         result = await _entityService.UpdateGroupColumn(item.ItemId, item.GroupId);
                         break;
-                    case "ViewModel":
+                    case "AppModel":
                         result = await _appModelServices.UpdateGroupColumnAsync(item.ItemId, item.GroupId);
                         break;
                     case "Service":
@@ -302,6 +302,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var isDeleted = await _baseService.DeleteGroupAsync(postData.Id);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetGroupItems(Guid groupId, string groupType)
+        {
+            try
+            {
+                var items = await _baseService.GetGroupItemsAsync(groupId, groupType);
+
+                return Request.CreateResponse(HttpStatusCode.OK, items);
             }
             catch (Exception ex)
             {

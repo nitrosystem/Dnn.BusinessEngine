@@ -40,11 +40,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts
 
         Task DeleteByScopeAsync<T>(object value) where T : class, IEntity, new();
 
-        Task ExecuteStoredProcedureAsync(string storedProcedure, object parameters);
+        #region Execute Stored Procedure 
+
+        Task ExecuteStoredProcedureAsync(string storedProcedure, string cacheKey, object parameters);
 
         Task<T> ExecuteStoredProcedureScalerAsync<T>(string storedProcedure, string cacheKey, object parameters);
 
         Task<T> ExecuteStoredProcedureAsync<T>(string storedProcedure, string cacheKey, object parameters);
+
         T ExecuteStoredProcedure<T>(string storedProcedure, string cacheKey, object parameters);
 
         Task<object> ExecuteStoredProcedureAsync(Type type, string storedProcedure, string cacheKey, object parameters = null);
@@ -73,4 +76,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts
            string cacheKey,
            object parameters = null);
     }
+    
+    #endregion
 }
