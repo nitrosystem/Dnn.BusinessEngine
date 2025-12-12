@@ -1,4 +1,4 @@
-export function BindText(app, expressionService) {
+export function BindHtml(app, expressionService) {
     return {
         compile: function (attrs, element, scope) {
             if (element.__b_text_processed) return;
@@ -10,13 +10,13 @@ export function BindText(app, expressionService) {
             const render = () => {
                 const value = expressionService.evaluateExpression(expr, scope)
                 if (value !== null && value !== undefined)
-                    element.textContent =
+                    element.setHTMLUnsafe(
                         typeof (value) == 'string'
                             ? value
-                            : JSON.stringify(value);
+                            : JSON.stringify(value));
                 else {
                     if (attrs.literal == 'true')
-                        element.textContent = expr;
+                        element.setHTMLUnsafe(expr);
                 }
             }
 

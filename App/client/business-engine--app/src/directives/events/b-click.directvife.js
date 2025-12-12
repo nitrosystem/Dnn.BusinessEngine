@@ -20,6 +20,8 @@ export function BindClick(app, expressionService) {
                         });
                     }
 
+                    args.push(element);
+
                     if (typeof controller[fnName] === "function") {
                         controller[fnName](...args);
                     }

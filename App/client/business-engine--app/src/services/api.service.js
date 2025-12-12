@@ -39,7 +39,25 @@ export class ApiService {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            let responseBody;
+            try {
+                responseBody = await response.text(); // ابتدا متن را بگیر
+                // اگر JSON است، تبدیل می‌کنیم
+                try {
+                    if (typeof responseBody === 'string') responseBody = JSON.parse(responseBody);
+                } catch { }
+            } catch (e) {
+                responseBody = null;
+            }
+
+            const serverMessage =
+                responseBody && responseBody.Message
+                    ? responseBody.Message
+                    : typeof responseBody === 'string'
+                        ? responseBody
+                        : `HTTP error! Status: ${response.status}`;
+
+            throw new Error(serverMessage);
         }
 
         return await response.json();

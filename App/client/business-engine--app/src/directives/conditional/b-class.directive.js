@@ -19,7 +19,7 @@ export function BindClass(app, expressionService) {
 
             const render = () => {
                 items.forEach(item => {
-                    let value = expressionService.evaluateExpression(item.condition, scope);
+                    let value = expressionService.evaluate(item.condition, scope);
 
                     if (typeof value === 'string') {
                         try { value = JSON.parse(value); } catch { }

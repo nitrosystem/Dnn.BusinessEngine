@@ -1,4 +1,4 @@
-export class App {
+export class BusinessEngineApp {
     constructor() {
         this.services = {};
         this.controllers = {};
@@ -8,6 +8,8 @@ export class App {
         this.watchMap = new Map();
         this.queue = new Set();
         this.flushing = false;
+
+        this._events = new Map();
     }
 
     service(name, def) {
@@ -26,86 +28,263 @@ export class App {
         return this;
     }
 
+    filter(name, def) {
+        const expressionService = this.services['expressionService'];
+        expressionService.filters[name] = def;
+        return this;
+    }
+
     async bootstrap(appElement) {
-        const ctrlEls = appElement.querySelectorAll('[b-controller]');
-        for (const ctrlElement of ctrlEls) {
-            const attrs = this.getAttributesObject(ctrlElement);
-            const ctrlName = attrs['b-controller'];
-            const CtrlClass = this.controllers[ctrlName];
+        const attrs = this.getAttributesObject(appElement);
+        const ctrlName = attrs['b-controller'];
+        const CtrlClass = this.controllers[ctrlName];
 
-            if (!CtrlClass) throw new Error(`Controller ${ctrlName} not found`);
+        const isDashboard = attrs.dashboard === 'True';
+        const moduleId = attrs.module;
+        const connectionId = attrs.connection;
 
-            const resolved = this.resolveDependencies(CtrlClass);
-            const controller = new CtrlClass(...resolved);
+        if (!CtrlClass || !moduleId || !connectionId)
+            throw new Error(`Controller ${ctrlName} not found`);
 
-            const scope = await controller.onLoad(attrs.module, attrs.connection);
+        const isolatedApp = this.createIsolatedContext();
+        const resolved = this.resolveDependencies(CtrlClass, isolatedApp);
+        const controller = new CtrlClass(...resolved);
+        const scope = await controller.onLoad(isDashboard, moduleId, connectionId);
 
-            this.detectElements(ctrlElement, scope, controller);
-        };
+        isolatedApp.scopeRoot = scope;
+        isolatedApp.controller = controller;
+        isolatedApp.detectElements(appElement, scope, controller, true);
     }
 
-    detectElements(root, scope, controller) {
-        const tree = this.buildTreeNode(root);
+    createIsolatedContext() {
+        const isolated = Object.create(Object.getPrototypeOf(this));
 
-        const render = (node) => {
-            this.bindAttributes(node.element, scope);
-            this.bindTextNodes(node.element, scope);
-            this.scanDirectives(node.element, scope, controller);
+        isolated.services = this.services;
+        isolated.controllers = this.controllers;
+        isolated.directives = this.directives;
 
-            if (!node.element.hasAttribute('bb-if') && !node.element.hasAttribute('b-for'))
-                node.children.forEach(child => render(child));
-        }
+        isolated.watchers = [];
+        isolated.watchMap = new Map();
+        isolated.queue = new Set();
+        isolated.flushing = false;
 
-        render(tree);
+        isolated._events = new Map();
+
+        return isolated;
     }
 
-    buildTreeNode(element) {
-        const nodeObject = (el, children = []) => {
-            return {
-                element: el,
-                children: children
-            };
-        };
+    // ---------------------------
+    // Detect & Compile Directives
+    // ---------------------------
+    detectElements(element, scope, controller, isRoot = true, skipSelfDirection = "") {
+        if (!element || !element.attributes)
+            return;
 
-        const processNode = (element) => {
-            const children = Array.from(element.children || []).map(child => processNode(child));
-            return nodeObject(element, children);
-        };
+        // جلوگیری از ورود به کنترلر جدید (رفتار AngularJS)
+        if (!isRoot && element.hasAttribute('b-controller'))
+            return;
 
-        return processNode(element);
-    }
+        // ابتدا attributes را bind کن
+        this.bindAttributes(element, scope);
 
-    scanDirectives(element, scope, controller) {
-        for (let attr of element.attributes) {
-            const dirName = attr.name;
-            if (this.directives[dirName]) {
-                const attrs = this.getAttributesObject(element);
-                const resolved = this.resolveDependencies(this.directives[dirName]);
-                const defFn = this.directives[dirName].apply(null, resolved);
+        const attrs = element.attributes;
+        const directives = [];
 
-                defFn.compile(attrs, element, scope, controller);
+        // جمع‌آوری دایرکتیوها
+        for (let i = 0; i < attrs.length; i++) {
+            const attr = attrs[i];
+            if (attr.name === skipSelfDirection) continue;
+
+            const defFactory = this.directives[attr.name];
+            if (defFactory) {
+                const resolved = this.resolveDependencies(defFactory);
+                const def = defFactory(...resolved);
+                directives.push({ name: attr.name, value: attr.value, def });
             }
         }
+
+        // اگر دایرکتیو داشت: اجرا بر اساس priority
+        if (directives.length > 0) {
+            directives.sort((a, b) => (b.def.priority || 0) - (a.def.priority || 0));
+
+            for (const dir of directives) {
+                if (typeof dir.def.compile === "function") {
+
+                    const stop = dir.def.compile(
+                        this.getAttributesObject(element),
+                        element,
+                        scope,
+                        controller
+                    );
+
+                    // --- رفتار صحیح terminal (مشابه AngularJS) ---
+                    if (dir.def.terminal) {
+                        // فرزندان را **پردازش نکن**
+                        // فقط خود دایرکتیو اگر نیاز داشت detectElements صدا می‌زند
+                        return;
+                    }
+
+                    // اگر دایرکتیو گفت پردازش ادامه نده
+                    if (stop === false)
+                        return;
+                }
+            }
+        }
+
+        // حالا TextNodes را bind کن
+        this.bindTextNodes(element, scope);
+
+        // --- بسیار مهم: کپی کردن children قبل از تغییر DOM ---
+        const children = Array.from(element.children);
+
+        // ادامه پردازش فرزندان
+        for (const child of children) {
+            this.detectElements(child, scope, controller, false);
+        }
     }
 
-    createReactive(parent, key, expr) {
+    // ---------------------------
+    // Bind Text Nodes مستقیم
+    // ---------------------------
+    bindTextNodes(element, scope) {
+        const expressionService = this.services['expressionService'];
+
+        Array.from(element.childNodes).forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const text = node.nodeValue;
+                const matches = text.match(/{{\s*([^}]+)\s*}}/g);
+                if (!matches) return;
+
+                const newText = text.replace(/{{\s*([^}]+)\s*}}/g, (_, expr) => {
+                    return expressionService.evaluateExpression(expr.trim(), scope);
+                });
+
+                node.nodeValue = newText;
+            }
+        });
+    }
+
+    // ---------------------------
+    // Bind Attributes مستقیم
+    // ---------------------------
+    bindAttributes(element, scope) {
+        const expressionService = this.services['expressionService'];
+
+        for (let attr of element.attributes) {
+            const matches = attr.value.match(/{{\s*([^}]+)\s*}}/g);
+            if (!matches) continue;
+
+            const newValue = attr.value.replace(/{{\s*([^}]+)\s*}}/g, (_, expr) => {
+                return expressionService.evaluateExpression(expr.trim(), scope) ?? '';
+            });
+
+            element.setAttribute(attr.name, newValue);
+        }
+    }
+
+    createReactiveSimilarVue(parent, key, expr) {
         const self = this;
         const value = parent[key];
 
+        // جلوگیری از wrap دوباره
+        if (value && value.__isReactive) return value;
+
+        if (typeof value === "object" && value !== null) {
+            const proxy = new Proxy(value, {
+
+                get(target, prop, receiver) {
+                    // محافظت از Symbol ها و props خطرناک
+                    if (
+                        typeof prop === "symbol" ||
+                        prop === "__isReactive" ||
+                        prop === "constructor"
+                    ) {
+                        return Reflect.get(target, prop, receiver);
+                    }
+
+                    // دسترسی به مقدار معمولی
+                    const result = Reflect.get(target, prop, receiver);
+
+                    return result;
+                },
+
+                set(target, prop, val, receiver) {
+                    const oldVal = target[prop];
+                    const isNew = oldVal !== val;
+
+                    const result = Reflect.set(target, prop, val, receiver);
+
+                    if (!isNew) return result;
+
+                    // اگر آرایه است و متدهای تغییر ساختار را صدا زدند، notify یکبار زده شود
+                    if (Array.isArray(target)) {
+                        if (["push", "pop", "shift", "unshift", "splice", "sort", "reverse"].includes(prop)) {
+                            self.notify(expr);
+                            return result;
+                        }
+
+                        // index set → reactive update
+                        if (!isNaN(prop)) {
+                            self.notify(expr + "[" + prop + "]");
+                            return result;
+                        }
+                    }
+
+                    // object property update
+                    self.notify(expr + "." + String(prop));
+
+                    return result;
+                }
+            });
+
+            // علامت برای جلوگیری از wrap دوباره
+            proxy.__isReactive = true;
+
+            parent[key] = proxy;
+            return;
+        }
+
+        // -------------------------------
+        // Primitive Values
+        // -------------------------------
+        let internalValue = value;
+
+        Object.defineProperty(parent, key, {
+            get() {
+                return internalValue;
+            },
+            set(val) {
+                if (internalValue !== val) {
+                    internalValue = val;
+                    self.notify(expr);
+                }
+            }
+        });
+    }
+
+    createReactiveOld(parent, key, expr) {
+        const self = this;
+        const value = parent[key];
+
+        if (value && value.__isReactive) return value;
+
         if (typeof value === "object" && value !== null) {
             parent[key] = new Proxy(value, {
-                get(target, prop) {
+                get(target, prop, receiver) {
+                    if (typeof prop === "symbol" || prop === "constructor")
+                        return Reflect.get(target, prop, receiver);
+
                     return target[prop];
                 },
-                set(target, prop, val) {
+                set(target, prop, val, receiver) {
                     const oldVal = target[prop];
-                    target[prop] = val;
+                    const success = Reflect.set(target, prop, val); //replaced with target[prop] = val;
 
-                    // فقط اگر کلید جدید بود یا آبجکت کامل عوض شد notify کن
-                    if (oldVal !== val && typeof val === "object") {
+                    if (success && oldVal !== val && typeof val === "object") {
                         self.notify(expr + "." + prop);
                     }
-                    return true;
+
+                    return success;
                 }
             });
         } else {
@@ -124,55 +303,52 @@ export class App {
         }
     }
 
-    bindTextNodes(root, scope) {
-        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
-        const nodes = [];
+    createReactive(parent, key, expr) {
+        const self = this;
+        const value = parent[key];
 
-        while (walker.nextNode()) {
-            const text = walker.currentNode.nodeValue;
-            const matches = text.match(/{{\s*([^}]+)\s*}}/g);
-            (matches ?? []).forEach(m => {
-                const expr = m.replace(/[{}]/g, '').trim();
-                nodes.push({ node: walker.currentNode, expr });
+        if (typeof value !== "object" || value === null) {
+            let internalValue = value;
+
+            Object.defineProperty(parent, key, {
+                get() {
+                    return internalValue;
+                },
+                set(val) {
+                    if (internalValue !== val) {
+                        internalValue = val;
+                        self.notify(expr);
+                    }
+                }
             });
-        }
 
-        nodes.forEach(({ node, expr }) => {
-            const update = () => {
-                node.nodeValue = this.evalText(node.nodeValue, scope);
-            };
-            update();
-        });
-    }
-
-    bindAttributes(element, scope) {
-        for (let attr of element.attributes) {
-            const matches = attr.value.match(/{{\s*([^}]+)\s*}}/g);
-            if (matches) {
-                matches.forEach(m => {
-                    const expr = m.replace(/[{}]/g, '').trim();
-                    const expressionService = this.services['expressionService'];
-                    const value = attr.value.replace(/{{\s*([^}]+)\s*}}/g,
-                        (_, g1) => expressionService.evaluateExpression(expr, scope));
-
-                    element.setAttribute(attr.name, value);
-                });
-            }
+            return;
         }
     }
 
-    evalText(template, scope) {
-        return template.replace(/{{\s*([^}]+)\s*}}/g, (_, key) => {
+    updateModel(expr, value) {
+        if (!expr) return;
+
+        if (value !== undefined && this.scopeRoot) {
             try {
-                return this.evalInContext(key, scope);
-            } catch {
-                return '';
-            }
-        });
-    }
+                const segments = expr.split('.');
+                const lastKey = segments.pop();
+                let parent = this.scopeRoot;
 
-    evalInContext(expr, scope) {
-        return Function(...Object.keys(scope), `return ${expr}`)(...Object.values(scope));
+                for (const key of segments) {
+                    if (parent && typeof parent === 'object')
+                        parent = parent[key];
+                    else return;
+                }
+
+                if (parent && lastKey in parent)
+                    parent[lastKey] = value;
+            } catch (e) {
+                console.warn('updateModel error:', e);
+            }
+        }
+
+        this.notify(expr);
     }
 
     notify(propName) {
@@ -205,7 +381,6 @@ export class App {
         const segments = path.split('.');
         const watchers = [];
 
-        // مسیرهای بالا‌دستی
         for (let i = 1; i <= segments.length; i++) {
             const subPath = segments.slice(0, i).join('.');
             const w = this.watchMap.get(subPath);
@@ -214,7 +389,6 @@ export class App {
             }
         }
 
-        // مسیرهای پایین‌دستی
         for (const [key, value] of this.watchMap.entries()) {
             if (key.startsWith(path + '.') && !watchers.some(w => w.path === key)) {
                 watchers.push({ path: key, watchers: value });
@@ -228,16 +402,13 @@ export class App {
         const { parent, key } = this.resolvePropReference(expr, scope);
         if (!parent) return;
 
-        // اطمینان از اینکه مسیر reactive شده
         if (!this.watchMap.has(expr)) {
             this.watchMap.set(expr, new Set());
             this.createReactive(parent, key, expr);
         }
 
-        // مقدار اولیه
         const getter = () => parent[key];
 
-        // اضافه کردن واچ جدید به مجموعه
         this.watchMap.get(expr).add({
             getter,
             callback: (newVal, oldVal) => callback(newVal, oldVal, ...args),
@@ -262,9 +433,10 @@ export class App {
         return { parent, key: lastKey };
     }
 
-    resolveDependencies(fn) {
+    resolveDependencies(fn, context) {
+        context = context ?? this;
         const paramNames = this.getParamNames(fn);
-        const resolved = paramNames.map(name => name == 'app' ? this : this.services[name]);
+        const resolved = paramNames.map(name => name == 'app' ? context : this.services[name]);
 
         return resolved;
     }
@@ -286,5 +458,35 @@ export class App {
         const clone = Object.create(Object.getPrototypeOf(scope));
         Object.assign(clone, scope);
         return clone;
+    }
+
+    on(eventName, callback) {
+        if (!this._events.has(eventName))
+            this._events.set(eventName, new Set());
+
+        const listeners = this._events.get(eventName);
+        listeners.add(callback);
+
+        return () => listeners.delete(callback);
+    }
+
+    broadcast(eventName, ...args) {
+        const listeners = this._events.get(eventName);
+        if (!listeners) return;
+
+        for (const cb of Array.from(listeners)) {
+            try {
+                cb(...args);
+            } catch (err) {
+                console.error(`Error in listener for "${eventName}":`, err);
+            }
+        }
+    }
+
+    clearListeners(eventName) {
+        if (eventName)
+            this._events.delete(eventName);
+        else
+            this._events.clear();
     }
 }

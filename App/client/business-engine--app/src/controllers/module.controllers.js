@@ -1,73 +1,97 @@
 export class ModuleController {
-    constructor(app, globalService, apiService, expressionService, actionService) {
+    constructor(app, globalService, apiService, expressionService, actionService, dslEngine) {
         this.app = app;
         this.globalService = globalService;
         this.apiService = apiService;
         this.actionService = actionService;
         this.expressionService = expressionService;
+        this.dslEngine = dslEngine;
+
+        window.addEventListener("beforeunload", () => this.disconnectUser());
     }
 
     //#region Event Methods
 
-    async onLoad(moduleId, connectionId) {
+    async onLoad(isDashboard, moduleId, connectionId) {
         this.moduleId = moduleId;
         this.connectionId = connectionId;
 
         this.scope = {
-            moduleId: moduleId,
-            connectionId: connectionId,
             form: {},
             pane: {},
             field: {}
         };
 
-        this.controllerCache = {};
-
         const module = await this.apiService.getAsync("Module", "GetModule", {
+            isDashboard: isDashboard,
             moduleId: moduleId,
             connectionId: connectionId,
-            pageUrl: document.URL
+            pageUrl: encodeURIComponent(document.URL)
         });
+        module.data = module.data || {};
 
-        this.scope.variables = module.variables;
+        this.dashboard = module.dashboard;
+        this.variables = module.variables;
 
         // const data=this.decodeProtectedData(data.md) ?? {};
-        for (const key in module.data) {
-            const variable = module.variables.find(v => v.VariableName === key);
-
-            if (!variable) continue;
+        for (const variable of module.variables) {
+            const key = variable.VariableName;
 
             if (variable.VariableType == 'AppModel' && !module.data[key]) {
-                this.scope[key] = {};
-                variable.Properties.forEach(prop => {
-                    this.scope[key][prop.PropertyName] = this.globalService.getDefaultValueByType(undefined, prop.PropertyType);
+                this.scope[key] = this.scope[key] ?? {};
+
+                for (const prop of variable.Properties) {
+                    if (!this.scope[key].hasOwnProperty(prop.PropertyName))
+                        this.scope[key][prop.PropertyName] = null;
+
+                    this.app.listenTo(`${key}.${prop.PropertyName}`, this.scope, () => {
+                        const value = this.expressionService.evaluateExpression(`${key}.${prop.PropertyName}`, this.scope);
+                        this.broadcast(`${key}.${prop.PropertyName}`, { value });
+                    })
+                };
+            } else {
+                this.scope[key] = module.data[key];
+                this.app.listenTo(key, this.scope, () => {
+                    const value = this.expressionService.evaluateExpression(key, this.scope);
+                    this.broadcast(key, { value });
                 });
             }
-            else if (this.globalService.isSystemType(variable.VariableType))
-                this.scope[key] = this.globalService.convertToRealType(module.data[key], variable.VariableType);
-            else
-                this.scope[key] = module.data[key];
         }
 
         // this.fields = this.decodeProtectedData(module.mf) ?? [];
         this.fields = module.fields ?? [];
         this.globalService.parseJsonItems(this.fields);
 
+        this.controllerCache = {};
+
         this.fields.forEach(field => {
             this.scope.field[field.FieldName] = field;
 
             if (field.CanHaveValue && field.FieldValueProperty) {
-                _.forEach(field.ConditionalValues ?? [], (fv) => {
-                    this.app.listenTo(fv.ValueExpression, this.scope, setFieldConditionalValue, { fieldId: field.Id });
+                (field.ConditionalValues ?? []).forEach(fv => {
+                    this.app.listenTo(fv.ValueExpression, this.scope, () => {
+                        this.setFieldConditionalValue(field.Id);
+                    });
 
-                    if (fv.Conditions)
-                        this.app.listenTo(fv.Conditions, this.scope, setFieldConditionalValue, { fieldId: field.Id });
+                    if (fv.Conditions) {
+                        this.app.listenTo(fv.Conditions, this.scope, () => {
+                            this.setFieldConditionalValue(field.Id);
+                        });
+                    }
                 });
             }
 
-            if (field.DataSource) {
-                if (field.DataSource.Type == 2 && field.DataSource.VariableName)
-                    this.app.listenTo(field.DataSource.VariableName, this.scope, onFieldDataSourceChange, { fieldId: field.Id });
+            if (field.DataSource && field.DataSource.Type == 2 && field.DataSource.VariableName) {
+                const items = this.expressionService.evaluateExpression(field.DataSource.VariableName, this.scope);
+                field.DataSource.Items = items;
+
+                this.app.listenTo(field.DataSource.VariableName, this.scope, () => {
+                    this.onFieldDataSourceChange(field.Id);
+                });
+
+                this.app.listenTo(`field.${field.FieldName}.DataSource.Items`, this.scope, () => {
+                    this.onFieldDataSourceChange(field.Id);
+                });
             }
 
             let controllerInstance = this.controllerCache[field.FieldType];
@@ -79,19 +103,30 @@ export class ModuleController {
                 }
             }
 
-            if (controllerInstance && typeof controllerInstance.init === 'function')
-                controllerInstance.init(field);
+            if (controllerInstance && typeof controllerInstance.init === 'function') {
+                try {
+                    controllerInstance.init(field);
+                } catch (error) {
+                    console.error(error);
+                }
+            }
         });
 
         // this.actions = this.decodeProtectedData(module.ma);
         this.actions = module.actions;
+        await this.callModuleActionsByEvent('OnPageLoad');
 
-        const moduleActions = _.filter(this.actions, (a) => { return a.ExecuteInClientSide && !a.FieldId });
-        if (moduleActions.length) await this.actionService.callActions('OnPageLoad', moduleActions, this.scope);
+        //handle perloader
+        let preloader;
+        if (isDashboard)
+            preloader = document.querySelector('[dashboard-preloader="true"]');
+        else
+            preloader = document.querySelector('[module-preloader="true"]');
 
-        $('.b-engine-module').addClass('is-loaded');
-
-        this.pingConnection();
+        if (preloader)
+            setTimeout(() => {
+                preloader.remove();
+            }, 100);
 
         return this.scope;
     }
@@ -102,13 +137,12 @@ export class ModuleController {
 
     onFieldDataSourceChange(fieldId) {
         const field = this.getFieldById(fieldId);
+        const items = this.expressionService.evaluateExpression(field.DataSource.VariableName, this.scope);
 
-        field.DataSource = { ...field.DataSource, ...this.scope[field.DataSource.VariableName] };
+        field.DataSource.Items = items;
 
-        this.$timeout(() => {
-            if (field.DataSource !== field.OldDataSource) this.$this.scope.$broadcast(`onFieldDataSourceChange_${field.Id}`, { field: field });
-            field.OldDataSource = angular.copy(field.DataSource);
-        }, 200);
+        this.app.updateModel(`field.${field.FieldName}.DataSource.Items`, field.DataSource.Items);
+        this.app.broadcast(`onFieldDataSourceChange_${field.Id}`, { field: field });
     }
 
     //#endregion
@@ -116,7 +150,7 @@ export class ModuleController {
     //#region Validate Methods
 
     async validateForm() {
-        const fields = _.filter(this.fields, (f) => {
+        const fields = this.fields.filter(f => {
             return f.CanHaveValue || f.IsGroupField
         });
 
@@ -133,13 +167,12 @@ export class ModuleController {
     }
 
     async validatePane(paneName) {
-        let fields = _.filter(this.fields, (f) => {
-            return f.PaneName == paneName;
-        });
+        const fields = this.fields.filter(f => { return f.PaneName == paneName; });
 
-        _.filter(fields, (f) => { return f.IsGroupField; }).map((group) => {
-            fields.push(...this.getGroupFields(group.Id));
-        });
+        fields.filter(f => { return f.IsGroupField; })
+            .map(group => {
+                fields.push(...this.getGroupFields(group.Id));
+            });
 
         this.scope.pane[paneName] = this.scope.pane[paneName] || {};
         this.scope.pane[paneName].isValid = await this.validateFields(fields);
@@ -184,7 +217,7 @@ export class ModuleController {
         }
 
         if (field.isValid && field.Settings.ValidationMethod) {
-            field.isValid = await his.$deferredBroadcast(this, field.Settings.ValidationMethod, value);
+            //field.isValid = await his.$deferredBroadcast(this, field.Settings.ValidationMethod, value);
         }
 
         field.isValid = field.isValid && (isEmpty || this.validateFieldPattern(field, value));
@@ -210,9 +243,36 @@ export class ModuleController {
 
     //#region Actions Methods
 
-    async callActionsByEvent(fieldId, event) {
-        const actions = _.filter(this.actions, (a) => { return a.FieldId == fieldId });
-        await this.actionService.callActions(event, actions, this.scope);
+    async callModuleActionsByEvent(event) {
+        const actions = this.actions.filter(a => a.ExecuteInClientSide && !a.FieldId);
+        if (actions.length)
+            return await this.actions.callActionsByEvent(this, event, actions);
+    }
+
+    async callFieldActionsByEvent(fieldId, event, extraParams) {
+        const actions = this.actions.filter(a => a.FieldId === fieldId);
+        if (actions.length)
+            return await this.actionService.callActionsByEvent(this, event, actions, extraParams);
+    }
+
+    async callFieldActions(fieldId, actionId, extraParams) {
+        const actions = this.actions.filter(a => a.FieldId === fieldId);
+        if (actions.length)
+            return await this.actionService.callActions(this, actionId, actions, extraParams);
+    }
+
+    async callAction(actionId, extraParams) {
+        const actions = this.actions.filter(a => a.Id === actionId);
+        if (actions.length)
+            return await this.actionService.callActions(this, actionId, actions, extraParams);
+    }
+
+    async callClientAction(actionId, extraParams) {
+        return await this.actionService.callClientAction(this, [actionId], extraParams);
+    }
+
+    async callServerAction(actionId, extraParams) {
+        return await this.actionService.callServerActions(this, [actionId], extraParams);
     }
 
     //#endregion
@@ -220,18 +280,12 @@ export class ModuleController {
     //#region Field Methods
 
     getFieldById(fieldId) {
-        const field = _.find(this.fields, (f) => {
-            return f.Id == fieldId;
-        });
-
+        const field = this.fields.find(f => { return f.Id == fieldId; });
         return field;
     }
 
     getFieldByName(fieldName) {
-        const field = _.find(this.fields, (f) => {
-            return f.FieldName == fieldName;
-        });
-
+        const field = this.fields.find(f => { return f.FieldName == fieldName; });
         return field;
     }
 
@@ -239,12 +293,9 @@ export class ModuleController {
         let fields = [];
 
         const findNestedFields = (groupId) => {
-            const childs = _.filter(this.fields, (f) => { return f.ParentId == groupId; });
+            const childs = this.fields.filter(f => { return f.ParentId == groupId; });
             fields.push(...childs);
-
-            _.filter(childs, (f) => { return f.IsGroupField; }).map((group) => {
-                findNestedFields(group.Id);
-            });
+            childs.filter(f => { return f.IsGroupField; }).map((group) => { findNestedFields(group.Id); });
         };
 
         findNestedFields(groupId);
@@ -283,47 +334,16 @@ export class ModuleController {
 
     //#region Other Methods
 
-    /*------------------------------------*/
-    /* Watch Fields or Variables Changed   */
-    /*------------------------------------*/
-    appendWatches(expression, callback, ...params) {
-        if (!expression || typeof expression != "string" || !callback) return;
-
-        const matches = expression.match(/(\w+)([\.\[].[^*+%\-\/\s()]*)?/gm);
-        (matches ?? []).forEach(match => {
-            const propertyPath = match;
-            const watch = _.find(this.watches, (w) => {
-                return w.property == propertyPath;
-            });
-            if (!watch) {
-                this.watches.push({
-                    property: propertyPath,
-                    callbacks: [{
-                        callback: callback,
-                        params: params,
-                    },],
-                });
-            } else {
-                watch.callbacks.push({
-                    callback: callback,
-                    params: params,
-                });
-            }
-        });
+    on(eventName, callback) {
+        this.app.on(eventName, callback)
     }
 
-    async pingConnection() {
-        await new Promise(res => setTimeout(res, 40000));
+    broadcast(eventName, ...args) {
+        this.app.broadcast(eventName, ...args);
+    }
 
-        try {
-            await this.apiService.postAsync("Module", "PingConnection", {
-                ConnectionId: this.connectionId
-            });
-        } catch (error) {
-            console.error(error);
-        }
-
-        this.pingConnection();
+    updateModel(expr, value) {
+        this.app.updateModel(expr, value);
     }
 
     //#endregion

@@ -1,91 +1,79 @@
 export function BindFor(app, expressionService) {
     return {
-        compile: function (attrs, element, scope) {
+        terminal: true,
+        priority: 100,
+        compile: function (attrs, element, scope, controller) {
+            if (element.__b_for_processed) return;
+            element.__b_for_processed = true;
+
             const expr = attrs['b-for'];
 
-            // Parse: "item in items track by item.id"
-            let [forPart, trackByPart] = expr.split(' track by ').map(s => s.trim());
+            // مثال: "item in items track by item.id"
+            let [forPart] = expr.split(' track by ').map(s => s.trim());
             const [itemName, listName] = forPart.split(' in ').map(s => s.trim());
-            const trackByExpr = trackByPart || '$index';
+
+            const backup = element.cloneNode(true);
 
             const parent = element.parentElement;
             const placeholder = document.createComment(`b-for: ${listName}`);
             parent.insertBefore(placeholder, element);
             parent.removeChild(element);
 
-            const renderedMap = new Map(); // key → { clone, scope }
-
             const render = () => {
                 const list = expressionService.evaluateExpression(listName, scope) ?? [];
-                const newMap = new Map();
 
+                // پاک کردن کل cloneهای قبلی
+                let node = placeholder.nextSibling;
+                while (node) {
+                    const next = node.nextSibling;
+                    if (node.nodeType === 1 && node.hasAttribute('b-for-clone')) {
+                        parent.removeChild(node);
+                    } else {
+                        break; // اطمینان از اینکه از محدوده خارج نمی‌شیم
+                    }
+                    node = next;
+                }
+
+                // بازسازی کامل لیست
                 let lastNode = placeholder;
+                let index = 0;
+                for (const item of list) {
+                    const clone = element.cloneNode(true);
+                    clone.removeAttribute('b-for');
+                    clone.setAttribute('b-for-clone', listName);
+                    clone.setAttribute('b-for-index', index);
 
-                list.forEach((item, index) => {
-                    // Evaluate trackBy key
-                    let key;
-                    if (trackByExpr === '$index') {
-                        key = index;
-                    } else {
-                        const scopedEval = Object.create(scope);
-                        scopedEval[itemName] = item;
-                        scopedEval.$index = index;
-                        key = expressionService.evaluateExpression(trackByExpr, scopedEval);
-                    }
+                    const childScope = Object.create(scope);
+                    childScope[itemName] = item;
+                    childScope.$index = index;
 
-                    let record = renderedMap.get(key);
+                    parent.insertBefore(clone, lastNode.nextSibling);
+                    app.detectElements(clone, childScope, controller, false, 'b-for');
 
-                    if (record) {
-                        // Reuse existing clone
-                        newMap.set(key, record);
+                    app.on(`${listName}[${index}]`, (args) => {
+                        const newElement = backup.cloneNode(true);
+                        newElement.removeAttribute('b-for');
+                        newElement.setAttribute('b-for-clone', listName);
 
-                        // Update scope values
-                        record.scope[itemName] = item;
-                        record.scope.$index = index;
+                        index = args.index || index;
+                        const newVal = args.newVal;
+                        const child = Object.create(scope);
+                        child[itemName] = newVal;
+                        child.$index = index;
+                        app.detectElements(newElement, child, controller, false, 'b-for');
 
-                        // Ensure correct order (insert after lastNode)
-                        if (record.clone.previousSibling !== lastNode) {
-                            parent.insertBefore(record.clone, lastNode.nextSibling);
-                        }
+                        element.replaceWith(newElement);
+                    });
 
-                        lastNode = record.clone;
-                    } else {
-                        // Create new clone
-                        const clone = element.cloneNode(true);
-                        clone.removeAttribute('b-for');
-                        clone.setAttribute('b-for-clone', listName);
-                        clone.setAttribute('b-for-index', index);
-
-                        // 🔑 Scoped scope: inherits from parent scope
-                        const scopedController = Object.create(scope);
-                        scopedController[itemName] = item;
-                        scopedController.$index = index;
-
-                        parent.insertBefore(clone, lastNode.nextSibling);
-
-                        app.detectElements(clone, scopedController);
-
-                        record = { clone, scope: scopedController };
-                        newMap.set(key, record);
-
-                        lastNode = clone;
-                    }
-                });
-
-                // Remove old nodes not in new list
-                renderedMap.forEach((record, key) => {
-                    if (!newMap.has(key)) {
-                        parent.removeChild(record.clone);
-                    }
-                });
-
-                // Swap maps
-                renderedMap.clear();
-                newMap.forEach((v, k) => renderedMap.set(k, v));
+                    lastNode = clone;
+                    index++;
+                };
             };
 
+            // اولین رندر
             render();
 
+            // گوش دادن به تغییرات لیست
             app.listenTo(listName, scope, render);
         }
     };

@@ -4,7 +4,7 @@ export function BindShow(app, expressionService) {
             const expr = attrs['b-show'];
 
             const render = () => {
-                const value = expressionService.evaluateExpression(expr, scope);
+                const value = expressionService.evaluate(expr, scope);
 
                 if (typeof value == 'string') value = JSON.parse(value);
 

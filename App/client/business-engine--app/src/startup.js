@@ -1,14 +1,20 @@
-import { App } from "./app";
+import { BusinessEngineApp } from "./app";
 
 import { GlobalService } from "./services/global.service";
 import { ApiService } from "./services/api.service";
 import { ActionService } from "./services/action.service";
 import { ExpressionService } from "./services/expression.service";
+import { DSLEngine } from "./services/dsl-engine.service.js";
 
 import { ModuleController } from "./controllers/module.controllers";
 
 import { BindModel } from "./directives/data/b-model.directive";
 import { BindText } from "./directives/data/b-text.directive";
+import { BindHtml } from "./directives/data/b-html.directive.js";
+import { BindElement } from "./directives/data/b-element.directive.js";
+import { BindDate } from "./directives/data/b-date.directive.js";
+import { BindImage } from "./directives/data/b-image.directive.js";
+import { BindLink } from "./directives/data/b-link.directive.js";
 import { BindClass } from "./directives/conditional/b-class.directive.js";
 import { BindIf } from "./directives/conditional/b-if.directive.js";
 import { BindShow } from "./directives/conditional/b-show.directive.js";
@@ -18,16 +24,24 @@ import { BindFor } from "./directives/list/b-for.directive";
 import { BindClick } from "./directives/events/b-click.directvife";
 import { BindChange } from "./directives/events/b-change.directvife.js";
 
-const app = new App();
+import { OrderByFilter } from "./filters/order-by.filter.js";
+
+const app = new BusinessEngineApp();
 app.service("globalService", GlobalService);
 app.service("apiService", ApiService);
 app.service("expressionService", ExpressionService);
 app.service("actionService", ActionService);
+app.service("dslEngine", DSLEngine);
 
 app.controller("moduleController", ModuleController);
 
 app.directive("b-model", BindModel);
 app.directive("b-text", BindText);
+app.directive("b-html", BindHtml);
+app.directive("b-element", BindElement);
+app.directive("b-date", BindDate);
+app.directive("b-image", BindImage);
+app.directive("b-link", BindLink);
 app.directive("b-class", BindClass);
 app.directive("b-if", BindIf);
 app.directive("b-show", BindShow);
@@ -37,7 +51,7 @@ app.directive("b-for", BindFor);
 app.directive("b-click", BindClick);
 app.directive("b-change", BindChange);
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const appElement = document.querySelector('[b-app]');
-    await app.bootstrap(appElement);
-});
+app.filter("orderBy", OrderByFilter);
+
+
+export default app; 
