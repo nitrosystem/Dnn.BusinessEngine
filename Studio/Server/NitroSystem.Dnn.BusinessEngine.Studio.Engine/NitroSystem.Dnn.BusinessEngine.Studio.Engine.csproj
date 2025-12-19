@@ -65,16 +65,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildModule\BuildModuleEngine.cs" />
+    <Compile Include="BuildModule\BuildModuleRequest.cs" />
+    <Compile Include="BuildModule\BuildModuleResponse.cs" />
+    <Compile Include="BuildModule\Contracts\IBuildLayoutService.cs" />
+    <Compile Include="BuildModule\Contracts\IFieldTypePaneGeneration.cs" />
+    <Compile Include="BuildModule\Contracts\IMergeResourcesService.cs" />
     <Compile Include="BuildModule\Middlewares\ResourceAggregatorMiddleware.cs" />
     <Compile Include="BuildModule\Middlewares\MergeResourcesMiddleware.cs" />
     <Compile Include="BuildModule\Middlewares\BuildLayoutMiddleware.cs" />
-    <Compile Include="BuildModule\Services\ResourceAggregatorService.cs" />
     <Compile Include="BuildModule\Services\BuildLayoutService.cs" />
     <Compile Include="BuildModule\Services\MergeResourcesService.cs" />
-    <Compile Include="InstallExtension\InstallExtensionContext.cs" />
-    <Compile Include="InstallExtension\InstallExtensionEngine.cs" />
-    <Compile Include="InstallExtension\Middlewares\ResourcesMiddleware.cs" />
-    <Compile Include="InstallExtension\Middlewares\SqlDataProviderMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeBuilder\Middlewares\BuildTypeMiddleware.cs" />
     <Compile Include="TypeBuilder\TypeBuilderEngine.cs" />

@@ -19,6 +19,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public bool HasResult { get; set; }
         public byte ResultType { get; set; }
         public string AuthorizationRunService { get; set; }
+        public int CacheOperation { get; set; }
+        public string CacheKey { get; set; }
         public string Settings { get; set; }
         public string ServiceTypeTitle { get; set; }
         public string ServiceComponent { get; set; }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 

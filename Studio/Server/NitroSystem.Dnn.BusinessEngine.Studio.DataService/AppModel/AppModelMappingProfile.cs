@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.AppModel;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
 {

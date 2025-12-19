@@ -1,0 +1,13 @@
+﻿using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Base;
+using System.Collections.Generic;
+
+namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Statements
+{
+    public sealed class IfStatement : DslStatement
+    {
+        public DslExpression Condition { get; set; }
+        public IReadOnlyList<DslStatement> Then { get; set; }
+        public IReadOnlyList<DslStatement> Else { get; set; }
+    }
+
+}

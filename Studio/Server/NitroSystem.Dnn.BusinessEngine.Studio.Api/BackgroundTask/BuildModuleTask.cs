@@ -57,7 +57,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask
                 () => _moduleService.GetDataForModuleBuildingAsync(_moduleId)
              );
 
-            var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService, _workflow, true);
+            var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService, true);
             await engine.ExecuteAsync(request);
         }
     }

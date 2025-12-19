@@ -39,7 +39,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
         {
             var userModules = _store.GetOrAdd(connectionId, _ => new Dictionary<Guid, ConcurrentDictionary<string, object>>());
             var lockId = connectionId + moduleId;
-            var locker = _locks.GetOrAdd(lockId , _ => new SemaphoreSlim(1, 1));
+            var locker = _locks.GetOrAdd(lockId, _ => new SemaphoreSlim(1, 1));
 
             await locker.WaitAsync();
             try
@@ -93,6 +93,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
             foreach (var variable in variables.Where(v => moduleData.Keys.Contains(v.VariableName) && incomingData.Keys.Contains(v.VariableName)))
             {
                 var value = incomingData[variable.VariableName];
+                if (value != null && variable.VariableType != "string" && string.IsNullOrEmpty(value.ToString()))
+                    value = null;
 
                 if (variable.VariableType == "AppModel" && value != null && value.GetType() == typeof(JObject))
                 {
@@ -153,7 +155,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
                     }
                     else
                     {
-                        moduleData[variable.VariableName] = TypeChecker.GetSystemTypeDefaultValue(variable.VariableType);
+                        moduleData[variable.VariableName] = null;// TypeChecker.GetSystemTypeDefaultValue(variable.VariableType);
 
                         if (!string.IsNullOrWhiteSpace(variable.DefaultValue))
                         {
@@ -199,9 +201,45 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
                     _clientVariables.TryGetValue(moduleId, out var clientVariable);
                     foreach (var key in clientVariable)
                     {
-                        moduleData.TryUpdate(key, null, moduleData[key]);
+                        if (moduleData.TryGetValue(key, out var data)) 
+                            moduleData.TryUpdate(key, null, data);
                     }
                 }
+            }
+        }
+
+        public static object ConvertOrNull(string value, string typeName)
+        {
+            if (typeName == null)
+                throw new ArgumentNullException(nameof(typeName));
+
+            typeName = typeName.ToLowerInvariant();
+
+            // string استثناء است
+            if (typeName == "string")
+                return value ?? string.Empty;
+
+            // مقادیر خالی برای تایپ‌های غیر string
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            try
+            {
+                return typeName switch
+                {
+                    "int" => int.TryParse(value, out var i) ? i : null,
+                    "long" => long.TryParse(value, out var l) ? l : null,
+                    "double" => double.TryParse(value, out var d) ? d : null,
+                    "decimal" => decimal.TryParse(value, out var m) ? m : null,
+                    "bool" => bool.TryParse(value, out var b) ? b : null,
+                    "datetime" => DateTime.TryParse(value, out var dt) ? dt : null,
+
+                    _ => null
+                };
+            }
+            catch
+            {
+                return null;
             }
         }
     }

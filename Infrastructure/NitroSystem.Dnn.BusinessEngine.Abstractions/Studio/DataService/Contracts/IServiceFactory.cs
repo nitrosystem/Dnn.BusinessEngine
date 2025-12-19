@@ -21,6 +21,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contrac
             string serviceDomain,
             string serviceType,
             string sortBy);
+
+        Task<IEnumerable<string>> GetServiceKeysAsync();
         Task<(Guid ServiceId, Guid? ExtensionServiceId)> SaveServiceAsync(ServiceViewModel service, string extensionServiceJson, bool isNew);
         Task<bool> UpdateGroupColumn(Guid serviceId, Guid? groupId);
         Task<bool> DeleteServiceAsync(Guid serviceId);

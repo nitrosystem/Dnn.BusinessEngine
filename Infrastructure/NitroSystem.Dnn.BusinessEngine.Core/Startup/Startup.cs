@@ -11,7 +11,9 @@ using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework;
 using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.PushingServer;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Startup
 {
@@ -23,8 +25,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Startup
             services.AddSingleton<ICacheService, CacheService>();
             services.AddSingleton<ITypeLoaderFactory, TypeLoaderFactory>();
 
+            services.AddSingleton<GeneratedModelRegistry>();
+
             services.AddSingleton<LockService>();
 
+            services.AddScoped<IEngineRunner, EngineRunner>();
+            
             services.AddScoped<IExpressionService, ExpressionService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();

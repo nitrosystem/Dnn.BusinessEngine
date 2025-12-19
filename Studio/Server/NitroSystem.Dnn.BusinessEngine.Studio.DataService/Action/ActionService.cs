@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
@@ -13,7 +11,6 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
 {
@@ -37,7 +34,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
         public async Task<(IEnumerable<ActionViewModel> Items, int TotalCount)> GetActionsViewModelAsync(
             Guid moduleId, Guid? fieldId, int pageIndex, int pageSize, string searchText, string actionType, string sortBy)
         {
-            var results = await _repository.ExecuteStoredProcedureMultipleAsync<int, ActionView, ActionParamInfo, ActionResultInfo>(
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<int, ActionView, ActionParamInfo>(
                 "dbo.BusinessEngine_Studio_GetActions", "BE_Actions_Studio_GetActions_",
                 new
                 {
@@ -53,25 +50,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
             var totalCount = results.Item1?.First() ?? 0;
             var actions = results.Item2;
             var actionParams = results.Item3;
-            var actionResults = results.Item4;
 
-            var builder = new CollectionMappingBuilder<ActionView, ActionViewModel>();
-
-            builder.AddChildAsync<ActionParamInfo, ActionParamViewModel, Guid>(
-               source: actionParams,
-               parentKey: parent => parent.Id,
-               childKey: child => child.ActionId,
-               assign: (dest, children) => dest.Params = children
+            var result = HybridMapper.MapWithChildren<ActionView, ActionViewModel, ActionParamInfo, ActionParamViewModel>(
+               parents: actions,
+               children: actionParams,
+               parentKeySelector: p => p.Id,
+               childKeySelector: c => c.ActionId,
+               assignChildren: (parent, childs) => parent.Params = childs
             );
 
-            builder.AddChildAsync<ActionResultInfo, ActionResultViewModel, Guid>(
-              source: actionResults,
-              parentKey: parent => parent.Id,
-              childKey: child => child.ActionId,
-              assign: (dest, children) => dest.Results = children
-            );
-
-            var result = await builder.BuildAsync(actions);
             return (result, totalCount);
         }
 
@@ -81,42 +68,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
             return HybridMapper.MapCollection<ActionInfo, ActionListItem>(actions);
         }
 
-        public async Task<IEnumerable<string>> GetActionKeysAsync()
-        {
-            var actions = await _repository.GetAllAsync<ActionInfo>("CacheKey");
-            return actions.Where(a => (CacheOperation)a.CacheOperation == CacheOperation.SetCache).Select(a => a.CacheKey);
-        }
         public async Task<ActionViewModel> GetActionViewModelAsync(Guid actionId)
         {
             var action = await _repository.GetAsync<ActionView>(actionId);
-            var actionResults = await _repository.GetByScopeAsync<ActionResultInfo>(actionId);
             var actionParams = await _repository.GetByScopeAsync<ActionParamInfo>(actionId);
 
-            var builder = new CollectionMappingBuilder<ActionView, ActionViewModel>();
-
-            builder.AddChildAsync<ActionParamInfo, ActionParamViewModel, Guid>(
-               source: actionParams,
-               parentKey: parent => parent.Id,
-               childKey: child => child.ActionId,
-               assign: (dest, children) => dest.Params = children
-            );
-
-            builder.AddChildAsync<ActionResultInfo, ActionResultViewModel, Guid>(
-              source: actionResults,
-              parentKey: parent => parent.Id,
-              childKey: child => child.ActionId,
-              assign: (dest, children) => dest.Results = children
-            );
-
-            var result = await builder.BuildAsync(action);
-            return result;
+            return HybridMapper.MapWithChildren<ActionView, ActionViewModel, ActionParamInfo, ActionParamViewModel>(
+               source: action,
+               children: actionParams,
+               assignChildren: (parent, childs) => parent.Params = childs
+           );
         }
 
         public async Task<Guid> SaveActionAsync(ActionViewModel action, bool isNew)
         {
             var objActionInfo = HybridMapper.Map<ActionViewModel, ActionInfo>(action);
             var actionParams = HybridMapper.MapCollection<ActionParamViewModel, ActionParamInfo>(action.Params);
-            var actionResults = HybridMapper.MapCollection<ActionResultViewModel, ActionResultInfo>(action.Results);
 
             _unitOfWork.BeginTransaction();
 
@@ -129,11 +96,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
                     var isUpdated = await _repository.UpdateAsync(objActionInfo);
                     if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objActionInfo);
 
-                    await _repository.DeleteByScopeAsync<ActionResultInfo>(objActionInfo.Id);
                     await _repository.DeleteByScopeAsync<ActionParamInfo>(objActionInfo.Id);
                 }
 
-                await _repository.BulkInsertAsync(actionResults.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
                 await _repository.BulkInsertAsync(actionParams.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
 
                 _unitOfWork.Commit();

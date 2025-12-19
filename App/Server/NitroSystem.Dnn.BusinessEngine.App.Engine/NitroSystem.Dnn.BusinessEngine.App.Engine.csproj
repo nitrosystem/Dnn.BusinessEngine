@@ -37,8 +37,17 @@
     <Reference Include="DotNetNuke, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\DotNetNuke.dll</HintPath>
     </Reference>
+    <Reference Include="DotNetNuke.DependencyInjection, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\DotNetNuke.DependencyInjection.9.4.0\lib\netstandard2.0\DotNetNuke.DependencyInjection.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\DotNetNuke.Core.9.4.0\lib\net45\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.Extensions.DependencyInjection.2.1.1\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -53,14 +62,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionExecutionEngine\ActionExecutionContext.cs" />
-    <Compile Include="ActionExecutionEngine\ActionExecutionEngine.cs" />
-    <Compile Include="ActionExecutionEngine\Middlewares\ActionSetResultMiddleware.cs" />
-    <Compile Include="ActionExecutionEngine\Middlewares\ActionWorkerMiddleware.cs" />
-    <Compile Include="ActionExecutionEngine\Middlewares\ActionConditionMiddleware.cs" />
-    <Compile Include="ActionExecutionEngine\Services\BuildBufferService.cs" />
+    <Compile Include="ActionExecution\ActionExecutionEngine.cs" />
+    <Compile Include="ActionExecution\ActionRequest.cs" />
+    <Compile Include="ActionExecution\ActionResponse.cs" />
+    <Compile Include="ActionExecution\Enums\ActionExceptionState.cs" />
+    <Compile Include="ActionExecution\Enums\ActionResultStatus.cs" />
+    <Compile Include="ActionExecution\Middlewares\ActionSetResultMiddleware.cs" />
+    <Compile Include="ActionExecution\Middlewares\ActionSetParamsMiddleware.cs" />
+    <Compile Include="ActionExecution\Middlewares\ActionWorkerMiddleware.cs" />
+    <Compile Include="ActionExecution\Middlewares\ActionConditionMiddleware.cs" />
+    <Compile Include="ActionExecution\Models\ActionException.cs" />
+    <Compile Include="ActionOrchestrator\ActionTree.cs" />
+    <Compile Include="ActionOrchestrator\BuildActionsBuffer.cs" />
+    <Compile Include="ActionOrchestrator\ActionRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ActionExecutionEngine\Services\ActionWorker.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Abstractions\NitroSystem.Dnn.BusinessEngine.Abstractions.csproj">

@@ -76,7 +76,6 @@
     <Compile Include="Entities\Views\ModuleVariableView.cs" />
     <Compile Include="Repository\ExecuteSqlCommand.cs" />
     <Compile Include="Entities\Tables\ActionInfo.cs" />
-    <Compile Include="Entities\Tables\ActionResultInfo.cs" />
     <Compile Include="Entities\Tables\ModuleInfo.cs" />
     <Compile Include="Entities\Tables\ScenarioInfo.cs" />
     <Compile Include="Entities\Tables\ServiceInfo.cs" />

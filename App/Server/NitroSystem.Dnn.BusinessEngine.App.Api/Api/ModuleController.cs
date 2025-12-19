@@ -4,19 +4,22 @@ using System.Net.Http;
 using System.Web.Http;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading.Tasks;
-using DotNetNuke.Web.Api;
+using System.Collections.Generic;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using DotNetNuke.Web.Api;
 using NitroSystem.Dnn.BusinessEngine.App.Api.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
-using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionEngine;
-using System.Runtime.InteropServices;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution.Contracts;
-using System.Linq;
-using System.Collections.Concurrent;
+using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionOrchestrator;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution;
+using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine;
+using DotNetNuke.UI.UserControls;
+using static NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export.ExportFramework;
+using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {
@@ -24,26 +27,26 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IUserDataStore _userDataStore;
-        private readonly IBuildBufferService _buildBufferService;
         private readonly IDashboardService _dashboardService;
         private readonly IModuleService _moduleService;
         private readonly IActionService _actionService;
+        private readonly ActionRunner _actionRunner;
 
         public ModuleController(
             IServiceProvider serviceProvider,
-            IBuildBufferService buildBufferService,
             IUserDataStore userDataStore,
             IDashboardService dashboardService,
             IModuleService moduleService,
-            IActionService actionService
+            IActionService actionService,
+            ActionRunner actionRunner
         )
         {
             _serviceProvider = serviceProvider;
             _userDataStore = userDataStore;
-            _buildBufferService = buildBufferService;
             _moduleService = moduleService;
             _dashboardService = dashboardService;
             _actionService = actionService;
+            _actionRunner = actionRunner;
         }
 
         [AllowAnonymous]
@@ -56,22 +59,21 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                     ? await _dashboardService.GetDashboardDtoAsync(moduleId)
                     : null;
 
-                var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, moduleId, PortalSettings.HomeSystemDirectory);
+                var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, moduleId, PortalSettings.HomeSystemDirectoryMapPath);
+                moduleData["_PageParam"] = UrlHelper.ParsePageParameters(pageUrl);
+                moduleData["_CurrentUserId"] = UserInfo.UserID;
+
+                List<ActionResponse> actionResponses = null;
                 var actionIds = await _actionService.GetActionIdsAsync(moduleId, null, "OnPageLoad");
                 if (actionIds.Any())
                 {
-                    var pageActions = await _actionService.GetActionsDtoForServerAsync(actionIds);
-                    var request = new ActionRequest()
-                    {
-                        ConnectionId = connectionId,
-                        ModuleId = moduleId,
-                        UserId = UserInfo.UserID,
-                        PageUrl = pageUrl,
-                        BasePath = PortalSettings.HomeSystemDirectory,
-                        Actions = pageActions
-                    };
-                    var actionEngine = new ActionExecutionEngine(_serviceProvider, _userDataStore, _buildBufferService);
-                    await actionEngine.ExecuteAsync(request);
+                    actionResponses = await _actionRunner.RunAsync(
+                        actionIds,
+                        connectionId,
+                        moduleId,
+                        PortalSettings.HomeSystemDirectoryMapPath,
+                        moduleData
+                    );
                 }
 
                 var data = _userDataStore.GetDataForClients(connectionId, moduleId);
@@ -85,7 +87,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                     fields,
                     actions,
                     data,
-                    variables
+                    variables,
+                    actionResponses
                 });
 
                 //return Request.CreateResponse(HttpStatusCode.OK, new
@@ -109,22 +112,18 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
             {
                 var moduleData = await _userDataStore.UpdateModuleData(action.ConnectionId, action.ModuleId, action.Data, PortalSettings.HomeSystemDirectoryMapPath);
                 moduleData["_PageParam"] = UrlHelper.ParsePageParameters(action.PageUrl);
+                moduleData["_CurrentUserId"] = UserInfo.UserID;
 
-                var actions = await _actionService.GetActionsDtoForServerAsync(action.ActionIds);
-                var request = new ActionRequest()
-                {
-                    ConnectionId = action.ConnectionId,
-                    ModuleId = action.ModuleId,
-                    UserId = UserInfo.UserID,
-                    PageUrl = action.PageUrl,
-                    BasePath = PortalSettings.HomeSystemDirectory,
-                    ExtraParams = action.ExtraParams,
-                    Actions = actions,
-                };
-                var actionEngine = new ActionExecutionEngine(_serviceProvider, _userDataStore, _buildBufferService);
-                var response = await actionEngine.ExecuteAsync(request);
+                var actionResponses = await _actionRunner.RunAsync(
+                        action.ActionIds,
+                        action.ConnectionId,
+                        action.ModuleId,
+                        PortalSettings.HomeSystemDirectoryMapPath,
+                        moduleData,
+                        action.ExtraParams
+                    );
 
-                return Request.CreateResponse(HttpStatusCode.OK, new { data = response.Data.ResultData });
+                return Request.CreateResponse(HttpStatusCode.OK, actionResponses);
             }
             catch (Exception ex)
             {

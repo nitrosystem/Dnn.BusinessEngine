@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
@@ -15,6 +13,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
 {
@@ -159,6 +158,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
             }
 
             return (objServiceInfo.Id, extensionServiceId);
+        }
+
+        public async Task<IEnumerable<string>> GetServiceKeysAsync()
+        {
+            var actions = await _repository.GetAllAsync<ServiceInfo>("CacheKey");
+            return actions.Where(a => (CacheOperation)a.CacheOperation == CacheOperation.SetCache).Select(a => a.CacheKey).ToList();
         }
 
         public async Task<bool> UpdateGroupColumn(Guid serviceId, Guid? groupId)

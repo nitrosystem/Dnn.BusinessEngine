@@ -14,7 +14,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
 {
     public class ResourcesMiddleware : IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>
     {
-        public async Task<EngineResult<InstallExtensionResponse>> InvokeAsync(IEngineContext context, InstallExtensionRequest request, Func<Task<EngineResult<InstallExtensionResponse>>> next, IEngineNotifier engineNotifier)
+        public async Task<InstallExtensionResponse> InvokeAsync(IEngineContext context, InstallExtensionRequest request, Func<Task<InstallExtensionResponse>> next, IEngineNotifier engineNotifier)
         {
             var ctx = context as InstallExtensionContext;
 

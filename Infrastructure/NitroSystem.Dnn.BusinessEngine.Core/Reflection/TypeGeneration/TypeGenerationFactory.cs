@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Collections.Concurrent;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Core.BrtPath.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration
 {
@@ -12,102 +14,143 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration
     {
         private readonly IBrtGateService _brtGate;
         private readonly AssemblyBuilderHost _host;
-        private readonly ConcurrentDictionary<string, Type> _cache = new ConcurrentDictionary<string, Type>();
+        private readonly GeneratedModelRegistry _registry;
+
+        private readonly ConcurrentDictionary<string, Type> _cache = new();
         private readonly object _buildLock = new object();
 
-        public TypeGenerationFactory(AssemblyBuilderHost host, IBrtGateService brtGate)
+        public TypeGenerationFactory(
+            AssemblyBuilderHost host,
+            IBrtGateService brtGate,
+            GeneratedModelRegistry registry)
         {
-            _brtGate = brtGate ?? throw new ArgumentNullException(nameof(brtGate));
             _host = host ?? throw new ArgumentNullException(nameof(host));
+            _brtGate = brtGate ?? throw new ArgumentNullException(nameof(brtGate));
+            _registry = registry ?? throw new ArgumentNullException(nameof(registry));
         }
 
         public Type GetOrBuild(ModelDefinition model, Guid? permitId = null)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
-            if (string.IsNullOrWhiteSpace(model.Name)) throw new ArgumentException("Model.Name is required");
+            if (string.IsNullOrWhiteSpace(model.Name))
+                throw new ArgumentException("Model.Name is required");
 
-            var key = model.ComputeStableKey();
-            return _cache.GetOrAdd(key, _ => BuildType(model, key, permitId.Value));
+            var stableKey = model.ComputeStableKey();
+
+            return _cache.GetOrAdd(stableKey, _ =>
+                BuildType(model, stableKey, permitId.Value));
         }
 
-        public bool TryGetFromCache(string stableKey, out Type type) => _cache.TryGetValue(stableKey, out type);
-
-        public void SaveAssembly() => _host.SaveIfPossible();
+        public bool TryGetFromCache(string stableKey, out Type type)
+            => _cache.TryGetValue(stableKey, out type);
 
         public Assembly GetDynamicAssembly() => _host.Assembly;
 
-        private Type BuildType(ModelDefinition model, string stableKey, Guid permitId)
+        public void SaveAssembly() => _host.SaveIfPossible();
+
+        private Type BuildType(
+            ModelDefinition model,
+            string stableKey,
+            Guid permitId)
         {
-            if (!AsyncHelper.RunSync<bool>(() => _brtGate.IsGateOpenAsync(permitId)))
-            {
-                throw new UnauthorizedAccessException("Operation must run inside BRT gate.");
-            }
+            if (!AsyncHelper.RunSync(() => _brtGate.IsGateOpenAsync(permitId)))
+                throw new UnauthorizedAccessException(
+                    "Operation must run inside BRT gate.");
 
             lock (_buildLock)
             {
-                if (_cache.TryGetValue(stableKey, out var existing)) return existing;
+                if (_cache.TryGetValue(stableKey, out var existing))
+                    return existing;
+
+                var fullName = model.Namespace + "." + model.Name;
 
                 var typeBuilder = _host.Module.DefineType(
-                model.Namespace + "." + model.Name,
-                TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed | TypeAttributes.BeforeFieldInit);
+                    fullName,
+                    TypeAttributes.Public |
+                    TypeAttributes.Class |
+                    TypeAttributes.Sealed |
+                    TypeAttributes.BeforeFieldInit);
 
-                // Public parameterless ctor
                 typeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
 
-                // [GeneratedModel(Name, Version, StableKey)]
-                var attrCtor = typeof(GeneratedModelAttribute).GetConstructor(new[] { typeof(string), typeof(string), typeof(string) });
-                var attrBuilder = new CustomAttributeBuilder(attrCtor, new object[] { model.Name, model.ModelVersion, stableKey });
-                typeBuilder.SetCustomAttribute(attrBuilder);
-
-                foreach (var p in model.Properties)
+                foreach (var prop in model.Properties)
                 {
-                    AddAutoProperty(typeBuilder, p);
+                    AddAutoProperty(typeBuilder, prop);
                 }
 
-                var created = typeBuilder.CreateType();
-                return created;
+                var createdType = typeBuilder.CreateType();
+
+                var descriptor = new GeneratedModelDescriptor(
+                    model.Name,
+                    model.ModelVersion,
+                    stableKey,
+                    model.Properties.ToList());
+
+                _registry.Register(createdType, descriptor);
+
+                return createdType;
             }
         }
 
-        private static void AddAutoProperty(TypeBuilder typeBuilder, IPropertyDefinition p)
+        private static void AddAutoProperty(
+            TypeBuilder typeBuilder,
+            IPropertyDefinition p)
         {
-            var propertyDef = p as PropertyDefinition;
+            var property = p as PropertyDefinition;
+            if (property == null)
+                throw new ArgumentException(
+                    "Invalid property definition");
 
-            if (string.IsNullOrWhiteSpace(propertyDef.Name))
-                throw new ArgumentException("Property name is required");
+            var propType = property.ResolveType();
 
-            var propType = propertyDef.ResolveType();
+            var fieldName =
+                "_" + char.ToLowerInvariant(property.Name[0]) +
+                (property.Name.Length > 1
+                    ? property.Name.Substring(1)
+                    : string.Empty);
 
-            var fieldName = "_" + char.ToLowerInvariant(propertyDef.Name[0]) + (propertyDef.Name.Length > 1 ? propertyDef.Name.Substring(1) : string.Empty);
-            var field = typeBuilder.DefineField(fieldName, propType, FieldAttributes.Private);
+            var field = typeBuilder.DefineField(
+                fieldName,
+                propType,
+                FieldAttributes.Private);
 
-            var prop = typeBuilder.DefineProperty(propertyDef.Name, PropertyAttributes.HasDefault, propType, Type.EmptyTypes);
+            var propBuilder = typeBuilder.DefineProperty(
+                property.Name,
+                PropertyAttributes.HasDefault,
+                propType,
+                Type.EmptyTypes);
 
-            // get_{Name}()
-            var getMthdBldr = typeBuilder.DefineMethod(
-            "get_" + propertyDef.Name,
-            MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig,
-            propType,
-            Type.EmptyTypes);
-            var getIl = getMthdBldr.GetILGenerator();
+            // getter
+            var getter = typeBuilder.DefineMethod(
+                "get_" + property.Name,
+                MethodAttributes.Public |
+                MethodAttributes.SpecialName |
+                MethodAttributes.HideBySig,
+                propType,
+                Type.EmptyTypes);
+
+            var getIl = getter.GetILGenerator();
             getIl.Emit(OpCodes.Ldarg_0);
             getIl.Emit(OpCodes.Ldfld, field);
             getIl.Emit(OpCodes.Ret);
 
-            // set_{Name}(T value)
-            var setMthdBldr = typeBuilder.DefineMethod(
-            "set_" + propertyDef.Name,
-            MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig,
-            null,
-            new[] { propType });
-            var setIl = setMthdBldr.GetILGenerator();
+            // setter
+            var setter = typeBuilder.DefineMethod(
+                "set_" + property.Name,
+                MethodAttributes.Public |
+                MethodAttributes.SpecialName |
+                MethodAttributes.HideBySig,
+                null,
+                new[] { propType });
+
+            var setIl = setter.GetILGenerator();
             setIl.Emit(OpCodes.Ldarg_0);
             setIl.Emit(OpCodes.Ldarg_1);
             setIl.Emit(OpCodes.Stfld, field);
             setIl.Emit(OpCodes.Ret);
 
-            prop.SetGetMethod(getMthdBldr);
-            prop.SetSetMethod(setMthdBldr);
+            propBuilder.SetGetMethod(getter);
+            propBuilder.SetSetMethod(setter);
         }
     }
 }

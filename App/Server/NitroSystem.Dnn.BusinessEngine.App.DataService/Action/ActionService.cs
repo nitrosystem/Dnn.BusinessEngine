@@ -41,7 +41,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
 
         public async Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId)
         {
-            var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo, ActionResultInfo>(
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo>(
                 "dbo.BusinessEngine_App_GetActionsForClient", "BE_Actions_ForClient_",
                     new
                     {
@@ -52,60 +52,40 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
 
             var actions = results.Item1;
             var actionParams = results.Item2;
-            var actionResults = results.Item3;
 
-            var builder = new CollectionMappingBuilder<ActionInfo, ActionDto>();
-
-            builder.AddChildAsync<ActionParamInfo, ActionParamDto, Guid>(
-               source: actionParams,
-               parentKey: parent => parent.Id,
-               childKey: child => child.ActionId,
-               assign: (dest, children) => dest.Params = children
+            var result = HybridMapper.MapWithChildren<ActionInfo, ActionDto, ActionParamInfo, ActionParamDto>(
+               parents: actions,
+               children: actionParams,
+               parentKeySelector: p => p.Id,
+               childKeySelector: c => c.ActionId,
+               assignChildren: (parent, childs) => parent.Params = childs
             );
 
-            builder.AddChildAsync<ActionResultInfo, ActionResultDto, Guid>(
-              source: actionResults,
-              parentKey: parent => parent.Id,
-              childKey: child => child.ActionId,
-              assign: (dest, children) => dest.Results = children
-            );
-
-            var result = await builder.BuildAsync(actions);
             return result;
         }
 
-        public async Task<IEnumerable<ActionDto>> GetActionsDtoForServerAsync(IEnumerable<Guid> actionIds)
+        public async Task<List<ActionDto>> GetActionsDtoForServerAsync(IEnumerable<Guid> actionIds)
         {
-            var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo, ActionResultInfo>(
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo>(
                 "dbo.BusinessEngine_App_GetActionsForServer", "BE_Actions_ForServer_",
                     new
                     {
                         ActionIds = JsonConvert.SerializeObject(actionIds)
                     }
                 );
-
+                
             var actions = results.Item1;
             var actionParams = results.Item2;
-            var actionResults = results.Item3;
 
-            var builder = new CollectionMappingBuilder<ActionInfo, ActionDto>();
-
-            builder.AddChildAsync<ActionParamInfo, ActionParamDto, Guid>(
-               source: actionParams,
-               parentKey: parent => parent.Id,
-               childKey: child => child.ActionId,
-               assign: (dest, children) => dest.Params = children
+            var result = HybridMapper.MapWithChildren<ActionInfo, ActionDto, ActionParamInfo, ActionParamDto>(
+              parents: actions,
+              children: actionParams,
+              parentKeySelector: p => p.Id,
+              childKeySelector: c => c.ActionId,
+              assignChildren: (parent, childs) => parent.Params = childs
             );
 
-            builder.AddChildAsync<ActionResultInfo, ActionResultDto, Guid>(
-              source: actionResults,
-              parentKey: parent => parent.Id,
-              childKey: child => child.ActionId,
-              assign: (dest, children) => dest.Results = children
-            );
-
-            var result = await builder.BuildAsync(actions);
-            return result;
+            return result.ToList();
         }
 
         public async Task<string> GetBusinessControllerClass(string actionType)

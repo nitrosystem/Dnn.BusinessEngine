@@ -24,13 +24,12 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.AppModel;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder;
-using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 using System.IO;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
 using NitroSystem.Dnn.BusinessEngine.Core.WebApi;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.PushingServer;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -520,8 +519,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     var typeBuilder = new TypeBuilderEngine(_serviceProvider, _brtGate, permitId);
                     var response = await typeBuilder.ExecuteAsync(request);
 
-                    appModel.TypeRelativePath = response.Data.RelativePath;
-                    appModel.TypeFullName = response.Data.TypeFullName;
+                    appModel.TypeRelativePath = response.RelativePath;
+                    appModel.TypeFullName = response.TypeFullName;
                 }
 
                 appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty);
@@ -604,12 +603,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var service = items.Service;
                 var extension = items.Extension;
                 var extensionDependency = items.ExtensionDependency;
+                var serviceCacheKeys = await _serviceFactory.GetServiceKeysAsync();
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     Service = service,
                     ExtensionService = extension,
-                    ExtensionDependency = extensionDependency
+                    ExtensionDependency = extensionDependency,
+                    ServiceCacheKeys = serviceCacheKeys
                 });
             }
             catch (Exception ex)
@@ -729,74 +730,74 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             }
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> onInstallAvailableExtension([FromUri] string extensionFilename)
-        {
-            try
-            {
-                var scenarioID = Guid.Parse(Request.Headers.GetValues("ScenarioID").First());
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<HttpResponseMessage> onInstallAvailableExtension([FromUri] string extensionFilename)
+        //{
+        //    try
+        //    {
+        //        var scenarioID = Guid.Parse(Request.Headers.GetValues("ScenarioID").First());
 
-                var basePath = Constants.MapPath("~/DesktopModules/BusinessEngine/install");
-                var filename = Path.Combine(basePath, extensionFilename);
-                var result = await InstallExtension(filename);
+        //        var basePath = Constants.MapPath("~/DesktopModules/BusinessEngine/install");
+        //        var filename = Path.Combine(basePath, extensionFilename);
+        //        var result = await InstallExtension(filename);
 
-                File.Delete(filename);
+        //        File.Delete(filename);
 
-                return result;
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //        return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> InstallExtension()
-        {
-            try
-            {
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<HttpResponseMessage> InstallExtension()
+        //{
+        //    try
+        //    {
+        //        var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
 
-                if (!Request.Content.IsMimeMultipartContent())
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
+        //        if (!Request.Content.IsMimeMultipartContent())
+        //            return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
 
-                // Create temp upload folder
-                var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
-                if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+        //        // Create temp upload folder
+        //        var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
+        //        if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
 
-                var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
-                await Request.Content.ReadAsMultipartAsync(streamProvider);
+        //        var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
+        //        await Request.Content.ReadAsMultipartAsync(streamProvider);
 
-                var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
+        //        var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
 
-                return await InstallExtension(filename);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //        return await InstallExtension(filename);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
 
-        private async Task<HttpResponseMessage> InstallExtension(string filename)
-        {
-            var request = new InstallExtensionRequest()
-            {
-                BasePath = PortalSettings.HomeSystemDirectory,
-                ModulePath = Constants.MapPath("/DesktopModules/BusinessEngine"),
-                ExtensionZipFile = filename,
-            };
+        //private async Task<HttpResponseMessage> InstallExtension(string filename)
+        //{
+        //    var request = new InstallExtensionRequest()
+        //    {
+        //        BasePath = PortalSettings.HomeSystemDirectory,
+        //        ModulePath = Constants.MapPath("/DesktopModules/BusinessEngine"),
+        //        ExtensionZipFile = filename,
+        //    };
 
-            var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromMinutes(10));
-            using (await _brtGate.OpenGateAsync(permitId))
-            {
-                var installExtension = new InstallExtensionEngine(_serviceProvider, _brtGate, _extensionService, permitId);
-                var response = await installExtension.ExecuteAsync(request);
-            }
+        //    var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromMinutes(10));
+        //    using (await _brtGate.OpenGateAsync(permitId))
+        //    {
+        //        var installExtension = new InstallExtensionEngine(_serviceProvider, _brtGate, _extensionService, permitId);
+        //        var response = await installExtension.ExecuteAsync(request);
+        //    }
 
-            return Request.CreateResponse(HttpStatusCode.OK);
-        }
+        //    return Request.CreateResponse(HttpStatusCode.OK);
+        //}
 
         //[HttpPost]
         //[ValidateAntiForgeryToken]

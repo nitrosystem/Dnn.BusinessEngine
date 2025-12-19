@@ -20,10 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public string Event { get; set; }
         public int? ParentActionTriggerCondition { get; set; }
         public bool ExecuteInClientSide { get; set; }
-        public int CacheOperation { get; set; }
-        public string CacheKey { get; set; }
-        public string Preconditions { get; set; }
-        public string Conditions { get; set; }
+        public string ActionResultDsl { get; set; }
         public string AuthorizationRunAction { get; set; }
         public string Settings { get; set; }
         public string Description { get; set; }

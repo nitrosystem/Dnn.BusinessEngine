@@ -16,12 +16,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
                 (src, dest) => dest.ParentActionTriggerCondition = (ActionExecutionCondition?)src.ParentActionTriggerCondition);
 
             HybridMapper.BeforeMap<ActionInfo, ActionDto>(
-                (src, dest) => dest.CacheOperation = (CacheOperation)src.CacheOperation);
-
-            HybridMapper.BeforeMap<ActionInfo, ActionDto>(
-                (src, dest) => dest.CacheKeys = src.CacheKey?.Split(',') ?? Enumerable.Empty<string>());
-
-            HybridMapper.BeforeMap<ActionInfo, ActionDto>(
                 (src, dest) => dest.AuthorizationRunAction = src.AuthorizationRunAction?.Split(','));
         }
     }

@@ -1,5 +1,5 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
-using System;
+﻿using System;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Base
 {
@@ -7,6 +7,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
     {
         public Guid Id { get; set; }
         public Guid? ScenarioId { get; set; }
+        public Guid? ParentId { get; set; }
         public string GroupDomain { get; set; }
         public string GroupType { get; set; }
         public string GroupName { get; set; }

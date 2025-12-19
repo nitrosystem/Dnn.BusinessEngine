@@ -1,94 +1,169 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.PushingServer;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Events;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
 {
-    public abstract class EngineBase<TRequest, TResponse> : IEngine<TRequest, TResponse>, IEngineNotifier
+    public abstract class EngineBase<TRequest, TResponse>
     {
         public event EngineProgressHandler OnProgress;
-        public event EngineErrorHandler OnError;
-        public event EngineSuccessHandler<TResponse> OnSuccess;
 
-        private readonly IServiceProvider _services;
-        private readonly INotificationServer _notificationServer;
-        private readonly EngineContext _context = new EngineContext();
+        protected internal EnginePipeline<TRequest, TResponse> Pipeline;
 
-        protected IServiceProvider Services => _services;
-        protected EngineContext Context => _context;
-
-        protected EngineBase(IServiceProvider services, bool notify)
+        protected EngineBase()
         {
-            _services = services;
-
-            if (notify) _notificationServer = services.GetRequiredService<INotificationServer>();
+            Pipeline = new EnginePipeline<TRequest, TResponse>();
+            ConfigurePipeline(Pipeline);
         }
 
-        public virtual TResponse CreateEmptyResponse()
-        {
-            return Activator.CreateInstance<TResponse>();
-        }
+        protected abstract void ConfigurePipeline(EnginePipeline<TRequest, TResponse> pipeline);
 
-        public async Task<EngineResult<TResponse>> ExecutePipelineAsync(TRequest request, Func<Task<EngineResult<TResponse>>> next)
-        {
-            return await next();
-        }
+        public abstract TResponse CreateEmptyResponse();
 
-        public async Task<EngineResult<TResponse>> ExecuteAsync(TRequest request)
-        {
-            try
-            {
-                await NotifyProgress("Initializing", 0.0);
-                await OnInitializeAsync(request);
+        protected internal virtual Task OnInitializeAsync(TRequest request, IEngineContext context)
+            => Task.CompletedTask;
 
-                await NotifyProgress("Validating", 5.0);
-                var validation = await ValidateAsync(request);
-                if (!validation.IsSuccess)
-                    return EngineResult<TResponse>.Failure(validation.Errors.ToArray());
+        protected internal virtual Task ValidateRequestAsync(TRequest request, IEngineContext context)
+            => Task.CompletedTask;
 
-                await NotifyProgress("BeforeExecute", 10.0);
-                await BeforeExecuteAsync(request);
+        protected internal virtual Task ValidateResponseAsync(TResponse response, IEngineContext context)
+            => Task.CompletedTask;
 
-                await NotifyProgress("Executing", 20.0);
-                var result = await ExecuteCoreAsync(request);
+        protected internal virtual Task BeforeExecuteAsync(TRequest request) => Task.CompletedTask;
 
-                await NotifyProgress("AfterExecute", 90.0);
-                await AfterExecuteAsync(request, result);
+        protected internal virtual Task AfterExecuteAsync(TRequest request, TResponse response) => Task.CompletedTask;
 
-                if (result.IsSuccess)
-                {
-                    if (OnSuccess != null) await OnSuccess(result.Data);
-                    await NotifyProgress("Completed", 100.0);
-                }
+        protected internal virtual Task OnCompletedAsync(TRequest request, TResponse response, IEngineContext context)
+            => Task.CompletedTask;
 
-                return result;
-            }
-            catch (Exception ex)
-            {
-                if (OnError != null) await OnError(ex, Context);
-                throw ex;
-            }
-        }
+        protected internal Task NotifyProgress(string message, double? percent = null)
+            => OnProgress?.Invoke(message, percent) ?? Task.CompletedTask;
 
-        protected virtual Task OnInitializeAsync(TRequest request) => Task.CompletedTask;
-        protected virtual Task<EngineResult<object>> ValidateAsync(TRequest request) => Task.FromResult(EngineResult<object>.Success(null));
-        protected virtual Task BeforeExecuteAsync(TRequest request) => Task.CompletedTask;
-        protected abstract Task<EngineResult<TResponse>> ExecuteCoreAsync(TRequest request);
-        protected virtual Task AfterExecuteAsync(TRequest request, EngineResult<TResponse> result) => Task.CompletedTask;
-
-        public async Task NotifyProgress(string message, double? percent)
-        {
-            if (OnProgress != null) await OnProgress(message, percent);
-        }
-
-        public void PushingNotification(string channel, object data)
-        {
-            if (_notificationServer != null)
-                _notificationServer.SendToChannel(channel, data);
-        }
+        protected internal virtual Task OnErrorAsync(Exception ex, IEngineContext context, TResponse response)
+            => Task.CompletedTask;
     }
+
+    //public abstract class EngineBase<TRequest, TResponse> : IEngineNotifier
+    //{
+    //    public event EngineProgressHandler OnProgress;
+    //    public event EngineErrorHandler OnError;
+
+    //    private readonly IServiceProvider _services;
+    //    private readonly INotificationServer _notificationServer;
+    //    private readonly EngineContext _context = new EngineContext();
+
+    //    protected IServiceProvider Services => _services;
+    //    protected EngineContext Context => _context;
+    //    protected EnginePipeline<TRequest, TResponse> Pipeline { get; }
+
+    //    protected EngineBase(IServiceProvider services, bool notify)
+    //    {
+    //        _services = services;
+    //        Pipeline = BuildPipeline();
+
+    //        if (notify)
+    //            _notificationServer = services.GetRequiredService<INotificationServer>();
+    //    }
+
+    //    protected abstract EnginePipeline<TRequest, TResponse> BuildPipeline();
+
+    //    public virtual TResponse CreateEmptyResponse() => Activator.CreateInstance<TResponse>();
+    //    public virtual Task<TResponse> ExecutePipelineAsync(TRequest request, Func<Task<TResponse>> pipeline) => pipeline();
+    //    // ⬅️ فقط عبور می‌دهد، هیچ منطقی ندارد
+
+    //    public async Task<TResponse> ExecuteAsync(TRequest request)
+    //    {
+    //        await NotifyProgress("Initializing", 0);
+    //        await OnInitializeAsync(request);
+
+    //        await NotifyProgress("Validating", 5);
+    //        if (!await ValidateAsync(request))
+    //            return CreateEmptyResponse();
+
+    //        await NotifyProgress("BeforeExecute", 10);
+    //        await BeforeExecuteAsync(request);
+
+    //        await NotifyProgress("Executing", 20);
+    //        //var result = await Pipeline.ExecuteAsync(request, _context, _services);
+    //        var result = await ExecuteCoreAsync(request);
+
+
+    //        await NotifyProgress("AfterExecute", 90);
+    //        await AfterExecuteAsync(request, result);
+
+    //        await NotifyProgress("Completed", 100);
+    //        return result;
+    //    }
+
+    //    protected virtual Task OnInitializeAsync(TRequest request) => Task.CompletedTask;
+    //    protected virtual Task<bool> ValidateAsync(TRequest request) => Task.FromResult(true);
+    //    protected virtual Task BeforeExecuteAsync(TRequest request) => Task.CompletedTask;
+    //    protected abstract Task<TResponse> ExecuteCoreAsync(TRequest request);
+    //    protected virtual Task AfterExecuteAsync(TRequest request, TResponse response) => Task.CompletedTask;
+
+    //    public Task NotifyProgress(string message, double? percent)
+    //        => OnProgress?.Invoke(message, percent) ?? Task.CompletedTask;
+
+    //    public void PushingNotification(string channel, object data)
+    //    {
+    //        _notificationServer?.SendToChannel(channel, data);
+    //    }
+    //}
+
+
+    //public abstract class EngineBaseTemp<TRequest, TResponse> : IEngineNotifier
+    //{
+    //    public event EngineProgressHandler OnProgress; 
+    //    public event EngineErrorHandler OnError;
+
+    //    private readonly IServiceProvider _services;
+    //    private readonly INotificationServer _notificationServer;
+    //    private readonly EngineContext _context = new EngineContext();
+
+    //    protected IServiceProvider Services => _services;
+    //    protected EngineContext Context => _context;
+    //    protected EnginePipeline<TRequest, TResponse> _pipeline;
+
+    //    protected EngineBaseTemp(IServiceProvider services, EnginePipeline<TRequest, TResponse> pipeline, bool notify)
+    //    {
+    //        _pipeline = pipeline;
+    //        _services = services;
+
+    //        if (notify) _notificationServer = services.GetRequiredService<INotificationServer>();
+    //    }
+
+    //    public virtual TResponse CreateEmptyResponse() => Activator.CreateInstance<TResponse>();
+    //    public virtual Task<TResponse> ExecutePipelineAsync(TRequest request, Func<Task<TResponse>> pipeline) => pipeline();
+
+    //    public async Task<TResponse> ExecuteAsync(TRequest request)
+    //    {
+    //        await NotifyProgress("Initializing", 0);
+    //        await OnInitializeAsync(request);
+
+    //        await NotifyProgress("Validating", 5);
+    //        if (!await ValidateAsync(request))
+    //            return CreateEmptyResponse(); await NotifyProgress("BeforeExecute", 10);
+
+    //        await BeforeExecuteAsync(request);
+
+    //        await NotifyProgress("Executing", 20);
+    //        var result = await _pipeline.ExecuteAsync(request, _context, _services);
+
+    //        await NotifyProgress("AfterExecute", 90);
+    //        await AfterExecuteAsync(request, result);
+
+    //        await NotifyProgress("Completed", 100); return result;
+    //    }
+
+    //    protected virtual Task OnInitializeAsync(TRequest request) => Task.CompletedTask;
+    //    protected virtual Task<bool> ValidateAsync(TRequest request) => Task.FromResult(true);
+    //    protected virtual Task BeforeExecuteAsync(TRequest request) => Task.CompletedTask;
+    //    protected virtual Task AfterExecuteAsync(TRequest request, TResponse response) => Task.CompletedTask;
+    //    public Task NotifyProgress(string message, double? percent) => OnProgress?.Invoke(message, percent) ?? Task.CompletedTask;
+    //    public void PushingNotification(string channel, object data)
+    //    {
+    //        _notificationServer?.SendToChannel(channel, data);
+    //    }
+    //}
 }

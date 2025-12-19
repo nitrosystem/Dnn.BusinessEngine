@@ -12,12 +12,13 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 using NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ConditionParser;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
+using DotNetNuke.Entities.Content.Workflow.Entities;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
@@ -26,7 +27,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
         private readonly IServiceLocator _serviceLocator;
         private readonly IModuleFieldService _moduleFieldService;
-        private readonly WorkflowManager _workflow;
 
         private ConcurrentDictionary<(string fieldType, string template), string> _fieldTypes = new
                 ConcurrentDictionary<(string fieldType, string template), string>();
@@ -56,18 +56,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 ]]
             </div>";
 
-        public BuildLayoutService(IServiceLocator serviceLocator, IModuleFieldService moduleFieldService, WorkflowManager workflow)
+        public BuildLayoutService(IServiceLocator serviceLocator, IModuleFieldService moduleFieldService)
         {
             _serviceLocator = serviceLocator;
             _moduleFieldService = moduleFieldService;
-            _workflow = workflow;
         }
 
-        public async Task<string> BuildLayoutAsync(ModuleDto module, int userId, IEngineNotifier engineNotifier)
+        public async Task<string> BuildLayoutAsync(ModuleDto module, int userId)
         {
             _module = module;
             _userId = userId;
-            _engineNotifier = engineNotifier;
 
             _fieldMap = _module.Fields
                 .GroupBy(f => f.ParentId ?? Guid.Empty)
@@ -81,20 +79,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 throw new Exception("The module does not have any fields!");
             }
 
-            await _workflow.ExecuteTaskAsync<object>(_module.Id.ToString(), _userId,
-                "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, true,
-                    (Expression<Func<Task>>)(() => LoadTemplates(_module.Fields))
-                );
+            //await _workflow.ExecuteTaskAsync<object>(_module.Id.ToString(), _userId,
+            //    "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, true,
+            //        (Expression<Func<Task>>)(() => LoadTemplates(_module.Fields))
+            //    );
 
-            _engineNotifier.PushingNotification(_module.ScenarioName,
-               new
-               {
-                   Type = "ActionCenter",
-                   TaskId = $"{_module.Id}-BuildModule",
-                   Message = $"Loaded resource content of {_module.ModuleName} module",
-                   Percent = 40
-               }
-           );
+            await LoadTemplates(_module.Fields);
+
+           // _engineNotifier.PushingNotification(_module.ScenarioName,
+           //    new
+           //    {
+           //        Type = "ActionCenter",
+           //        TaskId = $"{_module.Id}-BuildModule",
+           //        Message = $"Loaded resource content of {_module.ModuleName} module",
+           //        Percent = 40
+           //    }
+           //);
 
             _buffer = new Queue<ModuleFieldDto>();
             foreach (var item in parents)
@@ -166,10 +166,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 if (field.IsShown)
                 {
                     var node = GetPaneNode(field.PaneName);
-                    var fieldHtml = await _workflow.ExecuteTaskAsync<string>(_module.Id.ToString(), _userId,
-                        "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, false,
-                       (Expression<Func<Task<string>>>)(() => ParseFieldTemplate(field))
-                    );
+                    var fieldHtml = await ParseFieldTemplate(field);
+
+                    //var fieldHtml = await _workflow.ExecuteTaskAsync<string>(_module.Id.ToString(), _userId,
+                    //    "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, false,
+                    //   (Expression<Func<Task<string>>>)(() => ParseFieldTemplate(field))
+                    //);
 
                     var htmlNode = HtmlNode.CreateNode(fieldHtml);
                     node.AppendChild(htmlNode);
@@ -272,15 +274,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                         ? (match.Groups["Exp"].Value ?? "")
                         : string.Empty);
 
-                    _engineNotifier.PushingNotification(_module.ScenarioName,
-                       new
-                       {
-                           Type = "ActionCenter",
-                           TaskId = $"{_module.Id}-BuildModule",
-                           Message = $"Render template {field.FieldType} of {_module.ModuleName} module",
-                           Percent = 70
-                       }
-                    );
+                    //_engineNotifier.PushingNotification(_module.ScenarioName,
+                    //   new
+                    //   {
+                    //       Type = "ActionCenter",
+                    //       TaskId = $"{_module.Id}-BuildModule",
+                    //       Message = $"Render template {field.FieldType} of {_module.ModuleName} module",
+                    //       Percent = 70
+                    //   }
+                    //);
                 }
             }
             catch (Exception exx)

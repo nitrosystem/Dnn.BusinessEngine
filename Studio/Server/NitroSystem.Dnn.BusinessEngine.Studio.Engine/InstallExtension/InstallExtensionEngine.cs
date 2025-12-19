@@ -67,7 +67,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension
             await base.OnInitializeAsync(request);
         }
 
-        protected override async Task<EngineResult<object>> ValidateAsync(InstallExtensionRequest request)
+        protected override async Task<bool> ValidateAsync(InstallExtensionRequest request)
         {
             var errors = new List<string>();
 
@@ -83,13 +83,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension
             _ctx.ExtensionManifest.IsNewExtension = string.IsNullOrEmpty(currentVersion);
 
             if (errors.Any())
-                return EngineResult<object>.Failure(errors.ToArray());
+                return false;
 
-            return EngineResult<object>.Success(null);
+            return true;
         }
 
-        protected override async Task<EngineResult<InstallExtensionResponse>> ExecuteCoreAsync(
-            InstallExtensionRequest request)
+        protected override async Task<InstallExtensionResponse> ExecuteCoreAsync(InstallExtensionRequest request)
         {
             var lockId = _ctx.ExtensionManifest.ExtensionName;
             var lockAcquired = await _lockService.TryLockAsync(lockId);

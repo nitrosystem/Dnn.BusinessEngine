@@ -33,6 +33,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Enums;
 using System.Web.UI;
+using System.Web.Http.Results;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -746,14 +747,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var request = new BuildModuleRequest();
                 request.Scope = BuildScope.Module;
                 request.UserId = UserInfo.UserID;
-                request.Module = await _workflow.ExecuteTaskAsync<ModuleDto>(moduleId.ToString(), UserInfo.UserID,
-                    "BuildModuleWorkflow", "BuildModule", "GetDataForBuildModule", false, true, false,
-                    () => _moduleService.GetDataForModuleBuildingAsync(moduleId)
-                 );
+                request.Module = await _moduleService.GetDataForModuleBuildingAsync(moduleId);
                 request.BasePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(request.Module.ScenarioName)}/";
 
-                var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService, _workflow, true);
-                await engine.ExecuteAsync(request);
+                //request.Module = await _workflow.ExecuteTaskAsync<ModuleDto>(moduleId.ToString(), UserInfo.UserID,
+                //    "BuildModuleWorkflow", "BuildModule", "GetDataForBuildModule", false, true, false,
+                //    () => _moduleService.GetDataForModuleBuildingAsync(moduleId)
+                // );
+
+                var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService, true);
+                var response = await engine.ExecuteAsync(request);
+                if (response.IsSuccess)
+                    await _moduleService.BulkInsertModuleOutputResourcesAsync(request.Module.SitePageId, response.FinalizedResources);
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
@@ -825,7 +830,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var actions = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, 1, 1000, null, null, "ActionName");
                 var variables = await _moduleVariableService.GetModuleVariablesListItemAsync(moduleId);
                 var events = Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
-                var actionKeys = await _actionService.GetActionKeysAsync();
                 var action = actionId != Guid.Empty
                         ? await _actionService.GetActionViewModelAsync(actionId)
                         : null;
@@ -841,7 +845,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     Actions = actions.Items,
                     Variables = variables,
                     Events = events,
-                    ActionKeys = actionKeys,
                     Action = action,
                 });
             }

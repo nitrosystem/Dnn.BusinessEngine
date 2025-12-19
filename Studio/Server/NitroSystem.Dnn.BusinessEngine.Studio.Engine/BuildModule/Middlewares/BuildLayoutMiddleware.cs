@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
 {
@@ -17,13 +14,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
             _service = service;
         }
 
-        public async Task<EngineResult<BuildModuleResponse>> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<EngineResult<BuildModuleResponse>>> next, IEngineNotifier engineNotifier)
+        public async Task<BuildModuleResponse> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<BuildModuleResponse>> next)
         {
-            var ctx = context as EngineContext;
-            var workflow = (context as EngineContext)?.EventManager;
-
-            var layout = await _service.BuildLayoutAsync(request.Module, request.UserId, engineNotifier);
-            ctx.Set<string>("ModuleLayoutTemplate", layout);
+            var layout = await _service.BuildLayoutAsync(request.Module, request.UserId);
+            context.Set<string>("ModuleLayoutTemplate", layout);
 
             var result = await next();
             return result;

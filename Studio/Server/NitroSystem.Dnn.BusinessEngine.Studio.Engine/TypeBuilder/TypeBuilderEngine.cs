@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotNetNuke.Entities.Users;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
@@ -13,29 +12,37 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares;
 using Microsoft.Extensions.DependencyInjection;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
     public class TypeBuilderEngine : EngineBase<TypeBuilderRequest, TypeBuilderResponse>
     {
-        private readonly EnginePipeline<TypeBuilderRequest, TypeBuilderResponse> _pipeline;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IBrtGateService _brtGate;
         private readonly LockService _lockService;
         private readonly Guid _permitId;
 
-
-        public TypeBuilderEngine(IServiceProvider services, IBrtGateService brtGate, Guid permitId)
-            : base(services, true)
+        public TypeBuilderEngine(IServiceProvider serviceProvider, IBrtGateService brtGate, Guid permitId)
         {
+            _serviceProvider = serviceProvider;
             _brtGate = brtGate;
             _permitId = permitId;
-            _lockService = services.GetRequiredService<LockService>();
-
-            _pipeline = new EnginePipeline<TypeBuilderRequest, TypeBuilderResponse>(this)
-            .Use<BuildTypeMiddleware>();
+            _lockService = serviceProvider.GetRequiredService<LockService>();
         }
 
-        protected async override Task OnInitializeAsync(TypeBuilderRequest request)
+        protected override void ConfigurePipeline(EnginePipeline<TypeBuilderRequest, TypeBuilderResponse> pipeline)
+        {
+            pipeline
+               .Use<BuildTypeMiddleware>();
+        }
+
+        public override TypeBuilderResponse CreateEmptyResponse()
+        {
+            return new TypeBuilderResponse();
+        }
+
+        protected async override Task OnInitializeAsync(TypeBuilderRequest request, IEngineContext context)
         {
             if (!await _brtGate.IsGateOpenAsync(_permitId))
                 throw new UnauthorizedAccessException("Operation must run inside BRT gate.");
@@ -46,17 +53,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 
             if (!Directory.Exists(outputDirectory)) Directory.CreateDirectory(outputDirectory);
 
-            Context.Set("PermitId", _permitId);
-            Context.Set("OutputDirectory", outputDirectory);
-            Context.Set("OutputRelativePath", relativePath);
+            context.Set("PermitId", _permitId);
+            context.Set("OutputDirectory", outputDirectory);
+            context.Set("OutputRelativePath", relativePath);
 
-            await base.OnInitializeAsync(request);
+            await base.OnInitializeAsync(request, context);
         }
 
-        protected override async Task<EngineResult<object>> ValidateAsync(TypeBuilderRequest request)
+        protected override Task ValidateRequestAsync(TypeBuilderRequest request, IEngineContext context)
         {
-            await Task.Yield();
-
             var errors = new List<string>();
 
             if (string.IsNullOrEmpty(request.ScenarioName))
@@ -67,13 +72,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                 errors.Add("User does not have permission to build module.");
 
             if (errors.Any())
-                return EngineResult<object>.Failure(errors.ToArray());
+                throw new Exception();
 
-            return EngineResult<object>.Success(null);
+            return base.ValidateRequestAsync(request, context);
         }
 
-        protected override async Task<EngineResult<TypeBuilderResponse>> ExecuteCoreAsync(
-            TypeBuilderRequest request)
+        public async Task<TypeBuilderResponse> ExecuteAsync(TypeBuilderRequest request)
         {
             var lockService = new LockService();
             var lockId = request.ScenarioName + request.ModelName;
@@ -86,7 +90,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 
             try
             {
-                return await _pipeline.ExecuteAsync(request, Context, Services);
+                var runner = _serviceProvider.GetRequiredService<IEngineRunner>();
+                var response = await runner.RunAsync(this, request);
+                return response;
             }
             finally
             {

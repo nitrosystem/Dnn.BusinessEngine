@@ -69,6 +69,7 @@
     <Compile Include="Helpers\CollectionHelper.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Helpers\TypeChecker.cs" />
+    <Compile Include="Helpers\TypeNameHelper.cs" />
     <Compile Include="Mapper\ExpressionMapper.cs" />
     <Compile Include="Mapper\HybridMapper.cs" />
     <Compile Include="Mapper\CollectionMappingBuilder.cs" />

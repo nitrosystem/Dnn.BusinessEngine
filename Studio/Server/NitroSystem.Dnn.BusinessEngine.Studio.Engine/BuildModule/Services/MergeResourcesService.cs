@@ -8,41 +8,35 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using System.Text;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
-using System.Runtime.InteropServices;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
+using DotNetNuke.Entities.Content.Workflow.Entities;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
     public class MergeResourcesService : IMergeResourcesService
     {
-        private readonly WorkflowManager _workflow;
-        private IEngineNotifier _engineNotifier;
         private ModuleDto _module;
 
-        public MergeResourcesService(WorkflowManager workflow)
-        {
-            _workflow = workflow;
-        }
-
-        public async Task<(string Scripts, string Styles)> MergeResourcesAsync(ModuleDto module, int userId, IEnumerable<ModuleResourceDto> resources, IEngineNotifier engineNotifier)
+        public async Task<(string Scripts, string Styles)> MergeResourcesAsync(ModuleDto module, int userId, IEnumerable<ModuleResourceDto> resources)
         {
             _module = module;
-            _engineNotifier = engineNotifier;
 
             var resourcesLookup = resources.ToLookup(r => r.ResourceContentType);
-            var results = await _workflow.ExecuteTasksAsync<object>(_module.Id.ToString(), userId,
-                "BuildModuleWorkflow", "BuildModule", "MergeResourcesMiddleware", false,
-                (Expression<Func<Task<string>>>)(() => BuildScripts(resourcesLookup[ResourceContentType.Js])),
-                (Expression<Func<Task<string>>>)(() => BuildStyles(resourcesLookup[ResourceContentType.Css]))
-               );
+            var scripts = await BuildScripts(resourcesLookup[ResourceContentType.Js]);
+            var styles = await BuildStyles(resourcesLookup[ResourceContentType.Css]);
 
-            var scripts = results[0] as string;
-            var styles = results[1] as string;
+            //var results = await _workflow.ExecuteTasksAsync<object>(_module.Id.ToString(), userId,
+            //   "BuildModuleWorkflow", "BuildModule", "MergeResourcesMiddleware", false,
+            //   (Expression<Func<Task<string>>>)(() => BuildScripts(resourcesLookup[ResourceContentType.Js])),
+            //   (Expression<Func<Task<string>>>)(() => BuildStyles(resourcesLookup[ResourceContentType.Css]))
+            //  );
+            //var scripts = results[0] as string;
+            //var styles = results[1] as string;
 
             return (scripts, styles);
         }
@@ -112,15 +106,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             foreach (var chunk in scriptChunks)
                 finalBuilder.AppendLine(chunk);
 
-            _engineNotifier.PushingNotification(_module.ScenarioName,
-                new
-                {
-                    Type = "ActionCenter",
-                    TaskId = $"{_module.Id}-BuildModule",
-                    Message = $"Merged style resourcess for  {_module.ModuleName} module",
-                    Percent = 80
-                }
-            );
+            //_engineNotifier.PushingNotification(_module.ScenarioName,
+            //    new
+            //    {
+            //        Type = "ActionCenter",
+            //        TaskId = $"{_module.Id}-BuildModule",
+            //        Message = $"Merged style resourcess for  {_module.ModuleName} module",
+            //        Percent = 80
+            //    }
+            //);
 
             return finalBuilder.ToString();
         }
@@ -190,15 +184,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             foreach (var chunk in scriptChunks)
                 finalBuilder.AppendLine(chunk);
 
-            _engineNotifier.PushingNotification(_module.ScenarioName,
-                new
-                {
-                    Type = "ActionCenter",
-                    TaskId = $"{_module.Id}-BuildModule",
-                    Message = $"Merged scripts resourcess for  {_module.ModuleName} module",
-                    Percent = 90
-                }
-            );
+            //_engineNotifier.PushingNotification(_module.ScenarioName,
+            //    new
+            //    {
+            //        Type = "ActionCenter",
+            //        TaskId = $"{_module.Id}-BuildModule",
+            //        Message = $"Merged scripts resourcess for  {_module.ModuleName} module",
+            //        Percent = 90
+            //    }
+            //);
 
             return finalBuilder.ToString();
         }
