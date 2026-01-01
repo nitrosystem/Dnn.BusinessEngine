@@ -14,18 +14,18 @@ using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
 using NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ConditionParser;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
-using DotNetNuke.Entities.Content.Workflow.Entities;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.SseNotifier;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
     public class BuildLayoutService : IBuildLayoutService
     {
-
         private readonly IServiceLocator _serviceLocator;
+        private readonly ISseNotifier _notifier;
         private readonly IModuleFieldService _moduleFieldService;
 
         private ConcurrentDictionary<(string fieldType, string template), string> _fieldTypes = new
@@ -35,7 +35,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
         private HtmlDocument _htmlDoc;
         private volatile int _userId;
         private ModuleDto _module;
-        private IEngineNotifier _engineNotifier;
+        private IEngineNotifier _Notifier;
 
         private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
         private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
@@ -56,9 +56,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 ]]
             </div>";
 
-        public BuildLayoutService(IServiceLocator serviceLocator, IModuleFieldService moduleFieldService)
+        public BuildLayoutService(IServiceLocator serviceLocator, ISseNotifier notifier, IModuleFieldService moduleFieldService)
         {
             _serviceLocator = serviceLocator;
+            _notifier = notifier;
             _moduleFieldService = moduleFieldService;
         }
 
@@ -86,15 +87,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
             await LoadTemplates(_module.Fields);
 
-           // _engineNotifier.PushingNotification(_module.ScenarioName,
-           //    new
-           //    {
-           //        Type = "ActionCenter",
-           //        TaskId = $"{_module.Id}-BuildModule",
-           //        Message = $"Loaded resource content of {_module.ModuleName} module",
-           //        Percent = 40
-           //    }
-           //);
+            await _notifier.Publish(_module.ScenarioName,
+               new
+               {
+                   Channel = _module.ScenarioName,
+                   Type = "ActionCenter",
+                   TaskId = $"{_module.Id}-BuildModule",
+                   Message = $"Loaded resource content of {_module.ModuleName} module",
+                   Percent = 40
+               }
+           );
 
             _buffer = new Queue<ModuleFieldDto>();
             foreach (var item in parents)
@@ -163,23 +165,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
             try
             {
-                if (field.IsShown)
-                {
-                    var node = GetPaneNode(field.PaneName);
-                    var fieldHtml = await ParseFieldTemplate(field);
+                var node = GetPaneNode(field.PaneName);
+                var fieldHtml = await ParseFieldTemplate(field);
 
-                    //var fieldHtml = await _workflow.ExecuteTaskAsync<string>(_module.Id.ToString(), _userId,
-                    //    "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, false,
-                    //   (Expression<Func<Task<string>>>)(() => ParseFieldTemplate(field))
-                    //);
+                //var fieldHtml = await _workflow.ExecuteTaskAsync<string>(_module.Id.ToString(), _userId,
+                //    "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, false,
+                //   (Expression<Func<Task<string>>>)(() => ParseFieldTemplate(field))
+                //);
 
-                    var htmlNode = HtmlNode.CreateNode(fieldHtml);
-                    node.AppendChild(htmlNode);
-                }
+                var htmlNode = HtmlNode.CreateNode(fieldHtml);
+                node.AppendChild(htmlNode);
             }
             catch (Exception ex)
             {
-                //throw ex;
+                throw ex;
             }
 
             await ProcessBuffer(index - 1);
@@ -218,7 +217,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 else if (!field.GlobalSettings.IsDisabledLayout)
                     fieldTemplate = _fieldLayout.Replace("[FIELD-COMPONENT]", fieldTemplate);
 
-                if(!string.IsNullOrWhiteSpace(field.GlobalSettings.CustomStyles))
+                if (!string.IsNullOrWhiteSpace(field.GlobalSettings.CustomStyles))
                     fieldTemplate = fieldTemplate.Replace("[TOKENS]", $@" style=""{field.GlobalSettings.CustomStyles}""[TOKENS]");
 
                 string json = Newtonsoft.Json.JsonConvert.SerializeObject(field);
@@ -241,6 +240,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                     }
                     catch (Exception ex)
                     {
+                        //throw ex;
                     }
 
                     fieldTemplate = fieldTemplate.Replace(match.Value, value ?? "");
@@ -268,28 +268,31 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                     }
                     catch (Exception ex)
                     {
+                        //throw ex;
                     }
 
                     fieldTemplate = fieldTemplate.Replace(match.Value, conditionResult
                         ? (match.Groups["Exp"].Value ?? "")
                         : string.Empty);
 
-                    //_engineNotifier.PushingNotification(_module.ScenarioName,
-                    //   new
-                    //   {
-                    //       Type = "ActionCenter",
-                    //       TaskId = $"{_module.Id}-BuildModule",
-                    //       Message = $"Render template {field.FieldType} of {_module.ModuleName} module",
-                    //       Percent = 70
-                    //   }
-                    //);
+                    await _notifier.Publish(_module.ScenarioName,
+                       new
+                       {
+                           Channel = _module.ScenarioName,
+                           Type = "ActionCenter",
+                           TaskId = $"{_module.Id}-BuildModule",
+                           Message = $"Render template {field.FieldType} of {_module.ModuleName} module",
+                           Percent = 70
+                       }
+                    );
                 }
             }
             catch (Exception exx)
             {
+                throw exx;
             }
 
-            return fieldTemplate.Replace("[TOKENS]", "");
+            return fieldTemplate.Replace("[TOKENS]", $@"data-fi=""{field.Id}""");
         }
 
         private HtmlNode GetPaneNode(string pane)

@@ -6,14 +6,13 @@ using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ExpressionBuilder;
-using NitroSystem.Dnn.BusinessEngine.Core.PushingServer;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework;
 using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.PushingServer;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Core.SseNotifier;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Startup
 {
@@ -38,9 +37,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Startup
             services.AddSingleton<WorkflowManager>();
             services.AddSingleton<ResourceProfiler>();
 
-            services.AddSingleton<INotificationServerHost, NotificationServerHost>();
-            services.AddSingleton<IWebSocketManager, WebSocketManager>();
-            services.AddSingleton<INotificationServer, NotificationServerProxy>();
+            services.AddSingleton<ISseNotifier, SseNotifier.SseNotifier>();
+
+            //services.AddSingleton<INotificationServerHost, NotificationServerHost>();
+            //services.AddSingleton<IWebSocketManager, WebSocketManager>();
+            //services.AddSingleton<INotificationServer, NotificationServerProxy>();
 
             services.AddSingleton<BackgroundFramework>(sp =>
             {

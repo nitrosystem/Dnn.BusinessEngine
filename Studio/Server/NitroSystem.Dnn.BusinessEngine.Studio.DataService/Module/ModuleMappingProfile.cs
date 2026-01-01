@@ -127,6 +127,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
             #region Module For Build
 
+            HybridMapper.BeforeMap<ModuleFieldSpResult, ModuleFieldDto>(
+                (src, dest) => dest.DataSource = src.HasDataSource
+                ? ReflectionUtil.TryJsonCasting<ModuleFieldDataSourceInfo>(src.DataSource)
+                : null
+            );
+
             HybridMapper.BeforeMap<ModuleResourceSpResult, ModuleResourceDto>(
                 (src, dest) => dest.ResourcePath = src.ResourcePath?.ReplaceFrequentTokens());
 

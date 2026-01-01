@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares;
@@ -22,7 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution
                 .Use<ActionSetResultMiddleware>();
         }
 
-        public override ActionResponse CreateEmptyResponse()
+        protected override ActionResponse CreateEmptyResponse()
         {
             return new ActionResponse();
         }

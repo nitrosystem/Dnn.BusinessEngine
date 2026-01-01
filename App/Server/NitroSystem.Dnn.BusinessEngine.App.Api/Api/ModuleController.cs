@@ -15,11 +15,6 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionOrchestrator;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine;
-using DotNetNuke.UI.UserControls;
-using static NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export.ExportFramework;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {
@@ -133,7 +128,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
 
         [AllowAnonymous]
         [HttpPost]
-        public HttpResponseMessage DisconnectUser(ConnectionUserDto user)
+        public HttpResponseMessage DisconnectUser([FromBody] ConnectionUserDto user)
         {
             try
             {

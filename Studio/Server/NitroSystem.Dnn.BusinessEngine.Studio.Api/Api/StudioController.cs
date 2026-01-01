@@ -23,13 +23,8 @@ using NitroSystem.Dnn.BusinessEngine.Core.Reflection.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.AppModel;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder;
-using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
-using System.IO;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
-using NitroSystem.Dnn.BusinessEngine.Core.WebApi;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.PushingServer;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -38,7 +33,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ICacheService _cacheService;
-        private readonly IWebSocketManager _webSocketManager;
         private readonly IBrtGateService _brtGate;
         private readonly IBaseService _baseService;
         private readonly IEntityService _entityService;
@@ -46,23 +40,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IServiceFactory _serviceFactory;
         private readonly IDefinedListService _definedListService;
         private readonly IExtensionService _extensionService;
+        private readonly BuildTypeRunner _buildTypeRunner;
 
         public StudioController(
             IServiceProvider serviceProvider,
             ICacheService cacheService,
-            IWebSocketManager webSocketManager,
             IBrtGateService brtGate,
             IBaseService baseService,
             IEntityService entityService,
             IAppModelService appModelService,
             IServiceFactory serviceFactory,
             IDefinedListService definedListService,
-            IExtensionService extensionService
+            IExtensionService extensionService,
+            BuildTypeRunner buildTypeRunner
             )
         {
             _serviceProvider = serviceProvider;
             _cacheService = cacheService;
-            _webSocketManager = webSocketManager;
             _brtGate = brtGate;
             _baseService = baseService;
             _entityService = entityService;
@@ -70,7 +64,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _serviceFactory = serviceFactory;
             _definedListService = definedListService;
             _extensionService = extensionService;
-
+            _buildTypeRunner = buildTypeRunner;
         }
 
         #region Common
@@ -95,23 +89,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             }
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public HttpResponseMessage InitWebSocket()
-        {
-            try
-            {
-                int? portId = !_webSocketManager.IsRunning
-                        ? _webSocketManager.EnsureStarted()
-                        : _webSocketManager.GetPort();
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public HttpResponseMessage InitWebSocket()
+        //{
+        //    try
+        //    {
+        //        int? portId = !_webSocketManager.IsRunning
+        //                ? _webSocketManager.EnsureStarted()
+        //                : _webSocketManager.GetPort();
 
-                return Request.CreateResponse(HttpStatusCode.OK, portId);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //        return Request.CreateResponse(HttpStatusCode.OK, portId);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
 
         #endregion
 
@@ -504,7 +498,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 var scenarioName = await _baseService.GetScenarioNameAsync(appModel.ScenarioId);
                 var properties = HybridMapper.MapCollection<AppModelPropertyViewModel, PropertyDefinition>(appModel.Properties);
-                var request = new TypeBuilderRequest()
+                var request = new BuildTypeRequest()
                 {
                     ScenarioName = scenarioName,
                     BasePath = PortalSettings.HomeSystemDirectory,
@@ -513,16 +507,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     Properties = properties.Cast<IPropertyDefinition>().ToList()
                 };
 
-                var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromSeconds(70));
-                using (await _brtGate.OpenGateAsync(permitId))
-                {
-                    var typeBuilder = new TypeBuilderEngine(_serviceProvider, _brtGate, permitId);
-                    var response = await typeBuilder.ExecuteAsync(request);
-
-                    appModel.TypeRelativePath = response.RelativePath;
-                    appModel.TypeFullName = response.TypeFullName;
-                }
-
+                var type = await _buildTypeRunner.RunAsync(request);
+                appModel.TypeRelativePath = type.RelativePath;
+                appModel.TypeFullName = type.TypeFullName;
                 appModel.Id = await _appModelServices.SaveAppModelAsync(appModel, appModel.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, appModel);

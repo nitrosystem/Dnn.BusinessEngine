@@ -51,20 +51,21 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionOrchestrator
                     ModuleData = moduleData
                 };
 
-                var actionEngine = new ActionExecutionEngine();
-                var actionResponse = await _engineRunner.RunAsync(actionEngine, actionRequest);
-
-                if (actionResponse.Status == ActionResultStatus.Successful && actionResponse.IsRequiredToUpdateData)
+                var engine = new ActionExecutionEngine();
+                var response = await _engineRunner.RunAsync(engine, actionRequest);
+                if (response.Status == ActionResultStatus.Successful && response.IsRequiredToUpdateData)
                     await _userDataStore.UpdateModuleData(connectionId, moduleId,
-                        actionResponse.ModuleData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value), basePath);
+                        response.ModuleData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value), basePath);
 
-                result.Add(actionResponse);
+                result.Add(response);
 
-                if (actionResponse.Status == ActionResultStatus.Successful)
+                if (response.ConditionIsNotTrue) continue;
+
+                if (response.Status == ActionResultStatus.Successful)
                 {
                     EnqueueChildren(buffer, node.SuccessActions);
                 }
-                if (actionResponse.Status == ActionResultStatus.Error)
+                if (response.Status == ActionResultStatus.Error)
                 {
                     EnqueueChildren(buffer, node.ErrorActions);
                 }

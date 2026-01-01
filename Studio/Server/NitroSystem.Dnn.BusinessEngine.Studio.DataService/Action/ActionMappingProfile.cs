@@ -9,6 +9,8 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 using System.Linq;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
 {
@@ -54,6 +56,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
 
             HybridMapper.BeforeMap<ActionViewModel, ActionInfo>(
                 (src, dest) => dest.Settings = JsonConvert.SerializeObject(src.Settings));
+
+            #endregion
+
+            #region Action Param
+
+            HybridMapper.BeforeMap<ActionParamInfo, ActionParamViewModel>(
+                (src, dest) => dest.ValueAssignmentMode = (ValueAssignmentMode)src.ValueAssignmentMode);
+
+            HybridMapper.BeforeMap<ActionParamViewModel, ActionParamInfo>(
+               (src, dest) => dest.ValueAssignmentMode = (int)src.ValueAssignmentMode);
 
             #endregion
         }

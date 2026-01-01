@@ -78,6 +78,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ConditionParser
                 tokens.Add(currentToken);
             }
 
+            // normalize tokens
+            for (int t = 0; t < tokens.Count; t++)
+            {
+                if (tokens[t] == "\"\"")
+                    tokens[t] = string.Empty;
+            }
+
             return tokens;
         }
 

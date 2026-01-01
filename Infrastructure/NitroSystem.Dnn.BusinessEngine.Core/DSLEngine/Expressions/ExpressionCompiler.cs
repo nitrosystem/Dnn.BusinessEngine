@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Base;
 using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Contracts;
@@ -57,7 +58,113 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions
             throw new NotSupportedException("Expression not supported");
         }
 
-        private Expression BuildMemberAccess(
+        private static bool TryGetDictionaryTypes(Type type, out Type keyType, out Type valueType)
+        {
+            foreach (var itf in type.GetInterfaces().Concat(new[] { type }))
+            {
+                if (itf.IsGenericType)
+                {
+                    var def = itf.GetGenericTypeDefinition();
+                    if (def == typeof(IDictionary<,>) || def == typeof(IReadOnlyDictionary<,>))
+                    {
+                        var args = itf.GetGenericArguments();
+                        keyType = args[0]; valueType = args[1];
+                        return true;
+                    }
+                }
+            }
+            keyType = null; valueType = null;
+            return false;
+        }
+
+        private Expression BuildMemberAccess(MemberAccessExpression expr, ParameterExpression ctx)
+        {
+            // ctx.GetRoot("ArtistCategory")
+            var rootCall =
+                Expression.Call(
+                    ctx,
+                    typeof(IDslContext).GetMethod(nameof(IDslContext.GetRoot)),
+                    Expression.Constant(expr.Path[0])
+                );
+
+            // نوع واقعی root
+            Type currentType = _context.GetRootType(expr.Path[0]);
+
+            // object -> real type
+            Expression current = Expression.Convert(rootCall, currentType);
+
+            // ArtistCategory.IsDisabled.Title ...
+            for (int i = 1; i < expr.Path.Count; i++)
+            {
+                var propName = expr.Path[i];
+
+                // null-propagation: اگر current == null، نتیجه‌ی مرحله‌ی بعدی را default برگردان
+                // این را فقط برای انواع reference اعمال می‌کنیم
+                if (!currentType.IsValueType || Nullable.GetUnderlyingType(currentType) != null)
+                {
+                    var tmp = Expression.Variable(currentType, "tmp");
+                    var assign = Expression.Assign(tmp, current);
+                    var whenNull = Expression.Default(typeof(object)); // خروجی موقت؛ بعداً cast می‌کنیم
+                    var blockStart = Expression.Block(new[] { tmp }, assign);
+                    // block را بعد از تعیین current مرحله بعد کامل می‌کنیم
+                    // برای سادگی، ادامه‌ی مسیر را بدون این لایه نشان می‌دهیم؛ در صورت نیاز می‌توانی این الگو را به‌صورت helper دربیاری.
+                }
+
+                // اگر دیکشنری است: با TryGetValue یا ایندکسر بخوان
+                if (TryGetDictionaryTypes(currentType, out var keyT, out var valT))
+                {
+                    // اگر کلید string نیست، به نوع کلید تبدیل کن
+                    var keyExpr = keyT == typeof(string)
+                        ? (Expression)Expression.Constant(propName)
+                        : Expression.Convert(Expression.Constant(propName), keyT);
+
+                    // متد TryGetValue را پیدا کن
+                    var tryGetValue = currentType.GetMethod("TryGetValue", new[] { keyT, valT.MakeByRefType() });
+                    if (tryGetValue != null)
+                    {
+                        var dictVar = Expression.Variable(currentType, "dict");
+                        var valueVar = Expression.Variable(valT, "val");
+
+                        var assignDict = Expression.Assign(dictVar, current);
+                        var callTryGet = Expression.Call(dictVar, tryGetValue, keyExpr, valueVar);
+
+                        // اگر کلید وجود داشت val، در غیر این صورت default(valT)
+                        var pickValue = Expression.Condition(callTryGet, valueVar, Expression.Default(valT));
+
+                        current = Expression.Block(new[] { dictVar, valueVar }, assignDict, pickValue);
+                        currentType = valT;
+                    }
+                    else
+                    {
+                        // fallback: ایندکسر "Item"
+                        var indexer = currentType.GetProperty("Item", new[] { keyT });
+                        if (indexer == null)
+                            throw new InvalidOperationException($"No indexer found on dictionary-like type '{currentType.Name}'");
+
+                        current = Expression.Property(current, indexer, keyExpr);
+                        currentType = indexer.PropertyType;
+                    }
+
+                    continue;
+                }
+
+                // اگر POCO است: property را بخوان
+                var propInfo = currentType.GetProperty(propName);
+                if (propInfo == null)
+                    throw new InvalidOperationException($"Property '{propName}' not found on type '{currentType.Name}'");
+
+                current = Expression.Property(current, propInfo);
+                currentType = propInfo.PropertyType;
+
+                // اگر مقدار object برگشت و مسیر ادامه دارد، می‌توانی در مرحله‌ی بعدی cast runtime اضافه کنی
+                // مثلاً وقتی مقدار از دیکشنری به صورت object آمده و انتظار POCO داریم:
+                // current = Expression.Convert(current, expectedTypeInNextStep);
+            }
+
+            return current;
+        }
+
+        private Expression BuildMemberAccess2(
             MemberAccessExpression expr,
             ParameterExpression ctx)
         {

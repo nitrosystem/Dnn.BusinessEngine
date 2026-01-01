@@ -67,10 +67,10 @@
     <Compile Include="ActionExecution\ActionResponse.cs" />
     <Compile Include="ActionExecution\Enums\ActionExceptionState.cs" />
     <Compile Include="ActionExecution\Enums\ActionResultStatus.cs" />
+    <Compile Include="ActionExecution\Middlewares\ActionConditionMiddleware.cs" />
     <Compile Include="ActionExecution\Middlewares\ActionSetResultMiddleware.cs" />
     <Compile Include="ActionExecution\Middlewares\ActionSetParamsMiddleware.cs" />
     <Compile Include="ActionExecution\Middlewares\ActionWorkerMiddleware.cs" />
-    <Compile Include="ActionExecution\Middlewares\ActionConditionMiddleware.cs" />
     <Compile Include="ActionExecution\Models\ActionException.cs" />
     <Compile Include="ActionOrchestrator\ActionTree.cs" />
     <Compile Include="ActionOrchestrator\BuildActionsBuffer.cs" />

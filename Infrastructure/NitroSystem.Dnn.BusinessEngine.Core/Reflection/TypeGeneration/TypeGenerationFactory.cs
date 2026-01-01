@@ -12,7 +12,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration
 {
     public sealed class TypeGenerationFactory
     {
-        private readonly IBrtGateService _brtGate;
         private readonly AssemblyBuilderHost _host;
         private readonly GeneratedModelRegistry _registry;
 
@@ -21,15 +20,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration
 
         public TypeGenerationFactory(
             AssemblyBuilderHost host,
-            IBrtGateService brtGate,
             GeneratedModelRegistry registry)
         {
             _host = host ?? throw new ArgumentNullException(nameof(host));
-            _brtGate = brtGate ?? throw new ArgumentNullException(nameof(brtGate));
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
         }
 
-        public Type GetOrBuild(ModelDefinition model, Guid? permitId = null)
+        public Type GetOrBuild(ModelDefinition model)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             if (string.IsNullOrWhiteSpace(model.Name))
@@ -38,7 +35,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration
             var stableKey = model.ComputeStableKey();
 
             return _cache.GetOrAdd(stableKey, _ =>
-                BuildType(model, stableKey, permitId.Value));
+                BuildType(model, stableKey));
         }
 
         public bool TryGetFromCache(string stableKey, out Type type)
@@ -48,15 +45,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration
 
         public void SaveAssembly() => _host.SaveIfPossible();
 
-        private Type BuildType(
-            ModelDefinition model,
-            string stableKey,
-            Guid permitId)
+        private Type BuildType(ModelDefinition model, string stableKey)
         {
-            if (!AsyncHelper.RunSync(() => _brtGate.IsGateOpenAsync(permitId)))
-                throw new UnauthorizedAccessException(
-                    "Operation must run inside BRT gate.");
-
             lock (_buildLock)
             {
                 if (_cache.TryGetValue(stableKey, out var existing))

@@ -13,6 +13,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public Guid Id { get; set; }
         public Guid ActionId { get; set; }
         public string ParamName { get; set; }
+        public int ValueAssignmentMode { get; set; }
         public string ParamValue { get; set; }
         public int ViewOrder { get; set; }
     }

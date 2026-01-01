@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\ModuleController.cs" />
+    <Compile Include="Api\SseController.cs" />
     <Compile Include="Api\StudioController.cs" />
     <Compile Include="Dto\GroupItemDto.cs" />
     <Compile Include="Dto\CheckModuleNameDto.cs" />

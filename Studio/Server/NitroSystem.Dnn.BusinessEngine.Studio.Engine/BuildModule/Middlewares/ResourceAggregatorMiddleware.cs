@@ -20,13 +20,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
             //       (Expression<Func<Task<BuildModuleResponse>>>)(() => _service.FinalizeResourcesAsync(request, context))
             //    );
 
-            var result = new BuildModuleResponse();
             var moduleLayoutTemplate = context.Get<string>("ModuleLayoutTemplate");
             var scripts = context.Get<string>("ModuleScripts");
             var styles = context.Get<string>("ModuleStyles");
             var outputDirectory = context.Get<string>("OutputDirectory");
             var outputRelativePath = context.Get<string>("OutputRelativePath");
-            var moduleKebabName = StringHelper.ToKebabCase(request.ModuleName);
+            var moduleKebabName = StringHelper.ToKebabCase(request.Module.ModuleName);
 
             var fileTasks = new[]
             {
@@ -45,7 +44,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
             var moduleResources = new List<ModuleResourceDto>();
             moduleResources.Add(new ModuleResourceDto()
             {
-                ModuleId = request.ModuleId.Value,
+                ModuleId = request.Module.Id,
                 ResourceContentType = ResourceContentType.Css,
                 ResourcePath = $"{outputRelativePath}/{moduleKebabName}.css",
                 LoadOrder = ++count
@@ -53,7 +52,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
 
             moduleResources.Add(new ModuleResourceDto()
             {
-                ModuleId = request.ModuleId.Value,
+                ModuleId = request.Module.Id,
                 ResourceContentType = ResourceContentType.Js,
                 ResourcePath = $"{outputRelativePath}/{moduleKebabName}.js",
                 LoadOrder = ++count
@@ -69,6 +68,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
             //    }
             //);
 
+            var result = new BuildModuleResponse();
             result.IsSuccess = true;
             result.FinalizedResources = request.Module.ExternalResources.Concat(moduleResources);
             return result;

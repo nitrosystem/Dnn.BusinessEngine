@@ -19,24 +19,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
 
         protected abstract void ConfigurePipeline(EnginePipeline<TRequest, TResponse> pipeline);
 
-        public abstract TResponse CreateEmptyResponse();
-
-        protected internal virtual Task OnInitializeAsync(TRequest request, IEngineContext context)
-            => Task.CompletedTask;
-
-        protected internal virtual Task ValidateRequestAsync(TRequest request, IEngineContext context)
-            => Task.CompletedTask;
-
-        protected internal virtual Task ValidateResponseAsync(TResponse response, IEngineContext context)
-            => Task.CompletedTask;
-
-        protected internal virtual Task BeforeExecuteAsync(TRequest request) => Task.CompletedTask;
-
-        protected internal virtual Task AfterExecuteAsync(TRequest request, TResponse response) => Task.CompletedTask;
-
-        protected internal virtual Task OnCompletedAsync(TRequest request, TResponse response, IEngineContext context)
-            => Task.CompletedTask;
-
+        protected internal abstract TResponse CreateEmptyResponse();
+      
         protected internal Task NotifyProgress(string message, double? percent = null)
             => OnProgress?.Invoke(message, percent) ?? Task.CompletedTask;
 

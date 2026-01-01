@@ -21,8 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares
 
         public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next)
         {
-            if (!context.TryGet<List<ActionParamDto>>("ParsedParams", out var finalizedParams))
-                context.CancellationTokenSource.Cancel();
+            context.TryGet<List<ActionParamDto>>("ParsedParams", out var finalizedParams);
 
             request.Action.Params = finalizedParams;
 

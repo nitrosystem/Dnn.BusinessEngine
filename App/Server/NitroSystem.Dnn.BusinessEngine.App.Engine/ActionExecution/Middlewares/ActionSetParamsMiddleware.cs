@@ -18,12 +18,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares
 
         public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next)
         {
-            if (!context.TryGet<bool>("ConditionsIsTrue", out var isTrue) || !isTrue)
-                context.CancellationTokenSource.Cancel();
-
             var finalizedParams = new List<ActionParamDto>();
 
-            foreach (var item in request.Action.Params)
+            foreach (var item in request.Action.Params ?? Enumerable.Empty<ActionParamDto>())
             {
                 var expr = item.ParamValue as string;
 

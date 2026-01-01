@@ -51,6 +51,7 @@
     <Compile Include="App\DataService\Contracts\IUserDataStore.cs" />
     <Compile Include="App\DataService\Dto\DashboardDto.cs" />
     <Compile Include="App\DataService\Dto\DashboardPageDto.cs" />
+    <Compile Include="App\DataService\Enums\ValueAssignmentMode.cs" />
     <Compile Include="App\Engine\ActionExecution\IActionExecutor.cs" />
     <Compile Include="App\DataService\Contracts\IActionService.cs" />
     <Compile Include="App\DataService\Contracts\IModuleService.cs" />
@@ -65,9 +66,6 @@
     <Compile Include="App\Web\Dto\ModuleOutputResourceDto .cs" />
     <Compile Include="Core\Contracts\IPropertyDefinition.cs" />
     <Compile Include="Core\EngineBase\IEngineNotifier.cs" />
-    <Compile Include="Core\PushingServer\INotificationServer.cs" />
-    <Compile Include="Core\PushingServer\INotificationServerHost.cs" />
-    <Compile Include="Core\PushingServer\IWebSocketManager.cs" />
     <Compile Include="Shared\Contracts\IExportable.cs" />
     <Compile Include="Shared\Enums\AppModelType.cs" />
     <Compile Include="Shared\Enums\CacheOperation.cs" />
@@ -75,6 +73,7 @@
     <Compile Include="App\DataService\Enums\VariableType.cs" />
     <Compile Include="Core\Contracts\ICacheService.cs" />
     <Compile Include="Core\Contracts\IServiceLocator.cs" />
+    <Compile Include="Shared\Models\ListResult.cs" />
     <Compile Include="Studio\DataService\Contracts\IDashbaordService.cs" />
     <Compile Include="Studio\DataService\Contracts\IExtensionService.cs" />
     <Compile Include="Studio\DataService\Contracts\IModuleFieldService.cs" />
@@ -116,6 +115,7 @@
     <Compile Include="Data\IExecuteSqlCommand.cs" />
     <Compile Include="Data\IRepositoryBase.cs" />
     <Compile Include="Core\Contracts\IUnitOfWork.cs" />
+    <Compile Include="Studio\Engine\BuildModule\Contracts\IFieldTypePaneGeneration.cs" />
     <Compile Include="Studio\Engine\InstallExtension\InstallExtensionRequest.cs" />
     <Compile Include="Studio\Engine\InstallExtension\InstallExtensionResponse.cs" />
     <Compile Include="Studio\Engine\InstallExtension\Models\ExtensionAssembly.cs" />
@@ -124,8 +124,6 @@
     <Compile Include="Studio\Engine\InstallExtension\Models\ExtensionResource.cs" />
     <Compile Include="Studio\Engine\InstallExtension\Models\ExtensionSqlProvider.cs" />
     <Compile Include="Studio\Engine\InstallExtension\Enums\SqlProviderType.cs" />
-    <Compile Include="Studio\Engine\TypeBuilder\TypeBuilderRequest.cs" />
-    <Compile Include="Studio\Engine\TypeBuilder\TypeBuilderResponse.cs" />
     <Compile Include="Shared\Enums\ModuleFieldDataSourceType.cs" />
     <Compile Include="Shared\Enums\ModuleType.cs" />
     <Compile Include="Shared\Enums\ModuleWrapper.cs" />
@@ -143,7 +141,6 @@
     <Compile Include="Shared\Contracts\IExtensionServiceViewModel.cs" />
     <Compile Include="Shared\Contracts\IViewModel.cs" />
     <Compile Include="Shared\Enums\ActionExecutionCondition.cs" />
-    <Compile Include="Shared\Models\ExpressionInfo.cs" />
     <Compile Include="Shared\Models\GuidInfo.cs" />
     <Compile Include="Shared\Models\PagingInfo.cs" />
     <Compile Include="Shared\Models\ParamInfo.cs" />

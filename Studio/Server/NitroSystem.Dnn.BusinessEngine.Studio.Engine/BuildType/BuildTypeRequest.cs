@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder
+namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder
 {
-    public class TypeBuilderRequest
+    public class BuildTypeRequest
     {
         public string ScenarioName { get; set; }
         public string BasePath { get; set; }

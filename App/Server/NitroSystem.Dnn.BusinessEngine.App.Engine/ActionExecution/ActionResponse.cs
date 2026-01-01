@@ -6,6 +6,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution
 {
     public class ActionResponse
     {
+        public bool ConditionIsNotTrue { get; set; }
         public bool IsRequiredToUpdateData { get; set; }
         public ActionResultStatus Status { get; set; }
         public object ActionResultData { get; set; }

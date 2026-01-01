@@ -1,30 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.TypeBuilder;
-using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration;
-using NitroSystem.Dnn.BusinessEngine.Core.BrtPath.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares
 {
-    public class BuildTypeMiddleware : IEngineMiddleware<TypeBuilderRequest, TypeBuilderResponse>
+    public class BuildTypeMiddleware : IEngineMiddleware<BuildTypeRequest, BuildTypeResponse>
     {
-        private readonly IBrtGateService _brtGate;
         private readonly GeneratedModelRegistry _registry;
 
-        public BuildTypeMiddleware(IBrtGateService brtGate, GeneratedModelRegistry registry)
+        public BuildTypeMiddleware(GeneratedModelRegistry registry)
         {
-            _brtGate = brtGate;
             _registry = registry;
         }
 
-        public async Task<TypeBuilderResponse> InvokeAsync(IEngineContext context, TypeBuilderRequest request, Func<Task<TypeBuilderResponse>> next)
+        public async Task<BuildTypeResponse> InvokeAsync(IEngineContext context, BuildTypeRequest request, Func<Task<BuildTypeResponse>> next)
         {
             await Task.Yield();
 
-            var permitId = context.Get<Guid>("PermitId");
             var outputPath = context.Get<string>("OutputDirectory");
             var relativePath = context.Get<string>("OutputRelativePath");
             var nameSpace = $"NitroSystem.Dnn.BusinessEngine.AppModels.{request.ScenarioName}";
@@ -41,12 +35,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares
             };
 
             var host = new AssemblyBuilderHost(typeFullName, assembly);
-            var factory = new TypeGenerationFactory(host, _brtGate, _registry);
-            var type = factory.GetOrBuild(model, permitId);
+            var factory = new TypeGenerationFactory(host, _registry);
+            var type = factory.GetOrBuild(model );
 
             factory.SaveAssembly();
 
-            var response = new TypeBuilderResponse() { RelativePath = relativePath, TypeFullName = typeFullName };
+            var response = new BuildTypeResponse() { RelativePath = relativePath, TypeFullName = typeFullName };
             return response;
         }
     }

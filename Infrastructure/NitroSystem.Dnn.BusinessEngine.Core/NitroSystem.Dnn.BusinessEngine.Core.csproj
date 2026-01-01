@@ -136,10 +136,12 @@
     <Compile Include="EventBus\EventBus.cs" />
     <Compile Include="EventBus\EventSubscriber.cs" />
     <Compile Include="EventBus\IEvent.cs" />
-    <Compile Include="PushingServer\NotificationServerProxy.cs" />
-    <Compile Include="PushingServer\WebSocketManager.cs" />
     <Compile Include="Reflection\TypeGeneration\GeneratedModelRegistry.cs" />
     <Compile Include="Reflection\TypeGeneration\Models\GeneratedModelDescriptor.cs" />
+    <Compile Include="SseNotifier\ISseNotifier.cs" />
+    <Compile Include="SseNotifier\SseClient.cs" />
+    <Compile Include="SseNotifier\SseConnectionManager.cs" />
+    <Compile Include="SseNotifier\SseNotifier.cs" />
     <Compile Include="Workflow\WorkflowManager.cs" />
     <Compile Include="Workflow\Extensions\MethodProfilerExtensions.cs" />
     <Compile Include="Workflow\Models\MethodProfileResult.cs" />
@@ -189,8 +191,6 @@
     <Compile Include="Reflection\ServiceLocator\ServiceLocator.cs" />
     <Compile Include="Reflection\TypeLoader\TypeLoaderFactory.cs" />
     <Compile Include="Reflection\TypeLoader\TypeDescriptor.cs" />
-    <Compile Include="PushingServer\NotificationServer.cs" />
-    <Compile Include="PushingServer\NotificationServerHost.cs" />
     <Compile Include="Security\ErrorHandling.cs" />
     <Compile Include="Mapper\CustomMapper.cs" />
     <Compile Include="Mapper\IMapper.cs" />

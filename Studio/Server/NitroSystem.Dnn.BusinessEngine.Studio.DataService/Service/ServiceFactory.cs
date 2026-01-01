@@ -160,6 +160,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
             return (objServiceInfo.Id, extensionServiceId);
         }
 
+        public async Task<string> GetServiceTypeName(Guid serviceId)
+        {
+            return await _repository.GetColumnValueAsync<ServiceInfo, string>(serviceId, "ServiceType");
+        }
         public async Task<IEnumerable<string>> GetServiceKeysAsync()
         {
             var actions = await _repository.GetAllAsync<ServiceInfo>("CacheKey");

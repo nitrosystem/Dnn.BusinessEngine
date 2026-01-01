@@ -2,7 +2,6 @@
 using DotNetNuke.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action;
 using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Template;
@@ -22,6 +21,7 @@ using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
 {
@@ -50,17 +50,25 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<IWorkflowEventService, WorkflowEventService>();
 
+            services.AddScoped<IBuildLayoutService, BuildLayoutService>();
+            services.AddScoped<IMergeResourcesService, MergeResourcesService>();
+            services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, InitializeBuildModuleMiddleware>();
+            services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, DeleteOldResourcesMiddleware>();
             services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, BuildLayoutMiddleware>();
             services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, MergeResourcesMiddleware>();
             services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, ResourceAggregatorMiddleware>();
+            services.AddScoped<InitializeBuildModuleMiddleware>();
+            services.AddScoped<DeleteOldResourcesMiddleware>();
             services.AddScoped<BuildLayoutMiddleware>();
             services.AddScoped<MergeResourcesMiddleware>();
             services.AddScoped<ResourceAggregatorMiddleware>();
-            services.AddScoped<IBuildLayoutService, BuildLayoutService>();
-            services.AddScoped<IMergeResourcesService, MergeResourcesService>();
+            services.AddScoped<BuildModuleRunner>();
 
-            services.AddScoped<IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>, BuildLayoutMiddleware>();
+            services.AddScoped<IEngineMiddleware<BuildTypeRequest, BuildTypeResponse>, InitializeBuildTypeMiddleware>();
+            services.AddScoped<IEngineMiddleware<BuildTypeRequest, BuildTypeResponse>, BuildTypeMiddleware>();
+            services.AddScoped<InitializeBuildTypeMiddleware>();
             services.AddScoped<BuildTypeMiddleware>();
+            services.AddScoped<BuildTypeRunner>();
 
             //services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, SqlDataProviderMiddleware>();
             //services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, ResourcesMiddleware>();

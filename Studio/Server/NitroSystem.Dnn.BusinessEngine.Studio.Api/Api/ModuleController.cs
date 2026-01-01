@@ -16,7 +16,6 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
@@ -28,12 +27,9 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework;
 using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Enums;
-using System.Web.UI;
-using System.Web.Http.Results;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -44,6 +40,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly ICacheService _cacheService;
         private readonly IBaseService _baseService;
         private readonly IAppModelService _appModelServices;
+        private readonly IServiceFactory _serviceFactory;
         private readonly IDashboardService _dashboardService;
         private readonly IModuleService _moduleService;
         private readonly IModuleTemplateService _moduleTemplateService;
@@ -54,12 +51,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly ITemplateService _templateService;
         private readonly WorkflowManager _workflow;
         private readonly BackgroundFramework _backgroundFramework;
+        private readonly BuildModuleRunner _buildModuleRunner;
 
         public ModuleController(
             IServiceProvider serviceProvider,
             ICacheService cacheService,
             IBaseService globalService,
             IAppModelService appModelService,
+            IServiceFactory serviceFactory,
             IDashboardService dashboardService,
             IModuleService moduleService,
             IModuleTemplateService moduleTemplateService,
@@ -69,13 +68,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             IActionService actionService,
             ITemplateService templateService,
             WorkflowManager workflow,
-            BackgroundFramework backgroundFramework
+            BackgroundFramework backgroundFramework,
+            BuildModuleRunner buildModuleRunner
         )
         {
             _serviceProvider = serviceProvider;
             _cacheService = cacheService;
             _baseService = globalService;
             _appModelServices = appModelService;
+            _serviceFactory = serviceFactory;
             _dashboardService = dashboardService;
             _moduleService = moduleService;
             _moduleTemplateService = moduleTemplateService;
@@ -86,6 +87,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _templateService = templateService;
             _workflow = workflow;
             _backgroundFramework = backgroundFramework;
+            _buildModuleRunner = buildModuleRunner;
         }
 
         #region Create Dashboard
@@ -750,17 +752,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 request.Module = await _moduleService.GetDataForModuleBuildingAsync(moduleId);
                 request.BasePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(request.Module.ScenarioName)}/";
 
+                var result = await _buildModuleRunner.RunAsync(request);
                 //request.Module = await _workflow.ExecuteTaskAsync<ModuleDto>(moduleId.ToString(), UserInfo.UserID,
                 //    "BuildModuleWorkflow", "BuildModule", "GetDataForBuildModule", false, true, false,
                 //    () => _moduleService.GetDataForModuleBuildingAsync(moduleId)
                 // );
 
-                var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService, true);
-                var response = await engine.ExecuteAsync(request);
-                if (response.IsSuccess)
-                    await _moduleService.BulkInsertModuleOutputResourcesAsync(request.Module.SitePageId, response.FinalizedResources);
-
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, result);
             }
             catch (Exception ex)
             {
@@ -834,6 +832,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                         ? await _actionService.GetActionViewModelAsync(actionId)
                         : null;
 
+                var serviceType = action != null && action.ServiceId.HasValue
+                    ? await _serviceFactory.GetServiceTypeName(action.ServiceId.Value)
+                    : "";
+
                 if (string.IsNullOrEmpty(fieldType))
                     events = GetDefaultCustomEvents();
                 else
@@ -846,6 +848,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     Variables = variables,
                     Events = events,
                     Action = action,
+                    ServiceType = serviceType
                 });
             }
             catch (Exception ex)

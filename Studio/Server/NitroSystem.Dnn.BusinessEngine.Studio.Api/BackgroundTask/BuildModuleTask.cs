@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Contracts;
@@ -19,6 +18,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask
         private readonly ICacheService _cacheService;
         private readonly IModuleService _moduleService;
         private readonly WorkflowManager _workflow;
+        private readonly BuildModuleRunner _buildModuleRunner;
         private readonly Guid _moduleId;
         private readonly int _userId;
         private readonly string _basePath;
@@ -57,8 +57,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask
                 () => _moduleService.GetDataForModuleBuildingAsync(_moduleId)
              );
 
-            var engine = new BuildModuleEngine(_serviceProvider, _cacheService, _moduleService, true);
-            await engine.ExecuteAsync(request);
+            await _buildModuleRunner.RunAsync(request);
         }
     }
 }
