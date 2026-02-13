@@ -185,38 +185,47 @@ export class CreateScenarioController {
     //#region Export Scenario
 
     onShowExportScenarioWinClick() {
-        this.export = { PackageName: this.scenario.ScenarioName, PackageVersion: '01.00.00' };
-
         this.workingMode = "export-scenario";
         this.$scope.$emit("onShowRightWidget", { controller: this });
+
+        this.exportData = {
+            GenerateEntityScripts: true
+        };
     }
 
     onExportScenarioClick() {
-        //this.form.validated = true;
-        //this.form.validator(this.scenario);
-        if (1 == 1 || this.form.valid) {
-            this.running = "export-scenario";
-            this.awaitAction = {
-                title: "Export Scenario",
-                subtitle: "Just a moment for exporting the scenario components...",
-            };
-
-            this.apiService.post("Studio", "ExportScenario", this.export).then((data) => {
-                this.notifyService.success("export scenario has been successfully");
-
-                delete this.awaitAction;
-                delete this.running;
-            }, (error) => {
-                delete this.running;
-
-                this.awaitAction.isError = true;
-                this.awaitAction.subtitle = error.statusText;
-                this.awaitAction.desc =
-                    this.globalService.getErrorHtmlFormat(error);
-
-                this.notifyService.error(error.data.Message);
-            });
+        this.exportRequest = {
+            ExportName: this.scenario.ScenarioName,
+            ExportScope: 0,
+            Channel: this.scenario.ScenarioName,
+            Version: '01.00.00',
+            Params: {
+                ScenarioId: this.scenario.Id,
+                GenerateEntityScripts: this.exportData.GenerateEntityScripts
+            }
         }
+
+        this.running = "export-scenario";
+        this.awaitAction = {
+            title: "Export Scenario",
+            subtitle: "Just a moment for exporting the scenario components...",
+        };
+
+        this.apiService.post("Studio", "Export", this.exportRequest).then((data) => {
+            this.notifyService.success("export scenario has been successfully");
+
+            delete this.awaitAction;
+            delete this.running;
+        }, (error) => {
+            delete this.running;
+
+            this.awaitAction.isError = true;
+            this.awaitAction.subtitle = error.statusText;
+            this.awaitAction.desc =
+                this.globalService.getErrorHtmlFormat(error);
+
+            this.notifyService.error(error.data.Message);
+        });
     }
 
     onCancelExportScenarioClick() {
@@ -237,25 +246,72 @@ export class CreateScenarioController {
     }
 
     onImportScenarioFileUploadChange($file, $invalidFiles) {
-        if ($file) this.import = { files: $file, PackageType: 2 }
+        if ($file) {
+            this.running = "load-import-file";
+            this.awaitAction = {
+                title: "Load Import File",
+                subtitle: "Just a moment for loading the file...",
+            };
+
+            this.apiService.uploadFile("Studio", "LoadExportedFile", { files: $file }).then((data) => {
+                const exportedData = JSON.parse(data.ExportedJson);
+                // const scenarioJson = exportedData.Items.find(i => i.ComponentName === 'Scenario');
+                // const scenario = JSON.parse(scenarioJson.ExportedJson);
+                const modulesJson = exportedData.Items.find(i => i.ComponentName === 'Module');
+                const modules = JSON.parse(modulesJson.ExportedJson) ?? [];
+
+                this.exportedFile = data.ExportedFile;
+                this.pages = data.Pages;
+                this.exportedData = {
+                    // scenario: scenario,
+                    modules: modules.filter(m => m.SiteModuleId) ?? []
+                }
+
+                delete this.awaitAction;
+                delete this.running;
+            }, (error) => {
+                delete this.running;
+
+                this.awaitAction.isError = true;
+                this.awaitAction.subtitle = error.statusText;
+                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+
+                this.notifyService.error(error.data.Message);
+            });
+        }
     }
 
     onImportScenarioClick() {
-        if (this.import.files) {
-            this.running = "export-scenario";
+        if (this.exportedData) {
+            this.importRequest = {
+                ImportScope: 0,
+                Channel: this.scenario.ScenarioName,
+                ExportedFile: this.exportedFile,
+                Params: {
+                    ModulesNewPages: {}
+                }
+            }
+
+            for (const module of this.exportedData.modules ?? []) {
+                if (module.NewPageId)
+                    this.importRequest.Params.ModulesNewPages[module.Id] = module.NewPageId;
+            }
+
+
+            this.running = "import-scenario";
             this.awaitAction = {
-                title: "Export Scenario",
-                subtitle: "Just a moment for exporting the scenario components...",
+                title: "Import Scenario",
+                subtitle: "Just a moment for importing the scenario components...",
             };
 
-            this.apiService.uploadFile("Studio", "ImportFile", this.import).then((data) => {
+            this.apiService.post("Studio", "Import", this.importRequest).then((data) => {
                 this.notifyService.success("import scenario has been successfully");
 
                 delete this.awaitAction;
                 delete this.running;
             }, (error) => {
                 delete this.running;
-                
+
                 this.awaitAction.isError = true;
                 this.awaitAction.subtitle = error.statusText;
                 this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
@@ -272,6 +328,8 @@ export class CreateScenarioController {
             delete this.workingMode;
         }, 200);
     }
+
+    //#endregion
 
     sanitizeDatabasePrefix(input) {
         if (!input) return '';
@@ -292,5 +350,4 @@ export class CreateScenarioController {
         return clean;
     }
 
-    //#endregion
 }

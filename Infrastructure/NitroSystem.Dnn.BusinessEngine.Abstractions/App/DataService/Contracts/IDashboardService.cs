@@ -7,7 +7,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts
 {
     public interface IDashboardService
     {
-        Task<DashboardDto> GetDashboardDtoAsync(Guid moduleId);
+        Task<DashboardDto> GetDashboardDtoAsync(Guid moduleId, bool isSuperUser, string[] userRoles);
         DashboardPageModuleDto GetDashboardPageModule(Guid dashboardModuleId, string pageName);
     }
 }

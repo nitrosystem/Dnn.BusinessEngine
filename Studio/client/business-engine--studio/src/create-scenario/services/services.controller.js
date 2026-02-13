@@ -1,3 +1,5 @@
+import Swal from "sweetalert2";
+
 export class ServicesController {
     constructor(
         $scope,
@@ -38,11 +40,13 @@ export class ServicesController {
             pageIndex: this.filter.pageIndex,
             pageSize: this.filter.pageSize,
             searchText: this.filter.searchText,
+            serviceDomain: this.filter.serviceDomain,
             serviceType: this.filter.serviceType,
             sortBy: this.filter.sortBy
         }).then((data) => {
+            this.serviceDomains = [...new Set(data.ServiceTypes.map(x => x.ServiceDomain))];
+            this.serviceTypes = [...new Set(data.ServiceTypes.map(x => x.ServiceType))];
             this.services = data.Services;
-            this.serviceTypes = [...new Set(data.Services.map(item => item.ServiceType))];
 
             let $this = this;
             this.paging = {
@@ -95,18 +99,33 @@ export class ServicesController {
     }
 
     onDeleteServiceClick(id, index) {
-        swal({
-            title: "Are you sure?",
-            text: "Once deleted, you will not be able to recover this imaginary service!",
+        let timerInterval;
+        Swal.fire({
+            title: 'Are you sure?',
+            html: '<p>Once deleted, you will not be able to recover this imaginary entity!</p><b></b>',
             icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((willDelete) => {
-            if (willDelete) {
-                this.running = "get-services";
+            timer: 5000,
+            timerProgressBar: true,
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+            backdrop: false,
+            didOpen: () => {
+                const timer = Swal.getPopup().querySelector("b");
+                timerInterval = setInterval(() => {
+                    timer.textContent = `${Swal.getTimerLeft()}`;
+                }, 100);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.running = "delete-services";
                 this.awaitAction = {
-                    title: "Remove Service",
-                    subtitle: "Just a moment for removing service...",
+                    title: "Delete Service",
+                    subtitle: "Just a moment for deleting service...",
                 };
 
                 this.apiService.post("Studio", "DeleteService", { Id: id }).then((data) => {

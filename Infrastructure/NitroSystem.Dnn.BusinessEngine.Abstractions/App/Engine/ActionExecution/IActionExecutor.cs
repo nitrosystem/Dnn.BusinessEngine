@@ -5,6 +5,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution
 {
     public interface IActionExecutor
     {
-        Task<object> ExecuteAsync(ActionDto action);
+        Task<object> ExecuteAsync(ActionDto action, string basePath);
     }
 }

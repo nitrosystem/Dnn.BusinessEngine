@@ -7,6 +7,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures
         public Guid Id { get; set; }
         public string ScenarioName { get; set; }
         public string ModuleName { get; set; }
+        public bool IsSSR { get; set; }
         public int Version { get; set; }
     }
 }

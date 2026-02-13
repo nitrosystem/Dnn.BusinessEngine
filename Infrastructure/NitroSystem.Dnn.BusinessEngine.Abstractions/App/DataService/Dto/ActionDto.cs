@@ -15,8 +15,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
         public string ActionName { get; set; }
         public string Event { get; set; }
         public bool ExecuteInClientSide { get; set; }
-        public string ActionConditions { get; set; }
-        public string ActionResultDsl { get; set; }
+        public string ActionConditionsDsl { get; set; }
+        public string BeforeExecuteActionDsl { get; set; }
+        public string ActionResultsDsl { get; set; }
         public int ViewOrder { get; set; }
         public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
         public IEnumerable<string> AuthorizationRunAction { get; set; }

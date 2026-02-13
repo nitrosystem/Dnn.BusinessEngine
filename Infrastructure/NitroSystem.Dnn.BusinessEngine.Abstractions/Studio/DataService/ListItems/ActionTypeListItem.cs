@@ -9,7 +9,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListIte
         public string Title { get; set; }
         public string GroupName { get; set; }
         public string Icon { get; set; }
-        public int ExecutionScope { get; set; }
         public string Description { get; set; }
         public int GroupViewOrder { get; set; }
         public int ViewOrder { get; set; }

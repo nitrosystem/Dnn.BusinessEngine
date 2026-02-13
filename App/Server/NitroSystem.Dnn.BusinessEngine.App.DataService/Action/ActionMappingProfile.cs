@@ -3,6 +3,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Enums;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
 {
@@ -16,7 +17,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
                 (src, dest) => dest.ParentActionTriggerCondition = (ActionExecutionCondition?)src.ParentActionTriggerCondition);
 
             HybridMapper.BeforeMap<ActionInfo, ActionDto>(
-                (src, dest) => dest.AuthorizationRunAction = src.AuthorizationRunAction?.Split(','));
+                (src, dest) => dest.AuthorizationRunAction = !string.IsNullOrEmpty(src.AuthorizationRunAction)
+                    ? src.AuthorizationRunAction?.Split(',')
+                    : null);
 
             #endregion
 

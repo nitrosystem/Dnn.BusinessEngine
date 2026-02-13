@@ -3,12 +3,14 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts
 {
     public interface IModuleService
     {
         Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId);
+        Task<List<ModuleEventTypeListItem>> GetModuleEventTypes(string fieldType = null);
         Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId);
         Task<string> GetModuleNameAsync(Guid moduleId);
         Task<Guid> SaveModuleAsync(ModuleViewModel module, bool isNew);

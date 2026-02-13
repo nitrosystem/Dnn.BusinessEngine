@@ -3,49 +3,53 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Extension;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Enums;
+
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares
 {
     public class SqlDataProviderMiddleware : IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IExtensionService _service;
         private readonly IExecuteSqlCommand _sqlCommand;
+
         public SqlDataProviderMiddleware(IUnitOfWork unitOfWork, IExtensionService service, IExecuteSqlCommand sqlCommand)
         {
-            _unitOfWork = unitOfWork;
             _service = service;
             _sqlCommand = sqlCommand;
         }
 
-        public async Task<InstallExtensionResponse> InvokeAsync(IEngineContext context, InstallExtensionRequest request, Func<Task<InstallExtensionResponse>> next, IEngineNotifier engineNotifier)
+        public async Task<InstallExtensionResponse> InvokeAsync(IEngineContext context, InstallExtensionRequest request, Func<Task<InstallExtensionResponse>> next, Action<string, string, double> progress = null)
         {
-            var ctx = context as InstallExtensionContext;
-
-            ctx.UnitOfWork = _unitOfWork;
-            ctx.UnitOfWork.BeginTransaction();
+            var unzipedPath = context.Get<string>("UnzipedPath");
+            var unitOfWork = context.Get<IUnitOfWork>("UnitOfWork");
 
             try
             {
-                ctx.ExtensionManifest.Id = await _service.SaveExtensionAsync(ctx.ExtensionManifest, ctx.UnitOfWork);
+                var extension = HybridMapper.Map<ExtensionManifest, ExtensionViewModel>(request.Manifest,
+                    (src, dest) =>
+                    {
+                        dest.Owner = src.Owner.OwnerName;
+                        dest.Url = src.Owner.Url;
+                        dest.Email = src.Owner.Email;
+                    });
 
-                var unzipedPath = ctx.UnzipedPath;
+                request.Manifest.Id = await _service.SaveExtensionAsync(extension, request.Manifest.IsNewExtension);
+
                 var sqlProviderFolder = Path.Combine(unzipedPath, "sql-providers");
 
                 StringBuilder queries = new StringBuilder();
 
-                foreach (var item in (ctx.ExtensionManifest.SqlProviders ?? Enumerable.Empty<ExtensionSqlProvider>())
-                    .Where(p => p.Type == SqlProviderType.Install && IsValidVersion(ctx.CurrentVersion, p.Version)))
+                foreach (var item in (request.Manifest.SqlProviders ?? Enumerable.Empty<ExtensionSqlProvider>())
+                    .Where(p => p.Type == SqlProviderType.Install && IsValidVersion(context.Get<string>("CurrentVersion"), p.Version)))
                 {
                     var query = await FileUtil.GetFileContentAsync(Path.Combine(sqlProviderFolder, item.File));
                     queries.AppendLine(query);
@@ -55,14 +59,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
                 string sqlCommands = queries.ToString();
                 if (!string.IsNullOrEmpty(sqlCommands))
                 {
-                    sqlCommands = sqlCommands.Replace("[EXTENSIONID]", ctx.ExtensionManifest.Id.Value.ToString());
+                    sqlCommands = sqlCommands.Replace("[EXTENSIONID]", request.Manifest.Id.Value.ToString());
 
-                    await _sqlCommand.ExecuteSqlCommandTextAsync(ctx.UnitOfWork, sqlCommands);
+                    await _sqlCommand.ExecuteSqlCommandTextAsync(unitOfWork, sqlCommands);
                 }
             }
             catch (Exception ex)
             {
-                ctx.UnitOfWork.Rollback();
+                unitOfWork.Rollback();
 
                 throw ex;
             }

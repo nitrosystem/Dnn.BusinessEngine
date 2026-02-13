@@ -85,35 +85,56 @@ export class ActionService {
     }
 
     async callServerActions(controller, actionIds, extraParams) {
-        try {
-            const postData = {};
-            for (const key in controller.scope) {
-                const variable = controller.variables.find(v => v.VariableName === key);
-                if (!variable || variable.Scope == 1) continue;
+        const result = { status: 1 };
+        const scope = controller.scope;
 
-                postData[key] = controller.scope[key];
+        const postData = {};
+        for (const key in scope) {
+            const variable = controller.variables.find(v => v.VariableName === key);
+            if (!variable || variable.Scope == 1) continue;
+
+            postData[key] = scope[key];
+        }
+
+        const responses = await this.apiService.postAsync("Module", "CallAction", {
+            ConnectionId: controller.connectionId,
+            ModuleId: controller.moduleId,
+            Data: postData,
+            PageUrl: document.URL,
+            ExtraParams: extraParams,
+            ActionIds: actionIds,
+        });
+
+        for (const response of responses ?? []) {
+            if (response.Status === 2 && response.ErrorException) {
+                result.status = 2;
+                result.isError = true;
+                result.error = response.ErrorException;
+                console.error(response.ErrorException)
+                break;
             }
 
-            const module = await this.apiService.postAsync("Module", "CallAction", {
-                ConnectionId: controller.connectionId,
-                ModuleId: controller.moduleId,
-                Data: postData,
-                PageUrl: document.URL,
-                ExtraParams: extraParams,
-                ActionIds: actionIds,
-            });
+            if (!response.IsRequiredToUpdateData) continue;
 
-            for (const key in module.data ?? {}) {
-                const newValue = module.data[key];
-                controller.updateModel(key, newValue);
+            const moduleData = response.ModuleData;
+            for (const key in moduleData ?? {}) {
+                const newValue = moduleData[key];
+                if (scope[key] !== newValue) {
+                    const variable = controller.variables.find(v => v.VariableName === key);
+                    if (scope[key] && variable && variable.VariableType === 'AppModel') {
+                        for (const prop of variable.Properties) {
+                            scope[key][prop.PropertyName] = moduleData[key][prop.PropertyName];
+                            controller.notifyResolved(scope[key], prop.PropertyName);
+                        }
+                    }
+                    else
+                        controller.set(key, newValue, true);
+                }
             }
+        }
 
-            return { status: 1, isSuccess: true };
-        }
-        catch (error) {
-            console.error(error);
-            return { status: 2, isError: true, error: error };
-        }
+        if (!result.isError) result.isSuccess = true;
+        return result;
     }
 
     buildActionTree(actions, event) {

@@ -8,6 +8,7 @@ class SidebarExplorerController {
         this.$scope = $scope;
         this.$rootScope = $rootScope;
         this.$timeout = $timeout;
+        this.$q = $q;
         this.globalService = globalService;
         this.validationService = validationService;
         this.apiService = apiService;
@@ -37,8 +38,8 @@ class SidebarExplorerController {
 
     $onInit() {
         this.setExplorerItems();
-
         this.setGroupForm();
+        this.setGroupParentChilds();
 
         this.$scope.$watch("$.$rootScope.explorerItems", (newVal, oldVal) => {
             if (newVal != oldVal) this.setExplorerItems();
@@ -57,8 +58,8 @@ class SidebarExplorerController {
 
     setGroupForm() {
         this.groupForm = this.validationService.init({
-            GroupType: {
-                id: "drpGroupType",
+            GroupDomain: {
+                id: "drpGroupDomain",
                 required: true,
             },
             GroupName: {
@@ -75,8 +76,20 @@ class SidebarExplorerController {
     processGroups() {
         _.each(this.$rootScope.groups, (group) => {
             group.Items = [];
-            group.Items.push(...(_.filter(this.$rootScope.explorerItems, (e) => { return e.Type == group.ObjectType && e.GroupId == group.Id; })));
+            group.Items.push(...(_.filter(this.$rootScope.explorerItems, (e) => { return e.Type == group.GroupType && e.GroupId == group.Id; })));
         });
+    }
+
+    setGroupParentChilds() {
+        const runner = (group) => {
+            group.childs = this.$rootScope.groups.filter(g => g.ParentId === group.Id);
+            for (const g of group.childs) runner(g);
+        }
+
+        const roots = this.$rootScope.groups.filter(g => !g.ParentId)
+        for (const g of roots) runner(g);
+
+        this.groups = roots;
     }
 
     setExplorerItems() {
@@ -114,6 +127,8 @@ class SidebarExplorerController {
     }
 
     onItemClick($event, moduleType, parentId, itemId, title, subParams) {
+        if (this.ignoreItemClick) return;
+
         moduleType = this.modifyModuleType(moduleType);
 
         this.$scope.$emit("onGotoPage", {
@@ -125,6 +140,24 @@ class SidebarExplorerController {
         });
 
         $event.stopPropagation();
+    }
+
+    onToggleGroupClick(group) {
+        if (group.__isLoadingItems || group.__isLoadedItems) return;
+        group.__isLoadingItems = true;
+
+        const defer = this.$q.defer();
+
+        this.apiService.get("Studio", "GetGroupItems", { groupId: group.Id, groupType: group.GroupType }).then((data) => {
+            group.Items = data;
+            group.__isLoadedItems = true;
+
+            delete group.__isLoadingItems;
+
+            defer.resolve(data);
+        });
+
+        return defer.promise;
     }
 
     modifyModuleType(moduleType) {
@@ -171,7 +204,7 @@ class SidebarExplorerController {
     onAddGroupClick() {
         this.group = {
             ScenarioId: GlobalSettings.scenarioId,
-            GroupType: 'SidebarExplorer'
+            GroupDomain: 'SidebarExplorer'
         };
         window["wnEditGroup"].show();
     }
@@ -204,7 +237,7 @@ class SidebarExplorerController {
 
                 window["wnEditGroup"].hide();
 
-                $(`#exp${this.group.ObjectType}Items`).addClass('show');
+                $(`#exp${this.group.GroupType}Items`).addClass('show');
 
                 setTimeout(() => {
                     var $ul = $(`#expGroupItems_${this.group.Id}`);
@@ -229,6 +262,11 @@ class SidebarExplorerController {
 
     onStopDrag($event) {
         $($event.target).removeClass("drag");
+
+        this.ignoreItemClick = true;
+        setTimeout(() => {
+            this.ignoreItemClick = false;
+        });
     }
 
     onItemDragOver($event, ui) {
@@ -244,9 +282,12 @@ class SidebarExplorerController {
         $element.removeClass("drag-over");
 
         const itemId = ui.draggable.data('item');
-
+        const oldGroupId = ui.draggable.data('group');
         const itemType = ui.draggable.data('type');
         const destType = $element.data('type');
+        const groupId = group
+            ? group.Id
+            : null;
 
         if (itemType != destType) {
             ui.draggable.css("top", 0);
@@ -255,36 +296,50 @@ class SidebarExplorerController {
             return false;
         }
 
-        _.filter(this.$rootScope.explorerItems, (i) => { return i.ItemId == itemId && (!group || group.ObjectType == itemType) }).map((item) => {
-            item.ItemType = destType;
+        this.apiService.post("Studio", "UpdateItemGroup", {
+            GroupId: groupId,
+            ItemId: itemId,
+            GroupType: itemType,
+        }).then((data) => {
+            this.notifyService.success("Item group updated has been successfully");
 
-            if (!group) {
-                item.GroupId = null;
-            } else {
-                item.GroupId = group.Id;
+            delete this.running;
+            delete this.awaitAction;
+        }, (error) => {
+            this.notifyService.error(error.data.Message);
 
-                group.Items = group.Items || [];
-                group.Items.push(item);
-
-                $(`#expGroupItems_${group.Id}`).addClass('show');
-            }
-
-            this.running = "update-item-group";
-            this.awaitAction = {
-                title: "Updating Item Group",
-                subtitle: "Just a moment for updating sidebar explorer item group...",
-            };
-            this.apiService.post("Studio", "UpdateItemGroup", item).then((data) => {
-                this.notifyService.success("Item group updated has been successfully");
-
-                delete this.running;
-                delete this.awaitAction;
-            }, (error) => {
-                this.notifyService.error(error.data.Message);
-
-                delete this.running;
-            });
+            delete this.running;
         });
+
+        let remmovedItem;
+        let items = [];
+        if (itemType == 'Entity')
+            items = this.entities;
+        else if (itemType == 'AppModel')
+            items = this.appModels;
+        else if (itemType == 'Service')
+            items = this.services;
+
+        if (!oldGroupId) {
+            const item = items.find(i => i.ItemId === itemId);
+            const index = items.indexOf(item);
+            remmovedItem = items.splice(index, 1)[0];
+        }
+        if (oldGroupId) {
+            const oldGroup = this.$rootScope.groups.find(g => g.Id === oldGroupId);
+            const item = oldGroup.Items.find(i => i.ItemId === itemId);
+            const index = oldGroup.Items.indexOf(item);
+            remmovedItem = oldGroup.Items.splice(index, 1)[0];
+        }
+
+        if (!groupId)
+            items.push(remmovedItem);
+        else if (groupId && group.__isLoadedItems)
+            group.Items.push(remmovedItem);
+        else if (groupId && !group.__isLoadedItems)
+            this.onToggleGroupClick(group);
+
+        $(`#expGroupItems_${groupId}`).addClass('show');
     }
 
     onDeleteGroupClick(group) {

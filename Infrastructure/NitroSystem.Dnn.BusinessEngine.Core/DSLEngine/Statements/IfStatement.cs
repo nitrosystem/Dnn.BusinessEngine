@@ -1,7 +1,7 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Base;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Base;
 using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Statements
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Statements
 {
     public sealed class IfStatement : DslStatement
     {

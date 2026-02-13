@@ -107,7 +107,30 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
             return await _cacheService.GetOrCreateAsync<IEnumerable<TColumnType>>(cacheKey, () =>
              _unitOfWork.Connection.QueryAsync<TColumnType>(
+                query
+            ), cacheAttr.timeOut);
+        }
+
+        public async Task<IEnumerable<TColumnType>> GetColumnsValueAsync<T, TColumnType>(string column, string filerColumn, object filterValue) where T : class, IEntity, new()
+        {
+            if (!typeof(T).GetProperties().Any(p => p.Name == column))
+                throw new ArgumentException($"Invalid column name {column}.");
+
+            if (!typeof(T).GetProperties().Any(p => p.Name == filerColumn))
+                throw new ArgumentException($"Invalid column name {column}.");
+
+            var table = AttributeCache.Instance.GetTableName<T>();
+            var cacheAttr = AttributeCache.Instance.GetCache<T>();
+            var cacheKey = !string.IsNullOrEmpty(cacheAttr.key)
+                ? cacheAttr.key += $"_{column}_{filerColumn}_{filterValue}"
+                : string.Empty;
+
+            var query = $"SELECT {column} FROM {table} WHERE {filerColumn} = @Value";
+
+            return await _cacheService.GetOrCreateAsync<IEnumerable<TColumnType>>(cacheKey, () =>
+             _unitOfWork.Connection.QueryAsync<TColumnType>(
                 query,
+                new { Value = filterValue },
                 _unitOfWork.Transaction
             ), cacheAttr.timeOut);
         }
@@ -123,7 +146,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                 ? cacheAttr.key += $"_{column}_{id}"
                 : string.Empty;
 
-            var query = $"SELECT {column} FROM {table} WHERE Id = @Value";
+            var query = $"SELECT TOP 1 {column} FROM {table} WHERE Id = @Value";
 
             return await _cacheService.GetOrCreateAsync<TColumnType>(cacheKey, () =>
              _unitOfWork.Connection.ExecuteScalarAsync<TColumnType>(
@@ -250,25 +273,51 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                 ), cacheAttr.timeOut);
         }
 
-        public async Task<Guid> AddAsync<T>(T entity, bool isNew = false) where T : class, IEntity, new()
+        public async Task<IEnumerable<TChild>> GetChildsByParentColumn<TParent, TChild>(string parentColumn, string childColumn, object value)
+            where TParent : class, IEntity, new()
+            where TChild : class, IEntity, new()
+        {
+            if (!typeof(TParent).GetProperties().Any(p => p.Name == parentColumn))
+                throw new ArgumentException($"Invalid column name.");
+
+            if (!typeof(TChild).GetProperties().Any(p => p.Name == childColumn))
+                throw new ArgumentException($"Invalid column name.");
+
+            if (typeof(TChild).GetProperties().Any(p => p.Name == parentColumn))
+                throw new ArgumentException($"{typeof(TChild)} Must not contains '{parentColumn}' column.");
+
+            var childTable = AttributeCache.Instance.GetTableName<TChild>();
+            var parentTable = AttributeCache.Instance.GetTableName<TParent>();
+            var cacheAttr = AttributeCache.Instance.GetCache<TChild>();
+            var cacheKey = !string.IsNullOrEmpty(cacheAttr.key)
+               ? CacheKeyBuilder.BuildCacheKey(cacheAttr.key, null, new string[1] { parentColumn })
+               : string.Empty;
+
+            var query = $"SELECT * FROM {childTable} WHERE {childColumn} in (SELECT Id FROM {parentTable} WHERE {parentColumn} = @Value)";
+
+            return await _cacheService.GetOrCreateAsync<IEnumerable<TChild>>(cacheKey, () =>
+                _unitOfWork.Connection.QueryAsync<TChild>(
+                    query,
+                    new { Value = value }
+                ), cacheAttr.timeOut);
+        }
+
+        public async Task<Guid> AddAsync<T>(T entity) where T : class, IEntity, new()
         {
             var table = AttributeCache.Instance.GetTableName<T>();
             var cacheAttr = AttributeCache.Instance.GetCache<T>();
 
             var properties = typeof(T).GetProperties().Where(p => p.CanRead && p.CanWrite);
 
-            if (isNew || entity.Id == Guid.Empty)
-            {
-                if (entity.Id == Guid.Empty) entity.Id = Guid.NewGuid();
+            if (entity.Id == Guid.Empty) entity.Id = Guid.NewGuid();
 
-                var createdOnDateProp = properties.FirstOrDefault(p => p.Name == "CreatedOnDate");
-                if (createdOnDateProp != null)
-                    createdOnDateProp.SetValue(entity, DateTime.Now);
+            var createdOnDateProp = properties.FirstOrDefault(p => p.Name == "CreatedOnDate");
+            if (createdOnDateProp != null)
+                createdOnDateProp.SetValue(entity, DateTime.Now);
 
-                var createdByUserProp = properties.FirstOrDefault(p => p.Name == "CreatedByUserId");
-                if (createdByUserProp != null)
-                    createdByUserProp.SetValue(entity, Constants.CurrentUser.UserID);
-            }
+            var createdByUserProp = properties.FirstOrDefault(p => p.Name == "CreatedByUserId");
+            if (createdByUserProp != null)
+                createdByUserProp.SetValue(entity, Constants.CurrentUser.UserID);
 
             var lastModifiedDateProp = properties.FirstOrDefault(p => p.Name == "LastModifiedOnDate");
             if (lastModifiedDateProp != null)
@@ -470,7 +519,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             _cacheService.RemoveByPrefix(cacheAttr.key);
         }
 
-        public async Task ExecuteStoredProcedureAsync(string storedProcedure, string cacheKey, object parameters)
+        public async Task ExecuteStoredProcedureAsync(string storedProcedure, object parameters)
         {
             await _unitOfWork.Connection.ExecuteAsync(
                storedProcedure,
@@ -478,9 +527,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                commandType: CommandType.StoredProcedure,
                transaction: _unitOfWork.Transaction
            );
-
-            if (!string.IsNullOrEmpty(cacheKey))
-                _cacheService.RemoveByPrefix(cacheKey);
         }
 
         public async Task<T> ExecuteStoredProcedureScalerAsync<T>(string storedProcedure, string cacheKey, object parameters)
@@ -501,7 +547,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             if (!string.IsNullOrEmpty(cacheKey)) cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             return await _cacheService.GetOrCreateAsync<T>(cacheKey, () =>
-                _unitOfWork.Connection.QuerySingleAsync<T>(
+                _unitOfWork.Connection.QuerySingleOrDefaultAsync<T>(
                     storedProcedure,
                     param: parameters,
                     commandType: CommandType.StoredProcedure,
@@ -514,7 +560,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             if (!string.IsNullOrEmpty(cacheKey)) cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             return _cacheService.GetOrCreate<T>(cacheKey, () =>
-                _unitOfWork.Connection.QuerySingle<T>(
+                _unitOfWork.Connection.QuerySingleOrDefault<T>(
                     storedProcedure,
                     param: parameters,
                     commandType: CommandType.StoredProcedure,
@@ -544,7 +590,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             if (!string.IsNullOrEmpty(cacheKey)) cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
 
             return await _cacheService.GetOrCreateAsync<object>(cacheKey, () =>
-                _unitOfWork.Connection.QuerySingleAsync(
+                _unitOfWork.Connection.QuerySingleOrDefaultAsync(
                     type,
                     storedProcedure,
                     param: parameters,
@@ -703,6 +749,38 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                 result.Item2 = await grid.ReadAsync<T2>();
                 result.Item3 = await grid.ReadAsync<T3>();
                 result.Item4 = await grid.ReadAsync<T4>();
+            }
+
+            // Cache the final materialized result
+            _cacheService.Set(cacheKey, result);
+            return result;
+        }
+
+        public async Task<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>)> ExecuteStoredProcedureMultipleAsync<T1, T2, T3, T4, T5>(
+            string storedProcedure,
+            string cacheKey,
+            object parameters = null)
+        {
+            if (!string.IsNullOrEmpty(cacheKey)) cacheKey = CacheKeyBuilder.BuildCacheKey(cacheKey, parameters);
+
+            // Check cache first
+            var cachedResult = _cacheService.Get<(IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>)?>(cacheKey);
+            if (cachedResult != null)
+                return cachedResult.Value;
+
+            // Query DB and dispose GridReader properly
+            (IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>) result;
+            using (var grid = await _unitOfWork.Connection.QueryMultipleAsync(
+                storedProcedure,
+                parameters,
+                _unitOfWork.Transaction,
+                commandType: CommandType.StoredProcedure))
+            {
+                result.Item1 = await grid.ReadAsync<T1>();
+                result.Item2 = await grid.ReadAsync<T2>();
+                result.Item3 = await grid.ReadAsync<T3>();
+                result.Item4 = await grid.ReadAsync<T4>();
+                result.Item5 = await grid.ReadAsync<T5>();
             }
 
             // Cache the final materialized result

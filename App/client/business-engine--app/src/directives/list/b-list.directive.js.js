@@ -44,6 +44,7 @@ export function BindList(app, expressionService) {
                     childScope.$index = index;
 
                     parent.insertBefore(clone, lastNode.nextSibling);
+                    app.bindAttributes(clone, childScope);
                     app.detectElements(clone, childScope, controller, false, 'b-list');
 
                     lastNode = clone;

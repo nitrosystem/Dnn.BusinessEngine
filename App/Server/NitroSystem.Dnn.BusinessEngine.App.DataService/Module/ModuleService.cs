@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Views;
@@ -64,21 +63,17 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
 
         public async Task<IEnumerable<ModuleFieldDto>> GetFieldsDtoAsync(Guid moduleId)
         {
-            var fields = await _repository.GetItemsByColumnsAsync<ModuleFieldInfo>(
-                new string[2] { "ModuleId", "IsShown" },
-                new
-                {
-                    ModuleId = moduleId,
-                    IsShown = true
-                });
-            var fieldsSettings = await _repository.GetItemsByColumnAsync<ModuleFieldSettingView>("ModuleId", moduleId);
+            var fields = await _repository.GetByScopeAsync<ModuleFieldInfo>(moduleId);
+            var fieldsDataSource = await _repository.GetChildsByParentColumn<ModuleFieldInfo, ModuleFieldDataSourceInfo>(
+                "ModuleId", "FieldId", moduleId);
+            var fieldsSettings = await _repository.GetChildsByParentColumn<ModuleFieldInfo, ModuleFieldSettingInfo>(
+                "ModuleId", "FieldId", moduleId);
 
             return await HybridMapper.MapCollectionAsync<ModuleFieldInfo, ModuleFieldDto>(fields,
                 async (src, dest) =>
                 {
-                    dest.DataSource = src.HasDataSource && !string.IsNullOrWhiteSpace(src.DataSource)
-                               ? await GetFieldDataSource(src.DataSource)
-                               : null;
+                    if (src.HasDataSource)
+                        dest.DataSource = await GetFieldDataSource(fieldsDataSource.FirstOrDefault(d => d.FieldId == src.Id));
 
                     var dict = fieldsSettings.GroupBy(c => c.FieldId).ToDictionary(g => g.Key, g => g.AsEnumerable());
                     if (dict.TryGetValue(src.Id, out var settings))
@@ -97,29 +92,27 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
             return await HybridMapper.MapAsync<ModuleFieldInfo, ModuleFieldDto>(field,
                 async (src, dest) =>
                 {
-                    if (includeDataSource)
-                        dest.DataSource = src.HasDataSource && !string.IsNullOrWhiteSpace(src.DataSource)
-                               ? await GetFieldDataSource(src.DataSource)
-                               : null;
+                    if (includeDataSource && src.HasDataSource)
+                        dest.DataSource = await GetFieldDataSource(src.Id);
 
                     dest.Settings = fieldSettings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
                 }
             );
         }
 
-        public async Task<ModuleFieldDataSourceResult> GetFieldDataSource(string dataSourceSettings)
+        public async Task<ModuleFieldDataSourceDto> GetFieldDataSource(Guid fieldId)
         {
-            var dataSource = JsonConvert.DeserializeObject<ModuleFieldDataSourceInfo>(dataSourceSettings);
+            var dataSource = await _repository.GetByColumnAsync<ModuleFieldDataSourceInfo>("FieldId", fieldId);
+            return await GetFieldDataSource(dataSource);
+        }
 
-            ModuleFieldDataSourceResult result = HybridMapper.Map<ModuleFieldDataSourceInfo, ModuleFieldDataSourceResult>(dataSource);
+        public async Task<ModuleFieldDataSourceDto> GetFieldDataSource(ModuleFieldDataSourceInfo dataSourceView)
+        {
+            var dataSource = HybridMapper.Map<ModuleFieldDataSourceInfo, ModuleFieldDataSourceDto>(dataSourceView ?? new ModuleFieldDataSourceInfo());
+            if (dataSource.ListId.HasValue)
+                dataSource.Items = await _repository.GetByScopeAsync<DefinedListItemInfo>(dataSource.ListId, "ViewOrder");
 
-            if ((dataSource.Type == ModuleFieldDataSourceType.FieldOptions || dataSource.Type == ModuleFieldDataSourceType.DefinedList) &&
-                !string.IsNullOrEmpty(dataSource.ListName))
-            {
-                result.Items = await _repository.GetByScopeAsync<DefinedListItemView>(dataSource.ListName); ;
-            }
-
-            return result;
+            return dataSource;
         }
 
         #endregion

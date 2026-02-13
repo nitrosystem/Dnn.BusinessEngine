@@ -11,8 +11,6 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Extension;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension.Models;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension
@@ -35,7 +33,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension
             return HybridMapper.MapCollection<ExtensionInfo, ExtensionViewModel>(extensions);
         }
 
-        public  IEnumerable<string> GetAvailableExtensionsViewModel()
+        public IEnumerable<string> GetAvailableExtensionsViewModel()
         {
             var availableExtensions = new List<string>();
 
@@ -57,12 +55,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension
             return await _repository.GetColumnValueAsync<ExtensionInfo, string>("Version", "ExtensionName", extensionName);
         }
 
-        public async Task<Guid> SaveExtensionAsync(ExtensionManifest extension, IUnitOfWork UnitOfWork)
+        public async Task<Guid> SaveExtensionAsync(ExtensionViewModel extension, bool isNewExtension)
         {
-            var objExtensionInfo = HybridMapper.Map<ExtensionManifest, ExtensionInfo>(extension);
+            var objExtensionInfo = HybridMapper.Map<ExtensionViewModel, ExtensionInfo>(extension);
 
-            if (extension.IsNewExtension)
-                objExtensionInfo.Id = await _repository.AddAsync<ExtensionInfo>(objExtensionInfo, extension.IsNewExtension);
+            if (isNewExtension)
+                objExtensionInfo.Id = await _repository.AddAsync<ExtensionInfo>(objExtensionInfo);
             else
             {
                 var isUpdated = await _repository.UpdateAsync<ExtensionInfo>(objExtensionInfo);
@@ -70,11 +68,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension
             }
 
             return objExtensionInfo.Id;
-        }
-
-        public async Task<bool> UninstallExtension(Guid extensionId)
-        {
-            return false;
         }
     }
 }

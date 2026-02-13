@@ -31,6 +31,37 @@ export const monacoDefaultOptions = {
         },
         overviewRulerLanes: 0,
     },
+    bDSLScript: {
+        lineNumbers: "off",              // خط‌ها نشون داده نشه
+        fontSize: 16,                    // اندازه فونت مناسب
+        lineHeight: 1.9,                 // فاصله خطوط
+        glyphMargin: false,              // هیچ گلیف و مارک حاشیه‌ای نیست
+        lineDecorationsWidth: 0,         // پهنای دکوراسیون خط صفر
+        lineNumbersMinChars: 0,
+        renderLineHighlight: "none",     // هایلایت خط غیر فعال
+        minimap: { enabled: false },     // مینی مپ غیرفعال
+        overviewRulerLanes: 0,
+        scrollbar: {
+            vertical: "hidden",
+            horizontal: "hidden",
+            handleMouseWheel: false,
+        },
+        wordWrap: "off",                 // wrap کلمات غیرفعال
+        tabCompletion: "off",            // تکمیل خودکار تب غیرفعال
+        tabFocusMode: false,
+        automaticLayout: true,           // خودکار تنظیم سایز ادیتور
+        folding: true,                   // اجازه فولد بلوک‌ها (if/else) داده شود
+        foldingStrategy: "indent",       // بلوک‌ها بر اساس indent فولد شوند
+        fontFamily: "Fira Code, monospace", // فونت مونو با Ligature
+        scrollBeyondLastLine: false,     // از آخرین خط فراتر اسکرول نشود
+        renderWhitespace: "none",        // فاصله‌ها را نشان نده
+        contextmenu: true,               // منوی راست کلیک فعال باشد
+        readOnly: false,
+        automaticClosingBrackets: "never", // چون DSL پرانتز نداره
+        matchBrackets: "never",
+        // Optional: highlight مخصوص کلمات DSL
+        language: "bDSLScript"
+    }
 };
 
 export const globalFunctions = {
@@ -55,4 +86,3 @@ export const globalFunctions = {
         description: "Returns today's date."
     }
 };
-

@@ -14,7 +14,18 @@ import createActionTemplate from "./create-module/6-actions/create-action.html";
 import extensionsTemplate from "./extensions/extensions.html";
 
 export class StudioController {
-    constructor($scope, $rootScope, $timeout, $q, $compile, globalService, apiService, eventService, notificationService) {
+    constructor($scope,
+        $rootScope,
+        $timeout,
+        $q,
+        $compile,
+        globalService,
+        apiService,
+        actionCenterService,
+        eventService,
+        sseClientService,
+        notificationService
+    ) {
         this.$scope = $scope;
         this.$rootScope = $rootScope;
         this.$timeout = $timeout;
@@ -22,8 +33,12 @@ export class StudioController {
         this.$compile = $compile;
         this.globalService = globalService;
         this.apiService = apiService;
+        this.actionCenterService = actionCenterService;
         this.eventService = eventService;
+        this.sseClientService = sseClientService;
         this.notifyService = notificationService;
+
+        this.actionCenterTasks = actionCenterService.tasks;
 
         $scope.$on("onGotoPage", (e, args) => {
             const subParamsUrl = args.subParams ? this.globalService.getUrlQueryFromObject(args.subParams) : "";
@@ -85,6 +100,10 @@ export class StudioController {
             this.$rootScope.currentTab.isChanged = true;
         });
 
+        $scope.$on('onShowHideActionCenterWidget', (e, args) => {
+            this.showActionCenterWidget = args.show;
+        })
+
         this.$rootScope.activityBarItems = activityBarItems;
         this.onActivityBarItemClick("explorer");
         this.$rootScope.explorerExpandedItems = [];
@@ -95,8 +114,12 @@ export class StudioController {
     onPageLoad() {
         this.returnUrl = this.globalService.getParameterByName("ru");
 
+        const scenarioName = GlobalSettings.scenarioName;
+        if (scenarioName)
+            this.sseClientService.init(scenarioName);
+
         this.onGetStudioOptions().then((data) => {
-            if (!GlobalSettings.scenarioName) {
+            if (!scenarioName) {
                 if (this.$rootScope.scenarios.length)
                     this.$timeout(() => window["wnSelectScenario"].show());
                 else {
@@ -106,7 +129,7 @@ export class StudioController {
             }
             else {
                 const currentTabs = this.globalService.getJsonString(
-                    sessionStorage.getItem("bEngineCurrentTabs_" + GlobalSettings.scenarioName) || "[]"
+                    sessionStorage.getItem("bEngineCurrentTabs_" + scenarioName) || "[]"
                 );
                 currentTabs.forEach((tab) => delete tab.isLoaded);
                 this.$rootScope.tabs = currentTabs;
@@ -460,5 +483,9 @@ export class StudioController {
 
             delete this.running;
         });
+    }
+
+    onHideActionCenterWidgetClick() {
+        this.showActionCenterWidget = false;
     }
 }

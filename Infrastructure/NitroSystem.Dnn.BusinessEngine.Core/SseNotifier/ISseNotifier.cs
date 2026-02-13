@@ -4,6 +4,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.SseNotifier
 {
     public interface ISseNotifier
     {
-        Task Publish(string scenario, object payload);
+        Task Publish(string channel, object payload);
     }
 }

@@ -51,7 +51,6 @@ class ActionParamListController {
         this.params.push({
             IsNew: true,
             IsEdited: true,
-            IsCustomParam: true,
             OrderId: this.params.length + 1,
         });
 

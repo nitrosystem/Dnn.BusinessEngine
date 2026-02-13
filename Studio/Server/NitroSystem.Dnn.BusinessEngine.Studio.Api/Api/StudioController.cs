@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Web;
 using System.Web.Http;
 using System.Net;
@@ -15,16 +16,23 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Base;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Entity;
-using NitroSystem.Dnn.BusinessEngine.Core.BrtPath.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.BrtPath.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
-using NitroSystem.Dnn.BusinessEngine.Core.Reflection.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.AppModel;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder;
+using NitroSystem.Dnn.BusinessEngine.Core.BackgroundJob;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Dto;
+using NitroSystem.Dnn.BusinessEngine.Core.WebApi;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using NitroSystem.Dnn.BusinessEngine.Core.General;
+using DotNetNuke.Entities.Tabs;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension;
+using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -33,38 +41,42 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ICacheService _cacheService;
-        private readonly IBrtGateService _brtGate;
         private readonly IBaseService _baseService;
         private readonly IEntityService _entityService;
         private readonly IAppModelService _appModelServices;
         private readonly IServiceFactory _serviceFactory;
         private readonly IDefinedListService _definedListService;
         private readonly IExtensionService _extensionService;
+        private readonly BackgroundJobWorker _backgroundJobWorker;
         private readonly BuildTypeRunner _buildTypeRunner;
+        private readonly InstallExtensionRunner _installExtensionRunner;
 
         public StudioController(
             IServiceProvider serviceProvider,
             ICacheService cacheService,
-            IBrtGateService brtGate,
             IBaseService baseService,
             IEntityService entityService,
             IAppModelService appModelService,
             IServiceFactory serviceFactory,
             IDefinedListService definedListService,
             IExtensionService extensionService,
-            BuildTypeRunner buildTypeRunner
+            BackgroundJobWorker backgroundJobWorker,
+            BuildTypeRunner buildTypeRunner,
+            InstallExtensionRunner installExtensionRunner
             )
         {
             _serviceProvider = serviceProvider;
             _cacheService = cacheService;
-            _brtGate = brtGate;
             _baseService = baseService;
             _entityService = entityService;
             _appModelServices = appModelService;
             _serviceFactory = serviceFactory;
             _definedListService = definedListService;
             _extensionService = extensionService;
+            _backgroundJobWorker = backgroundJobWorker;
             _buildTypeRunner = buildTypeRunner;
+            _installExtensionRunner = installExtensionRunner;
+
         }
 
         #region Common
@@ -662,6 +674,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         #region Defined Lists
 
         [HttpGet]
+        public async Task<HttpResponseMessage> GetDefinedLists()
+        {
+            try
+            {
+                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+                var definedLists = await _definedListService.GetDefinedLists(scenarioId);
+
+                return Request.CreateResponse(HttpStatusCode.OK, definedLists);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
         public async Task<HttpResponseMessage> GetDefinedListByListName(string listName = "")
         {
             try
@@ -685,7 +713,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             try
             {
                 definedList.ScenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
                 definedList.Id = await _definedListService.SaveDefinedList(definedList, definedList.Id == Guid.Empty);
 
                 return Request.CreateResponse(HttpStatusCode.OK, definedList.Id);
@@ -717,105 +744,105 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             }
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<HttpResponseMessage> onInstallAvailableExtension([FromUri] string extensionFilename)
-        //{
-        //    try
-        //    {
-        //        var scenarioID = Guid.Parse(Request.Headers.GetValues("ScenarioID").First());
-
-        //        var basePath = Constants.MapPath("~/DesktopModules/BusinessEngine/install");
-        //        var filename = Path.Combine(basePath, extensionFilename);
-        //        var result = await InstallExtension(filename);
-
-        //        File.Delete(filename);
-
-        //        return result;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<HttpResponseMessage> InstallExtension()
-        //{
-        //    try
-        //    {
-        //        var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-
-        //        if (!Request.Content.IsMimeMultipartContent())
-        //            return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
-
-        //        // Create temp upload folder
-        //        var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
-        //        if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
-
-        //        var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
-        //        await Request.Content.ReadAsMultipartAsync(streamProvider);
-
-        //        var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
-
-        //        return await InstallExtension(filename);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
-
-        //private async Task<HttpResponseMessage> InstallExtension(string filename)
-        //{
-        //    var request = new InstallExtensionRequest()
-        //    {
-        //        BasePath = PortalSettings.HomeSystemDirectory,
-        //        ModulePath = Constants.MapPath("/DesktopModules/BusinessEngine"),
-        //        ExtensionZipFile = filename,
-        //    };
-
-        //    var permitId = await CreateAndRegisterPermitAsync("AppViewModel", TimeSpan.FromMinutes(10));
-        //    using (await _brtGate.OpenGateAsync(permitId))
-        //    {
-        //        var installExtension = new InstallExtensionEngine(_serviceProvider, _brtGate, _extensionService, permitId);
-        //        var response = await installExtension.ExecuteAsync(request);
-        //    }
-
-        //    return Request.CreateResponse(HttpStatusCode.OK);
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<HttpResponseMessage> DeleteExtension(GuidInfo postData)
-        //{
-        //    try
-        //    {
-        //        var result = await _extensionService.UninstallExtension(postData.Id);
-
-        //        return Request.CreateResponse(HttpStatusCode.OK, result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-        //    }
-        //}
-
-        #endregion
-
-        #region private Methods
-
-        private async Task<Guid> CreateAndRegisterPermitAsync(string purpose, TimeSpan duration)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> onInstallAvailableExtension([FromUri] string extensionFilename)
         {
-            var permit = new BrtPermit
+            try
             {
-                Issuer = "MyApi",
-                Purpose = purpose,
-                ExpiresAt = DateTimeOffset.UtcNow.Add(duration)
+                var scenarioID = Guid.Parse(Request.Headers.GetValues("ScenarioID").First());
+
+                var basePath = Constants.MapPath("~/DesktopModules/BusinessEngine/install");
+                var filename = Path.Combine(basePath, extensionFilename);
+                var result = await InstallExtension(filename);
+
+                File.Delete(filename);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> LoadExtensionFile()
+        {
+            try
+            {
+                if (!Request.Content.IsMimeMultipartContent())
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
+
+                // Create temp upload folder
+                var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\extensions\");
+                if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+                var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
+                await Request.Content.ReadAsMultipartAsync(streamProvider);
+
+                var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
+                var extractPath = uploadPath + Path.GetFileNameWithoutExtension(filename);
+                ZipProvider.Unzip(filename, extractPath);
+
+                var files = Directory.GetFiles(extractPath);
+                var manifestFile = files.FirstOrDefault(f => Path.GetFileName(f) == "manifest.json");
+                var manifestJson = await FileUtil.GetFileContentAsync(manifestFile);
+
+
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    ManifestJson = manifestJson,
+                    ManifestFile = manifestFile
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> InstallExtension()
+        {
+            try
+            {
+                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+
+                if (!Request.Content.IsMimeMultipartContent())
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
+
+                // Create temp upload folder
+                var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
+                if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+                var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
+                await Request.Content.ReadAsMultipartAsync(streamProvider);
+
+                var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
+
+                return await InstallExtension(filename);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        private async Task<HttpResponseMessage> InstallExtension(string filename)
+        {
+            var request = new InstallExtensionRequest()
+            {
+                BasePath = PortalSettings.HomeSystemDirectory,
+                ModulePath = Constants.MapPath("/DesktopModules/BusinessEngine"),
+                ExtensionZipFile = filename,
             };
-            await _brtGate.RegisterPermitAsync(permit);
-            return permit.Id;
+
+            var response = await _installExtensionRunner.RunAsync(request);
+
+            return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         #endregion
@@ -824,16 +851,81 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public HttpResponseMessage ExportScenario(ManifestModel manifest)
+        public async Task<HttpResponseMessage> LoadExportedFile()
         {
             try
             {
-                manifest.PackageType = "Scenario Full Components";
+                if (!Request.Content.IsMimeMultipartContent())
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
 
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+                // Create temp upload folder
+                var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\import\");
+                if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+                var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
+                await Request.Content.ReadAsMultipartAsync(streamProvider);
+
+                var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
+                var extractPath = uploadPath + Path.GetFileNameWithoutExtension(filename);
+                ZipProvider.Unzip(filename, extractPath);
+
+                var tabs = TabController.Instance.GetTabsByPortal(PortalSettings.PortalId)
+                .Values
+                .Where(t => !t.IsDeleted) // Exclude deleted pages
+                .OrderBy(t => t.TabOrder)
+                .Select(t => new { t.TabID, t.TabName })
+                .ToList();
+
+                var exportedFile = $@"{extractPath}\export.json";
+                var json = await FileUtil.GetFileContentAsync(exportedFile);
+
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    ExportedJson = json,
+                    ExportedFile = exportedFile,
+                    Pages = tabs,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> Export(ExportRequest postData)
+        {
+            try
+            {
                 var basePath = PortalSettings.HomeSystemDirectoryMapPath;
+                var baseRelativePath = PortalSettings.HomeSystemDirectory;
 
-                ExportWorker.ExportScenario(_serviceProvider, manifest, basePath, scenarioId);
+                postData.Id = Guid.NewGuid();
+
+                var exportRunner = new ExportRunner(_serviceProvider, postData, basePath, baseRelativePath);
+                await exportRunner.Export();
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> Import(ImportRequest postData)
+        {
+            try
+            {
+                postData.Params.Add("BasePath", PortalSettings.HomeSystemDirectoryMapPath);
+                postData.Params.Add("CurrentPortalId", PortalSettings.PortalId);
+                postData.Params.Add("CurrentUserId", UserInfo.UserID);
+
+                var importRunner = new ImportRunner(_serviceProvider, postData);
+                await importRunner.Import();
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }

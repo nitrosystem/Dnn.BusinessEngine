@@ -14,14 +14,21 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Models;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
+using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
+using Newtonsoft.Json.Linq;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 {
-    public class ModuleService : IModuleService
+    public class ModuleService : IModuleService, IExportable, IImportable
     {
         private readonly IRepositoryBase _repository;
 
-        public ModuleService(IRepositoryBase repository)
+        public ModuleService(IServiceProvider serviceProvider, IRepositoryBase repository)
         {
             _repository = repository;
         }
@@ -33,6 +40,25 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             var modules = await _repository.GetByScopeAsync<ModuleView>(scenarioId);
 
             return HybridMapper.MapCollection<ModuleView, ModuleViewModel>(modules);
+        }
+
+        public async Task<List<ModuleEventTypeListItem>> GetModuleEventTypes(string fieldType = null)
+        {
+            var component = string.IsNullOrEmpty(fieldType)
+                ? "Module"
+                : fieldType;
+
+            var events = await _repository.GetAllAsync<ModuleEventTypeInfo>("ViewOrder");
+
+            var result = HybridMapper.MapCollection<ModuleEventTypeInfo, ModuleEventTypeListItem>(events.Where(e => e.Component == component)).ToList();
+            if (result.Count > 0)
+                result.Add(new ModuleEventTypeListItem()
+                {
+                    EventName = "OnActionCompleted",
+                    Title = "On Action Completed"
+                });
+
+            return result;
         }
 
         public async Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId)
@@ -52,10 +78,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             var objModuleInfo = HybridMapper.Map<ModuleViewModel, ModuleInfo>(module);
 
             if (isNew)
-                objModuleInfo.Id = await _repository.AddAsync(objModuleInfo);
+                objModuleInfo.Id = await _repository.AddAsync<ModuleInfo>(objModuleInfo);
             else
             {
-                var isUpdated = await _repository.UpdateAsync(objModuleInfo);
+                var isUpdated = await _repository.UpdateAsync<ModuleInfo>(objModuleInfo);
                 if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objModuleInfo);
             }
 
@@ -97,8 +123,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
         public async Task<ModuleDto> GetDataForModuleBuildingAsync(Guid moduleId)
         {
             var module = await _repository.GetAsync<ModuleView>(moduleId);
-            var data = await _repository.ExecuteStoredProcedureMultipleAsync<ModuleFieldSpResult, ModuleFieldSettingSpResult,
-                    ModuleResourceSpResult, ModuleResourceSpResult>(
+            var data = await _repository.ExecuteStoredProcedureMultipleAsync<ModuleFieldSpResult, ModuleFieldDataSourceSpResult,
+                ModuleFieldSettingSpResult, ModuleResourceSpResult, ModuleResourceSpResult>(
                 "dbo.BusinessEngine_Studio_GetModuleDataForBuild", "BE_Modules_Fields_Settings_Studio_GetModuleDataForBuild_",
                 new
                 {
@@ -107,9 +133,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
             );
 
             var fields = data.Item1;
-            var fieldsSettings = data.Item2;
-            var resources = data.Item3;
-            var externalResources = data.Item4;
+            var fieldsDataSource = data.Item2;
+            var fieldsSettings = data.Item3;
+            var resources = data.Item4;
+            var externalResources = data.Item5;
             var parentModuleName = module.ParentId.HasValue
                 ? await _repository.GetColumnValueAsync<ModuleInfo, string>(module.ParentId.Value, "ModuleName")
                 : string.Empty;
@@ -123,6 +150,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
               assign: (dest, children) => dest.Fields = children.ToList(),
               configAction: async (src, dest) =>
                {
+                   if (src.HasDataSource)
+                       dest.DataSource = HybridMapper.Map<ModuleFieldDataSourceSpResult, ModuleFieldDataSourceDto>(
+                               fieldsDataSource.FirstOrDefault(d => d.FieldId == src.Id) ?? new ModuleFieldDataSourceSpResult());
+
                    var dict = fieldsSettings.GroupBy(c => c.FieldId).ToDictionary(g => g.Key, g => g.AsEnumerable());
                    if (dict.TryGetValue(src.Id, out var settings))
                        dest.Settings = settings.ToDictionary(x => x.SettingName, x => CastingHelper.ConvertStringToObject(x.SettingValue));
@@ -169,6 +200,149 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                 (src, dest) => dest.SitePageId = sitePageId);
 
             await _repository.BulkInsertAsync<ModuleOutputResourceInfo>(outputResources);
+        }
+
+        #endregion
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var modules = await GetModulesAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = modules,
+                        IsSuccess = true
+                    };
+                case ImportExportScope.Module:
+                    var moduleId = context.Get<Guid>("ModuleId");
+                    var module = await GetModuleAsync(moduleId);
+
+                    return new ExportResponse()
+                    {
+                        Result = module,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var modules = JsonConvert.DeserializeObject<IEnumerable<ModuleInfo>>(json);
+
+                    context.TryGet<JObject>("ModulesNewPages", out var newPages);
+
+                    foreach (var mod in modules.OrderBy(m => m.ParentId))
+                    {
+                        if (mod.SiteModuleId.HasValue)
+                        {
+                            var portalId = context.Get<int>("CurrentPortalId");
+                            var userId = context.Get<int>("CurrentUserId");
+                            var newTabId = newPages[mod.Id.ToString()].Value<int>();
+                            var moduleDefName = mod.ModuleType == 0
+                                ? "BusinessEngine.Dashboard"
+                                : "BusinessEngine.Module";
+
+                            mod.SiteModuleId = await AddModuleToSitePage(portalId, userId, newTabId, moduleDefName, mod.ModuleTitle);
+                        }
+
+                        await SaveModuleAsync(mod);
+                    }
+
+                    return new ImportResponse()
+                    {
+                        IsSuccess = true
+                    };
+                case ImportExportScope.Module:
+                    var module = JsonConvert.DeserializeObject<ModuleInfo>(json);
+
+                    var oldScenarioId = module.ScenarioId;
+                   
+                    var scenarioId = context.Get<Guid>("ScenarioId");
+                    var moduleName = context.Get<string>("ModuleName");
+                    var moduleTitle = context.Get<string>("ModuleTitle");
+
+                    context.TryGet<Guid?>("ModuleId", out var moduleId);
+                    context.TryGet<Guid?>("ParentId", out var parentId);
+                    context.TryGet<int?>("SiteModuleId", out var siteModuleId);
+                    context.TryGet<bool?>("DeleteModuleBeforeImport", out var deleteModule);
+
+                    module.ScenarioId = scenarioId;
+                    module.ModuleName = moduleName;
+                    module.ModuleTitle = moduleTitle;
+                    module.ParentId = parentId;
+                    module.SiteModuleId = siteModuleId;
+
+                    var id = await SaveModuleAsync(module, moduleId, deleteModule);
+                    
+                    context.DataTrack.Add("ScenarioId", scenarioId);
+                    context.DataTrack.Add("ModuleId", id);
+                    context.DataTrack.Add("OldScenarioId", oldScenarioId);
+
+                    return new ImportResponse()
+                    {
+                        Result = id,
+                        IsSuccess = true
+                    };
+
+                default:
+                    return null;
+            }
+        }
+
+        private async Task<int> AddModuleToSitePage(int portalId, int userId, int pageId, string moduleDefName, string moduleTitle, string paneName = "ContentPane")
+        {
+            return await _repository.ExecuteStoredProcedureAsync<int>("dbo.BusinessEngine_AddModuleToSitePage", "",
+                new
+                {
+                    Portald = portalId,
+                    UserId = userId,
+                    PageId = pageId,
+                    ModuleDefName = moduleDefName,
+                    ModuleTitle = moduleTitle,
+                    PaneName = paneName
+                }
+            );
+        }
+
+        private async Task<IEnumerable<ModuleInfo>> GetModulesAsync(Guid scenarioId)
+        {
+            return await _repository.GetByScopeAsync<ModuleInfo>(scenarioId);
+        }
+
+        private async Task<ModuleInfo> GetModuleAsync(Guid moduleId)
+        {
+            return await _repository.GetAsync<ModuleInfo>(moduleId);
+        }
+
+        private async Task<Guid> SaveModuleAsync(ModuleInfo module, Guid? moduleId, bool? deleteModule)
+        {
+            if (moduleId.HasValue && deleteModule.HasValue && deleteModule.Value)
+                await DeleteModuleAsync(moduleId.Value);
+            else if (moduleId.HasValue && (!deleteModule.HasValue || !deleteModule.Value))
+            {
+                module.Id = moduleId.Value;
+                await _repository.UpdateAsync<ModuleInfo>(module);
+
+                return module.Id;
+            }
+
+            module.Id = Guid.NewGuid();
+            return await _repository.AddAsync<ModuleInfo>(module);
+        }
+
+        private async Task SaveModuleAsync(ModuleInfo module)
+        {
+            await _repository.AddAsync<ModuleInfo>(module);
         }
 
         #endregion

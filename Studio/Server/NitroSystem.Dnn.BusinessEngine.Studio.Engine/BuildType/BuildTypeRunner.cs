@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Core.DiagnosticCenter.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule;
@@ -9,11 +10,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder
     public class BuildTypeRunner
     {
         private readonly IEngineRunner _engineRunner;
+        private readonly IDiagnosticStore _diagnosticStore;
         private readonly LockService _lockService;
 
-        public BuildTypeRunner(IEngineRunner engineRunner, LockService lockService)
+        public BuildTypeRunner(IEngineRunner engineRunner, IDiagnosticStore diagnosticStore, LockService lockService)
         {
             _engineRunner = engineRunner;
+            _diagnosticStore = diagnosticStore;
             _lockService = lockService;
         }
 
@@ -29,7 +32,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder
 
             try
             {
-                var engine = new BuildTypeEngine();
+                var engine = new BuildTypeEngine(_diagnosticStore);
                 var response = await _engineRunner.RunAsync(engine, request);
                 return response;
             }

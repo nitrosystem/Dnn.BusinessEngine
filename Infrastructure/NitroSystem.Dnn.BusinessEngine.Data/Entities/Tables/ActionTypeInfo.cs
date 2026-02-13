@@ -14,13 +14,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public Guid GroupId { get; set; }
         public string ActionType { get; set; }
         public string Title { get; set; }
+        public int OperationType { get; set; }
+        public string PageUrl { get; set; }
         public string ActionComponent { get; set; }
         public string ComponentSubParams { get; set; }
-        public int ExecutionScope { get; set; }
-        public bool HasResults { get; set; }
-        //public int CacheState { get; set; }
         public string BusinessControllerClass { get; set; }
-        public string ActionJsPath { get; set; }
         public string Icon { get; set; }
         public string Description { get; set; }
         public int ViewOrder { get; set; }

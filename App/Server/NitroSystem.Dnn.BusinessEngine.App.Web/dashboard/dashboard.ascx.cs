@@ -43,7 +43,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
             get
             {
                 string moduleParam = _id.HasValue ? "id=" + _id.ToString() : "d=" + this.ModuleId.ToString();
-
                 return ResolveUrl(string.Format("~/DesktopModules/BusinessEngine/studio.aspx?s={0}{1}&m=create-dashboard&{2}&ru={3}", _scenarioName, _siteRoot, moduleParam, this.TabId));
             }
         }

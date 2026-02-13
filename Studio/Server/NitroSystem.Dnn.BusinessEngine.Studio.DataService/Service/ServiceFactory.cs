@@ -14,10 +14,15 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
 {
-    public class ServiceFactory : IServiceFactory
+    public class ServiceFactory : IServiceFactory, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositoryBase _repository;
@@ -30,6 +35,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
             _serviceLocator = serviceLocator;
         }
 
+        #region Service Type
         public async Task<IEnumerable<ServiceTypeListItem>> GetServiceTypesListItemAsync(params string[] sortBy)
         {
             var serviceTypes = await _repository.GetAllAsync<ServiceTypeView>();
@@ -37,7 +43,26 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
             return HybridMapper.MapCollection<ServiceTypeView, ServiceTypeListItem>(serviceTypes);
         }
 
-        public async Task<(ServiceViewModel Service, IExtensionServiceViewModel Extension, IDictionary<string, object> ExtensionDependency)>
+        #endregion
+
+        #region Service
+
+        public async Task<IEnumerable<ServiceViewModel>> GetServicesViewModelAsync(Guid scenarioId)
+        {
+            var services = await _repository.GetByScopeAsync<ServiceView>(scenarioId);
+            return HybridMapper.MapCollection<ServiceView, ServiceViewModel>(services);
+        }
+
+        public async Task<ServiceViewModel> GetServiceViewModelAsync(Guid serviceId)
+        {
+            var service = await _repository.GetAsync<ServiceView>(serviceId);
+            return HybridMapper.Map<ServiceView, ServiceViewModel>(service);
+        }
+
+        public async Task<(
+            ServiceViewModel Service,
+            IExtensionServiceViewModel Extension,
+            IDictionary<string, object> ExtensionDependency)>
             GetServiceViewModelAsync(Guid scenarioId, string serviceType, Guid serviceId)
         {
             (ServiceViewModel Service, IExtensionServiceViewModel Extension, IDictionary<string, object> ExtensionDependency) result = default;
@@ -63,13 +88,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
             }
 
             return result;
-        }
-
-        public async Task<IEnumerable<ServiceViewModel>> GetServicesViewModelAsync(Guid scenarioId, string sortBy = "ViewOrder")
-        {
-            var services = await _repository.GetByScopeAsync<ServiceView>(scenarioId, sortBy);
-
-            return HybridMapper.MapCollection<ServiceView, ServiceViewModel>(services);
         }
 
         public async Task<(IEnumerable<ServiceViewModel> Items, int? TotalCount)> GetServicesViewModelAsync(
@@ -201,5 +219,64 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Service
 
             return HybridMapper.MapCollection<ServiceParamInfo, ParamInfo>(serviceParams);
         }
+
+        #endregion
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var items = await GetServicesAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = items,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            var items = JsonConvert.DeserializeObject<List<object>>(json);
+            var services = JsonConvert.DeserializeObject<IEnumerable<ServiceInfo>>(items[0].ToString());
+            var servicesParams = JsonConvert.DeserializeObject<IEnumerable<ServiceParamInfo>>(items[1].ToString());
+
+            if (context.Scope == ImportExportScope.ScenarioFullComponents)
+            {
+                await BulkInsertServicesAndParamsAsync(services, servicesParams);
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetServicesAsync(Guid scenarioId)
+        {
+            var services = await _repository.GetByScopeAsync<ServiceInfo>(scenarioId);
+            var serviceParams = new List<ServiceParamInfo>();
+
+            foreach (var service in services)
+            {
+                serviceParams.AddRange(await _repository.GetByScopeAsync<ServiceParamInfo>(service.Id));
+            }
+
+            return new List<object>() { services, serviceParams };
+        }
+
+        private async Task BulkInsertServicesAndParamsAsync(IEnumerable<ServiceInfo> services, IEnumerable<ServiceParamInfo> servicesParams)
+        {
+            await _repository.BulkInsertAsync<ServiceInfo>(services);
+            await _repository.BulkInsertAsync<ServiceParamInfo>(servicesParams);
+        }
+
+        #endregion
     }
 }

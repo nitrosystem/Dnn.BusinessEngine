@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
 {
@@ -20,60 +20,20 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
             _repository = repository;
         }
 
-        public async Task<IEnumerable<Guid>> GetActionIdsAsync(Guid moduleId, Guid? fieldId = null, string eventName = null)
-        {
-            var actions = await _repository.GetByScopeAsync<ActionInfo>(moduleId, "ViewOrder");
-            return actions
-                .Where(a => a.Event == eventName && a.FieldId == fieldId)
-                .Select(a => a.Id)
-                .ToList();
-        }
-
-        public async Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId, Guid? fieldId, bool executeInClientSide)
-        {
-            var actions = await _repository.GetByScopeAsync<ActionInfo>(moduleId, "ViewOrder");
-            var finalizedActions = actions
-                .Where(a => a.FieldId == fieldId && a.ExecuteInClientSide == executeInClientSide)
-                .ToList();
-
-            return HybridMapper.MapCollection<ActionInfo, ActionDto>(finalizedActions);
-        }
-
-        public async Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId)
+        public async Task<List<ActionDto>> GetActionsAsync(Guid moduleId, Guid? fieldId = null, Guid? actionId = null, string eventName = null, ModuleEventTriggerOn? triggerOn = null)
         {
             var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo>(
-                "dbo.BusinessEngine_App_GetActionsForClient", "BE_Actions_ForClient_",
-                    new
-                    {
-                        ModuleId = moduleId,
-                        FieldId = (Guid?)null
-                    }
-                );
+               "dbo.BusinessEngine_App_GetActions", "BE_Actions_App_",
+                   new
+                   {
+                       ModuleId = moduleId,
+                       FieldId = fieldId,
+                       ActionId = actionId,
+                       Event = eventName,
+                       TriggerOn = triggerOn
+                   }
+               );
 
-            var actions = results.Item1;
-            var actionParams = results.Item2;
-
-            var result = HybridMapper.MapWithChildren<ActionInfo, ActionDto, ActionParamInfo, ActionParamDto>(
-               parents: actions,
-               children: actionParams,
-               parentKeySelector: p => p.Id,
-               childKeySelector: c => c.ActionId,
-               assignChildren: (parent, childs) => parent.Params = childs
-            );
-
-            return result;
-        }
-
-        public async Task<List<ActionDto>> GetActionsDtoForServerAsync(IEnumerable<Guid> actionIds)
-        {
-            var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo>(
-                "dbo.BusinessEngine_App_GetActionsForServer", "BE_Actions_ForServer_",
-                    new
-                    {
-                        ActionIds = JsonConvert.SerializeObject(actionIds)
-                    }
-                );
-                
             var actions = results.Item1;
             var actionParams = results.Item2;
 
@@ -86,6 +46,19 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
             );
 
             return result.ToList();
+        }
+
+        public async Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId)
+        {
+            var actions = await _repository.ExecuteStoredProcedureAsListAsync<ActionInfo>(
+                "dbo.BusinessEngine_App_GetActionsForClient", "BE_Actions_App_ForClient_",
+                    new
+                    {
+                        ModuleId = moduleId
+                    }
+                );
+
+            return HybridMapper.MapCollection<ActionInfo, ActionDto>(actions).ToList();
         }
 
         public async Task<string> GetBusinessControllerClass(string actionType)

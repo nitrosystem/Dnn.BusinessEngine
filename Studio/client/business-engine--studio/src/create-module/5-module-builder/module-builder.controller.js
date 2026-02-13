@@ -1,13 +1,11 @@
-import { GlobalSettings } from "../../angular/angular-configs/global.settings";
+import Sortable from "sortablejs";
 import Swal from 'sweetalert2'
-import moment from "moment";
 import 'animate.css';
 
 import editLayoutTemplateWidget from "./edit-layout-template.html";
 import fieldTemplateWidget from "./field-options/field-template.html";
 import fieldEditWidget from "./field-options/field-edit.html";
 import fieldSettingsWidget from "./field-options/field-settings.html";
-import fieldShowConditionsWidget from "./field-options/field-show-conditions.html";
 import fieldConditionalValuesWidget from "./field-options/field-conditional-values.html";
 import fieldDataSourceWidget from "./field-options/field-data-source.html";
 
@@ -22,6 +20,7 @@ export class CreateModuleModuleBuilderController {
         $q,
         globalService,
         apiService,
+        actionCenterService,
         validationService,
         notificationService,
         eventService,
@@ -42,6 +41,7 @@ export class CreateModuleModuleBuilderController {
         this.globalService = globalService;
         this.apiService = apiService;
         this.validationService = validationService;
+        this.actionCenterService = actionCenterService;
         this.notifyService = notificationService;
         this.eventService = eventService;
 
@@ -53,16 +53,16 @@ export class CreateModuleModuleBuilderController {
         this.fieldTemplateWidget = fieldTemplateWidget;
         this.fieldEditWidget = fieldEditWidget;
         this.fieldSettingsWidget = fieldSettingsWidget;
-        this.fieldShowConditionsWidget = fieldShowConditionsWidget;
         this.fieldConditionalValuesWidget = fieldConditionalValuesWidget;
         this.fieldDataSourceWidget = fieldDataSourceWidget;
 
+        this.uiState = {};
         this.field = {};
         this.backupFields = {};
 
         this.roles = this.$rootScope.roles;
 
-        this.$rootScope.createModuleValidatedStep.push(5);
+        this.$scope.$parent.createModuleValidatedStep.push(5);
 
         $scope.$on("onCreateModuleValidateStep5", (e, task, args) => {
             this.validateStep.apply(this, [task, args]);
@@ -188,16 +188,16 @@ export class CreateModuleModuleBuilderController {
 
         this.apiService.get("Module", "GetModuleBuilder", { moduleId: id || null }).then((data) => {
             this.module = data.Module;
+            this.actions = data.Actions;
             this.fieldTypes = data.FieldTypes;
             this.fields = data.Fields;
-
             this.globalService.parseJsonItems(this.fields);
 
             this.variablesAsDataSource = _.filter(data.Variables, v =>
                 v.Scope !== 'ServerSide' && v.VariableType === 'AppModelList'
             );
 
-            let objects = {};
+            let suggestions = {};
             let variablesAsFieldValueProperty = {};
             _.forEach(data.Variables, (variable) => {
                 const baseObject = _.reduce(variable.Properties, (acc, prop) => {
@@ -206,14 +206,14 @@ export class CreateModuleModuleBuilderController {
                 }, {});
 
                 if (variable.VariableType === 'AppModelList') {
-                    objects[variable.VariableName] = [baseObject];
+                    suggestions[variable.VariableName] = [baseObject];
                 } else {
-                    objects[variable.VariableName] = baseObject;
+                    suggestions[variable.VariableName] = baseObject;
                     variablesAsFieldValueProperty[variable.VariableName] = baseObject;
                 }
             });
 
-            this.objects = objects;
+            this.suggestions = suggestions;
             this.variablesAsFieldValueProperty = variablesAsFieldValueProperty;
 
             this.module.PreloadingTemplateBackup = this.module.PreloadingTemplate;
@@ -274,15 +274,15 @@ export class CreateModuleModuleBuilderController {
                 id: "txtFieldName",
                 required: true,
             },
-            FieldText: {
-                rule: (value) => {
-                    if (this.currentField && !this.currentField.Settings.IsHideFieldText && !value) return false;
+            // FieldText: {
+            //     rule: (value) => {
+            //         if (this.currentField && !this.currentField.Settings.IsHiddenFieldText && !value) return false;
 
-                    return true;
-                },
-                id: "txtFieldText",
-                required: true,
-            },
+            //         return true;
+            //     },
+            //     id: "txtFieldText",
+            //     required: true,
+            // },
             FieldType: {
                 id: "drpFieldType",
                 required: true,
@@ -290,15 +290,15 @@ export class CreateModuleModuleBuilderController {
             Template: {
                 required: true,
             },
-            Theme: {
-                rule: (value) => {
-                    if (!value && this.currentField && this.currentField.FieldTypeObject.Themes && this.currentField.FieldTypeObject.Themes.length)
-                        return false;
-                    else
-                        return true;
-                },
-                required: true,
-            },
+            // Theme: {
+            //     rule: (value) => {
+            //         if (!value && this.currentField && this.currentField.FieldTypeObject.Themes && this.currentField.FieldTypeObject.Themes.length)
+            //             return false;
+            //         else
+            //             return true;
+            //     },
+            //     required: true,
+            // },
         },
             true,
             this.$scope,
@@ -338,14 +338,6 @@ export class CreateModuleModuleBuilderController {
             subtitle: "Just a moment for building module without tracing...",
             subtitleColor: '#fff',
         };
-
-        $(`#moduleTemplateProgress${this.module.Id}`).css('width', '0');
-        $(`#fieldsScriptsProgress${this.module.Id}`).css('width', '0');
-        $(`#actionsScriptsProgress${this.module.Id}`).css('width', '0');
-        $(`#moduleStylesProgress${this.module.Id}`).css('width', '0');
-        $(`#moduleLibrariesProgress${this.module.Id}`).css('width', '0');
-
-        $(`#buildLogs${this.module.Id}`).html('')
 
         this.apiService.post("Module", "BuildModule", null, { moduleId: this.module.Id }).then((data) => {
             this.notifyService.success("Build module has been successfully!. ;)");
@@ -414,31 +406,55 @@ export class CreateModuleModuleBuilderController {
     }
 
     setFieldsSortingUi() {
-        $(".sortable-row").sortable({
-            tolerance: 'pointer',
-            helper: 'clone',
-            appendTo: document.body,
-            connectWith: ".sortable-row",
-            handle: ".handle",
-            start: ($event, ui) => {
-                //$(".pane.pane-footer").css("opacity", ".1");
-                ui.item.find(".field-body").addClass("dragable");
-            },
-            stop: ($event, ui) => {
-                $(".pane.pane-footer").css("opacity", "1");
-                ui.item.find(".field-body").removeClass("dragable");
+        const elements = document.getElementsByClassName('sortable-row');
+        for (const element of elements) {
+            new Sortable(element, {
+                group: 'fields',
+                handle: '.handle',
+                animation: 150,
+                forceFallback: true,
+                fallbackOnBody: true,
+                fallbackClass: 'sortable-fallback',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                onEnd: (evt) => {
+                    this.$scope.$apply(() => {
+                        const paneName = evt.to.dataset.pane;
+                        const parentId = evt.to.dataset.parentId || null;
 
-                this.$scope.$apply(() => {
-                    const paneName = $(ui.item[0].parentElement).data("pane");
-                    const parentId = $(ui.item[0].parentElement).data("parent-id") || null;
+                        this.currentField.PaneName = paneName;
+                        this.currentField.ParentId = parentId;
 
-                    this.currentField.PaneName = paneName;
-                    this.currentField.ParentId = parentId;
+                        this.sortPaneFields(paneName, parentId);
+                    });
+                }
+            });
+        }
 
-                    this.sortPaneFields(paneName);
-                });
-            },
-        });
+        // $(".sortable-row").sortable({
+        //     tolerance: 'pointer',
+        //     helper: 'clone',
+        //     appendTo: document.body,
+        //     connectWith: ".sortable-row",
+        //     handle: ".handle",
+        //     start: ($event, ui) => {
+        //         ui.item.find(".field-body").addClass("dragable");
+        //     },
+        //     stop: ($event, ui) => {
+        //         $(".pane.pane-footer").css("opacity", "1");
+        //         ui.item.find(".field-body").removeClass("dragable");
+
+        //         this.$scope.$apply(() => {
+        //             const paneName = $(ui.item[0].parentElement).data("pane");
+        //             const parentId = $(ui.item[0].parentElement).data("parent-id") || null;
+
+        //             this.currentField.PaneName = paneName;
+        //             this.currentField.ParentId = parentId;
+
+        //             this.sortPaneFields(paneName, parentId);
+        //         });
+        //     },
+        // });
     }
 
     setFieldsDragingUi() {
@@ -503,7 +519,7 @@ export class CreateModuleModuleBuilderController {
 
     onModuleSettingsClick() {
         this.$scope.$emit("onGotoPage", {
-            page: "create-" + this.module.ModuleType.toLowerCase(),
+            page: "create-" + this.module.ModuleType,
             id: this.module.Id,
         });
     }
@@ -562,7 +578,10 @@ export class CreateModuleModuleBuilderController {
     onFieldItemClick($event, Id) {
         const field = this.getFieldById(Id);
 
-        if (this.currentField && this.currentField.Id == field.Id) return;
+        if (this.currentField && this.currentField.Id == field.Id) {
+            $event.stopPropagation();
+            return false;
+        }
 
         this.currentField = field;
         this.field[this.currentField.FieldName] = this.currentField;
@@ -854,7 +873,7 @@ export class CreateModuleModuleBuilderController {
         return $pane;
     }
 
-    sortPaneFields(paneName) {
+    sortPaneFields(paneName, parentId) {
         let serviceName = 'SortModuleFields';
         if (this.currentField.PaneName != this.currentFieldBackup.PaneName)
             serviceName = 'UpdateModuleFieldPaneAndReorderFields';
@@ -864,6 +883,7 @@ export class CreateModuleModuleBuilderController {
         var postData = {
             ModuleId: this.module.Id,
             FieldId: this.currentField.Id,
+            ParentId: parentId,
             PaneName: paneName,
             PaneFieldIds: guids
         }
@@ -929,7 +949,7 @@ export class CreateModuleModuleBuilderController {
         if ($target && $target.attributes['b-field']) {
             if (actionType == 'up') $field.after($target);
             else if (actionType == 'down') $field.before($target);
-            this.sortPaneFields(this.currentField.PaneName);
+            this.sortPaneFields(this.currentField.PaneName, this.currentField.ParentId);
         }
 
         if ($event) $event.stopPropagation();
@@ -943,10 +963,10 @@ export class CreateModuleModuleBuilderController {
             if ($pane.find($field).length == 0) $pane.append($field);
 
             this.currentField.PaneName = pane.paneName;
-            this.currentField.ParentId = pane.parentId;
+            this.currentField.ParentId = $pane.attr("data-parent-id");
 
             this.scrollToFieldSection(this.currentField.Id)
-            this.sortPaneFields(pane.paneName);
+            this.sortPaneFields(this.currentField.PaneName, this.currentField.ParentId);
         }
     }
 
@@ -980,13 +1000,15 @@ export class CreateModuleModuleBuilderController {
     /* Field Datasource Methods  */
     /*------------------------------------*/
     onShowFieldDataSourceClick($event, fieldId) {
-        if (!this.currentField) this.onFieldItemClick($event, fieldId);
+        if (!this.currentField || this.currentField.Id !== fieldId)
+            this.onFieldItemClick($event, fieldId);
+
+        if (!this.currentField.HasDataSource) return;
 
         this.workingMode = "field-data-source";
         this.$scope.$emit("onShowRightWidget", { controller: this });
 
         this.fieldDataSourceBackup = _.clone(this.currentField.DataSource || {});
-
         this.currentField.DataSource = this.currentField.DataSource || {};
 
         this.onFieldDataSourceTypeChange();
@@ -998,75 +1020,69 @@ export class CreateModuleModuleBuilderController {
     }
 
     onFieldDataSourceTypeChange() {
-        if (!this.currentField.DataSource.Type && !this.currentField.DataSource.ListName)
-            this.currentField.DataSource.ListName = this.currentField.FieldName + '_Options';
-
-        if (this.currentField.DataSource.Type === 0 && this.currentField.DataSource.ListName) {
-            this.running = "get-field-data-source";
-            this.awaitAction = {
-                title: "Loading Field Data Source",
-                subtitle: "Just a moment for loading the field data source...",
-            };
-
-            this.apiService.get("Studio", "GetDefinedListByListName", {
-                listName: this.currentField.DataSource.ListName,
-            }).then((data) => {
-                this.definedList = data ?? { ListName: this.currentField.DataSource.ListName, Items: [] };
-
-                delete this.awaitAction;
-                delete this.running;
-            }, (error) => {
-                this.awaitAction.isError = true;
-                this.awaitAction.subtitle = error.statusText;
-                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-                this.notifyService.error(error.data.Message);
-
-                delete this.running;
-            });
+        if (this.currentField.DataSource.Type === 0) {
+            if (!this.currentField.DataSource.ListId)
+                this.onShowCreateDefinedList();
+            else
+                this.onShowDefinedList();
         }
         else if (this.currentField.DataSource.Type === 1) {
-            if (this.definedLists) {
-                this.onDefinedListChange();
-                return;
-            }
-
-            this.running = "get-defined-lists";
-            this.awaitAction = {
-                title: "Loading Defined Lists",
-                subtitle: "Just a moment for loading the defined lists...",
-            };
-
-            this.apiService.get("Module", "GetDefinedLists").then((data) => {
-                this.definedLists = data;
-
-                this.onDefinedListChange();
-
-                delete this.awaitAction;
-                delete this.running;
-            }, (error) => {
-                this.awaitAction.isError = true;
-                this.awaitAction.subtitle = error.statusText;
-                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-                this.notifyService.error(error.data.Message);
-
-                delete this.running;
-            });
-        }
-        else if (this.currentField.DataSource.Type === 2) {
             this.onDataSourceVariableChange();
         }
     }
 
     onSaveFieldDataSourceClick($event) {
         if (this.currentField.DataSource.Type === 0) {
-            this.saveDefinedList($event).then(() => {
+            this.saveDefinedList($event).then((data) => {
+                this.currentField.DataSource.ListId = data;
                 this.saveDataSource($event);
             });
         }
         else
             this.saveDataSource($event);
+    }
+
+    onShowCreateDefinedList() {
+        this.definedList = { ListName: this.currentField.FieldName + '_Options', Items: [] };
+        this.currentField.DataSource.ListId = null;
+        this.uiState.isDataSourceShowDefinedList = 0;
+    }
+
+    onShowDefinedList() {
+        this.getDefinedLists();
+        this.definedList = null;
+        this.uiState.isDataSourceShowDefinedList = 1;
+    }
+
+    getDefinedLists() {
+        this.running = "get-defined-lists";
+        this.awaitAction = {
+            title: "Loading Defined Lists",
+            subtitle: "Just a moment for loading the defined lists...",
+        };
+
+        this.apiService.get("Studio", "GetDefinedLists").then((data) => {
+            this.definedLists = data;
+
+            this.onDefinedListChange();
+
+            delete this.awaitAction;
+            delete this.running;
+        }, (error) => {
+            this.awaitAction.isError = true;
+            this.awaitAction.subtitle = error.statusText;
+            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+
+            this.notifyService.error(error.data.Message);
+
+            delete this.running;
+        });
+    }
+
+    onDefinedListChange() {
+        if (this.currentField.DataSource.ListId) {
+            this.definedList = _.find(this.definedLists, (i) => { return i.Id === this.currentField.DataSource.ListId });
+        }
     }
 
     saveDefinedList() {
@@ -1083,10 +1099,9 @@ export class CreateModuleModuleBuilderController {
                 "Field data source saved has been successfully"
             );
 
-            this.currentField.DataSource.ListId = data;
             this.currentField.DataSource.Items = angular.copy(this.definedList.Items);
 
-            $defer.resolve();
+            $defer.resolve(data);
 
             delete this.definedList;
             delete this.awaitAction;
@@ -1118,11 +1133,6 @@ export class CreateModuleModuleBuilderController {
         this.$timeout(() => this.onSaveFieldClick($event));
 
         this.disposeWorkingMode();
-    }
-
-    onDefinedListChange() {
-        this.definedList = this.definedList || {};
-        this.definedList = _.find(this.definedLists, (i) => { return i.ListId == this.currentField.DataSource.ListId });
     }
 
     onCancelFieldDataSourceClick() {
@@ -1161,23 +1171,14 @@ export class CreateModuleModuleBuilderController {
         if ($event) $event.stopPropagation();
     }
 
-    onShowConditionsClick($event, fieldId) {
-        if (fieldId) this.onFieldItemClick($event, fieldId);
-
-        this.workingMode = "field-show-conditions";
-        this.$scope.$emit("onShowRightWidget", { controller: this });
-    }
-
-    onShowConditionalValuesClick($event, fieldId) {
-        if (fieldId) this.onFieldItemClick($event, fieldId);
-
+    onShowConditionalValuesClick() {
         this.workingMode = "field-conditional-values";
         this.$scope.$emit("onShowRightWidget", { controller: this });
     }
 
     onAddFieldConditionalValueClick() {
-        this.currentField.FieldValues = this.currentField.FieldValues || [];
-        this.currentField.FieldValues.push({ Conditions: [] });
+        this.currentField.ConditionalValues = this.currentField.ConditionalValues || [];
+        this.currentField.ConditionalValues.push({});
     }
 
     onAddActionClick(fieldType, fieldId) {
@@ -1257,7 +1258,7 @@ export class CreateModuleModuleBuilderController {
         this.onSidebarTabClick("field-settings");
         this.$timeout(() => {
             $('.tab-contents').animate({
-                scrollTop: $('#monacoFieldValueProperty').position().top + 1100
+                scrollTop: $('#monacoFieldValueProperty').position().top
             }, 50);
 
             this.$scope.$broadcast("onFocusFieldValueProperty");
@@ -1375,6 +1376,9 @@ export class CreateModuleModuleBuilderController {
             this.apiService.post("Module", "SaveModuleTemplate", {
                 Id: this.module.Id,
                 Template: this.module.Template,
+                Theme: this.module.Theme,
+                PreloadingTemplate: this.module.PreloadingTemplate,
+                LayoutTemplate: this.module.LayoutTemplate,
                 LayoutTemplate: this.module.LayoutTemplate,
                 LayoutCss: this.module.LayoutCss
             }).then((data) => {

@@ -8,10 +8,8 @@ using Newtonsoft.Json.Linq;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.Caching;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
 {
@@ -27,6 +25,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
         private readonly ConcurrentDictionary<Guid, ConcurrentBag<string>> _serverVariables = new();
         private readonly ConcurrentDictionary<Guid, ConcurrentBag<string>> _clientVariables = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new();
+        private readonly IReadOnlyList<string> _systemVariables = new List<string>() { "_CurrentUserId", "_ServiceResult", "_PageParam" };
+
         public InMemoryUserDataStore(ICacheService cacheService, IModuleService moduleService, ITypeLoaderFactory typeLoaderFactory, IExpressionService expressionService)
         {
             _cacheService = cacheService;
@@ -67,15 +67,13 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
             {
                 if (usersData.TryGetValue(moduleId, out var moduleData))
                 {
-                    _clientVariables.TryGetValue(moduleId, out var clientVariable);
+                    _serverVariables.TryGetValue(moduleId, out var servertVariables);
+                    servertVariables = servertVariables ?? new ConcurrentBag<string>();
 
-                    if (_serverVariables.TryGetValue(moduleId, out var excludedKeys))
+                    foreach (var kvp in moduleData)
                     {
-                        foreach (var kvp in moduleData)
-                        {
-                            if (!excludedKeys.Contains(kvp.Key))
-                                result.TryAdd(kvp.Key, kvp.Value);
-                        }
+                        if (!servertVariables.Contains(kvp.Key) && !_systemVariables.Contains(kvp.Key))
+                            result.TryAdd(kvp.Key, kvp.Value);
                     }
                 }
             }
@@ -88,8 +86,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
         public async Task<ConcurrentDictionary<string, object>> UpdateModuleData(string connectionId, Guid moduleId, Dictionary<string, object> incomingData, string basePath)
         {
             var moduleData = await GetOrCreateModuleDataAsync(connectionId, moduleId, basePath);
-
             var variables = await _moduleService.GetVariables(moduleId, ModuleVariableScope.Global, ModuleVariableScope.ServerSide);
+
             foreach (var variable in variables.Where(v => moduleData.Keys.Contains(v.VariableName) && incomingData.Keys.Contains(v.VariableName)))
             {
                 var value = incomingData[variable.VariableName];
@@ -170,7 +168,11 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
                         _serverVariables[moduleId].Add(variable.VariableName);
                 }
 
-                _moduleTemplateCache.TryAdd(moduleId, moduleData);
+                if (_moduleTemplateCache.TryGetValue(moduleId, out var oldData))
+                    _moduleTemplateCache.TryUpdate(moduleId, moduleData, oldData);
+                else
+                    _moduleTemplateCache.TryAdd(moduleId, moduleData);
+
                 originalModuleData = moduleData;
 
                 _cacheService.Set<bool>("BE_Modules_Variables_IsClearCache", true);
@@ -198,10 +200,10 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
             {
                 if (usersData.TryGetValue(moduleId, out var moduleData))
                 {
-                    _clientVariables.TryGetValue(moduleId, out var clientVariable);
-                    foreach (var key in clientVariable)
+                    _clientVariables.TryGetValue(moduleId, out var clientVariables);
+                    foreach (var key in clientVariables)
                     {
-                        if (moduleData.TryGetValue(key, out var data)) 
+                        if (moduleData.TryGetValue(key, out var data))
                             moduleData.TryUpdate(key, null, data);
                     }
                 }

@@ -12,16 +12,17 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Base;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Attributes;
-using DotNetNuke.Entities.Urls;
-using System.Globalization;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
+using System.Text.RegularExpressions;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base
 {
-    public class BaseService : ExportableBase, IBaseService, IExportable
+    public class BaseService : IBaseService, IExportable,IImportable
     {
         private readonly ICacheService _cacheService;
         private readonly IRepositoryBase _repository;
@@ -67,7 +68,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base
             return HybridMapper.MapCollection<ScenarioInfo, ScenarioViewModel>(scenarios);
         }
 
-        [Exportable]
         public async Task<ScenarioViewModel> GetScenarioViewModelAsync(Guid scenarioId)
         {
             var scenario = await _repository.GetAsync<ScenarioInfo>(scenarioId);
@@ -192,11 +192,60 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Base
 
         #endregion
 
-        public async Task<T> Export<T>(string methodName, params object[] args) where T : class
-        {
-            var data = await base.Export<object>(this, typeof(BaseService), methodName, args);
-            return data as T;
+        #region Import Export
 
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var items = await GetScenarioAndGroupsAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = items,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
         }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var items = JsonConvert.DeserializeObject<List<object>>(json);
+                    var scenario = JsonConvert.DeserializeObject<ScenarioInfo>(items[0].ToString());
+                    var groups = JsonConvert.DeserializeObject<IEnumerable<GroupInfo>>(items[1].ToString());
+
+                    await SaveScenarioAndGroupsAsync(scenario, groups);
+
+                    context.Set<string>("ScenarioName", scenario.ScenarioName);
+                    break;
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetScenarioAndGroupsAsync(Guid scenarioId)
+        {
+            var scenario = await _repository.GetAsync<ScenarioInfo>(scenarioId);
+            var groups = await _repository.GetByScopeAsync<GroupInfo>(scenarioId);
+
+            return new List<object>() { scenario, groups };
+        }
+
+        private async Task SaveScenarioAndGroupsAsync(ScenarioInfo scenario,IEnumerable<GroupInfo> groups)
+        {
+            await _repository.AddAsync<ScenarioInfo>(scenario);
+            await _repository.BulkInsertAsync<GroupInfo>(groups);
+        }
+
+        #endregion
     }
 }

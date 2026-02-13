@@ -220,109 +220,11 @@
             <div id="board{{$.module.Id}}" class="panes"></div>
         </div>
     </b-content-widget>
-    <!------------------------------------>
-    <!--Build Widget-->
-    <!------------------------------------>
-    <div class="building-wrapper" ng-class="{'show':building}">
-        <div class="drop"></div>
-        <div class="content-wrapper">
-            <div class="header-wrapper">
-                <h5 class="header-title">Build Progress</h5>
-                <div class="actions-bar" ng-if="building.isEnded">
-                    <button type="button" class="b-btn btn-text-icon btn-submit btn-sm">
-                        <i class="codicon codicon-preview"></i>
-                        Preview
-                    </button>
-                    <button type="button" class="b-btn btn-text-icon btn-action btn-sm">
-                        <i class="codicon codicon-open-preview"></i>
-                        Show in Output
-                    </button>
-                    <button type="button" class="b-btn btn-text-icon btn-action btn-sm"
-                        ng-click="$.onContinueEditFormClick()">
-                        <i class="codicon codicon-debug-step-over"></i>
-                        Conitinue
-                    </button>
-                </div>
-            </div>
-            <div class="body-wrapper">
-                <div class="image-wrapper">
-                    <img id="imgBuilding{{$.module.Id}}" />
-                </div>
-                <ul class="build-steps">
-                    <li class="build-step module-template">
-                        <div class="step-label">
-                            1.Module Template
-                            <span class="small">
-                                (
-                                Render
-                                <span class="text-success" id="moduleTemplateFieldIndex{{$.module.Id}}">0</span>
-                                Field(s)
-                                From
-                                <span class="text-primary" id="moduleTemplateFieldTotal{{$.module.Id}}"></span>
-                                )
-                            </span>
-                        </div>
-                        <div class="progress-wrapper">
-                            <pre class="left-number">0</pre>
-                            <div class="step-progress-bar">
-                                <div class="progress-value" id="moduleTemplateProgress{{$.module.Id}}"></div>
-                            </div>
-                            <pre class="right-number">100</pre>
-                        </div>
-                    </li>
-                    <li class="build-step field-scripts">
-                        <label class="step-label">2.Field Scripts</label>
-                        <div class="progress-wrapper">
-                            <pre class="left-number">0</pre>
-                            <div class="step-progress-bar">
-                                <div class="progress-value" id="fieldsScriptsProgress{{$.module.Id}}"></div>
-                            </div>
-                            <pre class="right-number">100</pre>
-                        </div>
-                    </li>
-                    <li class="build-step action-scripts">
-                        <label class="step-label">3.Action Scripts</label>
-                        <div class="progress-wrapper">
-                            <pre class="left-number">0</pre>
-                            <div class="step-progress-bar">
-                                <div class="progress-value" id="actionsScriptsProgress{{$.module.Id}}"></div>
-                            </div>
-                            <pre class="right-number">100</pre>
-                        </div>
-                    </li>
-                    <li class="build-step module-styles">
-                        <label class="step-label">4.Css & Styles</label>
-                        <div class="progress-wrapper">
-                            <pre class="left-number">0</pre>
-                            <div class="step-progress-bar">
-                                <div class="progress-value" id="moduleStylesProgress{{$.module.Id}}"></div>
-                            </div>
-                            <pre class="right-number">100</pre>
-                        </div>
-                    </li>
-                    <li class="build-step resources-libraries mb-0">
-                        <label class="step-label">5.Resources & Libraries</label>
-                        <div class="progress-wrapper">
-                            <pre class="left-number">0</pre>
-                            <div class="step-progress-bar">
-                                <div class="progress-value" id="moduleLibrariesProgress{{$.module.Id}}"></div>
-                            </div>
-                            <pre class="right-number">100</pre>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="footer-wrapper">
-                <ul class="logs" id="buildLogs{{$.module.Id}}"></ul>
-            </div>
-        </div>
-    </div>
-
+   
     <div ng-include="$.editLayoutTemplateWidget"></div>
     <div ng-include="$.moduleTemplateWidget"></div>
     <div ng-include="$.fieldTemplateWidget"></div>
     <div ng-include="$.fieldEditWidget"></div>
-    <div ng-include="$.fieldShowConditionsWidget"></div>
     <div ng-include="$.fieldConditionalValuesWidget"></div>
     <div ng-include="$.fieldDataSourceWidget"></div>
 </div>

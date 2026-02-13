@@ -7,7 +7,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
 {
     [Table("BusinessEngineView_DefinedListItems")]
     [Cacheable("BE_DefinedLists_Items_View_", CacheItemPriority.Default, 20)]
-    [Scope("ListName")]
+    [Scope("ListId")]
     public class DefinedListItemView : IEntity
     {
         public Guid Id { get; set; }

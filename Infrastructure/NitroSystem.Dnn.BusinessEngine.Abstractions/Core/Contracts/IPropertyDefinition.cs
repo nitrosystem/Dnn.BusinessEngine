@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts
+﻿namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts
 {
     public interface IPropertyDefinition
     {

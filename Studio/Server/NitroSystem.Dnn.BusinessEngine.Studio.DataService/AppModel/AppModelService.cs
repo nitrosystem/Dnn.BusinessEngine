@@ -10,18 +10,28 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.Security;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
+using DotNetNuke.Entities.Portals;
+using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
+using NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
 {
-    public class AppModelService : IAppModelService
+    public class AppModelService : IAppModelService, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositoryBase _repository;
+        private readonly BuildTypeRunner _buildTypeRunner;
 
-        public AppModelService(IUnitOfWork unitOfWork, IRepositoryBase repository)
+        public AppModelService(IUnitOfWork unitOfWork, IRepositoryBase repository, BuildTypeRunner buildTypeRunner)
         {
             _unitOfWork = unitOfWork;
             _repository = repository;
+            _buildTypeRunner = buildTypeRunner;
         }
 
         public async Task<(IEnumerable<AppModelViewModel> Items, int? TotalCount)> GetAppModelsAsync(Guid scenarioId, int pageIndex, int pageSize, string searchText, string sortBy)
@@ -143,5 +153,81 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
                 throw ex;
             }
         }
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var items = await GetModelsAndPropertiesAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = items,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            var items = JsonConvert.DeserializeObject<List<object>>(json);
+            var models = JsonConvert.DeserializeObject<IEnumerable<AppModelInfo>>(items[0].ToString());
+            var modelsProperties = JsonConvert.DeserializeObject<IEnumerable<AppModelPropertyInfo>>(items[1].ToString()).ToList();
+
+            if (context.Scope == ImportExportScope.ScenarioFullComponents)
+            {
+                await BulkInsertAppModelsAndPropertiesAsync(models, modelsProperties);
+
+                var basePath = context.Get<string>("BasePath");
+                var scenarioName = context.Get<string>("ScenarioName");
+
+                foreach (var model in models)
+                {
+                    var props = modelsProperties.Where(p => p.AppModelId == model.Id);
+                    var properties = HybridMapper.MapCollection<AppModelPropertyInfo, PropertyDefinition>(props);
+                    var request = new BuildTypeRequest()
+                    {
+                        ScenarioName = scenarioName,
+                        BasePath = basePath,
+                        ModelName = model.ModelName,
+                        Version = "01.00.00",
+                        Properties = properties.Cast<IPropertyDefinition>().ToList()
+                    };
+
+                    await _buildTypeRunner.RunAsync(request);
+                }
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetModelsAndPropertiesAsync(Guid scenarioId)
+        {
+            var models = await _repository.GetByScopeAsync<AppModelInfo>(scenarioId);
+            var modelsProperties = new List<AppModelPropertyInfo>();
+
+            foreach (var model in models)
+            {
+                modelsProperties.AddRange(await _repository.GetByScopeAsync<AppModelPropertyInfo>(model.Id));
+            }
+
+            return new List<object>() { models, modelsProperties };
+        }
+
+        private async Task BulkInsertAppModelsAndPropertiesAsync(IEnumerable<AppModelInfo> models, IEnumerable<AppModelPropertyInfo> modelsProperties)
+        {
+            await _repository.BulkInsertAsync<AppModelInfo>(models);
+            await _repository.BulkInsertAsync<AppModelPropertyInfo>(modelsProperties);
+        }
+
+        #endregion
     }
 }

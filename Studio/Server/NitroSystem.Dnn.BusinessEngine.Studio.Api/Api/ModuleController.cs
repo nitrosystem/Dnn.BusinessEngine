@@ -25,11 +25,8 @@ using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework;
-using NitroSystem.Dnn.BusinessEngine.Core.Workflow;
-using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Models;
-using NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundTask;
-using NitroSystem.Dnn.BusinessEngine.Core.BackgroundTaskFramework.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.BackgroundJob;
+using NitroSystem.Dnn.BusinessEngine.Studio.Api.BackgroundJobs;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -49,8 +46,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IModuleLibraryAndResourceService _moduleLibraryAndResourceService;
         private readonly IActionService _actionService;
         private readonly ITemplateService _templateService;
-        private readonly WorkflowManager _workflow;
-        private readonly BackgroundFramework _backgroundFramework;
+        private readonly BackgroundJobWorker _backgroundJobWorker;
         private readonly BuildModuleRunner _buildModuleRunner;
 
         public ModuleController(
@@ -67,8 +63,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             IModuleLibraryAndResourceService moduleLibraryAndResourceService,
             IActionService actionService,
             ITemplateService templateService,
-            WorkflowManager workflow,
-            BackgroundFramework backgroundFramework,
+            BackgroundJobWorker backgroundJobWorker,
             BuildModuleRunner buildModuleRunner
         )
         {
@@ -85,8 +80,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _moduleLibraryAndResourceService = moduleLibraryAndResourceService;
             _actionService = actionService;
             _templateService = templateService;
-            _workflow = workflow;
-            _backgroundFramework = backgroundFramework;
+            _backgroundJobWorker = backgroundJobWorker;
             _buildModuleRunner = buildModuleRunner;
         }
 
@@ -195,16 +189,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
                 var result = await _dashboardService.SaveDashboardPageAsync(page);
 
-                if (rebuild)
-                {
-                    var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
-                    var scenarioName = await _baseService.GetScenarioNameAsync(scenarioId);
-                    var basePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(scenarioName)}/";
-                    var job = new BuildModuleTask(_serviceProvider, _cacheService, _moduleService, _workflow, page.Module.ModuleId, UserInfo.UserID, basePath);
-                    var req = new BackgroundTaskRequest(job, TaskPriority.Normal, scenarioName);
+                //if (rebuild)
+                //{
+                //    var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+                //    var scenarioName = await _baseService.GetScenarioNameAsync(scenarioId);
+                //    var basePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(scenarioName)}/";
+                //    var job = new BuildModuleJob(_serviceProvider, _cacheService, _moduleService, _workflow, page.Module.ModuleId, UserInfo.UserID, basePath);
+                //    var req = new JobRequest(job, JobPriority.Normal);
 
-                    _backgroundFramework.Enqueue(req);
-                }
+                //    _backgroundJobWorker.Enqueue(req);
+                //}
 
                 return Request.CreateResponse(HttpStatusCode.OK, result);
             }
@@ -364,13 +358,32 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
                     var scenarioName = await _baseService.GetScenarioNameAsync(scenarioId);
                     var basePath = $"{PortalSettings.HomeSystemDirectory}business-engine/{StringHelper.ToKebabCase(scenarioName)}/";
-                    var job = new BuildModuleTask(_serviceProvider, _cacheService, _moduleService, _workflow, module.Id, UserInfo.UserID, basePath);
-                    var req = new BackgroundTaskRequest(job, TaskPriority.Normal, scenarioName);
 
-                    _backgroundFramework.Enqueue(req);
+                    var job = new JobContext { JobType = typeof(BuildModuleJob) };
+                    job.Set<Guid>("ModuleId", module.Id);
+                    job.Set<string>("BasePath", basePath);
+                    job.Set<int>("UserId", UserInfo.UserID);
+
+                    _backgroundJobWorker.Enqueue(job);
                 }
 
                 return Request.CreateResponse(HttpStatusCode.OK, moduleId);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> DeleteModule(GuidInfo postData)
+        {
+            try
+            {
+                var isDeleted = await _moduleService.DeleteModuleAsync(postData.Id);
+
+                return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
             catch (Exception ex)
             {
@@ -827,7 +840,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var actionTypes = await _actionService.GetActionTypesListItemAsync();
                 var actions = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, 1, 1000, null, null, "ActionName");
                 var variables = await _moduleVariableService.GetModuleVariablesListItemAsync(moduleId);
-                var events = Enumerable.Empty<ModuleFieldTypeCustomEventListItem>();
+                var events = new List<ModuleEventTypeListItem>();
                 var action = actionId != Guid.Empty
                         ? await _actionService.GetActionViewModelAsync(actionId)
                         : null;
@@ -837,9 +850,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                     : "";
 
                 if (string.IsNullOrEmpty(fieldType))
-                    events = GetDefaultCustomEvents();
+                    events = await _moduleService.GetModuleEventTypes();
                 else
-                    events = GetDefaultCustomEvents(fieldType).Concat(await _moduleFieldService.GetFieldTypesCustomEventsListItemAsync(fieldType));
+                    events = await _moduleService.GetModuleEventTypes(fieldType);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
@@ -887,25 +900,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
-        }
-
-        private IEnumerable<ModuleFieldTypeCustomEventListItem> GetDefaultCustomEvents(string fieldType = "")
-        {
-            return !string.IsNullOrEmpty(fieldType)
-                ? new[]
-                {
-                    new ModuleFieldTypeCustomEventListItem { Text = "On Action Completed", Value = "OnActionCompleted" },
-                    new ModuleFieldTypeCustomEventListItem { Text = "On Field Value Change", Value = "OnFieldValueChange" },
-                    new ModuleFieldTypeCustomEventListItem { Text = "On Field Custom Event", Value = "OnCustomEvent" },
-                }
-                : new[]
-                {
-                    new ModuleFieldTypeCustomEventListItem { Text = "On Page Init", Value = "OnPageInit" },
-                    new ModuleFieldTypeCustomEventListItem { Text = "On Page Load", Value = "OnPageLoad" },
-                    new ModuleFieldTypeCustomEventListItem { Text = "On Action Completed", Value = "OnActionCompleted" },
-                    new ModuleFieldTypeCustomEventListItem { Text = "On Payment Completed", Value = "OnPaymentCompleted" },
-                    new ModuleFieldTypeCustomEventListItem { Text = "On Custom Event", Value = "OnCustomEvent" },
-                };
         }
 
         #endregion

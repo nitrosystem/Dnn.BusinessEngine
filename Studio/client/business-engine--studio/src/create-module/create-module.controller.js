@@ -22,7 +22,7 @@ export class CreateModuleController {
         this.moduleBuilderTemplate = moduleBuilderTemplate;
         this.actionsTemplate = actionsTemplate;
 
-        this.$rootScope.createModuleValidatedStep = [];
+        this.$scope.createModuleValidatedStep = [];
 
         $scope.$on('onCreateModuleChangeStep', (e, args) => {
             this.gotoStep(args.step);
@@ -37,6 +37,7 @@ export class CreateModuleController {
         const id = this.globalService.getParameterByName("id");
         const step = this.globalService.getParameterByName("st");
 
+        this.moduleId = id;
         this.step = id
             ? parseInt(step) || 1
             : 1;
@@ -62,7 +63,7 @@ export class CreateModuleController {
         if (this.step < step) {
             this.$deferredBroadcast(this.$scope, 'onCreateModuleValidateStep' + this.step).then((isValid) => {
                 this.step = isValid ? step : this.step;
-                this.$rootScope.createModuleValidatedStep.push(this.step);
+                this.$scope.createModuleValidatedStep.push(this.step);
                 this.setStepUrl();
             });
         }
@@ -71,7 +72,7 @@ export class CreateModuleController {
         }
 
         if (this.step == step) {
-            this.$rootScope.createModuleValidatedStep.push(this.step);
+            this.$scope.createModuleValidatedStep.push(this.step);
             this.setStepUrl();
         }
     }

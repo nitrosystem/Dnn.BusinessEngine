@@ -69,19 +69,19 @@
                     <!--Entity Groups-->
                     <!------------------------------------>
                     <li class="exp-item exp-has-childs exp-group"
-                        ng-repeat="group in $.$rootScope.groups | orderBy:'GroupName' | filter:{ObjectType:'Entity'}"
+                        ng-repeat="group in $.groups | orderBy:'ViewOrder' | filter:{GroupType:'Entity'}"
                         ng-include="'sidebarExplorerGroup.html'"></li>
                     <!------------------------------------>
                     <!--Entity noGroup Items-->
                     <!------------------------------------>
                     <li class="exp-item" id="{{item.ItemId}}"
-                        ng-repeat="item in $.entities | filter:{GroupId:null} | fuzzyBy: 'Title': $.searchItem">
+                        ng-repeat="item in $.entities | orderBy:'Title' | fuzzyBy: 'Title': $.searchItem | filter:{GroupId:null}">
                         <a class="exp-label"
                             ng-click="$.onItemClick($event,'create-entity',null,item.ItemId,item.Title)"
                             ng-class="{'active':$.$rootScope.explorerCurrentItem==item.ItemId}"
                             jqyoui-draggable="{animate:true,onDrag:'$.onDrag()',onStop:'$.onStopDrag($index)'}"
-                            jqyoui-options="{revert: 'invalid'}" data-drag="true" data-item="{{item.ItemId}}"
-                            data-type="Entity">
+                            jqyoui-options="{helper: 'clone',revert: 'invalid'}" data-drag="true"
+                            data-item="{{item.ItemId}}" data-type="Entity">
                             <i class="codicon codicon-table"></i> {{item.Title}}
                         </a>
                     </li>
@@ -121,13 +121,13 @@
                     <!--App Model Groups-->
                     <!------------------------------------>
                     <li class="exp-item exp-has-childs exp-group"
-                        ng-repeat="group in $.$rootScope.groups | orderBy:'ViewOrder' | filter:{ObjectType:'AppModel'}"
+                        ng-repeat="group in $.groups | orderBy:'Title' | filter:{GroupType:'AppModel'}"
                         ng-include="'sidebarExplorerGroup.html'"></li>
                     <!------------------------------------>
                     <!--App Model noGroup Items-->
                     <!------------------------------------>
                     <li class="exp-item" id="{{item.ItemId}}"
-                        ng-repeat="item in $.appModels | fuzzyBy: 'Title': $.searchItem | filter:{GroupId:null}">
+                        ng-repeat="item in $.appModels | orderBy:'Title' | fuzzyBy: 'Title': $.searchItem | filter:{GroupId:null}">
                         <a class="exp-label"
                             ng-click="$.onItemClick($event,'create-app-model',null,item.ItemId,item.Title)"
                             ng-class="{'active':$.$rootScope.explorerCurrentItem==item.ItemId}"
@@ -174,13 +174,13 @@
                     <!--Service Groups-->
                     <!------------------------------------>
                     <li class="exp-item exp-has-childs exp-group"
-                        ng-repeat="group in $.$rootScope.groups | orderBy:'ViewOrder' | filter:{ObjectType:'Service'}"
+                        ng-repeat="group in $.groups | orderBy:'Title' | filter:{GroupType:'Service'}"
                         ng-include="'sidebarExplorerGroup.html'"></li>
                     <!------------------------------------>
                     <!--Service noGroup Items-->
                     <!------------------------------------>
                     <li class="exp-item" id="{{item.ItemId}}"
-                        ng-repeat="item in $.services | fuzzyBy: 'Title': $.searchItem | filter:{GroupId:null}">
+                        ng-repeat="item in $.services | orderBy:'Title' | fuzzyBy: 'Title': $.searchItem | filter:{GroupId:null}">
                         <a class="exp-label"
                             ng-click="$.onItemClick($event,'create-service',null,item.ItemId,item.Title)"
                             ng-class="{'active':$.$rootScope.explorerCurrentItem==item.ItemId}"
@@ -313,7 +313,7 @@
                 <div class="b-field">
                     <label class="form-label">Group Type</label>
                     <div class="b-input-group">
-                        <select id="drpGroupType" ng-model="$.group.ObjectType" class="b-input form-select"
+                        <select id="drpGroupDomain" ng-model="$.group.GroupType" class="b-input form-select"
                             ng-disabled="$.group.Id || $.running" chosen inherit-select-classes="true"
                             placeholder-text-single="'Select group type'" required>
                             <option value="Entity">Entity</option>
@@ -321,6 +321,18 @@
                             <option value="Service">Service</option>
                         </select>
                         <span><i class="codicon codicon-activate-breakpoints"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Parent</label>
+                    <div class="b-input-group">
+                        <select ng-model="$.group.ParentId" class="b-input form-select"
+                            ng-options="group.Id as group.GroupName for group in $.groups | filter:{GroupType:$.group.GroupType}"
+                            chosen inherit-select-classes="true" placeholder-text-single="'Select a parent(optional)'"
+                            ng-disabled="!$.group.GroupType || $.running">
+                            <option value="">None</option>
+                        </select>
+                        <span><i class="codicon codicon-layers"></i></span>
                     </div>
                 </div>
                 <div class="b-field">
@@ -370,15 +382,23 @@
             <i class="codicon codicon-edit"></i>
         </a>
     </div>
-    <a class="exp-label" data-bs-toggle="collapse" data-bs-target="#expGroupItems_{{group.Id}}" ng-class="{'collapsed':!$.isExpandedGroup(group)}" data-drop="true" jqyoui-droppable="{onOver:'$.onItemDragOver()',onOut:'$.onItemDragOut()',onDrop:'$.onItemDrop(group)'}"
-        title="{{group.Description}}" data-type="{{group.ObjectType}}">
-        <i class="codicon codicon-chevron-down exp-arrow-icon"></i>
+    <a class="exp-label" data-bs-toggle="collapse" data-bs-target="#expGroupItems_{{group.Id}}" ng-class="{'collapsed':!$.isExpandedGroup(group)}" data-drop="true" 
+        jqyoui-droppable="{onOver:'$.onItemDragOver()',onOut:'$.onItemDragOut()',onDrop:'$.onItemDrop(group)'}"
+        title="{{group.Description}}" data-type="{{group.GroupType}}">
+        <i class="codicon codicon-chevron-down exp-arrow-icon" ></i>
         <i class="codicon codicon-folder"></i> {{group.GroupName}}
     </a>
     <ul class="exp-sub-items collapse" id="expGroupItems_{{group.Id}}" ng-class="{'show':$.searchItem || $.isExpandedGroup(group)}">
-        <li class="exp-item" id="{{item.ItemId}}" ng-repeat="item in group.Items | fuzzyBy: 'Title': $.searchItem | orderBy:'ViewOrder'" ng-if="item.GroupId">
-            <a class="exp-label" ng-click="$.onItemClick($event,group.ObjectType,null,item.ItemId,item.Title)" ng-class="{'active':$.$rootScope.explorerCurrentItem==item.ItemId}" jqyoui-draggable="{animate:true,onDrag:'$.onDrag()',onStop:'$.onStopDrag($index)'}"
-                jqyoui-options="{revert: 'invalid'}" data-drag="true" data-item="{{item.ItemId}}" data-type="{{group.ObjectType}}">
+        <li class="exp-item exp-has-childs exp-group"
+            ng-repeat="group in group.childs | orderBy:'Title'"
+            ng-include="'sidebarExplorerGroup.html'">
+        </li>
+        <li class="exp-item" id="{{item.ItemId}}" ng-repeat="item in group.Items | orderBy:'Title' | fuzzyBy: 'Title': $.searchItem" >
+            <a class="exp-label"  
+                jqyoui-draggable="{animate:true,onDrag:'$.onDrag()',onStop:'$.onStopDrag($index)'}"
+                jqyoui-options="{revert: 'invalid'}" 
+                data-drag="true" data-item="{{item.ItemId}}" data-group="{{group.Id}}" data-type="{{group.GroupType}}"
+                ng-click="$.onItemClick($event,group.GroupType,null,item.ItemId,item.Title)" ng-class="{'active':$.$rootScope.explorerCurrentItem==item.ItemId}">
                 <i class="codicon codicon-table"></i> {{item.Title}}
             </a>
         </li>

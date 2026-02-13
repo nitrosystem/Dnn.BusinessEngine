@@ -6,7 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts
 {
-    public interface IModuleVariableService
+    public interface IModuleVariableService 
     {
         Task<IEnumerable<ModuleVariableViewModel>> GetModuleVariablesViewModelAsync(Guid moduleId);
         Task<IEnumerable<ModuleVariableListItem>> GetModuleVariablesListItemAsync(Guid moduleId);

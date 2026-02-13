@@ -1,0 +1,120 @@
+<div ng-controller="createDashboardPagesController as $">
+    <b-content-widget data-title="Dashboard Pages" data-icon="table" data-module-type="dashboard-pages"
+        data-subtitle="manage dashboard pages" data-await-action="$.awaitAction" data-module="$" data-reload-method="onPageLoad" data-close-method="onCloseWindow" 
+        extra-icon1="codicon codicon-notebook-template b-module-builder-icon text-light" extra-icon1-title="Dashboard Module Builder" extra-icon1-method="oGotoModuleBuilderClick">
+        
+        <!------------------------------------>
+        <!--Dashboard Pages-->
+        <!------------------------------------>
+        <div class="dashboard-pages">
+            <div class="d-flex">
+                <div class="col-9 b-splitter border-end pe-3">
+                    <ul class="b-list-items">
+                        <li class="item" ng-repeat="page in $.pages | orderBy: 'ViewOrder'"
+                            ng-include="'dashboardPages.html'" data-page-id="{{page.Id}}">
+                        </li>
+                    </ul>
+                </div>
+                <div class="col ps-3">
+                    <button type="button" class="b-btn btn-text-icon btn-submit btn-full mb-4"
+                        ng-click="$.onEditPageClick()" ng-disabled="$.column">
+                        <i class="codicon codicon-plus" ng-disabled="$.running"></i>
+                        Add New Page
+                    </button>
+                    <button type="button" class="b-btn btn-text-icon btn-action btn-full mb-4" ng-disabled="$.column">
+                        <i class="codicon codicon-arrow-swap" ng-disabled="$.running"></i>
+                        Import Pages
+                    </button>
+                    <button type="button" class="b-btn btn-text-icon btn-action btn-full mb-4" ng-disabled="$.column">
+                        <i class="codicon codicon-arrow-down" ng-disabled="$.running"></i>
+                        Export Pages
+                    </button>
+                    <button type="button" class="b-btn btn-text-icon btn-remove w-100 mb-4" ng-disabled="$.column">
+                        <i class="codicon codicon-clear-all" ng-disabled="$.running"></i>
+                        Delete All Pages(!)
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div ng-if="$.pages.length==0" class="b-notify notify-info mb-4">
+            <i class="codicon codicon-info b-icon-2"></i>
+            <div class="text">
+                <h4 class="label">No pages.</h4>
+                <span class="subtext">
+                    Click
+                    <button type="button" class="b-btn btn-text-icon btn-sm ms-2 me-2" ng-click="$.onEditPageClick()">
+                        Add Page
+                    </button>
+                    for creating a new page.
+                </span>
+            </div>
+        </div>
+    </b-content-widget>
+
+    <!------------------------------------>
+    <!--Edit Page-->
+    <!------------------------------------>
+    <b-right-widget ng-if="$.workingMode=='edit-page'" data-title="Add/Edit Page" data-icon="copy"
+        data-subtitle="create page {{$.page.PageName}}" data-await-action="$.awaitAction" class="visible"
+        data-module="$" ng-class="{'was-validated':$.pageForm.validated}">
+        <div ng-if="$.page" ng-include="$.editPageWidget"></div>
+    </b-right-widget>
+
+    <script type="text/ng-template" id="dashboardPages.html">
+        <div class="item-wrapper" ng-class="{'page-not-visible':!page.IsVisible,'active':page.Id==$.currentPage.Id}">
+            <a class="item-icon ms-2 mt-2" ng-if="page.Pages.length" role="button" ng-Click="page.isCollapsed=!page.isCollapsed" data-bs-toggle="collapse" data-bs-target="#subPages{{page.Id}}">
+                <i class="codicon" ng-class="{'codicon-diff-added':page.isCollapsed,'codicon-diff-removed':!page.isCollapsed}"></i>
+            </a>
+            <span class="item-label">{{page.Title}}</span>
+            <span ng-if="!page.IsVisible" class="item-icon opacity-50 mt-2" b-custom-tooltip title="Page not visible">
+                <i class="codicon codicon-eye"></i>
+            </span>
+            <div class="ms-auto mt-2">
+                <a class="item-icon me-2" role="button" ng-if="page.IncludeModule && page.Module" ng-click="$.oGotoModuleBuilderClick(page.Module.ModuleId,page.Module.Template)">
+                    <i class="codicon codicon-notebook-template b-module-builder-icon text-light"></i>
+                </a>
+                <a class="item-icon me-2" role="button" ng-if="$index>0" ng-click="$.onUpPageClick(page,$index)">
+                    <i class="codicon codicon-arrow-up"></i>
+                </a>
+                <a class="item-icon me-2" role="button" ng-if="!$.isLastPage(page)" ng-click="$.onDownPageClick(page,$index)">
+                    <i class="codicon codicon-arrow-down"></i>
+                </a>
+                <a class="item-icon me-2" role="button" ng-if="page.IsChild" ng-click="$.onLeftPageClick(page)">
+                    <i class="codicon codicon-arrow-left"></i>
+                </a>
+                <a class="item-icon me-2" role="button" ng-if="$index>0" ng-click="$.onRightPageClick(page)">
+                    <i class="codicon codicon-arrow-right"></i>
+                </a>
+                <a class="item-icon me-2" role="button" ng-click="$.onDeletePageClick(page.Id)">
+                    <i class="codicon codicon-trash"></i>
+                </a>
+                <a class="item-icon me-2" role="button" ng-click="$.onEditPageClick(page.Id)">
+                    <i class="codicon codicon-edit"></i>
+                </a>
+                <a class="item-icon me-2" role="button" ng-click="$.onEditPageClick(null,page.Id)">
+                    <i class="codicon codicon-plus"></i>
+                </a>
+            </div>
+        </div>
+        <ul class="sub-items collapse show" id="subPages{{page.Id}}" ng-if="page.Pages.length" data-page-id="{{page.Id}}">
+            <li class="sub-item item" ng-repeat="page in page.Pages | orderBy: 'ViewOrder'" ng-include="'dashboardPages.html'" data-page-id="{{page.Id}}"></li>
+        </ul>
+    </script>
+
+    <!------------------------------------>
+    <!--Wizard Step Action Buttons-->
+    <!------------------------------------>
+    <div class="d-flex mb-2 mt-auto b-splitter border-top pt-3 mb-4">
+        <div class="justify-content-start">
+            <!-- Previous Button -->
+            <button type="button" class="b-btn btn-danger me-2" ng-click="$.onPreviousStepClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-arrow-left me-0"></i>
+            </button>
+            <!-- Next Button -->
+            <button type="button" class="b-btn btn-blue me-2" ng-click="$.onNextStepClick()" ng-disabled="$.running">
+                <i class="codicon codicon-arrow-right me-0"></i>
+            </button>
+        </div>
+    </div>
+</div>

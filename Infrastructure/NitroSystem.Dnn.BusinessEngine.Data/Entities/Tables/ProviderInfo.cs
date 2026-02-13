@@ -11,11 +11,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
     {
         public Guid Id { get; set; }
         public Guid ExtensionId { get; set; }
-        public string ProviderType { get; set; }
+        public int ProviderType { get; set; }
         public string ProviderName { get; set; }
         public string Title { get; set; }
-        public string ProviderComponent { get; set; }
-        public string BusinessControllerClass { get; set; }
+        public string ProviderConfig { get; set; }
         public string Description { get; set; }
     }
 }

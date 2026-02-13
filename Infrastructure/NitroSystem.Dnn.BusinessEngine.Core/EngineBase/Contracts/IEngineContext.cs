@@ -1,11 +1,10 @@
-﻿using System.Threading;
-using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Enums;
+﻿using System;
+using System.Threading;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts
 {
     public interface IEngineContext
     {
-        EngineExecutionPhase CurrentPhase { get; set; }
         string CurrentMiddleware { get; set; }
         CancellationTokenSource CancellationTokenSource { get; }
 

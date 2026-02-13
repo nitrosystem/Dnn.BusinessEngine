@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares
             _expressionService = expressionService;
         }
 
-        public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next)
+        public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next, Action<string, string, double> progress = null)
         {
             var finalizedParams = new List<ActionParamDto>();
 
@@ -27,9 +28,16 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares
                 if (string.IsNullOrEmpty(expr) && request.ExtraParams != null && request.ExtraParams.TryGetValue(item.ParamName, out var val))
                     item.ParamValue = val;
                 else
+                {
+                    ConcurrentDictionary<string, object> moduleData = request.ModuleData;
+
+                    if (context.TryGet<ConcurrentDictionary<string, object>>("ModuleData", out var data) && data != null)
+                        moduleData = data;
+
                     item.ParamValue = !string.IsNullOrEmpty(expr)
-                        ? _expressionService.Evaluate(expr, request.ModuleData)
+                        ? _expressionService.Evaluate(expr, moduleData)
                         : item.ParamValue;
+                }
 
                 finalizedParams.Add(item);
                 context.Set<List<ActionParamDto>>("ParsedParams", finalizedParams);

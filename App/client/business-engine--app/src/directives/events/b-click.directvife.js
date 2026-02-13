@@ -1,6 +1,9 @@
 export function BindClick(app, expressionService) {
     return {
         compile: function (attrs, element, scope, controller) {
+            if (element.__b_click_processed) return;
+            element.__b_click_processed = true;
+
             const expr = attrs['b-click'];
             const fnName = expr.split('(')[0].trim();
 
@@ -22,8 +25,9 @@ export function BindClick(app, expressionService) {
 
                     args.push(element);
 
-                    if (typeof controller[fnName] === "function") {
-                        controller[fnName](...args);
+                    const { parent, key } = app.resolvePropReference(fnName, scope);
+                    if (typeof parent[key] === "function") {
+                        parent[key](...args);
                     }
                 } catch (err) {
                     console.error("b-click error:", err);

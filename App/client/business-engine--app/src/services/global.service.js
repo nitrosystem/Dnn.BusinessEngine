@@ -77,6 +77,34 @@ export class GlobalService {
         }
     }
 
+    isJson(str) {
+        if (typeof str !== "string") return false;
+        const s = str.trim();
+        if (!s) return false;
+
+        // اگر با { یا [ شروع نشود، JSON ساختاری نیست
+        if (!(s.startsWith("{") && s.endsWith("}")) &&
+            !(s.startsWith("[") && s.endsWith("]")))
+            return false;
+
+        try {
+            JSON.parse(s);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    parseJson(str) {
+        if (typeof str !== 'string' || !str.trim()) return undefined;
+
+        try {
+            return JSON.parse(str);
+        } catch (error) {
+            return undefined;
+        }
+    }
+
     parseJsonItems(items) {
         if (items == null) return items; // null or undefined
 
@@ -152,5 +180,54 @@ export class GlobalService {
 
     keyBy(array, key) {
         return (array || []).reduce((r, x) => ({ ...r, [key ? x[key] : x]: x }), {})
+    }
+
+    // اجرای میکروتسک
+    nextMicroTask(fn) {
+        if (typeof queueMicrotask === "function") {
+            queueMicrotask(fn);
+        } else if (typeof Promise !== "undefined") {
+            Promise.resolve().then(fn);
+        } else {
+            setTimeout(fn, 0);
+        }
+    }
+
+    // اجرای ماکروتسک
+    nextMacroTask(fn) {
+        if (typeof setImmediate === "function") {
+            setImmediate(fn);
+        } else if (typeof MessageChannel !== "undefined") {
+            const channel = new MessageChannel();
+            channel.port1.onmessage = fn;
+            channel.port2.postMessage(null);
+        } else {
+            setTimeout(fn, 0);
+        }
+    }
+
+    // اجرای در فریم بعدی
+    nextAnimationFrame(fn) {
+        if (typeof requestAnimationFrame === "function") {
+            requestAnimationFrame(fn);
+        } else {
+            setTimeout(() => fn(performance.now()), 1000 / 60);
+        }
+    }
+
+    // اجرای در زمان idle
+    nextIdle(fn, options) {
+        if (typeof requestIdleCallback === "function") {
+            requestIdleCallback(fn, options);
+        } else {
+            const timeout = options?.timeout ?? 50;
+            const start = Date.now();
+            setTimeout(() => {
+                fn({
+                    didTimeout: false,
+                    timeRemaining: () => Math.max(0, timeout - (Date.now() - start))
+                });
+            }, timeout);
+        }
     }
 }

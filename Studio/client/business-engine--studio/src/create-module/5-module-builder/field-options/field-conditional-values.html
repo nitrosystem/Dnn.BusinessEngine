@@ -1,22 +1,22 @@
 <b-right-widget ng-if="$.workingMode=='field-conditional-values'" data-title="Conditional Value(s)"
     data-icon="notebook-template" data-subtitle="{{$.currentField.FieldName}} conditional value(s)"
     data-await-action="$.awaitAction" class="mb-edit-field visible" data-module="$">
-    <div ng-repeat="item in $.currentField.FieldValues">
+    <div ng-repeat="item in $.currentField.ConditionalValues">
         <div class="b-field">
             <label class="form-label">Value Expression</label>
             <div monaco-editor ng-model="item.ValueExpression" data-language="bProperties" data-one-line="true"
-                data-objects="$.objects" required>
+                data-suggestions="$.objects" required>
             </div>
         </div>
         <div class="b-field">
             <label class="form-label">Conditions</label>
-            <div monaco-editor ng-model="item.Conditions" data-language="bConditionalExpressions" data-height="50px"
-                data-objects="$.objects" required>
+            <div monaco-editor ng-model="item.Conditions" data-language="bConditionalExpressions" data-height="30px"
+                data-suggestions="$.objects" required>
             </div>
         </div>
         <div class="b-field">
             <button type="button" class="b-btn btn-sm btn-action ms-auto d-flex"
-                ng-click="$.currentField.FieldValues.splice($index,1)">
+                ng-click="$.currentField.ConditionalValues.splice($index,1)">
                 <i class="codicon codicon-trash me-0"></i>
             </button>
         </div>

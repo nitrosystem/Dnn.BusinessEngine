@@ -1,10 +1,14 @@
 <div ng-controller="createScenarioController as $" class="create-Scenario"
     ng-class="{'was-validated':$.form.validated}">
-    <b-content-widget data-title="Create Scenario" data-icon="table" data-module-type="create-Scenario"
-        data-subtitle="Add or edit scenario" data-await-action="$.awaitAction" data-module="$"
-        extra-icon1="codicon codicon-git-stash-pop" extra-icon1-title="Export Scenario"
-        extra-icon1-method="onShowExportScenarioWinClick" extra-icon2="codicon codicon-git-stash"
-        extra-icon2-title="Import External Scenario" extra-icon2-method="onShowImportScenarioWinClick">
+
+    <!------------------------------------>
+    <!--Add/Edit Scenario-->
+    <!------------------------------------>
+    <b-content-widget data-icon="table" data-title="Create Scenario" data-subtitle="Add or edit scenario"
+        data-module="$" data-await-action="$.awaitAction" extra-icon1="codicon codicon-git-stash-pop"
+        extra-icon1-title="Export Scenario" extra-icon1-method="onShowExportScenarioWinClick"
+        extra-icon2="codicon codicon-git-stash" extra-icon2-title="Import External Scenario"
+        extra-icon2-method="onShowImportScenarioWinClick">
         <div class="d-flex">
             <div class="col-7 b-splitter border-end pe-5">
                 <div class="b-field">
@@ -19,7 +23,8 @@
                     </div>
                     <div ng-if="$.scenario.ScenarioName && $.form.error.ScenarioName">
                         <p class="b-invalid">{{$.form.error.ScenarioName}}</p>
-                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetValidNameClick()">Set Valid Name</button>
+                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetValidNameClick()">Set Valid
+                            Name</button>
                     </div>
                 </div>
                 <div class="b-field">
@@ -45,7 +50,8 @@
                     </div>
                     <div ng-if="$.scenario.DatabaseObjectPrefix && $.form.error.DatabaseObjectPrefix">
                         <p class="b-invalid">{{$.form.error.DatabaseObjectPrefix}}</p>
-                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetValidDbObjectPrefixClick()">Set Valid Name</button>
+                        <button type="button" class="b-btn btn btn-action"
+                            ng-click="$.onSetValidDbObjectPrefixClick()">Set Valid Name</button>
                     </div>
                 </div>
             </div>
@@ -91,51 +97,50 @@
             </button>
         </div>
     </b-content-widget>
+
     <!------------------------------------>
-    <!--Export Scenario-->
+    <!--Export Scenario Widget-->
     <!------------------------------------>
-    <b-right-widget ng-if="$.workingMode=='export-scenario'" data-title="Export scenario" data-icon="git-stash-pop"
-        data-subtitle="export scenario components(Entities,Services,Actions,Modules,...)"
-        data-await-action="$.awaitAction" class="b-export-scenario" data-module="$" data-reload-method="onPageLoad"
-        data-close-method="onCloseWindow">
+    <b-right-widget ng-if="$.workingMode=='export-scenario'" class="b-export-scenario" data-icon="git-stash-pop"
+        data-title="Export scenario"
+        data-subtitle="export scenario components(Entities,App Models,Services,Modules,Actions,...)"
+        data-await-action="$.awaitAction" data-module="$" data-close-method="onCancelExportScenarioClick"
+        data-hide-fullscreen="true" data-hide-refresh="true">
         <div class="export-scenario">
             <div class="b-field">
-                <label class="form-label">Package Type</label>
+                <label class="form-label">Scenario Name</label>
                 <div class="b-input-group">
-                    <label class="b-input form-control">Scenario Full Components</label>
-                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                    <p class="b-input form-control">{{$.scenario.ScenarioName}}</p>
+                    <span><i class="codicon codicon-versions"></i></span>
                 </div>
             </div>
             <div class="b-field">
-                <label class="form-label">Package Name</label>
+                <label class="form-label">Package Type</label>
                 <div class="b-input-group">
-                    <label class="b-input form-control">{{$.export.PackageName}}</label>
-                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                    <p class="b-input form-control">Scenario Full Components</p>
+                    <span><i class="codicon codicon-versions"></i></span>
                 </div>
             </div>
             <div class="b-field">
                 <label class="form-label">Package Version</label>
                 <div class="b-input-group">
-                    <input type="text" ng-model="$.export.PackageVersion" class="b-input form-control"
-                        placeholder="Enter package version pattern: xx.xx.xx" autocomplete="off" required />
+                    <p class="b-input form-control">01.00.00</p>
                     <span><i class="codicon codicon-versions"></i></span>
                 </div>
-                <p class="b-invalid">{{$.form.error.PackageVersion}}</p>
             </div>
             <div class="b-field">
-                <label class="form-label">Description</label>
-                <div class="b-input-group">
-                    <textarea rows="3" ng-model="$.export.Description" class="b-input form-control"
-                        placeholder="Enter package description"></textarea>
-                    <span><i class="codicon codicon-code-oss"></i></span>
-                </div>
+                <label class="form-label">Generate Entities Scripts</label>
+                <label class="b-switch">
+                    <input type="checkbox" ng-model="$.exportData.GenerateEntityScripts">
+                    <span class="slider"></span>
+                </label>
             </div>
             <!------------------------------------>
             <!--Buttons-->
             <!------------------------------------>
             <hr class="mb-4" />
             <div class="mb-1 d-flex">
-                <button type="button" class="b-btn btn-text-icon me-2" ng-click="$.onExportScenarioClick()"
+                <button type="button" class="b-btn btn-primary btn-text-icon me-2" ng-click="$.onExportScenarioClick()"
                     ng-disabled="$.running">
                     <i class="codicon codicon-git-stash-pop"></i>
                     Export
@@ -148,12 +153,14 @@
             </div>
         </div>
     </b-right-widget>
+
     <!------------------------------------>
-    <!--Import Scenario->
+    <!--Import Scenario Widget->
     <!------------------------------------>
-    <b-right-widget ng-if="$.workingMode=='import-scenario'" data-title="Export scenario" data-icon="git-stash-pop"
-        data-subtitle="export scenario components(Entities,Services,Actions,Modules,...)"
-        data-await-action="$.awaitAction" class="b-import-scenario" data-module="$" data-reload-method="onPageLoad"
+    <b-right-widget ng-if="$.workingMode=='import-scenario'" class="b-import-scenario" data-icon="git-stash-pop"
+        data-title="Import scenario"
+        data-subtitle="import scenario components(Entities,App Models,Services,Modules,Actions,...)"
+        data-await-action="$.awaitAction" data-module="$" data-reload-method="onPageLoad"
         data-close-method="onCloseWindow">
         <div class="import-scenario">
             <div class="b-field">
@@ -170,6 +177,48 @@
                         ngf-select="$.onImportScenarioFileUploadChange($file, $invalidFiles)" ngf-max-size="103809024"
                         ngf-fix-orientation="true" />
                     <span><i class="codicon codicon-git-stash-pop"></i></span>
+                </div>
+            </div>
+            <div ng-if="$.exportedData">
+                <!------------------------------------>
+                <!--Module Options->
+                <!------------------------------------>
+                <div class="modules-options">
+                    <div class="module-option" ng-repeat="module in $.exportedData.modules">
+                        <div class="module-name-wrapper">
+                            <div class="b-field">
+                                <label class="form-label">Module Name</label>
+                                <div class="b-input-group">
+                                    <label class="b-input form-control">{{module.ModuleName}}</label>
+                                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                                </div>
+                            </div>
+                            <div class="b-field">
+                                <label class="form-label">Module Title</label>
+                                <div class="b-input-group">
+                                    <label class="b-input form-control">{{module.ModuleTitle}}</label>
+                                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="module-site-page-wrapper">
+                            <div class="b-field">
+                                <label class="form-label">Old Site Module Id</label>
+                                <div class="b-input-group">
+                                    <label class="b-input form-control">{{module.SiteModuleId}}</label>
+                                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                                </div>
+                            </div>
+                            <div class="b-field">
+                                <label class="form-label">New Page</label>
+                                <select id="drpNewPage" ng-model="module.NewPageId" class="b-input form-select"
+                                    ng-options="page.TabID as page.TabName for page in $.pages" ng-disabled="$.running"
+                                    chosen inherit-select-classes="true" placeholder-text-single="'Select new page'"
+                                    required>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!------------------------------------>

@@ -1,24 +1,43 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export.Components;
-using NitroSystem.Dnn.BusinessEngine.Core.Reflection.ImportExport.Export;
+﻿using System.Threading.Tasks;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Events;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export
 {
-    public static class ExportWorker
+    public class ExportWorker
     {
-        public static void ExportScenario(IServiceProvider services, ManifestModel manifest, string basePath, Guid scenarioId)
-        {
-            string manifestPath = $@"{basePath}business-engine\import-export\export\{manifest.PackageName.ToLower()}\";
+        private readonly List<ExportComponent> _components = new List<ExportComponent>();
+        private readonly List<ExportedItem> _exportedItems = new List<ExportedItem>();
 
-            var framework = new ExportFramework(manifestPath, manifest);
-            framework.RegisterComponent(new ScenarioComponent(services.GetRequiredService<IBaseService>(), manifestPath, scenarioId));
-            framework.CreateWorkflow();
-            framework.Init(framework.Work, progress =>
+        public event ExportProgressHandler OnProgress;
+        public event ExportCompletedHandler OnExportCompleted;
+
+        public void RegisterComponents(IEnumerable<ExportComponent> components)
+        {
+            foreach (var component in components)
             {
-                framework.ProgressChanged(progress);
-            });
+                _components.Add(component);
+            }
+        }
+
+        public async Task ExportAsync(ExportContext context)
+        {
+            foreach (var component in _components)
+            {
+                var result = await component.Service.ExportAsync(context);
+                if (result != null)
+                {
+                    var json = JsonConvert.SerializeObject(result.Result);
+
+                    _exportedItems.Add(new ExportedItem(component.Name, json));
+
+                    OnProgress?.Invoke(component.Name, result.IsSuccess);
+                }
+            }
+
+            OnExportCompleted?.Invoke(context.Scope, _exportedItems);
         }
     }
 }

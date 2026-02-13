@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Data;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text;
+using System.Linq;
 using Dapper;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 {
     public class SqlDatabaseMetadataRepository : IDatabaseMetadataRepository
     {
         private readonly IDbConnection _connection;
-        private readonly ConcurrentDictionary<string, IEnumerable<string>> _objectsCache = new ConcurrentDictionary<string, IEnumerable<string>>();
-        private readonly ConcurrentDictionary<string, IEnumerable<TableColumnInfo>> _columnsCache = new ConcurrentDictionary<string, IEnumerable<TableColumnInfo>>();
-        private readonly ConcurrentDictionary<string, string> _spScriptCache = new ConcurrentDictionary<string, string>();
 
         public SqlDatabaseMetadataRepository(IDbConnection connection)
         {
@@ -23,10 +21,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
 
         public async Task<IEnumerable<string>> GetDatabaseObjectsAsync(int type)
         {
-            string cacheKey = $"DBObjects_{type}";
-            if (_objectsCache.TryGetValue(cacheKey, out var cached))
-                return cached;
-
             string query = null;
             if (type == 0)
                 query = "SELECT name FROM sys.objects WHERE type = N'U' ORDER BY name"; // Tables
@@ -37,17 +31,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                 return new string[0];
 
             var result = await _connection.QueryAsync<string>(query);
-            _objectsCache[cacheKey] = result;
-            return result;
+            return result.ToList();
         }
 
-        public async Task<IEnumerable<TableColumnInfo>> GetDatabaseObjectColumnsAsync(string objectName)
+        public async Task<List<TableColumnInfo>> GetDatabaseObjectColumnsAsync(string objectName)
         {
             if (string.IsNullOrWhiteSpace(objectName))
                 throw new ArgumentNullException(nameof(objectName));
-
-            if (_columnsCache.TryGetValue(objectName, out var cached))
-                return cached;
 
             string query = @"
                 ;WITH PrimaryColumn AS (
@@ -108,17 +98,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                     ";
 
             var result = await _connection.QueryAsync<TableColumnInfo>(query, new { ObjectName = objectName });
-            _columnsCache[objectName] = result;
-            return result;
+            return result.ToList();
         }
 
         public async Task<string> GetStoredProcedureScriptAsync(string spName)
         {
             if (string.IsNullOrWhiteSpace(spName))
                 throw new ArgumentNullException(nameof(spName));
-
-            if (_spScriptCache.TryGetValue(spName, out var cached))
-                return cached;
 
             const string query = @"
                     SELECT [Definition] 
@@ -127,7 +113,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                           AND OBJECT_NAME(OBJECT_ID) = @SpName";
 
             var result = await _connection.QuerySingleOrDefaultAsync<string>(query, new { SpName = spName });
-            _spScriptCache[spName] = result;
             return result;
         }
 
@@ -135,6 +120,77 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
         {
             var result = await _connection.QuerySingleAsync<string>(string.Format("SELECT [Definition] FROM sys.sql_modules WHERE objectproperty(OBJECT_ID, 'IsProcedure') = 1 AND OBJECT_NAME(OBJECT_ID) = '{0}'", spName));
             return result;
+        }
+
+        public async Task<string> BuildCreateTableScript(string schema, string table)
+        {
+            var columns = await GetDatabaseObjectColumnsAsync(table);
+            var pk = await GetPrimaryKey(schema, table);
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"CREATE TABLE [{schema}].[{table}] (");
+
+            for (int i = 0; i < columns.Count; i++)
+            {
+                var c = columns[i];
+                sb.Append("    ");
+                sb.Append(BuildColumnLine(c));
+
+                if (i < columns.Count - 1 || pk != null)
+                    sb.Append(",");
+
+                sb.AppendLine();
+            }
+
+            if (pk.HasValue)
+            {
+                sb.AppendLine($"    CONSTRAINT [{pk.Value.Name}] PRIMARY KEY ({pk.Value.Columns})");
+            }
+
+            sb.AppendLine(");");
+
+            return sb.ToString();
+        }
+
+        private string BuildColumnLine(TableColumnInfo column)
+        {
+            var sb = new StringBuilder();
+
+            sb.Append($"[{column.ColumnName}] {column.ColumnType}");
+
+            if (column.IsIdentity)
+                sb.Append(" IDENTITY(1,1)");
+
+            sb.Append(column.AllowNulls ? " NULL" : " NOT NULL");
+
+            if (!string.IsNullOrEmpty(column.DefaultValue))
+                sb.Append($" DEFAULT {column.DefaultValue}");
+
+            return sb.ToString();
+        }
+
+        private async Task<(string Name, string Columns)?> GetPrimaryKey(string schema, string table)
+        {
+            string query = @"
+                SELECT kc.name,
+                       STRING_AGG(c.name, ', ')
+                FROM sys.key_constraints kc
+                JOIN sys.index_columns ic ON kc.parent_object_id = ic.object_id AND kc.unique_index_id = ic.index_id
+                JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+                JOIN sys.tables t ON kc.parent_object_id = t.object_id
+                JOIN sys.schemas s ON t.schema_id = s.schema_id
+                WHERE kc.type = 'PK' AND t.name = @Table AND s.name = @Schema
+                GROUP BY kc.name";
+
+
+            using (var result = await _connection.ExecuteReaderAsync(query, new { Schema = schema, Table = table }))
+            {
+                if (result.Read())
+                    return (result.GetString(0), result.GetString(1));
+            }
+
+            return null;
         }
     }
 }

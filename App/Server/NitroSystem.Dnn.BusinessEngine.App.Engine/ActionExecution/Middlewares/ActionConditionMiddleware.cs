@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Expressions;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 using System.Collections.Concurrent;
 
@@ -12,20 +12,13 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares
 {
     public class ActionConditionMiddleware : IEngineMiddleware<ActionRequest, ActionResponse>
     {
-        private readonly IExpressionService _service;
-
-        public ActionConditionMiddleware(IExpressionService service)
-        {
-            _service = service;
-        }
-
-        public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next)
+        public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next, Action<string, string, double> progress = null)
         {
             var action = request.Action;
 
-            if (!string.IsNullOrWhiteSpace(action.ActionConditions))
+            if (!string.IsNullOrWhiteSpace(action.ActionConditionsDsl))
             {
-                var tokenizer = new Tokenizer(action.ActionConditions);
+                var tokenizer = new Tokenizer(action.ActionConditionsDsl);
                 List<Token> tokens = tokenizer.Tokenize();
 
                 var parser = new DslParser(tokens);

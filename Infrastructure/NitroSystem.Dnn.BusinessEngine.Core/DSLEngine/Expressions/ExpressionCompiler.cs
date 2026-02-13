@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Base;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Base;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Contracts;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Expressions
 {
     public sealed class ExpressionCompiler : IExpressionCompiler
     {
@@ -48,6 +48,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions
             if (expr is MemberAccessExpression)
             {
                 return BuildMemberAccess((MemberAccessExpression)expr, ctx);
+            }
+
+            if (expr is FunctionCallExpression)
+            {
+                return BuildFunctionCall((FunctionCallExpression)expr, ctx);
             }
 
             if (expr is BinaryExpression)
@@ -225,6 +230,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions
             {
                 case "==": return Expression.Equal(left, right);
                 case "!=": return Expression.NotEqual(left, right);
+                case ">": return Expression.GreaterThan(left, right);
+                case "<": return Expression.LessThan(left, right);
                 case "&&": return Expression.AndAlso(left, right);
                 case "||": return Expression.OrElse(left, right);
             }
@@ -232,7 +239,75 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions
             throw new InvalidOperationException("Invalid operator");
         }
 
+        private Expression BuildFunctionCall(
+            FunctionCallExpression expr,
+            ParameterExpression ctx)
+        {
+            var args = expr.Arguments
+                .Select(a => BuildExpression(a, ctx))
+                .Select(e => Expression.Convert(e, typeof(object)))
+                .ToArray();
+
+            var argsArray =
+                Expression.NewArrayInit(typeof(object), args);
+
+            return Expression.Call(
+                ctx,
+                typeof(IDslContext).GetMethod(nameof(IDslContext.InvokeFunction)),
+                Expression.Constant(expr.FunctionName),
+                argsArray
+            );
+        }
+
         private static Expression UnifyTypes(
+            Expression left,
+            Expression right,
+            out Expression unifiedRight)
+        {
+            unifiedRight = right;
+
+            // object vs value type
+            if (left.Type == typeof(object) && right.Type.IsValueType)
+            {
+                left = Expression.Convert(left, right.Type);
+                return left;
+            }
+
+            if (right.Type == typeof(object) && left.Type.IsValueType)
+            {
+                unifiedRight = Expression.Convert(right, left.Type);
+                return left;
+            }
+
+            if (left.Type == right.Type)
+                return left;
+
+            if (IsNullable(left.Type) &&
+                Nullable.GetUnderlyingType(left.Type) == right.Type)
+            {
+                unifiedRight = Expression.Convert(right, left.Type);
+                return left;
+            }
+
+            if (IsNullable(right.Type) &&
+                Nullable.GetUnderlyingType(right.Type) == left.Type)
+            {
+                return Expression.Convert(left, right.Type);
+            }
+
+            if (left.Type.IsValueType && right.Type.IsValueType)
+            {
+                var targetType = GetWiderType(left.Type, right.Type);
+                unifiedRight = Expression.Convert(right, targetType);
+                return Expression.Convert(left, targetType);
+            }
+
+            throw new InvalidOperationException(
+                $"Cannot compare types '{left.Type}' and '{right.Type}'");
+        }
+
+
+        private static Expression UnifyTypesOld(
             Expression left,
             Expression right,
             out Expression unifiedRight)

@@ -13,7 +13,6 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Enum
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 {
@@ -80,25 +79,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
                 (src, dest) => dest.AuthorizationViewField = src.AuthorizationViewField?.Split(','));
 
             HybridMapper.BeforeMap<ModuleFieldInfo, ModuleFieldViewModel>(
-                (src, dest) => dest.DataSource = src.HasDataSource
-                ? ReflectionUtil.TryJsonCasting<ModuleFieldDataSourceInfo>(src.DataSource)
-                : null
-            );
-
-            HybridMapper.BeforeMap<ModuleFieldInfo, ModuleFieldViewModel>(
-                (src, dest) => dest.ConditionalValues = ReflectionUtil.TryJsonCasting<IEnumerable<ModuleFieldValueInfo>>(src.ConditionalValues));
+                (src, dest) => dest.ConditionalValues = ReflectionUtil.TryJsonCasting<IEnumerable<ModuleFieldConditionalValueViewModel>>(src.ConditionalValues));
 
             HybridMapper.BeforeMap<ModuleFieldViewModel, ModuleFieldInfo>(
                 (src, dest) => dest.AuthorizationViewField = string.Join(",", src.AuthorizationViewField ?? Enumerable.Empty<string>()));
 
             HybridMapper.BeforeMap<ModuleFieldViewModel, ModuleFieldInfo>(
-                (src, dest) => dest.DataSource = src.HasDataSource
-                ? JsonConvert.SerializeObject(src.DataSource)
-                : null)
-            ;
-
-            HybridMapper.BeforeMap<ModuleFieldViewModel, ModuleFieldInfo>(
                 (src, dest) => dest.ConditionalValues = JsonConvert.SerializeObject(src.ConditionalValues));
+
+            #endregion
+
+            #region Module Field Data Source
+
+            HybridMapper.BeforeMap<ModuleFieldDataSourceInfo, ModuleFieldDataSourceViewModel>(
+               (src, dest) => dest.Type = (ModuleFieldDataSourceType)src.Type);
+
+            HybridMapper.BeforeMap<ModuleFieldDataSourceViewModel, ModuleFieldDataSourceInfo>(
+               (src, dest) => dest.Type = (int)src.Type);
 
             #endregion
 
@@ -127,11 +124,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Module
 
             #region Module For Build
 
-            HybridMapper.BeforeMap<ModuleFieldSpResult, ModuleFieldDto>(
-                (src, dest) => dest.DataSource = src.HasDataSource
-                ? ReflectionUtil.TryJsonCasting<ModuleFieldDataSourceInfo>(src.DataSource)
-                : null
-            );
+            HybridMapper.BeforeMap<ModuleFieldDataSourceSpResult, ModuleFieldDataSourceDto>(
+                (src, dest) => dest.Type = (ModuleFieldDataSourceType)src.Type);
 
             HybridMapper.BeforeMap<ModuleResourceSpResult, ModuleResourceDto>(
                 (src, dest) => dest.ResourcePath = src.ResourcePath?.ReplaceFrequentTokens());

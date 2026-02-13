@@ -23,7 +23,7 @@ export class CreateEntityController {
         this.notifyService = notificationService;
         this.studioService = studioService;
 
-        this.groups = _.filter(this.$rootScope.groups, (g) => { return g.ObjectType == 'Entity' });
+        this.groups = _.filter(this.$rootScope.groups, (g) => { return g.GroupType == 'Entity' });
 
         this.$scope.$watch("$.entity.EntityName", (newVal, oldVal) => {
             if (newVal != oldVal && !this.entity.Settings.DatabaseObjectNameModified)

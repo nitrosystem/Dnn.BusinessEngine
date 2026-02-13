@@ -17,7 +17,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public string FieldComponent { get; set; }
         public string ComponentSubParams { get; set; }
         public string FieldJsPath { get; set; }
-        public string CustomEvents { get; set; }
         public bool IsGroupField { get; set; }
         public bool CanHaveValue  { get; set; }
         public bool HasDataSource { get; set; }

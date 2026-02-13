@@ -75,8 +75,10 @@ export class ExtensionsController {
                 showProgress: true
             };
 
-            this.apiService.uploadFile('Studio', 'InstallExtension', { files: $file }).then((data) => {
-                this.extInstalingStep = 4;
+            this.apiService.uploadFile('Studio', 'LoadExtensionFile', { files: $file }).then((data) => {
+                this.extension = JSON.parse(data.ManifestJson);
+                this.extensionFile = data.ManifestFile;
+                this.extInstalingStep = 2;
 
                 delete this.running;
                 delete this.awaitAction;

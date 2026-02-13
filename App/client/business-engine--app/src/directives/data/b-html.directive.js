@@ -1,8 +1,8 @@
 export function BindHtml(app, expressionService) {
     return {
         compile: function (attrs, element, scope) {
-            if (element.__b_text_processed) return;
-            element.__b_text_processed = true;
+            if (element.__b_html_processed) return;
+            element.__b_html_processed = true;
 
             const expr = attrs['b-text'];
             if (expr === '') return;

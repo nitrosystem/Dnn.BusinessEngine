@@ -24,7 +24,7 @@ export class CreateModuleVariablesController {
 
         this.variableEditWidget = variableEditWidget;
 
-        this.$rootScope.createModuleValidatedStep.push(4);
+        this.$scope.$parent.createModuleValidatedStep.push(4);
 
         $scope.$on("onCreateModuleValidateStep4", (e, task, args) => {
             this.validateStep.apply(this, [task, args]);

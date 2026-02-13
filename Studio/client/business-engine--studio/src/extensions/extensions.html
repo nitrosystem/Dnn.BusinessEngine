@@ -453,8 +453,8 @@
                 <!--Wizard Actoions(Buttons)-->
                 <!------------------------------------>
                 <hr class="mb-4" />
-                <div class="mb-1 d-flex">
-                    <div class="ms-auto">
+                <div class="d-flex mb-1">
+                    <div class="justify-content-start">
                         <button type="button" class="b-btn btn-text-icon me-2"
                             ng-if="$.extInstalingStep>1 && $.extInstalingStep<4 && !$.awaitAction.isError"
                             ng-click="$.onInstallExtensionStepClick()" ng-disabled="$.running">
@@ -467,6 +467,8 @@
                                 ng-class="{'loading-circle mini':$.running=='save-action'}"></i>
                             Done
                         </button>
+                    </div>
+                    <div class="d-flex justify-content-end ms-auto">
                         <button type="button" class="b-btn btn-text-icon btn-cancel"
                             ng-click="$.onCancelInstallExtensionClick()" ng-disabled="$.running">
                             <i class="codicon codicon-circle-slash"></i>

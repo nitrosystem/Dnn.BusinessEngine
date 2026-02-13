@@ -1,4 +1,5 @@
 <div ng-controller="createModuleActionsController as $" class="actions">
+                    {{$.module.ModuleName}}
     <b-content-widget data-title="Actions" data-icon="combine" data-module-type="actions"
         data-subtitle="Module actions - all events on the module" data-await-action="$.awaitAction"
         extra-icon1="codicon codicon-table" extra-icon1-title="Table Mode" data-module="$"
@@ -136,7 +137,7 @@
             <!--Module Actions-->
             <!------------------------------------>
             <div class="b-group mb-5">
-                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpModuleActions">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpModuleActions{{$.module.Id}}">
                     <h3 class="group-label">
                         <span class="group-icon">
                             <i class="codicon codicon-server-process"></i>
@@ -146,7 +147,7 @@
                         <i class="codicon codicon-chevron-up"></i>
                     </span>
                 </div>
-                <div id="grpModuleActions" class="group-content collapse show">
+                <div id="grpModuleActions{{$.module.Id}}" class="group-content collapse show">
                     <div class="action-item" ng-repeat="action in $.actions | filter: {FieldId: null}"
                         ng-class="{'action-has-childs':action.Childs.length}" ng-include="'actionItem.html'"></div>
                 </div>

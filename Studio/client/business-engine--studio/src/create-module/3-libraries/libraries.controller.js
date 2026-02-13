@@ -49,7 +49,7 @@ export class CreateModuleLibrariesController {
         this.libraryEditWidget = libraryEditWidget
         this.resourceEditWidget = resourceEditWidget
 
-        this.$rootScope.createModuleValidatedStep.push(3);
+        this.$scope.$parent.createModuleValidatedStep.push(3);
 
         $scope.$on("onCreateModuleValidateStep3", (e, task, args) => {
             this.validateStep.apply(this, [task, args]);
@@ -61,7 +61,7 @@ export class CreateModuleLibrariesController {
     }
 
     onPageLoad() {
-        const id = this.globalService.getParameterByName('id');
+        const id = this.moduleId = this.globalService.getParameterByName('id');
 
         this.running = "get-module-libraries";
         this.awaitAction = {
@@ -105,6 +105,19 @@ export class CreateModuleLibrariesController {
         this.$scope.$emit("onShowRightWidget", { controller: this });
     }
 
+    onLibraryChange() {
+        const library = this.libraries.find(l => l.Id === this.$scope.LibraryId);
+        this.library = {
+            ...this.library,
+            ...{
+                ModuleId: this.moduleId,
+                LibraryName: library.LibraryName,
+                Version: library.Version,
+            }
+        }
+        this.libraryResources = library.Resources;
+    }
+
     onSaveLibraryClick() {
         this.running = "save-library";
         this.awaitAction = {
@@ -119,6 +132,8 @@ export class CreateModuleLibrariesController {
             this.moduleCustomLibraries.push(this.library);
 
             this.disposeWorkingMode();
+
+            location.reload();
 
             delete this.awaitAction;
             delete this.running;

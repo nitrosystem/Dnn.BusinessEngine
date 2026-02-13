@@ -1,6 +1,9 @@
 export function BindClass(app, expressionService) {
     return {
         compile: function (attrs, element, scope) {
+            if (element.__b_class_processed) return;
+            element.__b_class_processed = true;
+
             const expr = attrs['b-class'];
             if (!expr) return;
 
@@ -19,12 +22,7 @@ export function BindClass(app, expressionService) {
 
             const render = () => {
                 items.forEach(item => {
-                    let value = expressionService.evaluate(item.condition, scope);
-
-                    if (typeof value === 'string') {
-                        try { value = JSON.parse(value); } catch { }
-                    }
-
+                    const value = expressionService.evaluateCondition(item.condition, scope);
                     if (value && !element.classList.contains(item.className))
                         element.classList.add(item.className);
                     else if (!value && element.classList.contains(item.className))

@@ -6,7 +6,8 @@
         </div>
         <div class="header-tools">
             <div class="col-1">
-                <button type="button" class="b-btn btn-text-icon btn-action" ng-click="$.onRefreshActionParamsClick()">
+                <button type="button" class="b-btn btn-text-icon btn-action" ng-click="$.onRefreshActionParamsClick()"
+                    disabled>
                     <i class="codicon codicon-refresh me-2"></i>
                 </button>
             </div>
@@ -16,9 +17,6 @@
         <div class="d-flex columns-name">
             <div class="col-5">Param Name</div>
             <div class="col-6">Param Value</div>
-            <div class="col-1">
-                <i class="codicon codicon-ellipsis"></i>
-            </div>
         </div>
         <div class="d-flex table-row" ng-repeat="param in $.params | orderBy : 'ViewOrder'" ng-if="!param.IsEdited"
             ng-click="$.onRowItemClick(param,$index)" role="button" ng-style="{'order':($index+1)}">
@@ -28,24 +26,17 @@
             <div class="col-6 my-auto">
                 {{param.ParamValue}}
             </div>
-            <div class="col-1 my-auto">
-                <button type="button" class="b-btn btn-action" ng-click="$.onDeleteItemClick($index,$event)">
-                    <i class="codicon codicon-trash"></i>
-                </button>
-            </div>
         </div>
         <!------------------------------------>
         <!-- Edit Param -->
         <!------------------------------------>
         <div ng-if="$.param.IsEdited" class="d-flex table-row edit-row" ng-style="{'order':$.param.OrderIc}">
             <div class="col-5 my-auto">
-                <span ng-if="!$.param.IsCustomParam">{{$.param.ParamName}}</span>
-                <input type="text" ng-if="$.param.IsCustomParam" class="b-input form-control"
-                    ng-model="$.param.ParamName" placeholder="Enter param name" autocomplete="off" />
+                <span>{{$.param.ParamName}}</span>
             </div>
             <div class="col-6 my-auto">
                 <div monaco-editor ng-model="$.param.ParamValue" data-language="bProperties" data-one-line="true"
-                    b-custom-focus="onEditParam" data-objects="$.objects" required>
+                    b-custom-focus="onEditParam" data-suggestions="$.suggestions" required>
                 </div>
             </div>
             <div class="col-1 my-auto">
@@ -56,9 +47,6 @@
         </div>
     </div>
     <div class="table-footer">
-        <button type="button" class="b-btn btn-action" ng-click="$.onAddParamClick()">
-            <i class="codicon codicon-plus"></i>
-        </button>
         <div ng-if="!$.params.length" class="b-notify notify-info mb-4">
             <i class="codicon codicon-info b-icon-2"></i>
             <div class="text">

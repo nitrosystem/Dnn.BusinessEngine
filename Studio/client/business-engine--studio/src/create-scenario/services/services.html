@@ -20,8 +20,8 @@
                     </div>
                     <div class="col-2">
                         <div class="b-input-group">
-                            <select ng-model="$.filter.serviceType" class="b-input form-select"
-                                ng-options="st.ServiceType as st.ServiceType for st in $.serviceTypes"
+                            <select ng-model="$.filter.serviceDomain" class="b-input form-select"
+                                ng-options="item for item in $.serviceDomains"
                                 ng-change="$.onApplyFilter()" ng-disabled="$.running" chosen
                                 inherit-select-classes="true" placeholder-text-single="'Domain'" required>
                                 <option value=""></option>
@@ -32,7 +32,7 @@
                     <div class="col-3">
                         <div class="b-input-group">
                             <select ng-model="$.filter.serviceType" class="b-input form-select"
-                                ng-options="st.ServiceType as st.ServiceType for st in $.serviceTypes"
+                                ng-options="item for item in $.serviceTypes"
                                 ng-change="$.onApplyFilter()" ng-disabled="$.running" chosen
                                 inherit-select-classes="true" placeholder-text-single="'Service Type'" required>
                                 <option value=""></option>

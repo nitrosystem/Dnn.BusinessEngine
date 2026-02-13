@@ -66,7 +66,7 @@
             <div class="col-4 my-auto">{{$.param.ParamName}}</div>
             <div class="col-4 my-auto">
                 <div monaco-editor ng-model="$.param.ParamValue" data-language="bProperties" data-one-line="true"
-                    b-custom-focus="onEditParam" data-objects="$.objects" required></div>
+                    b-custom-focus="onEditParam" data-suggestions="$.suggestions" required></div>
             </div>
             <div class="col-1 my-auto">
                 <button type="button" class="b-btn btn-action ms-1" ng-click="$.onDoneClick()">

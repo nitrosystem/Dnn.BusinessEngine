@@ -1,4 +1,4 @@
-﻿namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Enums
+﻿namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Enums
 {
     public enum TokenType
     {
@@ -17,6 +17,9 @@
         NotEquals,
         AndAnd,
         OrOr,
+
+        Bigger,
+        Smaller,
 
         Dot,
         Semicolon,

@@ -15,7 +15,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
             _moduleService = moduleService;
         }
 
-        public async Task<BuildModuleResponse> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<BuildModuleResponse>> next)
+        public async Task<BuildModuleResponse> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<BuildModuleResponse>> next, Action<string, string, double> progress = null)
         {
             //await _workflow.ExecuteTaskAsync<object>(request.ModuleId.Value.ToString(), request.UserId,
             //    "BuildModuleWorkflow", "BuildModule", "InitialEngine", false, true, true,
@@ -24,15 +24,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
             
             await _moduleService.DeleteModuleResourcesAsync(request.Module.Id);
 
-            // PushingNotification(request.Module.ScenarioName,
-            //    new
-            //    {
-            //        Type = "ActionCenter",
-            //        TaskId = $"{request.ModuleId}-BuildModule",
-            //        Message = $"Deleting old resources of {request.ModuleName} module",
-            //        Percent = 15
-            //    }
-            //);
+            progress.Invoke(request.Module.ScenarioName, $"Deleted old resources of {request.Module.ModuleName} module", 10);
 
             var result = await next();
             return result;

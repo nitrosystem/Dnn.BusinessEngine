@@ -12,7 +12,7 @@ export function MonacoEditor($rootScope, $filter, $timeout) {
         require: "?ngModel",
         priority: 10,
         scope: {
-            objects: "=",
+            suggestions: "=",
             disableFunctions: '='
         },
         link: function (scope, element, attrs, ngModel) {
@@ -56,6 +56,7 @@ export function MonacoEditor($rootScope, $filter, $timeout) {
             ngModel.$render = function () {
                 if (editor) {
                     var safeViewValue = ngModel.$viewValue || "";
+                    if (safeViewValue && typeof (safeViewValue) !== 'string') safeViewValue = safeViewValue.toString()
                     editor.setValue(safeViewValue);
                 }
             };
@@ -148,113 +149,11 @@ export function MonacoEditor($rootScope, $filter, $timeout) {
                 return focusables[index] ?? null;
             }
 
-            showAutocompletion(scope.objects);
+            if (scope.suggestions) showAutocompletion(scope.suggestions);
 
             if (bMonacoEditorLanguageBuffer.indexOf(language) >= 0) return;
 
             bMonacoEditorLanguageBuffer.push(language);
-
-            function showAutocompletionOld(obj) {
-                if (!!completionItemProvider) completionItemProvider.dispose();
-
-                completionItemProvider = monaco.languages.registerCompletionItemProvider("bProperties", {
-                    triggerCharacters: ['.', '['],
-
-                    provideCompletionItems: function (model, position) {
-                        const textUntilPosition = model.getValueInRange({
-                            startLineNumber: position.lineNumber,
-                            startColumn: 1,
-                            endLineNumber: position.lineNumber,
-                            endColumn: position.column
-                        });
-
-                        const lastToken = extractLastToken(textUntilPosition);
-                        const isMemberAccess = /[.\]]$/.test(lastToken);
-
-                        let contextObject = obj;
-                        const pathParts = parsePath(lastToken.replace(/[.\[]$/, ""));
-
-                        // تشخیص واژه ناقص (آخرین بخش)
-                        let incomplete = null;
-                        if (pathParts.length > 0 && typeof pathParts[pathParts.length - 1] === "string") {
-                            incomplete = pathParts.pop(); // حذفش می‌کنیم چون هنوز کامل نشده
-                        }
-
-                        // resolve مسیر تا parent
-                        for (const part of pathParts) {
-                            if (contextObject == null) return { suggestions: [] };
-
-                            if (typeof part === "number" && Array.isArray(contextObject)) {
-                                contextObject = contextObject[part];
-                            } else if (typeof part === "string" && contextObject.hasOwnProperty(part)) {
-                                contextObject = contextObject[part];
-                            } else {
-                                return { suggestions: [] };
-                            }
-                        }
-
-                        if (typeof contextObject !== "object" || contextObject == null) return { suggestions: [] };
-
-                        let suggestions = Object.keys(contextObject)
-                            .filter(key =>
-                                !key.startsWith("__") &&
-                                (!incomplete || key.toLowerCase().startsWith(incomplete.toLowerCase()))
-                            )
-                            .map(key => {
-                                const value = contextObject[key];
-                                const type = typeof value;
-                                const isFunction = type === "function";
-                                const detail = isFunction ? "Function" : value?.constructor?.name || type;
-
-                                return {
-                                    label: key,
-                                    kind: isFunction ? monaco.languages.CompletionItemKind.Function : monaco.languages.CompletionItemKind.Property,
-                                    insertText: isFunction ? `${key}()` : key,
-                                    documentation: isFunction
-                                        ? (value.toString().split("{")[0] || "")
-                                        : `Type: ${detail}`,
-                                    range: {
-                                        startLineNumber: position.lineNumber,
-                                        startColumn: position.column - (incomplete?.length ?? 0),
-                                        endLineNumber: position.lineNumber,
-                                        endColumn: position.column
-                                    }
-                                };
-                            });
-
-                        if (!scope.disableFunctions) {
-                            //parse global functions
-                            const functionSuggestions = Object.entries(globalFunctions).map(([name, meta]) => ({
-                                label: name,
-                                kind: monaco.languages.CompletionItemKind.Function,
-                                insertText: `${name}(`,
-                                documentation: `${meta.description}\n\nArguments: (${meta.args.join(", ")})`,
-                                detail: "Global Function"
-                            }));
-
-                            suggestions.push(...functionSuggestions);
-                        }
-
-                        return { suggestions };
-                    }
-                });
-
-                function extractLastToken(text) {
-                    const match = text.match(/([\w\d_\.\[\]]+)$/);
-                    return match ? match[0] : "";
-                }
-
-                function parsePath(path) {
-                    const parts = [];
-                    const regex = /([a-zA-Z_][\w]*)|\[(\d+)\]/g;
-                    let match;
-                    while ((match = regex.exec(path)) !== null) {
-                        if (match[1]) parts.push(match[1]);
-                        else if (match[2]) parts.push(parseInt(match[2], 10));
-                    }
-                    return parts;
-                }
-            }
 
             function showAutocompletion(obj) {
                 // Helper function to return the monaco completion item type of a thing

@@ -141,7 +141,7 @@ const SelectServiceComponent = {
         action: "<",
         services: "<",
         serviceType: "@",
-        objects: "<",
+        suggestions: "<",
     },
     controller: SelectServiceController,
     controllerAs: "$",

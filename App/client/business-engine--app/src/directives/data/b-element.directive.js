@@ -1,6 +1,6 @@
 export function BindElement(app, expressionService) {
     return {
-        compile: function (attrs, element, scope,controller) {
+        compile: function (attrs, element, scope, controller) {
             if (element.__b_element_processed) return;
             element.__b_element_processed = true;
 
@@ -8,7 +8,8 @@ export function BindElement(app, expressionService) {
             if (expr === '') return;
 
             const render = () => {
-                element.setHTMLUnsafe(expr);
+                const value = expressionService.evaluateExpression(expr, scope);
+                element.setHTMLUnsafe(value);
                 app.detectElements(element, scope, controller, false);
             }
 

@@ -113,22 +113,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Utils
         {
             return source.GetType().GetProperty(name) != null;
         }
-
-        public static PropertyInfo GetPropertyByName(this object source, string name)
-        {
-            return source.GetType().GetProperty(name);
-        }
-
-        public static object GetPropertyValueByName(this object source, string name)
-        {
-            var prop = GetPropertyByName(source, name);
-            return prop.GetValue(source, null);
-        }
-
-        public static void SetPropertyValueByName(this object source, string name, object value)
-        {
-            var prop = GetPropertyByName(source, name);
-            prop.SetValue(source, value);
-        }
     }
 }

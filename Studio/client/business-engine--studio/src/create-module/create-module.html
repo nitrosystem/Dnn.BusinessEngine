@@ -27,17 +27,17 @@
             </div>
         </div>
         <div class="step-content">
-            <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(1)>=0" ng-show="$.step==1"
+            <div ng-if="createModuleValidatedStep.indexOf(1)>=0" ng-show="$.step==1"
                 ng-include="$.basicOptionsTemplate"></div>
-            <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(2)>=0" ng-show="$.step==2"
+            <div ng-if="createModuleValidatedStep.indexOf(2)>=0" ng-show="$.step==2"
                 ng-include="$.templateTemplate"></div>
-            <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(3)>=0" ng-show="$.step==3"
+            <div ng-if="createModuleValidatedStep.indexOf(3)>=0" ng-show="$.step==3"
                 ng-include="$.librariesTemplate"></div>
-            <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(4)>=0" ng-show="$.step==4"
+            <div ng-if="createModuleValidatedStep.indexOf(4)>=0" ng-show="$.step==4"
                 ng-include="$.variablesTemplate"></div>
-            <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(5)>=0" ng-show="$.step==5"
+            <div ng-if="createModuleValidatedStep.indexOf(5)>=0" ng-show="$.step==5"
                 ng-include="$.moduleBuilderTemplate"></div>
-            <div ng-if="$.$rootScope.createModuleValidatedStep.indexOf(6)>=0" ng-show="$.step==6"
+            <div ng-if="createModuleValidatedStep.indexOf(6)>=0" ng-show="$.step==6"
                 ng-include="$.actionsTemplate"></div>
         </div>
     </div>

@@ -23,8 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public bool IsRequired { get; set; }
         public bool IsGroupField { get; set; }
         public bool HasDataSource { get; set; }
-        public bool IsShown { get; set; }
-        public string ShowConditions { get; set; }
+        public string HiddenConditions { get; set; }
         public string Description { get; set; }
         public DateTime CreatedOnDate { get; set; }
         public int CreatedByUserId { get; set; }
@@ -32,8 +31,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
         public IEnumerable<string> AuthorizationViewField { get; set; }
-        public ModuleFieldDataSourceInfo DataSource { get; set; }
-        public IEnumerable<ModuleFieldValueInfo> ConditionalValues { get; set; }
+        public ModuleFieldDataSourceViewModel DataSource { get; set; }
+        public IEnumerable<ModuleFieldConditionalValueViewModel> ConditionalValues { get; set; }
         public IEnumerable<ActionListItem> Actions { get; set; }
         public IDictionary<string, object> Settings { get; set; }
     }

@@ -27,7 +27,7 @@ export class CreateServiceController {
         this.notifyService = notificationService;
         this.$deferredBroadcast = $deferredBroadcast;
 
-        this.groups = _.filter(this.$rootScope.groups, (g) => { return g.ObjectType == 'Service' });
+        this.groups = _.filter(this.$rootScope.groups, (g) => { return g.GroupType == 'Service' });
         this.stepsValid = 1;
         this.stepsCallback = {
             1: this.getServiceTypes,
@@ -186,6 +186,7 @@ export class CreateServiceController {
             }).then((data) => {
                 this.extensionService = data.ExtensionService;
                 this.extensionDependency = data.ExtensionDependency;
+                this.serviceCacheKeys = data.ServiceCacheKeys;
 
                 if (data.Service) {
                     this.service = data.Service;

@@ -1,15 +1,15 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Base;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Enums;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Statements;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Base;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Expressions;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Statements;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine
 {
     public sealed class DslParser
     {
@@ -202,7 +202,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
             var left = ParsePrimary();
 
             while (Current.Type == TokenType.DoubleEquals ||
-                   Current.Type == TokenType.NotEquals)
+                   Current.Type == TokenType.NotEquals ||
+                   Current.Type == TokenType.Bigger ||
+                   Current.Type == TokenType.Smaller)
             {
                 string op = Consume().Value;
                 var right = ParsePrimary();
@@ -247,7 +249,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
             }
 
             if (Current.Type == TokenType.Identifier)
+            {
+                // Lookahead
+                if (_tokens[_pos + 1].Type == TokenType.OpenParen)
+                    return ParseFunctionCallExpression();
+
                 return ParseMemberAccess();
+            }
+
 
             throw new InvalidOperationException("Invalid expression");
         }
@@ -265,6 +274,30 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
             return new MemberAccessExpression
             {
                 Path = path
+            };
+        }
+
+        private DslExpression ParseFunctionCallExpression()
+        {
+            string name = Expect(TokenType.Identifier).Value;
+            Expect(TokenType.OpenParen);
+
+            var args = new List<DslExpression>();
+            if (Current.Type != TokenType.CloseParen)
+            {
+                do
+                {
+                    args.Add(ParseExpression());
+                }
+                while (Match(TokenType.Comma));
+            }
+
+            Expect(TokenType.CloseParen);
+
+            return new FunctionCallExpression
+            {
+                FunctionName = name,
+                Arguments = args
             };
         }
     }

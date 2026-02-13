@@ -1,12 +1,12 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Enums;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Models;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine
 {
     public sealed class Tokenizer
     {
@@ -44,6 +44,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
                     continue;
                 }
 
+                if (c == '-' && char.IsDigit(Peek(1)))
+                {
+                    tokens.Add(ReadNumber(true));
+                    continue;
+
+                }
+
                 switch (c)
                 {
                     case '=':
@@ -67,7 +74,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
                         Advance();
                         tokens.Add(new Token(TokenType.NotEquals, "!=", _pos - 2));
                         break;
-
+                    case '>':
+                        Advance();
+                        tokens.Add(new Token(TokenType.Bigger, ">", _pos - 1));
+                        break;
+                    case '<':
+                        tokens.Add(new Token(TokenType.Smaller, "<", _pos - 1));
+                        break;
                     case '&':
                         if (Peek(1) != '&')
                             throw new InvalidOperationException("Expected '&&'");
@@ -178,10 +191,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
             return new Token(TokenType.Identifier, value, start);
         }
 
-        private Token ReadNumber()
+        private Token ReadNumber(bool includeDash = false)
         {
             int start = _pos;
-            while (!IsEnd() && char.IsDigit(Peek()))
+
+            if (includeDash) _pos++;
+
+                while (!IsEnd() && char.IsDigit(Peek()))
                 _pos++;
 
             return new Token(TokenType.Number,

@@ -17,10 +17,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
     public class MergeResourcesService : IMergeResourcesService
     {
         private ModuleDto _module;
+        private Action<string, string, double> _onProgress;
 
-        public async Task<(string Scripts, string Styles)> MergeResourcesAsync(ModuleDto module, int userId, IEnumerable<ModuleResourceDto> resources)
+        public async Task<(string Scripts, string Styles)> MergeResourcesAsync(ModuleDto module, int userId, IEnumerable<ModuleResourceDto> resources, Action<string, string, double> progress = null)
         {
             _module = module;
+            _onProgress = progress;
 
             var resourcesLookup = resources.ToLookup(r => r.ResourceContentType);
             var scripts = await BuildScripts(resourcesLookup[ResourceContentType.Js]);
@@ -102,15 +104,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             foreach (var chunk in scriptChunks)
                 finalBuilder.AppendLine(chunk);
 
-            //_engineNotifier.PushingNotification(_module.ScenarioName,
-            //    new
-            //    {
-            //        Type = "ActionCenter",
-            //        TaskId = $"{_module.Id}-BuildModule",
-            //        Message = $"Merged style resourcess for  {_module.ModuleName} module",
-            //        Percent = 80
-            //    }
-            //);
+            _onProgress.Invoke(_module.ScenarioName, $"Merged style resourcess for  {_module.ModuleName} module", 87.5);
 
             return finalBuilder.ToString();
         }
@@ -180,15 +174,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             foreach (var chunk in scriptChunks)
                 finalBuilder.AppendLine(chunk);
 
-            //_engineNotifier.PushingNotification(_module.ScenarioName,
-            //    new
-            //    {
-            //        Type = "ActionCenter",
-            //        TaskId = $"{_module.Id}-BuildModule",
-            //        Message = $"Merged scripts resourcess for  {_module.ModuleName} module",
-            //        Percent = 90
-            //    }
-            //);
+            _onProgress.Invoke(_module.ScenarioName, $"Merged style resourcess for  {_module.ModuleName} module", 90);
 
             return finalBuilder.ToString();
         }

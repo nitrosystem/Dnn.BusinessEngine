@@ -2,15 +2,14 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts
 {
     public interface IActionService
     {
-        Task<IEnumerable<Guid>> GetActionIdsAsync(Guid moduleId, Guid? fieldId = null, string eventName = null);
-        Task<IEnumerable<ActionDto>> GetActionsDtoAsync(Guid moduleId, Guid? fieldId, bool executeInClientSide);
+        Task<List<ActionDto>> GetActionsAsync(Guid moduleId, Guid? fieldId = null, Guid? actionId = null, string eventName = null, ModuleEventTriggerOn? triggerOn = null);
         Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId);
-        Task<List<ActionDto>> GetActionsDtoForServerAsync(IEnumerable<Guid> actionIds);
         Task<string> GetBusinessControllerClass(string actionType);
     }
 }

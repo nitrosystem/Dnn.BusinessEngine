@@ -69,14 +69,16 @@
                 <div class="b-field" ng-class="{'opacity-25':!$.entity.IsReadonly}">
                     <label class="form-label">Result Type</label>
                     <div class="b-radio-list inline-items">
-                        <div class="radio-item"><input type="radio" id="rdEntityTypeTable"
-                                name="entityType{{$.entity.Id}}" ng-value="0" ng-model="$.entity.EntityType"
-                                ng-disabled="!$.entity.IsReadonly" ng-required="$.entity.IsReadonly">
+                        <div class="radio-item">
+                            <input type="radio" id="rdEntityTypeTable" name="entityType{{$.entity.Id}}" ng-value="0"
+                                ng-model="$.entity.EntityType" ng-disabled="!$.entity.IsReadonly"
+                                ng-required="$.entity.IsReadonly">
                             <label for="rdEntityTypeTable">Table</label>
                         </div>
-                        <div class="radio-item"><input type="radio" id="rdEntityTypeView"
-                                name="entityType{{$.entity.Id}}" ng-value="1" ng-model="$.entity.EntityType"
-                                ng-disabled="!$.entity.IsReadonly" ng-required="$.entity.IsReadonly">
+                        <div class="radio-item">
+                            <input type="radio" id="rdEntityTypeView" name="entityType{{$.entity.Id}}" ng-value="1"
+                                ng-model="$.entity.EntityType" ng-disabled="!$.entity.IsReadonly"
+                                ng-required="$.entity.IsReadonly">
                             <label for="rdEntityTypeView">View</label>
                         </div>
                     </div>

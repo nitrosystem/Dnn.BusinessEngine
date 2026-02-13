@@ -64,9 +64,12 @@
     <Compile Include="Entities\Procedures\DashboardPageModuleSpResult.cs" />
     <Compile Include="Entities\Procedures\GroupItemResult.cs" />
     <Compile Include="Entities\Procedures\ModuleFieldSettingSpResult.cs" />
+    <Compile Include="Entities\Procedures\ModuleFieldDataSourceSpResult.cs" />
     <Compile Include="Entities\Procedures\ModuleFieldSpResult.cs" />
     <Compile Include="Entities\Procedures\ModuleLiteSpResult.cs" />
     <Compile Include="Entities\Procedures\ModuleResourceSpResult.cs" />
+    <Compile Include="Entities\Tables\ModuleEventTypeInfo.cs" />
+    <Compile Include="Entities\Tables\ModuleFieldDataSourceInfo.cs" />
     <Compile Include="Entities\Tables\WorkflowEventTaskInfo.cs" />
     <Compile Include="Entities\Tables\DashboardInfo.cs" />
     <Compile Include="Entities\Tables\DashboardPageInfo.cs" />
@@ -110,14 +113,11 @@
     <Compile Include="Entities\Views\ActionView.cs" />
     <Compile Include="Entities\Views\ExplorerItemView.cs" />
     <Compile Include="Entities\Views\ModuleCustomLibraryResourceView.cs" />
-    <Compile Include="Entities\Views\ModuleFieldSettingView.cs" />
     <Compile Include="Entities\Views\ModuleCustomLibraryView.cs" />
-    <Compile Include="Entities\Views\DefinedListItemView.cs" />
     <Compile Include="Entities\Views\ModuleView.cs" />
     <Compile Include="Entities\Views\ServiceView.cs" />
     <Compile Include="Entities\Views\ModuleFieldTypeView.cs" />
     <Compile Include="Entities\Views\ActionTypeView.cs" />
-    <Compile Include="Entities\Views\LibraryView.cs" />
     <Compile Include="Entities\Views\ServiceTypeView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\RepositoryBase.cs" />

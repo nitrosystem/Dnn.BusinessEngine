@@ -25,7 +25,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader
             //ValidatePath(relativePath, basePath, scenarioName);
 
             var key = $"{relativePath}:{typeFullName}";
-            var assemblyPath = Constants.MapPath(relativePath) + $@"\{typeFullName}.dll";
+            var assemblyPath = Constants.MapPath(relativePath) + $@"\{typeFullName}.b";
 
             // اگر قبلاً کش شده
             if (_typeCache.TryGetValue(key, out Type cachedType))

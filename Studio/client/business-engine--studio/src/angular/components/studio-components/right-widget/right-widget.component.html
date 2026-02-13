@@ -1,6 +1,6 @@
 <div class="b-right-widget-drop" b-esc-key="$.onRightWidgetKeydownChange()">
     <div class="b-right-widget" ng-class="{'is-waiting':$.awaitAction,'is-error':$.awaitAction.isError,'w-100':$.widgetFull}">
-        <div class="widget-header d-flex">
+        <div class="widget-header">
             <div class="col-10">
                 <div class="widget-title" ng-if="!$.awaitAction">
                     <i class="codicon codicon-{{$.icon}} b-{{$.moduleType}}"></i>
@@ -17,17 +17,12 @@
             </div>
             <div class="col">
                 <ul class="widget-tools">
-                    <li>
-                        <a b-custom-tooltip data-bs-placement="left" title="Minimize">
-                            <i class="codicon codicon-chevron-down"></i>
-                        </a>
-                    </li>
-                    <li>
+                    <li ng-if="!$.hideFullscreen">
                         <a b-custom-tooltip data-bs-placement="left" title="{{!$.widgetFull?'Maximize':'Restore Down'}}" ng-click="$.onMaximizeClick()">
                             <i ng-class="{'codicon-screen-normal':$.widgetFull,'codicon-screen-full':!$.widgetFull}" class="codicon"></i>
                         </a>
                     </li>
-                    <li>
+                    <li ng-if="!$.hideRefresh">
                         <a b-custom-tooltip data-bs-placement="left" title="Refresh" ng-click="$.onReloadClick()">
                             <i class="codicon codicon-refresh"></i>
                         </a>

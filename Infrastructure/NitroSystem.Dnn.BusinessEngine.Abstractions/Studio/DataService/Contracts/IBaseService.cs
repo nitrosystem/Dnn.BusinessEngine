@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Base;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts
 {
-    public interface IBaseService : IExportable
+    public interface IBaseService 
     {
         Task<string[]> GetPortalRolesAsync(int portalId);
 

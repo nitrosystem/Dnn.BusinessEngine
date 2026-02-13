@@ -12,12 +12,17 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Entity;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
 {
-    public class EntityService : IEntityService
+    public class EntityService : IEntityService, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepositoryBase _repository;
@@ -295,5 +300,80 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Entity
                 throw ex;
             }
         }
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var generateEntityScripts = context.Get<bool?>("GenerateEntityScripts");
+
+                    var items = await GetEntitiesAndColumnsAsync(context.Get<Guid>("ScenarioId"), generateEntityScripts);
+
+                    return new ExportResponse()
+                    {
+                        Result = items,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            var items = JsonConvert.DeserializeObject<List<object>>(json);
+            var entities = JsonConvert.DeserializeObject<IEnumerable<EntityInfo>>(items[0].ToString());
+            var entitiesColumns = JsonConvert.DeserializeObject<IEnumerable<EntityColumnInfo>>(items[1].ToString());
+            var queries = JsonConvert.DeserializeObject<List<string>>(items[2].ToString());
+
+            if (context.Scope == ImportExportScope.ScenarioFullComponents)
+            {
+                await BulkInsertEntitiesAndParamsAsync(entities, entitiesColumns);
+                await ExecuteSqlQueriesAsync(queries, context);
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetEntitiesAndColumnsAsync(Guid scenarioId, bool? generateEntityScripts)
+        {
+            var entities = await _repository.GetByScopeAsync<EntityInfo>(scenarioId);
+            var entitiesColumns = new List<EntityColumnInfo>();
+            var queries = new List<string>();
+
+            foreach (var entity in entities)
+            {
+                entitiesColumns.AddRange(await _repository.GetByScopeAsync<EntityColumnInfo>(entity.Id));
+
+                if (generateEntityScripts.HasValue && generateEntityScripts.Value && !entity.IsReadonly && entity.EntityType == 0)
+                {
+                    queries.Add(await _databaseMetadata.BuildCreateTableScript("dbo", entity.TableName));
+                }
+            }
+
+            return new List<object>() { entities, entitiesColumns, queries };
+        }
+
+        private async Task BulkInsertEntitiesAndParamsAsync(IEnumerable<EntityInfo> entities, IEnumerable<EntityColumnInfo> entitiesColumns)
+        {
+            await _repository.BulkInsertAsync<EntityInfo>(entities);
+            await _repository.BulkInsertAsync<EntityColumnInfo>(entitiesColumns);
+        }
+
+        private async Task ExecuteSqlQueriesAsync(List<string> queries, ImportContext context)
+        {
+            foreach (var query in queries)
+            {
+                await _sqlCommand.ExecuteSqlCommandTextAsync(context.UnitOfWork, query);
+            }
+        }
+
+        #endregion
     }
 }

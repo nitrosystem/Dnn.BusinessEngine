@@ -9,15 +9,16 @@
             <div class="b-field">
                 <label class="form-label">Library</label>
                 <div class="b-input-group">
-                    <select id="drpLibraryType" ng-model="$.library.LibraryId" class="b-input form-select"
+                    <select id="drpLibraryType" ng-model="$.$scope.LibraryId" class="b-input form-select"
                         ng-options="l.Id as (l.LibraryName+'-'+l.Version) for l in $.libraries" chosen
+                        ng-change="$.onLibraryChange()"
                         inherit-select-classes="true" placeholder-text-single="'Select library'" ng-disabled="$.running"
                         required>
                     </select>
                     <span><i class="codicon codicon-library"></i></span>
                 </div>
             </div>
-            <div ng-if="$.library.LibraryId">
+            <div ng-if="$.$scope.LibraryId">
                 <div class="b-field" ng-if="$.library.Logo">
                     <label class="form-label">Logo</label>
                     <div class="image-wrapper" style="width: 5rem;height: 5rem;">
@@ -36,12 +37,15 @@
             </div>
         </div>
         <div class="col-7 ps-3">
-            <div class="b-field mb-2" ng-repeat="resource in $.library.Resources | orderBy: 'LoadOrder'">
+            <div class="b-field mb-2" ng-repeat="resource in $.libraryResources | orderBy: 'LoadOrder'">
                 <label class="form-label">Resource Path</label>
                 <label class="b-input form-control">{{resource.ResourcePath}}</label>
-                <label class="form-label">Resource Type</label>
-                <label class="b-input form-control">{{resource.ResourceType}}</label>
                 <br>
+                <label class="form-label">Resource Type</label>
+                <label class="b-input form-control">
+                    <span ng-if="resource.ResourceContentType===1">css</span>
+                    <span ng-if="resource.ResourceContentType===2">js</span>
+                </label>
             </div>
         </div>
     </div>

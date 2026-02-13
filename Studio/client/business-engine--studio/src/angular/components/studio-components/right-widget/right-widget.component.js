@@ -1,8 +1,9 @@
-import template from "./right-widget.component.html";
+import template from './right-widget.component.html';
 
 class RightWidgetController {
     constructor() {
-        "ngInject";
+        'ngInject';
+
     }
 
     onMaximizeClick() {
@@ -14,22 +15,26 @@ class RightWidgetController {
     }
 
     onCloseClick() {
-        this.module.disposeWorkingMode();
+        this.module[this.closeMethod]
+            ? this.module[this.closeMethod]()
+            : this.module.disposeWorkingMode();
     }
 }
 
 const RightWidgetComponent = {
     bindings: {
-        title: "@",
-        subtitle: "@",
-        icon: "@",
-        moduleType: "@",
-        reloadMethod: "@",
-        awaitAction: "=",
-        module: "<"
+        title: '@',
+        subtitle: '@',
+        icon: '@',
+        reloadMethod: '@',
+        closeMethod: '@',
+        hideFullscreen: '=',
+        hideRefresh: '=',
+        awaitAction: '=',
+        module: '<'
     },
     controller: RightWidgetController,
-    controllerAs: "$",
+    controllerAs: '$',
     templateUrl: template,
     transclude: true,
 };

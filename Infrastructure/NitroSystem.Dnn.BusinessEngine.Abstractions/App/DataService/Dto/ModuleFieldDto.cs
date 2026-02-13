@@ -19,10 +19,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
         public bool IsRequired { get; set; }
         public bool IsGroupField { get; set; }
         public bool HasDataSource { get; set; }
-        public string ShowConditions { get; set; }
+        public string HiddenConditions { get; set; }
         public IEnumerable<string> AuthorizationViewField { get; set; }
-        public ModuleFieldDataSourceResult DataSource { get; set; }
-        public IEnumerable<ModuleFieldValueInfo> ConditionalValues { get; set; }
+        public ModuleFieldDataSourceDto DataSource { get; set; }
+        public IEnumerable<ModuleFieldConditionalValueDto> ConditionalValues { get; set; }
         public IDictionary<string, object> Settings { get; set; }
     }
 }

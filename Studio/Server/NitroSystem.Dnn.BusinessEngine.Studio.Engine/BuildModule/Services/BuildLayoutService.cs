@@ -1,46 +1,61 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using HtmlAgilityPack;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
+using NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ConditionParser;
+using NitroSystem.Dnn.BusinessEngine.Core.General;
+using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Shared.Extensions;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ConditionParser;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.SseNotifier;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 {
     public class BuildLayoutService : IBuildLayoutService
     {
         private readonly IServiceLocator _serviceLocator;
-        private readonly ISseNotifier _notifier;
         private readonly IModuleFieldService _moduleFieldService;
 
-        private ConcurrentDictionary<(string fieldType, string template), string> _fieldTypes = new
-                ConcurrentDictionary<(string fieldType, string template), string>();
+        private ConcurrentDictionary<(string fieldType, string template), string> _fieldTypes =
+            new ConcurrentDictionary<(string fieldType, string template), string>();
+
         private IDictionary<Guid, List<ModuleFieldDto>> _fieldMap;
         private Queue<ModuleFieldDto> _buffer;
-        private HtmlDocument _htmlDoc;
+
+        // جایگزین HtmlDocument
+        private Dictionary<string, PaneDefinition> _panes;
+        private string _layoutTemplate;
+
         private volatile int _userId;
         private ModuleDto _module;
-        private IEngineNotifier _Notifier;
 
-        private readonly string _doubleBracketsPattern = @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
-        private readonly string _conditionPattern = @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
+        private Action<string, string, double> _onProgress;
+        private int _fieldIndex;
+        private double _progressStep;
+
+        private static readonly Regex PaneTagRegex =
+            new Regex(
+                @"<(?<tag>\w+)(?<attrs>[^>]*?)\sdata-pane\s*=\s*""(?<name>[^""]+)""(?<attrs2>[^>]*?)>",
+                RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private readonly string _doubleBracketsPattern =
+            @"\[\[(?<Exp>.[^:\[\[\]\]\?\?]+)(\?\?)?(?<NullValue>.[^\[\[\]\]]*)?\]\]";
+
+        private readonly string _conditionPattern =
+            @"\[\[\s*IF:\s*(?<Condition>.+?)\s*:\s*(?<Exp>.[^\[\[\]\]]+)\s*\]\]";
+
         private readonly string _fieldLayout =
-            @"<div [[IF:ShowConditions != null && ShowConditions != """":b-if=""[[ShowConditions]]""]] class=""[[Settings.CssClass??b-field]]"" [[IF:CanHaveValue == true:b-class=""{'b-field-invalid':[FIELD].isValidated==true && ([FIELD].requiredError==true || [FIELD].patternError==true)}""]]>
+            @"<div [[IF:HiddenConditions != null && HiddenConditions != """":b-if=""!([[HiddenConditions]])""]] class=""[[Settings.CssClass??b-field]]"" [[IF:CanHaveValue == true:b-class=""{'b-field-invalid':[FIELD].isValidated==true && ([FIELD].requiredError==true || [FIELD].patternError==true)}""]]>
                 [[IF:GlobalSettings.IsHiddenFieldText == false && FieldText != null:
                     <label class=""[[Settings.FieldTextCssClass??b-field-label]]"">[[FieldText]]</label>
                 ]]
@@ -56,17 +71,41 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 ]]
             </div>";
 
-        public BuildLayoutService(IServiceLocator serviceLocator, ISseNotifier notifier, IModuleFieldService moduleFieldService)
+        private class PaneDefinition
+        {
+            public string Name { get; }
+            public string Title { get; }
+            public bool Injected { get; set; }
+            public StringBuilder Buffer { get; }
+            public Func<string, string> Injector { get; set; }
+
+            public PaneDefinition(string name, string title)
+            {
+                Name = name;
+                Title = title;
+                Buffer = new StringBuilder();
+            }
+        }
+
+        public BuildLayoutService(IServiceLocator serviceLocator, IModuleFieldService moduleFieldService)
         {
             _serviceLocator = serviceLocator;
-            _notifier = notifier;
             _moduleFieldService = moduleFieldService;
         }
 
-        public async Task<string> BuildLayoutAsync(ModuleDto module, int userId)
+        public async Task<string> BuildLayoutAsync(ModuleDto module, int userId, Action<string, string, double> progress)
         {
             _module = module;
             _userId = userId;
+            _onProgress = progress;
+
+            _fieldIndex = 0;
+            _progressStep = 85 / module.Fields.Count();
+
+            _layoutTemplate = module.LayoutTemplate;
+            _panes = new Dictionary<string, PaneDefinition>();
+
+            InitializePanes();
 
             _fieldMap = _module.Fields
                 .GroupBy(f => f.ParentId ?? Guid.Empty)
@@ -75,28 +114,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                     g => g.OrderBy(f => f.ViewOrder).ToList()
                 );
 
-            if (!_fieldMap.TryGetValue(Guid.Empty, out var parents))
-            {
-                throw new Exception("The module does not have any fields!");
-            }
-
-            //await _workflow.ExecuteTaskAsync<object>(_module.Id.ToString(), _userId,
-            //    "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, true,
-            //        (Expression<Func<Task>>)(() => LoadTemplates(_module.Fields))
-            //    );
+            _fieldMap.TryGetValue(Guid.Empty, out var parents);
 
             await LoadTemplates(_module.Fields);
 
-            await _notifier.Publish(_module.ScenarioName,
-               new
-               {
-                   Channel = _module.ScenarioName,
-                   Type = "ActionCenter",
-                   TaskId = $"{_module.Id}-BuildModule",
-                   Message = $"Loaded resource content of {_module.ModuleName} module",
-                   Percent = 40
-               }
-           );
+            _onProgress.Invoke(_module.ScenarioName, $"Loaded resource content of {_module.ModuleName} module", 15);
 
             _buffer = new Queue<ModuleFieldDto>();
             foreach (var item in parents)
@@ -105,43 +127,71 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 CreateBuffer(item);
             }
 
-            _htmlDoc = new HtmlDocument();
-            _htmlDoc.LoadHtml(_module.LayoutTemplate);
-
             await ProcessBuffer(_buffer.Count);
 
-            return _htmlDoc.DocumentNode.OuterHtml;
+            InjectAllPanes(); // تزریق نهایی، layout + runtime
+
+            return _layoutTemplate;
         }
 
-        #region Private Methods
+        #region Pane Engine
 
-        private async Task LoadTemplates(IEnumerable<ModuleFieldDto> fields)
+        private void InitializePanes() => RegisterPanesFromHtml(_layoutTemplate);
+
+        private void RegisterPanesFromHtml(string html)
         {
-            await BatchExecutor.ExecuteInBatchesAsync(
-                fields,
-                batchSize: 5,
-                async batch =>
-                {
-                    // کلید: TemplatePath (نرمال‌سازی شده)
-                    var items = batch
-                        .GroupBy(f => f.TemplatePath?.ReplaceFrequentTokens())
-                        .ToDictionary(
-                            g => g.Key,
-                            g => g.First()
-                        );
+            if (string.IsNullOrWhiteSpace(html))
+                return;
 
-                    await FileUtil.LoadFilesAsync(
-                        items.Keys,
-                        Constants.MapPath,
-                        (itemKey, fileContent) =>
-                        {
-                            if (items.TryGetValue(itemKey, out var field))
-                            {
-                                _fieldTypes[(field.FieldType, field.Template)] = fileContent;
-                            }
-                        });
-                });
+            foreach (Match match in PaneTagRegex.Matches(html))
+            {
+                var name = match.Groups["name"].Value;
+                if (_panes.ContainsKey(name))
+                    continue;
+
+                var attrs = match.Groups["attrs"].Value + match.Groups["attrs2"].Value;
+                string title = null;
+                var titleMatch = Regex.Match(attrs, @"data-pane-title\s*=\s*""(?<title>[^""]+)""", RegexOptions.IgnoreCase);
+                if (titleMatch.Success) title = titleMatch.Groups["title"].Value;
+
+                var paneDef = new PaneDefinition(name, title);
+
+                // ← اینجا بهترین جا برای تنظیم Injector
+                paneDef.Injector = layout =>
+                {
+                    var hostPattern = $@"(<[^>]+data-pane\s*=\s*""{paneDef.Name}""[^>]*>)";
+                    return Regex.Replace(layout, hostPattern, m => m.Value + paneDef.Buffer);
+                };
+
+                _panes[name] = paneDef;
+            }
         }
+
+        private StringBuilder GetPaneBuffer(string pane)
+        {
+            if (!_panes.TryGetValue(pane, out var paneDef))
+                throw new InvalidOperationException($"Pane '{pane}' not found.");
+            return paneDef.Buffer;
+        }
+
+        private void InjectAllPanes()
+        {
+            foreach (var pane in _panes.Values)
+            {
+                if (pane.Injected)
+                    continue;
+
+                if (pane.Buffer.Length == 0)
+                    continue;
+
+                _layoutTemplate = pane.Injector(_layoutTemplate);
+                pane.Injected = true;
+            }
+        }
+
+        #endregion
+
+        #region Buffer Management
 
         private void CreateBuffer(ModuleFieldDto field)
         {
@@ -150,10 +200,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
             field.IsParent = childs.Any();
 
-            foreach (var childField in childs)
+            foreach (var child in childs)
             {
-                _buffer.Enqueue(childField);
-                if (field.ParentId.HasValue) CreateBuffer(childField);
+                _buffer.Enqueue(child);
+                if (field.ParentId.HasValue)
+                    CreateBuffer(child);
             }
         }
 
@@ -162,155 +213,141 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             if (index <= 0) return;
 
             var field = _buffer.Dequeue();
+            var pane = GetPaneBuffer(field.PaneName);
+            var html = await ParseFieldTemplate(field);
 
-            try
-            {
-                var node = GetPaneNode(field.PaneName);
-                var fieldHtml = await ParseFieldTemplate(field);
-
-                //var fieldHtml = await _workflow.ExecuteTaskAsync<string>(_module.Id.ToString(), _userId,
-                //    "BuildModuleWorkflow", "BuildModule", "BuildLayoutMiddleware", false, true, false,
-                //   (Expression<Func<Task<string>>>)(() => ParseFieldTemplate(field))
-                //);
-
-                var htmlNode = HtmlNode.CreateNode(fieldHtml);
-                node.AppendChild(htmlNode);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            pane.AppendLine(html);
 
             await ProcessBuffer(index - 1);
         }
 
+        #endregion
+
+        #region Template Parsing
+
+        private async Task LoadTemplates(IEnumerable<ModuleFieldDto> fields)
+        {
+            await BatchExecutor.ExecuteInBatchesAsync(fields, 5, async batch =>
+            {
+                var items = batch.GroupBy(f => f.TemplatePath?.ReplaceFrequentTokens())
+                                 .ToDictionary(g => g.Key, g => g.First());
+
+                await FileUtil.LoadFilesAsync(items.Keys, Constants.MapPath, (key, content) =>
+                {
+                    if (items.TryGetValue(key, out var field))
+                        _fieldTypes[(field.FieldType, field.Template)] = content;
+                });
+            });
+        }
+
         private async Task<string> ParseFieldTemplate(ModuleFieldDto field)
         {
-            var fieldKey = (field.FieldType, field.Template);
-            _fieldTypes.TryGetValue(fieldKey, out var fieldTemplate);
+            _fieldIndex++;
+
+            var key = (field.FieldType, field.Template);
+            _fieldTypes.TryGetValue(key, out var template);
 
             var contentValue = field.Settings.GetValueOrDefault("Content");
             if (contentValue != null)
-            {
-                return contentValue as string;
-            }
-            else if (string.IsNullOrEmpty(fieldTemplate))
+                return contentValue as string ?? string.Empty;
+
+            if (string.IsNullOrEmpty(template))
                 return string.Empty;
 
-            try
+            if (field.IsParent && field.IsGroupField)
             {
-                if (field.IsParent && field.IsGroupField && !string.IsNullOrEmpty(field.FieldTypeGeneratePanesBusinessControllerClass))
+                string panesHtml = string.Empty;
+                if (!string.IsNullOrEmpty(field.FieldTypeGeneratePanesBusinessControllerClass))
                 {
                     var type = await _moduleFieldService.GenerateFieldTypePanesBusinessControllerClassAsync(field.FieldType);
                     if (!string.IsNullOrEmpty(type))
                     {
                         var controller = _serviceLocator.GetInstance<IFieldTypePaneGeneration>(type);
-                        var panes = await controller.GeneratePanes(field);
-                        fieldTemplate = fieldTemplate.Replace("[FIELDPANES]", panes ?? string.Empty);
+                        panesHtml = await controller.GeneratePanes(field);
                     }
                 }
+                else panesHtml = template;
 
-                if (field.GlobalSettings.IsDisabledLayout && !string.IsNullOrEmpty(field.ShowConditions))
-                    fieldTemplate = fieldTemplate.Replace("[TOKENS]", @"[[IF:ShowConditions != null && ShowConditions != """":b-if=""[[ShowConditions]]""]][TOKENS]");
-                if (!field.GlobalSettings.IsDisabledLayout && field.GlobalSettings.IsCustomFieldLayout)
-                    fieldTemplate = (field.GlobalSettings.CustomFieldLayout ?? _fieldLayout).Replace("[FIELD-COMPONENT]", fieldTemplate);
-                else if (!field.GlobalSettings.IsDisabledLayout)
-                    fieldTemplate = _fieldLayout.Replace("[FIELD-COMPONENT]", fieldTemplate);
+                panesHtml = panesHtml.Replace("[FIELD]", $"field.{field.FieldName}")
+                                   .Replace("[FIELDNAME]", field.FieldName)
+                                   .Replace("[FIELDID]", field.Id.ToString());
 
-                if (!string.IsNullOrWhiteSpace(field.GlobalSettings.CustomStyles))
-                    fieldTemplate = fieldTemplate.Replace("[TOKENS]", $@" style=""{field.GlobalSettings.CustomStyles}""[TOKENS]");
+                // 🔴 ثبت pane های runtime
+                RegisterPanesFromHtml(panesHtml);
 
-                string json = Newtonsoft.Json.JsonConvert.SerializeObject(field);
-                JObject jObject = JObject.Parse(json);
-
-                // --------------------- Double Braket Proccess --------------------------
-                var matches = Regex.Matches(fieldTemplate, _doubleBracketsPattern);
-                foreach (Match match in matches)
-                {
-                    var value = "";
-                    try
-                    {
-                        var expression = match.Groups["Exp"].Value;
-                        var jtoken = jObject.SelectToken(expression);
-
-                        if (jtoken != null)
-                            value = jtoken.Value<string>() ?? "";
-                        else if (jtoken == null || string.IsNullOrEmpty(value))
-                            value = match.Groups["NullValue"].Value;
-                    }
-                    catch (Exception ex)
-                    {
-                        //throw ex;
-                    }
-
-                    fieldTemplate = fieldTemplate.Replace(match.Value, value ?? "");
-                }
-
-                fieldTemplate = fieldTemplate.Replace("[FIELD]", $"field.{field.FieldName}");
-                fieldTemplate = fieldTemplate.Replace("[FIELDNAME]", $"{field.FieldName}");
-                fieldTemplate = fieldTemplate.Replace("[FIELDID]", $"{field.Id}");
-
-                // --------------------- Condition Expression Proccess --------------------------
-                matches = Regex.Matches(fieldTemplate, _conditionPattern, RegexOptions.Singleline);
-                foreach (Match match in matches)
-                {
-                    var conditionResult = false;
-                    try
-                    {
-                        var condition = match.Groups["Condition"].Value;
-                        var expressionTree = ConditionParser.Parse(condition);
-
-                        var param = Expression.Parameter(typeof(ModuleFieldDto));
-                        var expression = expressionTree.BuildExpression(param);
-
-                        var lambda = Expression.Lambda<Func<ModuleFieldDto, bool>>(expression, param).Compile();
-                        conditionResult = lambda(field);
-                    }
-                    catch (Exception ex)
-                    {
-                        //throw ex;
-                    }
-
-                    fieldTemplate = fieldTemplate.Replace(match.Value, conditionResult
-                        ? (match.Groups["Exp"].Value ?? "")
-                        : string.Empty);
-
-                    await _notifier.Publish(_module.ScenarioName,
-                       new
-                       {
-                           Channel = _module.ScenarioName,
-                           Type = "ActionCenter",
-                           TaskId = $"{_module.Id}-BuildModule",
-                           Message = $"Render template {field.FieldType} of {_module.ModuleName} module",
-                           Percent = 70
-                       }
-                    );
-                }
+                template = template.Replace("[FIELDPANES]", panesHtml ?? string.Empty);
             }
-            catch (Exception exx)
+
+            if (field.GlobalSettings.IsDisabledLayout && !string.IsNullOrEmpty(field.HiddenConditions))
+                template = template.Replace("[TOKENS]", @"[[IF:HiddenConditions != null && HiddenConditions != """":b-if=""!([[HiddenConditions]])""]] [TOKENS]");
+            if (!field.GlobalSettings.IsDisabledLayout && field.GlobalSettings.IsCustomFieldLayout)
+                template = (field.GlobalSettings.CustomFieldLayout ?? _fieldLayout).Replace("[FIELD-COMPONENT]", template);
+            else if (!field.GlobalSettings.IsDisabledLayout)
+                template = _fieldLayout.Replace("[FIELD-COMPONENT]", template);
+
+            if (!string.IsNullOrWhiteSpace(field.GlobalSettings.CustomStyles))
+                template = template.Replace("[TOKENS]", $@" style=""{field.GlobalSettings.CustomStyles}""[TOKENS]");
+
+            // JSON Token Binding
+            var json = JsonConvert.SerializeObject(field);
+            var jObject = JObject.Parse(json);
+
+            // --------------------- Double Braket Proccess --------------------------
+            var matches = Regex.Matches(template, _doubleBracketsPattern);
+            foreach (Match match in matches)
             {
-                throw exx;
-            }
-
-            return fieldTemplate.Replace("[TOKENS]", $@"data-fi=""{field.Id}""");
-        }
-
-        private HtmlNode GetPaneNode(string pane)
-        {
-            HtmlNode result = null;
-
-            var nodes = _htmlDoc.DocumentNode.SelectNodes("//*[@data-pane]");
-            foreach (var item in nodes)
-            {
-                string paneName = item.GetAttributeValue("data-pane", "");
-                if (!string.IsNullOrEmpty(paneName) && paneName == pane)
+                var value = "";
+                try
                 {
-                    result = item;
-                    break;
+                    var expression = match.Groups["Exp"].Value;
+                    var jtoken = jObject.SelectToken(expression);
+
+                    if (jtoken != null)
+                        value = jtoken.Value<string>() ?? "";
+                    else if (jtoken == null || string.IsNullOrEmpty(value))
+                        value = match.Groups["NullValue"].Value;
                 }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+
+                template = template.Replace(match.Value, value ?? "");
             }
 
-            return result;
+            template = template.Replace("[FIELD]", $"field.{field.FieldName}");
+            template = template.Replace("[FIELDNAME]", $"{field.FieldName}");
+            template = template.Replace("[FIELDID]", $"{field.Id}");
+
+            // --------------------- Condition Expression Proccess --------------------------
+            matches = Regex.Matches(template, _conditionPattern, RegexOptions.Singleline);
+            foreach (Match match in matches)
+            {
+                var conditionResult = false;
+                try
+                {
+                    var condition = match.Groups["Condition"].Value;
+                    var expressionTree = ConditionParser.Parse(condition);
+
+                    var param = Expression.Parameter(typeof(ModuleFieldDto));
+                    var expression = expressionTree.BuildExpression(param);
+
+                    var lambda = Expression.Lambda<Func<ModuleFieldDto, bool>>(expression, param).Compile();
+                    conditionResult = lambda(field);
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+
+                template = template.Replace(match.Value, conditionResult
+                    ? (match.Groups["Exp"].Value ?? "")
+                    : string.Empty);
+            }
+
+            _onProgress.Invoke(_module.ScenarioName, $"Render template {field.FieldType} of {_module.ModuleName} module", 15 + (_fieldIndex * _progressStep));
+
+            return template.Replace("[TOKENS]", $@"data-fi=""{field.Id}""");
         }
 
         #endregion

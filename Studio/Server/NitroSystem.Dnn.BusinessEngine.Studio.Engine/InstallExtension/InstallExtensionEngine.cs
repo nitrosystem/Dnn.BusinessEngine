@@ -1,110 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using DotNetNuke.Entities.Users;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
-using NitroSystem.Dnn.BusinessEngine.Core.General;
-using NitroSystem.Dnn.BusinessEngine.Core.BrtPath.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares;
-using Microsoft.Extensions.DependencyInjection;
+using NitroSystem.Dnn.BusinessEngine.Core.DiagnosticCenter.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension
 {
     public class InstallExtensionEngine : EngineBase<InstallExtensionRequest, InstallExtensionResponse>
     {
-        private readonly EnginePipeline<InstallExtensionRequest, InstallExtensionResponse> _pipeline;
-        private readonly IBrtGateService _brtGate;
-        private readonly IExtensionService _extensionService;
-        private readonly LockService _lockService;
-        private readonly Guid _permitId;
-        private readonly InstallExtensionContext _ctx;
-
-        public InstallExtensionEngine(
-            IServiceProvider services,
-            IBrtGateService brtGate,
-            IExtensionService extensionService,
-            Guid permitId) : base(services, true)
+        public InstallExtensionEngine(IDiagnosticStore diagnosticStore = null) : base(diagnosticStore)
         {
-            _brtGate = brtGate;
-            _extensionService = extensionService;
-            _permitId = permitId;
-            _lockService = services.GetRequiredService<LockService>();
-
-            _pipeline = new EnginePipeline<InstallExtensionRequest, InstallExtensionResponse>(this)
-            .Use<SqlDataProviderMiddleware>()
-            .Use<ResourcesMiddleware>();
-
-            var cts = new CancellationTokenSource();
-            _ctx = new InstallExtensionContext(cts);
         }
 
-        protected async override Task OnInitializeAsync(InstallExtensionRequest request)
+        protected override void ConfigurePipeline(EnginePipeline<InstallExtensionRequest, InstallExtensionResponse> pipeline)
         {
-            if (!await _brtGate.IsGateOpenAsync(_permitId))
-                throw new UnauthorizedAccessException("Operation must run inside BRT gate.");
-
-            var unzipedPath = Constants.MapPath($@"{request.BasePath}business-engine\temp\{Path.GetFileNameWithoutExtension(request.ExtensionZipFile)}");
-
-            Directory.CreateDirectory(unzipedPath);
-            ZipProvider.Unzip(request.ExtensionZipFile, unzipedPath);
-
-            var files = Directory.GetFiles(unzipedPath);
-            var manifestFile = files.FirstOrDefault(f => Path.GetFileName(f) == "manifest.json");
-            var manifestJson = await FileUtil.GetFileContentAsync(manifestFile);
-
-            _ctx.UnzipedPath = unzipedPath;
-            _ctx.ExtensionManifest = JsonConvert.DeserializeObject<ExtensionManifest>(manifestJson);
-
-            await base.OnInitializeAsync(request);
+            pipeline
+                .Use<InitializeMiddleware>()
+                .Use<ValidateMiddleware>()
+                .Use<SqlDataProviderMiddleware>()
+                .Use<ResourcesMiddleware>();
         }
 
-        protected override async Task<bool> ValidateAsync(InstallExtensionRequest request)
+        protected override InstallExtensionResponse CreateEmptyResponse()
         {
-            var errors = new List<string>();
-
-            var user = UserController.Instance.GetCurrentUserInfo();
-            if (!user.IsSuperUser)
-                errors.Add("Only superusers can install extensions.");
-
-            var currentVersion = await _extensionService.GetCurrentVersionExtensionsAsync(_ctx.ExtensionManifest.ExtensionName);
-            if (!string.IsNullOrEmpty(currentVersion) && new Version(currentVersion) > new Version(_ctx.ExtensionManifest.Version))
-                errors.Add("The installed extension should not be larger than the new extension");
-
-            _ctx.CurrentVersion = currentVersion;
-            _ctx.ExtensionManifest.IsNewExtension = string.IsNullOrEmpty(currentVersion);
-
-            if (errors.Any())
-                return false;
-
-            return true;
+            return new InstallExtensionResponse();
         }
 
-        protected override async Task<InstallExtensionResponse> ExecuteCoreAsync(InstallExtensionRequest request)
+        protected override Task OnErrorAsync(
+           IEngineContext context,
+           InstallExtensionRequest request,
+           InstallExtensionResponse response,
+           Exception ex)
         {
-            var lockId = _ctx.ExtensionManifest.ExtensionName;
-            var lockAcquired = await _lockService.TryLockAsync(lockId);
-            if (!lockAcquired)
-            {
-                throw new InvalidOperationException("This type builder is currently being build. Please try again in a few moments..");
-            }
+            //response.IsSuccess = false;
+            //response.Exception = ex;
 
-            try
-            {
-                return await _pipeline.ExecuteAsync(request, _ctx, Services);
-            }
-            finally
-            {
-                _lockService.ReleaseLock(lockId);
-            }
+            return Task.CompletedTask;
         }
     }
+
 }

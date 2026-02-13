@@ -30,10 +30,6 @@ export class CreateModuleCreateActionController {
         this.actionBuilder = {};
         this.events = [];
 
-        $scope.clientSideFilter = (item) => {
-            return !item.ExecutionScope || item.ExecutionScope == (this.action.ExecuteInClientSide ? 1 : 2);
-        };
-
         $scope.$on("onSyncActionParamsWithServiceParams", (e, args) => {
             const service = args.service || {};
             const action = args.action || {};
@@ -79,6 +75,7 @@ export class CreateModuleCreateActionController {
             this.variables = data.Variables;
             this.events = data.Events;
             this.action = data.Action;
+            this.serviceType = data.ServiceType;
 
             if (!this.action) {
                 this.isNewAction = true;
@@ -108,19 +105,24 @@ export class CreateModuleCreateActionController {
                 });
             }
 
-            this.objects = {};
-            _.forEach(data.Variables, (variable) => {
+            this.$scope.suggestions = {
+                _PageParam: {},
+                _ServiceResult: [],
+                _CurrentUserId: 0,
+                ConditionIsTrue: true
+            };
+            for (const variable of data.Variables) {
                 const baseObject = _.reduce(variable.Properties, (acc, prop) => {
                     acc[prop.PropertyName] = {};
                     return acc;
                 }, {});
 
                 if (variable.VariableType === 'AppModelList') {
-                    this.objects[variable.VariableName] = [baseObject];
+                    this.$scope.suggestions[variable.VariableName] = [baseObject];
                 } else {
-                    this.objects[variable.VariableName] = baseObject;
+                    this.$scope.suggestions[variable.VariableName] = baseObject;
                 }
-            });
+            };
 
             this.onFocusModule();
             this.setForm();
@@ -142,7 +144,7 @@ export class CreateModuleCreateActionController {
         if (this.module) {
             const items = this.studioService.createSidebarExplorerPath(this.module.Id, "Module");
             this.$rootScope.explorerExpandedItems.push(...items);
-            this.$rootScope.explorerExpandedItems.push(this.module.ModuleType.toLowerCase() + '-modules');
+            this.$rootScope.explorerExpandedItems.push(this.module.ModuleType + '-modules');
 
             this.$rootScope.explorerCurrentItem = this.module.Id;
         }
@@ -247,7 +249,7 @@ export class CreateModuleCreateActionController {
     }
 
     onSelectActionTypeClick(actionType) {
-        this.action.ActionType = actionType.ActionType;
+        this.action.ActionType = this.serviceType = actionType.ActionType;
         this.action.ActionType = actionType.ActionType;
         this.action.HasResult = actionType.HasResult;
         this.action.ResultType = actionType.ResultType;
@@ -265,7 +267,7 @@ export class CreateModuleCreateActionController {
     initActionBuilder() {
         const defer = this.$q.defer();
 
-        const actionComponent = `<${this.actionType.ActionComponent} controller="$" action="$.action" services="$.services" objects="$.objects" actions="$.actions" module-actions="$.moduleActions" variables="$.variables" data-app-models="$.appModels" data-fields="$.fields" ${this.actionType.ComponentSubParams}></${this.actionType.ActionComponent}>`;
+        const actionComponent = `<${this.actionType.ActionComponent} controller="$" action="$.action" services="$.services" service-type="${this.serviceType?.replace('Get', '')}" suggestions="suggestions" ${this.actionType.ComponentSubParams ?? ''}></${this.actionType.ActionComponent}>`;
 
         this.$timeout(() => {
             $("#pnlActionBuilder" + (this.action.Id ? this.action.Id : "")).html(this.$compile(actionComponent)(this.$scope));

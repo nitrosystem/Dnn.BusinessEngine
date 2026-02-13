@@ -1,9 +1,9 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Base;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Statements;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Base;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Statements;
 using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine
 {
     public sealed class DslExecutor
     {

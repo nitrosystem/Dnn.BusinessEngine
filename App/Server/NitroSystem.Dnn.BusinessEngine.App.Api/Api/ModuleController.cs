@@ -4,17 +4,19 @@ using System.Net.Http;
 using System.Web.Http;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using DotNetNuke.Web.Api;
 using NitroSystem.Dnn.BusinessEngine.App.Api.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
-using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionOrchestrator;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using System.Collections.Concurrent;
+using System.Linq;
+using NitroSystem.Dnn.BusinessEngine.Core.WebApi;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution;
+using Newtonsoft.Json.Linq;
+using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Enums;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Api
 {
@@ -51,39 +53,35 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
             try
             {
                 var dashboard = isDashboard
-                    ? await _dashboardService.GetDashboardDtoAsync(moduleId)
+                    ? await _dashboardService.GetDashboardDtoAsync(moduleId, UserInfo.IsSuperUser, UserInfo.Roles)
                     : null;
 
                 var moduleData = await _userDataStore.GetOrCreateModuleDataAsync(connectionId, moduleId, PortalSettings.HomeSystemDirectoryMapPath);
-                moduleData["_PageParam"] = UrlHelper.ParsePageParameters(pageUrl);
-                moduleData["_CurrentUserId"] = UserInfo.UserID;
-
-                List<ActionResponse> actionResponses = null;
-                var actionIds = await _actionService.GetActionIdsAsync(moduleId, null, "OnPageLoad");
-                if (actionIds.Any())
-                {
-                    actionResponses = await _actionRunner.RunAsync(
-                        actionIds,
+                var actions = await _actionService.GetActionsAsync(moduleId);
+                if (actions.Count > 0)
+                    await _actionRunner.ExecuteAsync(
+                        actions.Where(a => a.AuthorizationRunAction == null || a.AuthorizationRunAction.Any(r => UserInfo.IsInRole(r))).ToList(),
                         connectionId,
                         moduleId,
+                        UserInfo.UserID,
+                        pageUrl,
                         PortalSettings.HomeSystemDirectoryMapPath,
-                        moduleData
-                    );
-                }
+                        moduleData,
+                        null,
+                        false);
 
-                var data = _userDataStore.GetDataForClients(connectionId, moduleId);
+                var data = _userDataStore.GetDataForClients(connectionId, moduleId) ?? new ConcurrentDictionary<string, object>();
                 var variables = await _moduleService.GetVariables(moduleId, ModuleVariableScope.Global, ModuleVariableScope.ClientSide);
                 var fields = await _moduleService.GetFieldsDtoAsync(moduleId);
-                var actions = await _actionService.GetActionsDtoForClientAsync(moduleId);
+                var clientActions = await _actionService.GetActionsDtoForClientAsync(moduleId);
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
+                    data,
                     dashboard,
                     fields,
-                    actions,
-                    data,
                     variables,
-                    actionResponses
+                    actions = clientActions.Select(a => new { a.FieldId, a.Event })
                 });
 
                 //return Request.CreateResponse(HttpStatusCode.OK, new
@@ -101,24 +99,32 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<HttpResponseMessage> CallAction(ActionDto action)
+        public async Task<HttpResponseMessage> CallFieldAction(ActionDto action)
         {
             try
             {
                 var moduleData = await _userDataStore.UpdateModuleData(action.ConnectionId, action.ModuleId, action.Data, PortalSettings.HomeSystemDirectoryMapPath);
-                moduleData["_PageParam"] = UrlHelper.ParsePageParameters(action.PageUrl);
-                moduleData["_CurrentUserId"] = UserInfo.UserID;
-
-                var actionResponses = await _actionRunner.RunAsync(
-                        action.ActionIds,
+                var actions = await _actionService.GetActionsAsync(action.ModuleId, action.FieldId, action.ActionId, action.Event, ModuleEventTriggerOn.PageLoadOrComponentBehavior);
+                var result = await _actionRunner.ExecuteAsync(
+                        actions.Where(a => a.AuthorizationRunAction == null || a.AuthorizationRunAction.Any(r => UserInfo.IsInRole(r))).ToList(),
                         action.ConnectionId,
                         action.ModuleId,
+                        UserInfo.UserID,
+                        action.PageUrl,
                         PortalSettings.HomeSystemDirectoryMapPath,
                         moduleData,
                         action.ExtraParams
                     );
 
-                return Request.CreateResponse(HttpStatusCode.OK, actionResponses);
+                var data = _userDataStore.GetDataForClients(action.ConnectionId, action.ModuleId) ?? new ConcurrentDictionary<string, object>();
+                var payload = new object();
+
+                if (result == ActionResultStatus.ConditionIsNotTrue)
+                    payload = new { status = result, message = "Condition Is Not True" };
+                else if (result == ActionResultStatus.Successful)
+                    payload = new { status = result, data = data };
+
+                return Request.CreateResponse(HttpStatusCode.OK, payload);
             }
             catch (Exception ex)
             {

@@ -2,9 +2,9 @@
 {
     public enum ModuleResourceType
     {
+        None = 0,
         FieldTypeScript = 1,
-        ActionScript = 2,
-        ModuleLayoutCss = 3,
-        FieldTypeTheme = 4
+        ModuleLayoutCss = 2,
+        FieldTypeTheme = 3
     }
 }

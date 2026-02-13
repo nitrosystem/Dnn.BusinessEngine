@@ -7,6 +7,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.General;
 using NitroSystem.Dnn.BusinessEngine.Core.SseNotifier;
+using NitroSystem.Dnn.BusinessEngine.Core.DiagnosticCenter.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
@@ -14,18 +15,26 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
     {
         private readonly IEngineRunner _engineRunner;
         private readonly ICacheService _cacheService;
+        private readonly IDiagnosticStore _diagnosticStore;
         private readonly IModuleService _moduleService;
         private readonly ISseNotifier _notifier;
         private readonly LockService _lockService;
+        private Guid _moduleId;
 
-        public BuildModuleRunner(IEngineRunner engineRunner, ICacheService cacheService, IModuleService moduleService,
-            LockService lockService, ISseNotifier notifier)
+        public BuildModuleRunner(
+            IEngineRunner engineRunner,
+            ICacheService cacheService,
+            ISseNotifier notifier,
+            IDiagnosticStore diagnosticStore,
+            IModuleService moduleService,
+            LockService lockService)
         {
             _engineRunner = engineRunner;
             _cacheService = cacheService;
+            _notifier = notifier;
+            _diagnosticStore = diagnosticStore;
             _moduleService = moduleService;
             _lockService = lockService;
-            _notifier = notifier;
         }
 
         public async Task<bool> RunAsync(BuildModuleRequest request)
@@ -34,9 +43,27 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             if (!lockAcquired)
                 throw new InvalidOperationException("This module is currently being build. Please try again in a few moments..");
 
+            _moduleId = request.Module.Id;
+
             try
             {
-                var engine = new BuildModuleEngine();
+                await _notifier.Publish(request.Module.ScenarioName,
+                    new
+                    {
+                        channel = request.Module.ScenarioName,
+                        type = "ActionCenter",
+                        taskId = $"{_moduleId}-BuildModule",
+                        icon = "codicon codicon-agent",
+                        title = "Build Module Test1...",
+                        subtitle = "The module required rebuild for apply changes",
+                        message = $"Starting build {request.Module.ModuleName}",
+                        percent = 0,
+                    }
+                );
+
+                var engine = new BuildModuleEngine(_diagnosticStore);
+                engine.OnProgress += Engine_OnProgress;
+
                 var response = await _engineRunner.RunAsync(engine, request);
                 if (response.IsSuccess)
                 {
@@ -45,18 +72,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                     _cacheService.RemoveByPrefix("BE_Modules_");
                     HostController.Instance.Update("CrmVersion", (Host.CrmVersion + 1).ToString());
 
-                    await _notifier.Publish(request.Module.ScenarioName,
-                        new
-                        {
-                            Channel = request.Module.ScenarioName,
-                            Type = "ActionCenter",
-                            TaskId = $"{request.Module.Id}-BuildModule",
-                            Message = $"Module build has been successfully!.",
-                            Percent = 100,
-                            End = true
-                        }
-                    );
+                    await Engine_OnProgress(request.Module.ScenarioName, "Module build has been successfully!.", 100);
                 }
+                else
+                    throw response.Exception;
 
                 return response.IsSuccess;
             }
@@ -64,6 +83,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             {
                 await _lockService.ReleaseLockAsync(request.Module.Id);
             }
+        }
+
+        private async Task Engine_OnProgress(string channel, string message, double percent)
+        {
+            await _notifier.Publish(channel,
+                new
+                {
+                    channel = channel,
+                    type = "ActionCenter",
+                    taskId = $"{_moduleId}-BuildModule",
+                    message = message,
+                    percent = percent,
+                    end = percent == 100
+                }
+            );
         }
     }
 }

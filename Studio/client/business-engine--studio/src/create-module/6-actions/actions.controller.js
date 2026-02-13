@@ -1,3 +1,5 @@
+import Swal from 'sweetalert2'
+
 export class CreateModuleActionsController {
     constructor($scope, $rootScope, $q, globalService, apiService, studioService, notificationService) {
         "ngInject";
@@ -12,7 +14,7 @@ export class CreateModuleActionsController {
 
         this.filter = { pageIndex: 1, pageSize: 10 };
 
-        this.$rootScope.createModuleValidatedStep.push(6);
+        this.$scope.$parent.createModuleValidatedStep.push(6);
 
         $scope.$on("onCreateModuleValidateStep6", (e, task, args) => {
             this.validateStep.apply(this, [task, args]);
@@ -41,11 +43,10 @@ export class CreateModuleActionsController {
             actionType: this.filter.actionType,
             sortBy: this.filter.sortBy
         }).then((data) => {
+            this.module = data.Module;
             this.actions = data.Actions;
             this.fields = data.Fields;
-            this.module = { Id: id }
 
-            debugger
             var items = {};
             var groups = _.groupBy(_.filter(this.actions, (a) => { return a.FieldId }), 'FieldName');
             for (var key in groups) {
@@ -61,7 +62,7 @@ export class CreateModuleActionsController {
     onFocusModule() {
         const items = this.studioService.createSidebarExplorerPath(this.module.Id, "Module");
         this.$rootScope.explorerExpandedItems.push(...items);
-        this.$rootScope.explorerExpandedItems.push(this.module.ModuleType.toLowerCase() + '-modules');
+        this.$rootScope.explorerExpandedItems.push(this.module.ModuleType + '-modules');
 
         this.$rootScope.explorerCurrentItem = this.module.Id;
     }
@@ -137,7 +138,6 @@ export class CreateModuleActionsController {
     }
 
     onEditActionClick(actionId, fieldType, fieldId) {
-        debugger
         const page = {
             page: "create-action",
             id: actionId,
@@ -159,21 +159,36 @@ export class CreateModuleActionsController {
     }
 
     onDeleteActionClick(id, index) {
-        swal({
-            title: "Are you sure?",
-            text: "Once deleted, you will not be able to recover this imaginary action!",
+        let timerInterval;
+        Swal.fire({
+            title: 'Are you sure?',
+            html: '<p>Once deleted, you will not be able to recover this imaginary entity!</p><b></b>',
             icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((willDelete) => {
-            if (willDelete) {
+            timer: 5000,
+            timerProgressBar: true,
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+            backdrop: false,
+            didOpen: () => {
+                const timer = Swal.getPopup().querySelector("b");
+                timerInterval = setInterval(() => {
+                    timer.textContent = `${Swal.getTimerLeft()}`;
+                }, 100);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
                 this.running = "remove-action";
                 this.awaitAction = {
                     title: "Remove Action",
                     subtitle: "Just a moment for removing action...",
                 };
 
-                this.apiService.post("Studio", "DeleteAction", { Id: id }).then((data) => {
+                this.apiService.post("Module", "DeleteAction", { Id: id }).then((data) => {
                     this.actions.splice(index, 1);
 
                     this.notifyService.success("Action deleted has been successfully");

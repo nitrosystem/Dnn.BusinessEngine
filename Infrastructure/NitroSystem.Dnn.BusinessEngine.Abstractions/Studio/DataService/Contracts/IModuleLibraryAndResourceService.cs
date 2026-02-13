@@ -1,13 +1,13 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.Module;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts
 {
-    public interface IModuleLibraryAndResourceService
+    public interface IModuleLibraryAndResourceService 
     {
         Task<IEnumerable<ModuleCustomLibraryViewModel>> GetModuleCustomLibrariesAsync(Guid moduleId);
         Task<IEnumerable<ModuleCustomResourceViewModel>> GetModuleCustomResourcesAsync(Guid moduleId);

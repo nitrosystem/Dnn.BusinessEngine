@@ -1,6 +1,4 @@
-﻿using System;
-using System.Web.UI;
-using System.Globalization;
+﻿using System.Web.UI;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Dto;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
@@ -26,9 +24,14 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
             var modulePath = $"{baseUrl}/business-engine/{scenarioFolder}/{parentFolder}{moduleKebabName}";
 
             var cacheKey = "BE_Modules_Template" + module.Id;
-            var data = cacheService.Get<(string Preloader, string Template)>(cacheKey);
-            preloader = data.Preloader;
-            template = data.Template;
+
+            if (!module.IsSSR)
+            {
+                var data = cacheService.Get<(string Preloader, string Template)>(cacheKey);
+                preloader = data.Preloader;
+                template = data.Template;
+            }
+
             if (string.IsNullOrEmpty(template))
             {
                 string modulePreloaderUrl = $"{modulePath}/{moduleKebabName}.preloader.html";
@@ -41,8 +44,10 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                     {template}
                 </div>";
 
-                data = (preloader, template);
-                cacheService.Set<(string Preloader, string Template)>(cacheKey, data);
+                if (!module.IsSSR)
+                {
+                    cacheService.Set<(string Preloader, string Template)>(cacheKey, (preloader, template));
+                }
             }
 
             return (preloader, template);

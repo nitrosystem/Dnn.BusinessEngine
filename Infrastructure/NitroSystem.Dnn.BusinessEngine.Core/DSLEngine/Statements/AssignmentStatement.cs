@@ -1,7 +1,7 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Base;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Base;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Expressions;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Statements
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Statements
 {
     public sealed class AssignmentStatement : DslStatement
     {

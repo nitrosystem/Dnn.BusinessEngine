@@ -21,7 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
             _repository = repository;
         }
 
-        public async Task<DashboardDto> GetDashboardDtoAsync(Guid moduleId)
+        public async Task<DashboardDto> GetDashboardDtoAsync(Guid moduleId, bool isSuperUser, string[] userRoles)
         {
             var dashboard = await _repository.GetByColumnAsync<DashboardInfo>("ModuleId", moduleId);
             var pages = await _repository.GetByScopeAsync<DashboardPageInfo>(dashboard.Id, "ViewOrder");
@@ -30,7 +30,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
                 source: dashboard,
                 configAction: (src, dest) =>
                 {
-                    dest.Pages = BuildPageTree(pages);
+                    dest.Pages = BuildPageTree(pages, isSuperUser, userRoles);
                 }
             );
         }
@@ -48,9 +48,14 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
             return HybridMapper.Map<DashboardPageModuleSpResult, DashboardPageModuleDto>(module);
         }
 
-        private IEnumerable<DashboardPageDto> BuildPageTree(IEnumerable<DashboardPageInfo> pages)
+        private IEnumerable<DashboardPageDto> BuildPageTree(IEnumerable<DashboardPageInfo> pages, bool isSuperUser, string[] userRoles)
         {
-            var pageLookup = pages.ToLookup(p => p.ParentId);
+            var pageLookup = pages.Where(p => isSuperUser ||
+                                        p.InheritPermissionFromDashboard ||
+                                        string.IsNullOrEmpty(p.AuthorizationViewPage) ||
+                                        p.AuthorizationViewPage.Split(',').Any(p => userRoles.Contains(p)))
+                                  .ToLookup(p => p.ParentId);
+
             return PopulateDashboardPages(null, pageLookup);
         }
 

@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Enums;
+using System;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
 {
@@ -9,8 +9,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
     {
         private readonly Dictionary<string, object> _items = new();
 
-        public EngineExecutionPhase CurrentPhase { get;  set; }
-        public string CurrentMiddleware { get;  set; }
+        public string CurrentMiddleware { get; set; }
         public CancellationTokenSource CancellationTokenSource { get; }
 
         public void Set<T>(string key, T value)

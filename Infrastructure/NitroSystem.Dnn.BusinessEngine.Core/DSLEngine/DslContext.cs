@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Contracts;
+using System.Collections.Generic;
+using System.Reflection;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ExpressionBuilder;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine
 {
     public sealed class DslContext : IDslContext
     {
         private readonly ConcurrentDictionary<string, object> _roots;
+        private readonly Dictionary<string, Delegate> _functions = ExpressionFunctions.BuiltIn;
 
         public DslContext(ConcurrentDictionary<string, object> roots)
         {
@@ -16,8 +20,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
         public object GetRoot(string name)
         {
             object value;
-            if (!_roots.TryGetValue(name, out value))
-                throw new InvalidOperationException("DSL root not found: " + name);
+            _roots.TryGetValue(name, out value);
+            //throw new InvalidOperationException("DSL root not found: " + name);
 
             return value;
         }
@@ -37,6 +41,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
                 throw new InvalidOperationException("DSL root not found: " + name);
 
             _roots[name] = value;
+        }
+
+        public object InvokeFunction(string name, object[] args)
+        {
+            if (!_functions.TryGetValue(name, out var del))
+                throw new InvalidOperationException($"Function '{name}' not found");
+
+            try
+            {
+                return del.DynamicInvoke(args);
+            }
+            catch (TargetParameterCountException)
+            {
+                throw new InvalidOperationException(
+                    $"Invalid argument count for function '{name}'");
+            }
         }
     }
 }

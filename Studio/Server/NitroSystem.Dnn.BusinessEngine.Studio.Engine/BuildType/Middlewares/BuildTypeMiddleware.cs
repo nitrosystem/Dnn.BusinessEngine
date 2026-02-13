@@ -15,7 +15,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares
             _registry = registry;
         }
 
-        public async Task<BuildTypeResponse> InvokeAsync(IEngineContext context, BuildTypeRequest request, Func<Task<BuildTypeResponse>> next)
+        public async Task<BuildTypeResponse> InvokeAsync(IEngineContext context, BuildTypeRequest request, Func<Task<BuildTypeResponse>> next, Action<string, string, double> progress = null)
         {
             await Task.Yield();
 
@@ -23,7 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares
             var relativePath = context.Get<string>("OutputRelativePath");
             var nameSpace = $"NitroSystem.Dnn.BusinessEngine.AppModels.{request.ScenarioName}";
             var typeFullName = $"{nameSpace}.{request.ModelName}";
-            var assembly = $@"{outputPath}\{typeFullName}.dll";
+            var assembly = $@"{outputPath}\{typeFullName}.b";
 
             var model = new ModelDefinition()
             {

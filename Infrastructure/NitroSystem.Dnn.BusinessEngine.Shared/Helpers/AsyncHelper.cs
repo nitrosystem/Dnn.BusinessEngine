@@ -7,27 +7,37 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Helpers
     public static class AsyncHelper
     {
         /// <summary>
-        /// Executes an async Task<T> method synchronously and returns its result.
+        /// Executes an async Task method synchronously, safely for Web Forms SSR.
+        /// ⚠️ Caller must pass all required context as parameters; the async method must not use Thread-local context.
         /// </summary>
-        public static T RunSync<T>(Func<Task<T>> task)
+        public static T RunSync<T>(Func<Task<T>> taskFactory)
         {
-            return Task.Run(task).ConfigureAwait(false).GetAwaiter().GetResult();
+            if (taskFactory == null) throw new ArgumentNullException(nameof(taskFactory));
+
+            try
+            {
+                // ConfigureAwait(false) ensures no deadlock on WebForm's sync context
+                return Task.Run(taskFactory).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+            catch (AggregateException ex)
+            {
+                // Unwrap AggregateException and rethrow original exception
+                if (ex.InnerExceptions.Count == 1)
+                    throw ex.InnerException!;
+                throw;
+            }
         }
 
         /// <summary>
-        /// Executes an async Task method synchronously (no return value).
+        /// Executes an async Task (no return value) synchronously
         /// </summary>
-        public static void RunSync(Func<Task> task)
+        public static void RunSync(Func<Task> taskFactory)
         {
-            Task.Run(task).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Executes an async Task<T> method synchronously with cancellation support.
-        /// </summary>
-        public static T RunSync<T>(Func<CancellationToken, Task<T>> task, CancellationToken ct)
-        {
-            return Task.Run(() => task(ct), ct).ConfigureAwait(false).GetAwaiter().GetResult();
+            RunSync<object>(async () =>
+            {
+                await taskFactory().ConfigureAwait(false);
+                return null!;
+            });
         }
     }
 }

@@ -435,10 +435,12 @@
 }
 
 .b-right-widget .widget-header {
+    display: flex;
     border-bottom: 1px solid rgb(66, 65, 65);
     padding: 0.8rem 1rem;
     margin-bottom: 0.5rem;
     position: relative;
+    align-items: center;
 }
 
 .b-right-widget .widget-header .widget-title {
@@ -859,7 +861,7 @@
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-evenly;
     position: relative;
     margin-top: 1rem;
     margin-bottom: 2.5rem;
@@ -1499,6 +1501,7 @@
     -----------------------------------------------------------*/
 
 .b-btn {
+    display: inline-flex;
     color: rgb(255, 255, 255);
     background-color: rgb(14, 99, 156);
     border: solid 1px rgb(7 82 133);
@@ -1511,10 +1514,12 @@
     cursor: pointer;
     font-weight: 400;
     white-space: nowrap;
+    text-decoration: none;
     align-items: center;
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     background-image: linear-gradient(to top, rgba(0, 0, 0, 0.075), rgba(255, 255, 255, 0.045));
     box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 0 1px rgba(0, 0, 0, 0.3), 0 0 10px rgba(0, 0, 0, 0.1);
+    column-gap: .35em;
 }
 
 .b-btn.btn-text-icon {
@@ -1538,6 +1543,27 @@
     padding: 0.25rem 1rem !important;
     font-size: 0.8rem !important;
 }
+
+.b-btn.btn-lg {
+    padding: 1.1rem 1.9rem;
+    font-size: 1.1rem;
+}
+
+.b-btn.btn-primary {
+    background-color: #f4bb2e;
+    color: #303030;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px -25px 36px -28px inset;
+    font-weight: 600;
+}
+
+.b-btn.btn-primary:hover {
+    background-color: #e8a500;
+}
+
+.b-btn.btn-primary>i {
+    color: #303030;
+}
+
 
 .b-btn.btn-submit {
     padding: 0.6rem 2rem;
@@ -2511,6 +2537,9 @@ ul.b-custom-star-rating>li>i.is-fill {
     width: max-content;
 }
 
+.b-invalid.msg-center {
+    justify-self: center;
+}
 
 /* .b-invalid:before {
   content: "";
@@ -2768,6 +2797,144 @@ ul.b-custom-star-rating>li>i.is-fill {
 }
 
 /* --------------------------------------------------------
+        Action Center
+    -----------------------------------------------------------*/
+.action-center-widget {
+    position: fixed;
+    bottom: 1.75rem;
+    left: 4rem;
+    z-index: 9999;
+    height: 22rem;
+    width: 22rem;
+    background: linear-gradient(315deg, #202324 0%, #202730 40%, rgb(26, 43, 76) 100%);
+    box-shadow: rgba(0, 0, 0, 0.48) 20px -25px 32px -16px, rgba(0, 0, 0, 0.48) -20px -25px 32px -16px;
+    border: 1px solid rgba(255, 251, 0, 0.363);
+    border-radius: .75rem;
+    backdrop-filter: blur(12px);
+    transition: transform 0.5s;
+    transform: translateY(120%);
+}
+
+.action-center-widget.show-widget {
+    transform: translateY(0%);
+}
+
+.action-center-widget .header-wrapper {
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    background: linear-gradient(to right, #1a1d20, #202730);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    border-top-left-radius: .75rem;
+    border-top-right-radius: .75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    justify-content: space-between;
+}
+
+.action-center-widget .header-wrapper .hide-widget {
+    margin-top: .5rem;
+}
+
+.action-center-widget .task-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow: auto;
+    max-height: 18.5rem;
+}
+
+.action-center-widget .task-list .task-item-wrapper {
+    border-bottom: solid .1rem #43526e;
+    padding: .6rem .4rem;
+    margin-bottom: .6rem;
+}
+
+.action-center-widget .task-list .task-item-wrapper:last-child {
+    border-bottom: none;
+}
+
+.action-center-widget .task-list .task-item-wrapper .task-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: .8rem;
+}
+
+.action-center-widget .task-list .task-item-wrapper .task-item .task-icon {
+    color: #eee;
+    font-size: 2rem;
+    margin-right: .8rem;
+    flex: 0 0 auto;
+}
+
+.action-center-widget .task-list .task-item-wrapper .task-item .task-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    flex: 1 1 100%;
+}
+
+.action-center-widget .task-list .task-item-wrapper .task-item .task-title-wrapper .task-title {
+    font-size: .95rem;
+    margin-bottom: .2rem;
+    color: #fff;
+}
+
+.action-center-widget .task-list .task-item-wrapper .task-item .task-title-wrapper .task-subtitle {
+    color: #ddd;
+    font-size: .8rem;
+}
+
+.action-center-widget .task-list .task-item-wrapper .task-item .task-actions {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    flex: 0 0 auto;
+    border-left: solid .1rem #47597c;
+    padding-left: .4rem;
+    margin-left: .4rem;
+    width: 75px;
+    row-gap: .5rem;
+}
+
+.action-center-widget .task-list .task-item-wrapper .task-item .task-actions .btn-task-action {
+    text-align: center;
+}
+
+.action-center-widget .task-list .task-item-wrapper .action-progress-wrapper {
+    width: 100%;
+    height: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.action-center-widget .task-list .task-item-wrapper .action-progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, #174e93, rgb(26, 43, 76));
+    border-radius: 0.5rem 0 0 0.5rem;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 6px rgba(26, 43, 76, 0.6);
+}
+
+.action-center-widget .task-list .task-messages {
+    color: #bbb;
+    font-size: .855rem;
+    margin: .35rem 0;
+    padding: .35rem;
+    border: solid .1rem #5c6e877d;
+    box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+    text-align: center;
+}
+
+/* --------------------------------------------------------
         Tasks Queue Widget
     -----------------------------------------------------------*/
 .task-widget {
@@ -2878,6 +3045,7 @@ ul.b-custom-star-rating>li>i.is-fill {
 
 .task-widget .task-list .task-item .item-text {
     margin: 0;
+    color: #eee;
 }
 
 .task-widget .btn-build {

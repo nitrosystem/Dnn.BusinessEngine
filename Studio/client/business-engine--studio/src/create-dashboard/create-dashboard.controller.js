@@ -1,7 +1,5 @@
 import basicOptionsTemplate from "./1-basic-options/basic-options.html";
-import skinTemplate from "./2-appearance/skin.html";
-import pagesTemplate from "./3-pages/pages.html";
-import modulesTemplate from "./4-modules/modules.html";
+import pagesTemplate from "./2-pages/pages.html";
 
 export class CreateDashboardController {
     constructor($scope, $rootScope, $timeout, $deferredBroadcast, studioService, globalService) {
@@ -14,9 +12,7 @@ export class CreateDashboardController {
         this.globalService = globalService;
 
         this.basicOptionsTemplate = basicOptionsTemplate;
-        this.skinTemplate = skinTemplate;
         this.pagesTemplate = pagesTemplate;
-        this.modulesTemplate = modulesTemplate;
 
         $scope.$on('onCreateDashboardChangeStep', (e, args) => {
             this.onStepClick(args.step, true);
@@ -72,8 +68,5 @@ export class CreateDashboardController {
     setStepUrl() {
         let newUrl = this.globalService.replaceUrlParam("st", this.step);
         this.globalService.pushState(newUrl);
-
-        if (this.step == 2) this.$rootScope.currentActivityBar = 'builder';
-        else this.$rootScope.currentActivityBar = 'explorer'
     }
 }

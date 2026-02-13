@@ -1,6 +1,6 @@
 <b-right-widget ng-if="$.workingMode=='field-data-source'" data-title="Data Source" data-icon="notebook-template"
     data-subtitle="{{$.currentField.FieldName}} data source" data-await-action="$.awaitAction" data-module="$"
-    data-reload-method="onRefreshDataSource" data-close-method="onCancelFieldDataSourceClick">
+    data-reload-method="onRefreshDataSource" data-close-method="onCancelFieldDataSourceClick" data-hide-refresh="true">
     <!------------------------------------>
     <!--Select DataSource Type-->
     <!------------------------------------>
@@ -11,59 +11,116 @@
                 <input type="radio" name="fieldDataSource" ng-value="0" ng-model="$.currentField.DataSource.Type"
                     ng-change="$.onFieldDataSourceTypeChange()" required />
                 <i class="input-helper"></i>
-                Field Options
-            </label>
-            <label class="radio-item me-3">
-                <input type="radio" name="fieldDataSource" ng-value="1" ng-model="$.currentField.DataSource.Type"
-                    ng-change="$.onFieldDataSourceTypeChange()" required />
-                <i class="input-helper"></i>
-                Use Defined List
+                Defined List
             </label>
             <label class="radio-item">
-                <input type="radio" name="fieldDataSource" ng-value="2" ng-model="$.currentField.DataSource.Type"
+                <input type="radio" name="fieldDataSource" ng-value="1" ng-model="$.currentField.DataSource.Type"
                     ng-change="$.onFieldDataSourceTypeChange()" />
                 <i class="input-helper"></i>
                 Variable Data
             </label>
         </div>
     </div>
+
     <!------------------------------------>
-    <!--DataSource Type 0 : Static Items-->
+    <!--Defined List Type -->
     <!------------------------------------>
-    <div class="b-field" ng-if="$.currentField.DataSource.Type===0 && !$.currentField.DataSource.ListName">
-        <label class="form-label">List Name</label>
-        <div class="b-input-group">
-            <input type="text" class="b-input form-control" ng-model="$.definedList.ListName"
-                placeholder="Enter List Name" />
-            <span><i class="bi bi-card-checklist"></i></span>
-        </div>
-    </div>
-    <!------------------------------------>
-    <!-- DataSource Type 1 : Use Another List or Public Lists-->
-    <!------------------------------------>
-    <div class="mb-3" ng-if="$.currentField.DataSource.Type==1">
-        <div class="b-field">
-            <label class="form-label">Select Data Source</label>
-            <div class="b-input-group">
-                <select ng-model="$.currentField.DataSource.ListId" class="b-input form-select" chosen
-                    inherit-select-classes="true"
-                    ng-options="definedList.Id as definedList.ListName for definedList in $.definedLists"
-                    ng-change="$.onDefinedListChange()" ng-disabled="$.running"
-                    placeholder-text-single="'Select a list'">
-                    <option value=""></option>
-                </select>
-                <span><i class="codicon codicon-list-selection"></i></span>
+    <div class="mb-3" ng-if="$.currentField.DataSource.Type===0">
+        <div class="d-flex align-items-center" ng-if="!$.uiState.isDataSourceShowDefinedList">
+            <div class="col b-splitter border-end pe-4 me-4">
+                <div class="b-field">
+                    <label class="form-label">List Name</label>
+                    <div class="b-input-group">
+                        <input type="text" class="b-input form-control" ng-model="$.definedList.ListName"
+                            placeholder="Enter List Name" />
+                        <span><i class="codicon codicon-activate-breakpoints"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-1 pe-3">OR</div>
+            <div class="col">
+                <button type="button" class="b-btn btn-action btn-text-icon" ng-click="$.onShowDefinedList()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-git-stash"></i>
+                    Select List
+                </button>
             </div>
         </div>
+        <div class="d-flex align-items-center" ng-if="$.uiState.isDataSourceShowDefinedList">
+            <div class="col b-splitter border-end pe-4 me-4">
+                <div class="b-field">
+                    <label class="form-label">Select Data Source</label>
+                    <div class="b-input-group">
+                        <select class="b-input form-select" chosen inherit-select-classes="true"
+                            ng-model="$.currentField.DataSource.ListId"
+                            ng-options="definedList.Id as definedList.ListName for definedList in $.definedLists"
+                            ng-change="$.onDefinedListChange()" ng-disabled="$.running"
+                            placeholder-text-single="'Select a list'">
+                            <option value=""></option>
+                        </select>
+                        <span><i class="codicon codicon-list-selection"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-1 pe-3">OR</div>
+            <div class="col">
+                <button type="button" class="b-btn btn-submit btn-text-icon" ng-click="$.onShowCreateDefinedList()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-git-stash"></i>
+                    Create New List
+                </button>
+            </div>
+        </div>
+        <div class="b-field" ng-if="$.definedList">
+            <label class="form-label">List Items</label>
+            <table class="table table-bordered table-dark table-columns-vmiddle">
+                <thead>
+                    <tr>
+                        <th>Item Text</th>
+                        <th>Item Value</th>
+                        <th>View Order</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in $.definedList.Items">
+                        <td>
+                            <input type="text" ng-model="item.Text" class="b-input form-control" />
+                        </td>
+                        <td>
+                            <input type="text" ng-model="item.Value" class="b-input form-control" />
+                        </td>
+                        <td>
+                            <input type="number" ng-model="item.ViewOrder" class="b-input form-control" />
+                        </td>
+                        <td>
+                            <button type="button" class="b-btn btn-action btn-sm"
+                                ng-click="$.definedList.Items.splice($index,1)">
+                                <i class="codicon codicon-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="5">
+                            <button class="b-btn btn-sm btn-action" ng-click="$.definedList.Items.push({})">
+                                <i class="codicon codicon-plus"></i>
+                            </button>
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
     <!------------------------------------>
-    <!-- DataSource Type 2 : Scenario Services -->
+    <!-- Variable Data Type -->
     <!------------------------------------>
-    <div ng-if="$.currentField.DataSource.Type==2">
+    <div ng-if="$.currentField.DataSource.Type==1">
         <div class="d-flex mb-3">
             <div class="col-6 b-splitter border-end pe-3">
                 <div class="b-field">
-                    <label class="form-label">Data Source Service</label>
+                    <label class="form-label">Data Source Variable</label>
                     <div class="b-input-group">
                         <select ng-model="$.currentField.DataSource.VariableName" class="b-input form-select" chosen
                             inherit-select-classes="true"
@@ -75,26 +132,28 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 ps-3">
-                <div class="b-field">
-                    <label class="form-label">Value Field</label>
-                    <div class="b-input-group">
-                        <select ng-model="$.currentField.DataSource.ValueField" class="b-input form-select" chosen
-                            inherit-select-classes="true"
-                            ng-options="prop.PropertyName as prop.PropertyName for prop in $.currentFieldVariableProperties"
-                            ng-disabled="$.running" placeholder-text-single="'Select a property'">
-                            <option value=""></option>
-                        </select>
-                        <span><i class="codicon codicon-gear"></i></span>
-                    </div>
-                </div>
+            <div class="col-6 ps-3" ng-class="{'opacity-50':!$.currentField.DataSource.VariableName}">
                 <div class="b-field">
                     <label class="form-label">Text Field</label>
                     <div class="b-input-group">
                         <select ng-model="$.currentField.DataSource.TextField" class="b-input form-select" chosen
                             inherit-select-classes="true"
                             ng-options="prop.PropertyName as prop.PropertyName for prop in $.currentFieldVariableProperties"
-                            ng-disabled="$.running" placeholder-text-single="'Select a property'">
+                            ng-disabled="$.running || !$.currentField.DataSource.VariableName"
+                            placeholder-text-single="'Select a property'">
+                            <option value=""></option>
+                        </select>
+                        <span><i class="codicon codicon-gear"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Value Field</label>
+                    <div class="b-input-group">
+                        <select ng-model="$.currentField.DataSource.ValueField" class="b-input form-select" chosen
+                            inherit-select-classes="true"
+                            ng-options="prop.PropertyName as prop.PropertyName for prop in $.currentFieldVariableProperties"
+                            ng-disabled="$.running || !$.currentField.DataSource.VariableName"
+                            placeholder-text-single="'Select a property'">
                             <option value=""></option>
                         </select>
                         <span><i class="codicon codicon-gear"></i></span>
@@ -102,58 +161,6 @@
                 </div>
             </div>
         </div>
-        <div class="b-field">
-            <div class="b-notify notify-info mb-4">
-                <i class="codicon codicon-info b-icon-2"></i>
-                <div class="text">
-                    <h4 class="label">Service has not any params.</h4>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <hr class="mb-4" />
-
-    <div class="b-field" ng-if="$.currentField.DataSource.Type==0 || $.currentField.DataSource.Type==1">
-        <label class="form-label">List Items</label>
-        <table class="table table-bordered table-dark table-columns-vmiddle">
-            <thead>
-                <tr>
-                    <th>Item Text</th>
-                    <th>Item Value</th>
-                    <th>View Order</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="item in $.definedList.Items">
-                    <td>
-                        <input type="text" ng-model="item.Text" class="b-input form-control" />
-                    </td>
-                    <td>
-                        <input type="text" ng-model="item.Value" class="b-input form-control" />
-                    </td>
-                    <td>
-                        <input type="number" ng-model="item.ViewOrder" class="b-input form-control" />
-                    </td>
-                    <td>
-                        <button type="button" class="b-btn btn-action btn-sm"
-                            ng-click="$.definedList.Items.splice($index,1)">
-                            <i class="codicon codicon-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th colspan="5">
-                        <button class="b-btn btn-sm btn-action" ng-click="$.definedList.Items.push({})">
-                            <i class="codicon codicon-plus"></i>
-                        </button>
-                    </th>
-                </tr>
-            </tfoot>
-        </table>
     </div>
 
     <hr class="mb-4" />
@@ -162,7 +169,7 @@
     <!-- Actions Button -->
     <!------------------------------------>
     <div class="mb-1 d-flex justify-content-end mt-auto">
-        <button type="button" class="b-btn btn-text-icon btn-submit me-2"
+        <button type="button" class="b-btn btn-text-icon btn-primary me-2"
             ng-click="$.onSaveFieldDataSourceClick($event)" ng-disabled="$.running">
             <i class="codicon codicon-save" ng-class="{'loading-circle mini':$.running=='save-action'}"></i>
             Save

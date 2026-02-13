@@ -260,7 +260,7 @@ export class GlobalService {
 
     bindParams(params, source) {
         _.remove(params, (p) => {
-            return (!p.IsCustomParam &&
+            return (
                 _.filter(source, (sp) => {
                     return sp.ParamName == p.ParamName;
                 }).length == 0
@@ -276,7 +276,6 @@ export class GlobalService {
                 params.push({
                     ParamName: sp.ParamName,
                     ParamValue: sp.ParamValue,
-                    IsCustomParam: sp.IsCustomParam,
                     ViewOrder: sp.ViewOrder
                 });
         });
@@ -490,5 +489,26 @@ export class GlobalService {
         }, []);
 
         return changes;
+    }
+
+    // کمکی برای تبدیل رشته به camelCase
+    toCamelCase(str) {
+        return str
+            .replace(/[-_ ]+([a-zA-Z])/g, (_, chr) => chr.toUpperCase()) // تبدیل بعد از -, _, space
+            .replace(/^[A-Z]/, chr => chr.toLowerCase()); // اولین حرف کوچک
+    }
+
+    // متد بازگشتی برای تبدیل کلیدهای آبجکت
+    keysToCamelCase(obj) {
+        if (Array.isArray(obj)) {
+            return obj.map(v => this.keysToCamelCase(v));
+        } else if (obj !== null && typeof obj === 'object') {
+            return Object.entries(obj).reduce((acc, [key, value]) => {
+                const camelKey = this.toCamelCase(key);
+                acc[camelKey] = this.keysToCamelCase(value);
+                return acc;
+            }, {});
+        }
+        return obj;
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
-using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Base;
+using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Base;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Contracts
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Contracts
 {
     public interface IExpressionCompiler
     {

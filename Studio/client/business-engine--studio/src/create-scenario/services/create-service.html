@@ -61,18 +61,6 @@
                 <div ng-if="$.step>=2" ng-show="$.step==2" class="d-flex">
                     <div class="col-7 b-splitter border-end pe-5">
                         <div class="b-field">
-                            <label class="form-label">Scenario</label>
-                            <div class="b-input-group">
-                                <select id="drpScenarioId{{$.service.Id}}" ng-model="$.service.ScenarioId"
-                                    class="b-input form-select"
-                                    ng-options="scenario.Id as scenario.ScenarioTitle for scenario in $.$rootScope.scenarios"
-                                    ng-disabled="true" chosen inherit-select-classes="true"
-                                    placeholder-text-single="'Select service scenario'" required>
-                                </select>
-                                <span><i class="codicon codicon-activate-breakpoints"></i></span>
-                            </div>
-                        </div>
-                        <div class="b-field">
                             <label class="form-label">Group</label>
                             <div class="b-input-group">
                                 <select ng-model="$.service.GroupId" class="b-input form-select"
@@ -90,6 +78,53 @@
                                     class="b-input form-control" placeholder="Enter service name(must be unique)"
                                     autocomplete="off" required />
                                 <span><i class="codicon codicon-gear"></i></span>
+                            </div>
+                        </div>
+                        <!--Cache Operation -->
+                        <div class="b-field">
+                            <label class="form-label">Cache Operation</label>
+                            <div class="b-radio-list">
+                                <div class="radio-item">
+                                    <input type="radio" id="rdCacheOperationNone_{{$.service.Id}}" name="serviceCacheOperation_{{$.service.Id}}"
+                                        ng-value="0" ng-model="$.service.CacheOperation" />
+                                    <i class="input-helper"></i>
+                                    <label for="rdCacheOperationNone_{{$.service.Id}}">None</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="rdCacheOperationSetCache_{{$.service.Id}}" name="serviceCacheOperation_{{$.service.Id}}"
+                                        ng-value="1" ng-model="$.service.CacheOperation" />
+                                    <i class="input-helper"></i>
+                                    <label for="rdCacheOperationSetCache_{{$.service.Id}}">Set Cache</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="rdCacheOperationClearCache_{{$.service.Id}}" name="serviceCacheOperation_{{$.service.Id}}"
+                                        ng-value="2" ng-model="$.service.CacheOperation" />
+                                    <i class="input-helper"></i>
+                                    <label for="rdCacheOperationClearCache_{{$.service.Id}}">Clear Cache</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Cache Keys-->
+                        <div class="b-field" ng-if="$.service.CacheOperation===1">
+                            <label class="form-label">Cache Key</label>
+                            <div class="b-input-group">
+                                <input type="text" id="txtCacheKey{{$.service.Id}}" class="b-input form-control"
+                                    ng-model="$.service.CacheKey" placeholder="Enter service cache key" autocomplete="off"
+                                    required />
+                                <span><i class="codicon codicon-gear"></i></span>
+                            </div>
+                        </div>
+                        <!--Select Cache Key-->
+                        <div class="b-field" ng-if="$.service.CacheOperation===2">
+                            <label class="form-label">Cache Key</label>
+                            <div class="b-input-group">
+                                <select id="drpActionCacheOperation{{$.service.Id}}" ng-model="$.service.CacheKeys"
+                                    class="b-input form-select" ng-options="key as key for key in $.serviceCacheKeys" multiple
+                                    chosen inherit-select-classes="true"
+                                    placeholder-text-single="'Select action cache key'" required>
+                                    <option disabled></option>
+                                </select>
+                                <span><i class="codicon codicon-bookmark"></i></span>
                             </div>
                         </div>
                     </div>

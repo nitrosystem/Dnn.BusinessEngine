@@ -1,0 +1,23 @@
+﻿using System;
+using System.Web.Caching;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+
+namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
+{
+    [Table("BusinessEngineView_ActionParams")]
+    [Cacheable("BE_Actions_Params_View_", CacheItemPriority.Default, 20)]
+    [Scope("ModuleId")]
+    public class ActionParamView : IEntity
+    {
+        public Guid Id { get; set; }
+        public Guid ActionId { get; set; }
+        public Guid ModuleId { get; set; }
+        public Guid? FieldId { get; set; }
+        public string Event { get; set; }
+        public string ParamName { get; set; }
+        public int ValueAssignmentMode { get; set; }
+        public string ParamValue { get; set; }
+        public int ViewOrder { get; set; }
+    }
+}

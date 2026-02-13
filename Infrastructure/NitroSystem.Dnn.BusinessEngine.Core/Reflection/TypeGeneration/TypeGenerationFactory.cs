@@ -4,8 +4,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Collections.Concurrent;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-using NitroSystem.Dnn.BusinessEngine.Core.BrtPath.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
 
 namespace NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration

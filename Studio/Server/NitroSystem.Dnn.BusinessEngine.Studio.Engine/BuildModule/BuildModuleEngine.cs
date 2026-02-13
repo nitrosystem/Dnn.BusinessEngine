@@ -3,11 +3,16 @@ using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.DiagnosticCenter.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 {
     public class BuildModuleEngine : EngineBase<BuildModuleRequest, BuildModuleResponse>
     {
+        public BuildModuleEngine(IDiagnosticStore diagnosticStore) : base(diagnosticStore)
+        {
+        }
+
         protected override void ConfigurePipeline(EnginePipeline<BuildModuleRequest, BuildModuleResponse> pipeline)
         {
             pipeline
@@ -24,11 +29,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         }
 
         protected override Task OnErrorAsync(
-           Exception ex,
            IEngineContext context,
-           BuildModuleResponse response)
+           BuildModuleRequest request,
+           BuildModuleResponse response,
+           Exception ex)
         {
             response.IsSuccess = false;
+            response.Exception = ex;
 
             return Task.CompletedTask;
         }

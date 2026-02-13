@@ -1,6 +1,6 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Base;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Base;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Expressions
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Expressions
 {
     public sealed class BinaryExpression : DslExpression
     {

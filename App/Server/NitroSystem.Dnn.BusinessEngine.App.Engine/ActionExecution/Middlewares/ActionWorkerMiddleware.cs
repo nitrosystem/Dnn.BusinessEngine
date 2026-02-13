@@ -19,14 +19,14 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares
             _serviceLocator = serviceLocator;
         }
 
-        public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next)
+        public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next, Action<string, string, double> progress = null)
         {
             context.TryGet<List<ActionParamDto>>("ParsedParams", out var finalizedParams);
 
             request.Action.Params = finalizedParams;
 
             var actionController = await GetActionExtensionInstance(request.Action.ActionType);
-            var actionResultData = await actionController.ExecuteAsync(request.Action);
+            var actionResultData = await actionController.ExecuteAsync(request.Action,request.BasePath);
             context.Set<object>("ResultData", actionResultData);
 
             var result = await next();

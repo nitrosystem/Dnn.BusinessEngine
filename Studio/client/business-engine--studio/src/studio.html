@@ -13,7 +13,7 @@
     <div class="activity-bar">
         <div class="top-actions">
             <ul class="actions-container">
-                <li class="action-item" ng-repeat="item in $.$rootScope.activityBarItems | filter:{visible:true}" 
+                <li class="action-item" ng-repeat="item in $.$rootScope.activityBarItems | filter:{visible:true}"
                     ng-class="{'active':item.name==$.$rootScope.currentActivityBar}">
                     <a class="action-label" role="button" title="{{item.title}}" b-custom-tooltip
                         data-bs-placement="right" ng-click="$.onActivityBarItemClick(item.name)">
@@ -134,6 +134,81 @@
     <!------------------------------------>
     <!--End Notifications-->
     <!------------------------------------>
+
+    <!------------------------------------>
+    <!--Begin Tasks Widget-->
+    <!------------------------------------>
+    <div class="task-widget" ng-class="{'show-widget':$.showTaskWidget}">
+        <div class="header-wrapper">
+            <label class="title">Tasks For Execution</label>
+            <span class="hide-widget" ng-click="$.onHideTaskWidgetClick()">
+                <i class="codicon codicon-chrome-minimize"></i>
+            </span>
+        </div>
+        <ul class="task-list">
+            <li ng-repeat="item in $.taskQueueService.tasks">
+                <div class="task-item animate__animated" ng-class="{'animate__fadeOutDown':item.status=='completed'}">
+                    <div class="type-wrapper" ng-class="{'shine-small':item.status=='running'}">
+                        <i class="codicon"
+                            ng-class="{'codicon-issue-reopened spin text-info':item.status=='running','codicon-{{item.icon}}':!item.status=='running'}"></i>
+                        <span class="item-type">{{item.category}}</span>
+                    </div>
+                    <p class="item-text">{{item.label}}</p>
+                </div>
+                <hr class="text-light shine-line" ng-class="{'shine2':item.status=='running'}" />
+            </li>
+        </ul>
+    </div>
+    <!------------------------------------>
+    <!--End Tasks Widget-->
+    <!------------------------------------>
+
+    <!------------------------------------>
+    <!--Begin Action Center Widget-->
+    <!------------------------------------>
+    <div class="action-center-widget" ng-class="{'show-widget':$.showActionCenterWidget}">
+        <div class="header-wrapper">
+            <label class="title">Action Center</label>
+            <span class="hide-widget" ng-click="$.onHideActionCenterWidgetClick()" role="button">
+                <i class="codicon codicon-chrome-minimize"></i>
+            </span>
+        </div>
+        <ul class="task-list">
+            <li ng-repeat="task in $.actionCenterTasks" class="task-item-wrapper animate__animated animate__backInUp">
+                <div class="task-item" ng-class="{'animate__fadeOutDown':item.status=='completed'}">
+                    <i class="task-icon {{task.icon}}" ng-class="{'shine-small':item.status=='running'}"></i>
+                    <div class="task-title-wrapper">
+                        <h5 class="task-title">{{task.title}}</h5>
+                        <span class="task-subtitle">{{task.subtitle}}</span>
+                    </div>
+                    <div class="task-actions" ng-if="task.actions && task.actions.length">
+                        <button type="button" ng-repeat="action in task.actions" ng-click="action.callback()"
+                            class="b-btn btn-sm btn-task-action {{action.buttonCssClass}}">
+                            {{action.text}}
+                            <span ng-if="action.timer">({{action.timer}})</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="action-progress-wrapper">
+                    <div class="action-progress-bar" style="width:{{task.percent}}%"></div>
+                </div>
+                <p ng-if="task.message" class="task-messages">{{task.message}}</p>
+                <div ng-if="task.link" class="mt-2">
+                    <a href="{{task.link}}" class="b-btn btn-action" target="_blank">Download Export</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <!------------------------------------>
+    <!--End Action Center Widget-->
+    <!------------------------------------>
+
+    <!------------------------------------>
+    <!--Blue Bar Notification-->
+    <!------------------------------------>
+    <blue-bar class="blue-bar" form="$" handler="$.blueBar"
+        notification="{text:$.taskQueueService.total[$.moduleId].title,preIcon:true,showTaskWidgetOnMouseEnter:true}"
+        action="$.taskQueueService.action"></blue-bar>
 
     <!------------------------------------>
     <!--Begin Select Scenario-->

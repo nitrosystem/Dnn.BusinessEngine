@@ -28,12 +28,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
             HybridMapper.BeforeMap<AppModelViewModel, AppModelInfo>(
                     (src, dest) => dest.Settings = JsonConvert.SerializeObject(src.Settings));
 
-            HybridMapper.BeforeMap<AppModelPropertyViewModel, PropertyDefinition>(
-                (src, dest) => dest.Name = src.PropertyName);
-
-            HybridMapper.BeforeMap<AppModelPropertyViewModel, PropertyDefinition>(
-                (src, dest) => dest.ClrType = src.PropertyType);
-
             HybridMapper.BeforeMap<AppModelInfo, AppModelListItem>(
                 (src, dest) => dest.ModelType = (AppModelType)src.ModelType);
 
@@ -46,6 +40,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.AppModel
 
             HybridMapper.BeforeMap<AppModelPropertyViewModel, AppModelPropertyInfo>(
                     (src, dest) => dest.Settings = JsonConvert.SerializeObject(src.Settings));
+
+            HybridMapper.BeforeMap<AppModelPropertyInfo, PropertyDefinition>(
+                (src, dest) => dest.Name = src.PropertyName);
+
+            HybridMapper.BeforeMap<AppModelPropertyInfo, PropertyDefinition>(
+                (src, dest) => dest.ClrType = src.PropertyType);
+
+            HybridMapper.BeforeMap<AppModelPropertyViewModel, PropertyDefinition>(
+                (src, dest) => dest.Name = src.PropertyName);
+
+            HybridMapper.BeforeMap<AppModelPropertyViewModel, PropertyDefinition>(
+                (src, dest) => dest.ClrType = src.PropertyType);
 
             #endregion
         }

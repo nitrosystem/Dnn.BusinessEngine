@@ -2,11 +2,12 @@ import { GlobalSettings } from "../angular/angular-configs/global.settings";
 import Swal from 'sweetalert2'
 
 export class ApiService {
-    constructor($rootScope, $http, $q, $templateCache, $timeout, Upload, notificationService) {
+    constructor($rootScope, $http, $q, $templateCache, $templateRequest, $timeout, Upload, notificationService) {
         this.$rootScope = $rootScope;
         this.$http = $http;
         this.$q = $q;
         this.$templateCache = $templateCache;
+        this.$templateRequest = $templateRequest;
         this.$timeout = $timeout;
         this.uploadService = Upload;
         this.notifyService = notificationService;
@@ -122,7 +123,7 @@ export class ApiService {
 
     uploadFile(controller, methodName, data, customHeaders) {
         const url = `${GlobalSettings.siteRoot}API/BusinessEngineStudio/${controller}/${methodName}`;
-      
+
         return this.upload(url, data, customHeaders);
     }
 
@@ -177,9 +178,8 @@ export class ApiService {
         return defer.promise;
     }
 
-    getContent(url, isCache) {
+    getContent(url) {
         const defer = this.$q.defer();
-        //const cache = isCache ? { cache: this.$templateCache } : {};
 
         this.$http.get(url + "?ver=" + GlobalSettings.version).then(
             (content) => {
@@ -191,6 +191,23 @@ export class ApiService {
         );
 
         return defer.promise;
+    }
+
+    getContents(urls, useCache) {
+        const $q = this.$q;
+        const $templateRequest = this.$templateRequest;
+        const version = GlobalSettings.version;
+
+        if (!Array.isArray(urls) || urls.length === 0) {
+            return $q.reject('No URLs provided');
+        }
+
+        const requests = urls.map((url) => {
+            const fullUrl = url + '?ver=' + version;
+            return $templateRequest(fullUrl, useCache);
+        });
+
+        return $q.all(requests);
     }
 
     async getAsync(controller, methodName, data) {

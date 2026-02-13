@@ -1,6 +1,6 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Enums;
+﻿using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Enums;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine.Models
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Models
 {
     public sealed class Token
     {

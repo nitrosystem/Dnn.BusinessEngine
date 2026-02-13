@@ -1,5 +1,7 @@
-import "@vscode/codicons/dist/codicon.css";
+import 'animate.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "@vscode/codicons/dist/codicon.css";
+
 import "./styles/bootstrap-custom.css";
 import "./styles/font.css";
 import "./styles/global.css";
@@ -13,5 +15,7 @@ import $ from 'jquery';
 import 'jquery-ui-bundle';
 import "chosen-js"
 import "chosen-js/chosen.jquery";
+
+
 
 import "./app";

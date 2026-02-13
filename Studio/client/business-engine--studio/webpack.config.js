@@ -40,30 +40,30 @@ module.exports = (env) => {
         ],
         module: {
             rules: [{
-                    test: /\.html$/,
-                    exclude: [path.resolve(__dirname, "./node_modules")],
-                    use: [{
-                            loader: "ngtemplate-loader",
-                        },
-                        {
-                            loader: "html-loader",
-                        },
-                    ],
+                test: /\.html$/,
+                exclude: [path.resolve(__dirname, "./node_modules")],
+                use: [{
+                    loader: "ngtemplate-loader",
                 },
                 {
-                    test: /\.css$/,
-                    use: [MiniCssExtractPlugin.loader, "css-loader"],
+                    loader: "html-loader",
                 },
-                {
-                    test: /\.(woff(2)?|ttf|eot)$/,
-                    generator: {
-                        filename: "./fonts/[name][ext]",
-                    },
+                ],
+            },
+            {
+                test: /\.css$/,
+                use: [MiniCssExtractPlugin.loader, "css-loader"],
+            },
+            {
+                test: /\.(woff(2)?|ttf|eot)$/,
+                generator: {
+                    filename: "./fonts/[name][ext]",
                 },
+            },
             ],
         },
         devServer: {
-            allowedHosts: ["dnndev.new","localhost:8585"],
+            allowedHosts: ["localhost", "dnndev.new", "localhost:8585", "localhost:2649"],
             headers: {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",

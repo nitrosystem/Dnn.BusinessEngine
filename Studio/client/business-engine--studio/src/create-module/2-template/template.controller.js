@@ -24,7 +24,7 @@ export class CreateModuleTemplateController {
         this.notifyService = notificationService;
         this.filter = {};
 
-        this.$rootScope.createModuleValidatedStep.push(2);
+        this.$scope.$parent.createModuleValidatedStep.push(2);
 
         $scope.$on("onCreateModuleValidateStep2", (e, task, args) => {
             this.validateStep.apply(this, [task, args]);
@@ -45,7 +45,6 @@ export class CreateModuleTemplateController {
         this.apiService.get("Module", "GetTemplates", { moduleId: id }).then((data) => {
             this.templates = data.Templates;
             this.module = data.Module;
-            this.oldModule = angular.copy(this.module);
 
             this.template = this.module.Template
                 ? _.find(this.templates, (t) => { return t.TemplateName == this.module.Template; })
@@ -88,20 +87,18 @@ export class CreateModuleTemplateController {
     }
 
     onSelectTemplateClick(template) {
-        if (this.module.Template == template.TemplateName) return;
-
         this.template = _.cloneDeep(template);
         this.module.Template = this.template.TemplateName;
 
-        this.apiService.getContent(this.template.TemplatePath, true).then((data) => {
-            this.module.LayoutTemplate = data;
+        const files = [
+            this.template.TemplatePath,
+            ...(this.template.TemplateCssPath ? [this.template.TemplateCssPath] : [])
+        ];
 
-            _.filter(this.template.Themes, (t) => {
-                return t.ThemeName == this.module.Theme ||
-                    ((this.template.Themes ?? []).length && t.Id == this.template.Themes[0].Id)
-            }).map((theme) => {
-                this.onSelectThemeClick(theme);
-            });
+        this.apiService.getContents(files, true).then((contents) => {
+            const [html, css, pp] = contents;
+            this.module.LayoutTemplate = html;
+            this.module.LayoutCss = css;
         });
 
         if (this.template.PreviewImages) {
@@ -115,10 +112,6 @@ export class CreateModuleTemplateController {
 
     onSelectThemeClick(theme) {
         this.module.Theme = theme.ThemeName;
-
-        this.apiService.getContent(theme.ThemeCssPath, true).then((data) => {
-            this.module.LayoutCss = data;
-        });
     }
 
     onApplyTemplateClick() {
@@ -126,11 +119,7 @@ export class CreateModuleTemplateController {
 
         this.form.validated = true;
         this.form.validator(this.module);
-
-        var changes = this.globalService.compareTwoObject(this.module, this.oldModule);
-        if (Object.keys(changes).length === 0)
-            $defer.resolve(true);
-        else if (this.form.valid) {
+        if (this.form.valid) {
             this.running = "apply-template";
             this.awaitAction = {
                 title: "Apply Template For Module",

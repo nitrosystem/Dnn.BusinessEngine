@@ -20,7 +20,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Views
         public string FieldJsPath { get; set; }
         public string DirectiveJsPath { get; set; }
         public string GeneratePanesBusinessControllerClass { get; set; }
-        public string CustomEvents { get; set; }
         public bool CanHaveValue  { get; set; }
         public bool IsGroupField { get; set; }
         public bool IsContentField { get; set; }

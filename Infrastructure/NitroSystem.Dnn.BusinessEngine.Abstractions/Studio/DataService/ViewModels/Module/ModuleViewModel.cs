@@ -14,6 +14,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public int? SiteModuleId { get; set; }
         public string ModuleName { get; set; }
         public string ModuleTitle { get; set; }
+        public bool IsSSR { get; set; }
         public string Template { get; set; }
         public string Theme { get; set; }
         public string PreloadingTemplate { get; set; }

@@ -1,3 +1,4 @@
+import Swal from "sweetalert2";
 
 export class AppModelsController {
     constructor(
@@ -94,18 +95,33 @@ export class AppModelsController {
     }
 
     onDeleteAppModelClick(id, index) {
-        swal({
-            title: "Are you sure?",
-            text: "Once deleted, you will not be able to recover this imaginary view model!",
+        let timerInterval;
+        Swal.fire({
+            title: 'Are you sure?',
+            html: '<p>Once deleted, you will not be able to recover this imaginary entity!</p><b></b>',
             icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((willDelete) => {
-            if (willDelete) {
-                this.running = "get-appModels";
+            timer: 5000,
+            timerProgressBar: true,
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+            backdrop: false,
+            didOpen: () => {
+                const timer = Swal.getPopup().querySelector("b");
+                timerInterval = setInterval(() => {
+                    timer.textContent = `${Swal.getTimerLeft()}`;
+                }, 100);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.running = "delete-appModels";
                 this.awaitAction = {
-                    title: "Remove AppModel",
-                    subtitle: "Just a moment for removing App Model...",
+                    title: "Delete AppModel",
+                    subtitle: "Just a moment for deleting App Model...",
                 };
 
                 this.apiService.post("Studio", "DeleteAppModel", { Id: id }).then((data) => {

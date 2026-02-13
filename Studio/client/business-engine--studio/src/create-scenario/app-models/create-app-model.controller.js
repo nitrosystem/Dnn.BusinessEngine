@@ -21,7 +21,33 @@ export class CreateAppModelController {
         this.validationService = validationService;
         this.notifyService = notificationService;
 
-        this.groups = _.filter(this.$rootScope.groups, (g) => { return g.ObjectType == 'AppModel' });
+        // نقشه‌ی تبدیل SQL Server → C#
+        this.typeMap = [
+            { sql: /^bigint$/i, cs: "long?" },
+            { sql: /^binary|varbinary/i, cs: "byte[]" },
+            { sql: /^bit$/i, cs: "bool?" },
+            { sql: /^char|nchar|varchar|nvarchar|text|ntext/i, cs: "string" },
+            { sql: /^date$/i, cs: "DateTime?" },
+            { sql: /^datetime$/i, cs: "DateTime?" },
+            { sql: /^datetime2$/i, cs: "DateTime?" },
+            { sql: /^datetimeoffset$/i, cs: "DateTimeOffset" },
+            { sql: /^decimal|numeric/i, cs: "decimal?" },
+            { sql: /^float$/i, cs: "double?" },
+            { sql: /^int$/i, cs: "int?" },
+            { sql: /^money|smallmoney$/i, cs: "decimal?" },
+            { sql: /^real$/i, cs: "float?" },
+            { sql: /^smallint$/i, cs: "short?" },
+            { sql: /^small datetime$/i, cs: "DateTime?" },
+            { sql: /^time$/i, cs: "TimeSpan" },
+            { sql: /^tinyint$/i, cs: "byte?" },
+            { sql: /^uniqueidentifier$/i, cs: "Guid?" },
+            { sql: /^xml$/i, cs: "string" },
+            { sql: /^image$/i, cs: "byte[]" },
+            { sql: /^sql_variant$/i, cs: "object" }
+        ];
+        this.modelTypes = ['ViewModel', 'ListItem', 'Dto', 'Info']
+
+        this.groups = _.filter(this.$rootScope.groups, (g) => { return g.GroupType == 'AppModel' });
 
         studioService.setFocusModuleDelegate(this, this.onFocusModule);
 
@@ -39,20 +65,55 @@ export class CreateAppModelController {
 
         this.apiService.get("Studio", "GetAppModel", { appModelId: id || null }).then((data) => {
             this.propertyTypes = data.PropertyTypes;
+            this.entities = data.Entities;
             this.appModels = data.AppModels;
             this.appModel = data.AppModel;
             if (!this.appModel) {
                 this.appModel = {
                     ScenarioId: GlobalSettings.scenarioId,
+                    Properties: [],
+                    Settings: {
+                        SelectedEntities: [],
+                    }
                 };
             } else {
+                if (!this.appModel.Settings.BaseName) {
+                    const words = this.splitNameByKeywords(this.appModel.ModelName, this.modelTypes);
+                    this.appModel.Settings.BaseName = words[0];
+                    if (words.length > 1) this.appModel.Settings.Postfix = words[1];
+                }
+
                 this.$scope.$emit("onUpdateCurrentTab", {
                     id: this.appModel.Id,
                     title: this.appModel.ModelName,
                 });
             }
 
+            this.selectedEntities = [];
+            this.appModel.Settings.SelectedEntities = this.appModel.Settings.SelectedEntities ?? [];
+
+            const selectedEntityIds = new Set(this.appModel.Settings.SelectedEntities);
+            const propertyMap = new Map(
+                this.appModel.Properties.map(p => [p.Settings.ColumnId, p])
+            );
+
+            for (const entity of this.entities) {
+                entity.isSelected = selectedEntityIds.has(entity.Id);
+
+                if (entity.isSelected) {
+                    const clonedEntity = structuredClone(entity);
+                    this.selectedEntities.push(clonedEntity);
+
+                    for (const column of clonedEntity.Columns) {
+                        column.isSelected = propertyMap.has(column.Id);
+                    }
+                }
+            }
+
+            this.setForm();
             this.onFocusModule();
+
+            this.$timeout(() => this.setSelectedEntitiesWidgetHeight());
 
             delete this.running;
             delete this.awaitAction;
@@ -65,11 +126,14 @@ export class CreateAppModelController {
 
             delete this.running;
         });
-
-        this.setForm();
     }
 
     onFocusModule() {
+        this.$scope.$emit("onChangeActivityBar", {
+            name: "builder",
+            title: "Module Builder",
+        });
+
         this.$rootScope.explorerExpandedItems.push(...["app-models", "create-app-model"]);
         this.$rootScope.explorerCurrentItem = !this.appModel || !this.appModel.Id ?
             "create-app-model" :
@@ -78,29 +142,43 @@ export class CreateAppModelController {
 
     setForm() {
         this.form = this.validationService.init({
-            ScenarioId: {
-                rule: "guid",
-                id: "drpScenarioId",
-                required: true,
-            },
             ModelName: {
-                id: "txtModelName",
+                id: `appModelBaseName_${this.appModel.Id ?? ''}`,
                 rule: (value) => {
                     if (/^[A-Z][A-Za-z0-9]*$/.test(value) == false)
-                        return "Entity name is not valid";
-                    else
-                        return true;
+                        return "Model name is not valid";
+
+                    if (value)
+                        return this.checkConsecutiveKeywordsWithMessage(value, this.modelTypes);
+
+                    return true;
                 },
                 required: true,
             },
             Properties: {
                 rule: (value) => {
-                    if (value && value.length >= 1) return true;
+                    if (!value || !value.length)
+                        return "Model must have properties";
 
-                    return "App Model must have properties";
+                    for (const prop of value) {
+                        if (!prop.PropertyName || !prop.PropertyType)
+                            return "Model properties are not valid"
+                    }
+
+                    return true;
                 },
                 required: true,
             },
+            "Settings.BaseName": {
+                id: `appModelBaseName${this.appModel.Id}`,
+                rule: (value) => {
+                    if (/^[A-Z][A-Za-z0-9]*$/.test(value) == false)
+                        return "Model base name is not valid";
+                    else
+                        return true;
+                },
+                required: true,
+            }
         },
             true,
             this.$scope,
@@ -131,88 +209,153 @@ export class CreateAppModelController {
         });
     }
 
-    onSetValidNameClick() {
-        this.appModel.ModelName = this.globalService.normalizeName(this.appModel.ModelName);
+    onToggleSelectedEntityClick(entity) {
+        entity.isSelected = !entity.isSelected;
+
+        if (!entity.isSelected) {
+            const selectedEntity = this.selectedEntities.find(e => e.Id === entity.Id);
+            for (const column of selectedEntity.Columns) {
+                if (column.isSelected) {
+                    column.isSelected = false;
+                    this.onToggleEntityColumnChange(column);
+                }
+            }
+        }
+
+        const isExists = this.appModel.Settings.SelectedEntities.includes(entity.Id);
+        this.appModel.Settings.SelectedEntities = isExists
+            ? this.appModel.Settings.SelectedEntities = this.appModel.Settings.SelectedEntities.filter(id => id !== entity.Id)
+            : this.appModel.Settings.SelectedEntities.concat(entity.Id);
+
+        this.buildSelectedEntities();
     }
 
-    /*------------------------------------
-           AppModel Property
-          ------------------------------------*/
+    buildSelectedEntities() {
+        const selectedIds = this.appModel.Settings.SelectedEntities ?? [];
+
+        this.selectedEntities = selectedIds.reduce((result, id) => {
+            const entity = this.entities.find(e => e.Id === id);
+            if (entity) {
+                entity.isSelected = true;
+                const clone = angular.copy(entity);
+                clone.Columns?.forEach(c => c.isSelected = false);
+                result.push(clone);
+            }
+            return result;
+        }, []);
+
+        this.setSelectedEntitiesWidgetHeight();
+    }
+
+    onToggleEntityColumnChange(column) {
+        if (!column.isSelected)
+            this.appModel.Properties =
+                this.appModel.Properties.filter(p => (p.Settings ?? {}).ColumnId !== column.Id);
+        else {
+            const sqlType = column.ColumnType;
+
+            // بخش اصلی نوع را جدا می‌کنیم: nvarchar(50) → nvarchar
+            const normalized = sqlType.trim().toLowerCase().replace(/\(.*\)/, "");
+
+            // پیدا کردن نوع مناسب
+            const match = this.typeMap.find(t => t.sql.test(normalized));
+            const maxOrder = this.appModel.Properties.length
+                ? Math.max(...this.appModel.Properties.map(p => p.ViewOrder || 0))
+                : 1;
+            const prop = {
+                PropertyName: column.ColumnName,
+                PropertyType: match ? match.cs : 'object',
+                ViewOrder: maxOrder,
+                Settings: {
+                    ColumnId: column.Id
+                }
+            }
+
+            this.appModel.Properties.push(prop);
+        }
+
+        this.setSelectedEntitiesWidgetHeight();
+    }
+
+    onModelBaseNameChange() {
+        this.appModel.ModelName = this.appModel.Settings.BaseName + this.appModel.Settings.Postfix;
+    }
+
+    onModelNamePostfixChange() {
+        this.appModel.ModelName = this.appModel.Settings.BaseName + this.appModel.Settings.Postfix;
+        this.appModel.Settings.PostfixModified = true;
+    }
+
+    onSetValidNameClick() {
+        this.appModel.Settings.BaseName = this.globalService.normalizeName(this.appModel.Settings.BaseName);
+        if (this.appModel.Settings.Postfix)
+            this.appModel.Settings.Postfix = this.globalService.normalizeName(this.appModel.Settings.Postfix);
+
+        this.appModel.ModelName = this.appModel.Settings.BaseName + this.appModel.Settings.Postfix;
+    }
+
+    onChangeModelTypeClick(modelType) {
+        this.appModel.ModelType = modelType;
+
+        if (!this.appModel.Settings.PostfixModified) {
+            this.appModel.Settings.Postfix = this.getModuleTypeText(modelType);
+            this.onModelNamePostfixChange();
+        }
+    }
+
+    getModuleTypeText(modelType) {
+        switch (modelType) {
+            case 0:
+                return '';
+            case 1:
+                return 'ViewModel';
+            case 2:
+                return 'ListItem';
+            case 3:
+                return 'Dto';
+            case -1:
+                return 'Info';
+        }
+    }
+
     onAddPropertyClick() {
-        if (this.property) return;
-
-        this.appModel.Properties = this.appModel.Properties || [];
-
-        const propertyIndex = this.appModel.Properties.length;
-        const property = {
-            IsEdited: true,
-            IsNew: true,
-            AllowNulls: true,
-            ViewOrder: propertyIndex + 1,
-        };
+        const maxOrder = this.appModel.Properties.length
+            ? Math.max(...this.appModel.Properties.map(p => p.ViewOrder || 0))
+            : 1;
+        const property = { ViewOrder: maxOrder + 1 };
 
         this.appModel.Properties.push(property);
 
-        this.property = _.clone(property);
-
-        this.propertyIndex = propertyIndex;
-
-        this.focusPropertyForm();
-    }
-
-    onRowItemClick(property, index) {
-        if (this.property) return;
-
-        property.IsEdited = true;
-
-        this.property = _.clone(property);
-        this.property.IsNew = false;
-
-        this.propertyIndex = index;
-
-        this.focusPropertyForm();
-    }
-
-    focusPropertyForm() {
         this.$timeout(() => {
-            this.$scope.$broadcast("onEditProperty");
+            this.$scope.$broadcast("onEditProperty" + this.appModel.Properties.length);
+            this.setSelectedEntitiesWidgetHeight()
         });
     }
 
+    onRemovePropertyClick(prop, index) {
+        if (prop.Settings?.ColumnId) {
+            this.selectedEntities.forEach(entity => {
+                const column = entity.Columns.find(c => c.Id === prop.Settings.ColumnId);
+                if (column) column.isSelected = false;
+            });
+        }
+
+        this.appModel.Properties.splice(index, 1);
+    }
+
     onPropertySwapClick(index, swappedIndex) {
-        const properties = this.appModel.Properties;
+        const props = this.appModel.Properties;
 
-        if (swappedIndex > -1 && swappedIndex < properties.length) {
-            [properties[index], properties[swappedIndex]] = [
-                properties[swappedIndex],
-                properties[index],
-            ];
+        if (swappedIndex < 0 || swappedIndex >= props.length) return;
 
-            properties.map(
-                (c) => (c.ViewOrder = this.appModel.Properties.indexOf(c) + 1)
-            );
-        }
-    }
+        // swap
+        const temp = props[index];
+        props[index] = props[swappedIndex];
+        props[swappedIndex] = temp;
 
-    onSavePropertyClick() {
-        this.propertyForm.validated = true;
-        this.propertyForm.validator(this.property);
-        if (this.propertyForm.valid) {
-            this.property.IsEdited = false;
-            this.appModel.Properties[this.propertyIndex] = _.clone(this.property);
-
-            delete this.property;
-            delete this.propertyIndex;
-        }
-    }
-
-    onCancelPropertyClick() {
-        if (this.property.IsNew)
-            this.appModel.Properties.splice(this.propertyIndex, 1);
-        else this.appModel.Properties[this.propertyIndex].IsEdited = false;
-
-        delete this.property;
-        delete this.propertyIndex;
+        // Only update the two items that changed
+        props[index].ViewOrder = index + 1;
+        props[swappedIndex].ViewOrder = swappedIndex + 1;
     }
 
     onSaveAppModelClick() {
@@ -259,47 +402,89 @@ export class CreateAppModelController {
                 else this.notifyService.error(error.data.Message);
 
                 delete this.running;
-            }
-            );
+            });
         }
     }
 
-    onDeleteAppModelClick() {
-        swal({
-            title: "Are you sure?",
-            text: "Once deleted, you will not be able to recover this imaginary view model!",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((willDelete) => {
-            if (willDelete) {
-                this.running = "get-appModels";
-                this.awaitAction = {
-                    title: "Remove AppModel",
-                    subtitle: "Just a moment for removing appModel...",
-                };
+    checkConsecutiveKeywordsRegex(str, keywords) {
+        if (!str || !keywords || keywords.length === 0) return false;
 
-                this.apiService.post("Studio", "DeleteAppModel", { Id: this.appModel.Id }).then((data) => {
-                    if (data) this.notifyService.success("AppModel deleted has been successfully");
+        // ایجاد pattern با join کردن کلمات با |
+        const pattern = keywords.join("|");
 
-                    this.onCloseWindow();
+        // regex که بررسی می‌کند آخر string بیش از یک کلمه از لیست متوالی آمده باشد
+        const regex = new RegExp(`(${pattern}){2,}$`, "i"); // i → case-insensitive, {2,} → حداقل دو بار
 
-                    this.$rootScope.refreshSidebarExplorerItems();
+        return regex.test(str);
+    }
 
-                    delete this.awaitAction;
-                    delete this.running;
-                }, (error) => {
-                    this.awaitAction.isError = true;
-                    this.awaitAction.subtitle = error.statusText;
-                    this.awaitAction.desc =
-                        this.globalService.getErrorHtmlFormat(error);
+    checkConsecutiveKeywordsWithMessage(str, keywords) {
+        if (!str || !keywords || keywords.length === 0) return { warning: false };
 
-                    this.notifyService.error(error.data.Message);
+        const normalizedStr = str.trim();
+        const pattern = keywords.join("|");
 
-                    delete this.running;
-                });
+        // regex برای گرفتن کلمات متوالی در انتهای رشته (حداقل دو تا)
+        const regex = new RegExp(`(${pattern}){2,}$`, "i");
+
+        if (!regex.test(normalizedStr)) {
+            return !false;
+        }
+
+        // پیدا کردن کلمات انتهایی
+        let tempStr = normalizedStr;
+        const matchedWords = [];
+
+        while (true) {
+            let matched = false;
+            for (const kw of keywords) {
+                const kwRegex = new RegExp(kw + "$", "i"); // فقط انتهای رشته
+                if (kwRegex.test(tempStr)) {
+                    matchedWords.unshift(kw); // به ابتدای array اضافه می‌کنیم تا ترتیب درست باشد
+                    tempStr = tempStr.slice(0, -kw.length);
+                    matched = true;
+                    break;
+                }
             }
-        });
+            if (!matched) break;
+        }
+
+        if (matchedWords.length <= 1) {
+            return !false;
+        }
+
+        // تمام کلمات بعد از اولین کلمه اضافی → هشدار
+        const extraWords = matchedWords.slice(1);
+
+        return `The word${extraWords.length > 1 ? 's' : ''} ${extraWords.join(", ")} ${extraWords.length > 1 ? "are" : "is"} added, please remove ${extraWords.length > 1 ? "them" : "it"}.`
+    }
+
+    splitNameByKeywords(str, keywords) {
+        if (!str || !keywords || keywords.length === 0)
+            return [str];
+
+        const normalizedStr = str.trim();
+        const lowerStr = normalizedStr.toLowerCase();
+
+        for (const kw of keywords) {
+            const kwLower = kw.toLowerCase();
+
+            if (lowerStr.endsWith(kwLower)) {
+                const base = normalizedStr.slice(0, normalizedStr.length - kw.length);
+                return [base, kw];
+            }
+        }
+
+        return [normalizedStr];
+    }
+
+    setSelectedEntitiesWidgetHeight() {
+        var $left = $(`#selectedEntitiesLeftWidget_${this.appModel.Id ?? ''}`);
+        var $right = $(`#selectedEntitiesRightWidget_${this.appModel.Id ?? ''}>.app-model-card`);
+
+        $left.css('height', 'auto');     // ریست ارتفاع
+        var h = $right.outerHeight();    // ارتفاع واقعی right
+        $left.height(h);
     }
 
     onCloseWindow() {

@@ -69,18 +69,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
 										return this.controllers[type];
 									}
 								};
-
-								const ActionRegistry = {
-									controllers: {},
-
-									register: function (type, controllerClass) {
-										this.controllers[type] = controllerClass;
-									},
-
-									resolve: function (type) {
-										return this.controllers[type];
-									}
-								};
                             </script>"
                             );
 

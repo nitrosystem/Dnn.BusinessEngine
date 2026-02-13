@@ -15,8 +15,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewMod
         public string ActionName { get; set; }
         public string Event { get; set; }
         public bool ExecuteInClientSide { get; set; }
-        public string ActionConditions { get; set; }
-        public string ActionResultDsl { get; set; }
+        public string ActionConditionsDsl { get; set; }
+        public string BeforeExecuteActionDsl { get; set; }
+        public string ActionResultsDsl { get; set; }
         public string ActionTypeIcon { get; set; }
         public string ActionTypeTitle { get; set; }
         public string FieldType { get; set; }

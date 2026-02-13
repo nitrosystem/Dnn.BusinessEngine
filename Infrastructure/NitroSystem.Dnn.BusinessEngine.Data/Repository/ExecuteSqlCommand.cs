@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -27,6 +28,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
                         await unitOfWork.Connection.ExecuteAsync(trimmed, param, unitOfWork.Transaction);
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error execute query {ex.Message}", ex);
+            }
+        }
+
+        public async Task<IEnumerable<T>> ExecuteSqlCommandTextAsync<T>(IUnitOfWork unitOfWork, string commandText, object param = null)
+        {
+            try
+            {
+                return await unitOfWork.Connection.QueryAsync<T>(commandText, param);
             }
             catch (Exception ex)
             {

@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace NitroSystem.Dnn.BusinessEngine.Core.DSLEngine
+namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine
 {
     public sealed class MemberAccessResolver
     {

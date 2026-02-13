@@ -2,7 +2,8 @@
 {
     public enum ActionResultStatus
     {
+        ConditionIsNotTrue = 0,
         Successful = 1,
-        Error = 2
+        Failure = 2
     }
 }

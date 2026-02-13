@@ -2,8 +2,7 @@
 {
     public enum ModuleFieldDataSourceType
     {
-        FieldOptions = 0,
-        DefinedList = 1,
-        VariableData = 2
+        DefinedList = 0,
+        VariableData = 1
     }
 }

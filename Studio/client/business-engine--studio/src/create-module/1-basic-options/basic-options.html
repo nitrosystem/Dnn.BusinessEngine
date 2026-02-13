@@ -1,7 +1,9 @@
 <div ng-controller="createModuleBasicOptionsController as $" ng-class="{'was-validated':$.form.validated}">
     <b-content-widget data-title="Basic Options" data-icon="archive" data-module-type="create-module"
         data-subtitle="Create module - basic options" data-await-action="$.awaitAction" data-module="$"
-        data-reload-method="onPageLoad" data-close-method="onCloseWindow">
+        extra-icon1="codicon codicon-git-stash-pop" extra-icon1-title="Export Module"
+        extra-icon1-method="onShowExportModuleWinClick" extra-icon2="codicon codicon-git-stash"
+        extra-icon2-title="Import Module" extra-icon2-method="onShowImportModuleWinClick">
         <div class="d-flex">
             <!------------------------------------>
             <!--Module Type Options-->
@@ -28,6 +30,13 @@
                         <option ng-value="3">Details</option>
                     </select>
                 </div>
+                <div class="b-field">
+                    <label class="form-label d-block">Is SSR</label>
+                    <label class="b-switch">
+                        <input type="checkbox" ng-model="$.module.IsSSR">
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
             <!------------------------------------>
             <!--Module Name Options-->
@@ -38,7 +47,7 @@
                     <div class=" b-input-group">
                         <input type="text" id="txtModuleName" ng-model="$.module.ModuleName"
                             class="b-input form-control" placeholder="Enter form name(like top examples)"
-                            autocomplete="off" required ng-disabled="$.module.Id" />
+                            autocomplete="off" required />
                         <span><i class="codicon codicon-gear"></i></span>
                     </div>
                     <div ng-if="$.module.ModuleName && $.module.error.ModuleName">
@@ -87,4 +96,135 @@
             </div>
         </div>
     </b-content-widget>
+
+    <!------------------------------------>
+    <!--Export Module-->
+    <!------------------------------------>
+    <b-right-widget ng-if="$.workingMode=='export-module'" data-title="Export scenario" data-icon="git-stash-pop"
+        data-subtitle="export scenario components(Entities,Services,Actions,Modules,...)"
+        data-await-action="$.awaitAction" class="b-export-scenario" data-module="$" data-reload-method="onPageLoad"
+        data-close-method="onCloseWindow">
+        <div class="export-scenario">
+            <div class="b-field">
+                <label class="form-label">Package Type</label>
+                <div class="b-input-group">
+                    <label class="b-input form-control">Scenario Full Components</label>
+                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Package Name</label>
+                <div class="b-input-group">
+                    <label class="b-input form-control">{{$.export.PackageName}}</label>
+                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Package Version</label>
+                <div class="b-input-group">
+                    <input type="text" ng-model="$.export.PackageVersion" class="b-input form-control"
+                        placeholder="Enter package version pattern: xx.xx.xx" autocomplete="off" required />
+                    <span><i class="codicon codicon-versions"></i></span>
+                </div>
+                <p class="b-invalid">{{$.form.error.PackageVersion}}</p>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Description</label>
+                <div class="b-input-group">
+                    <textarea rows="3" ng-model="$.export.Description" class="b-input form-control"
+                        placeholder="Enter package description"></textarea>
+                    <span><i class="codicon codicon-code-oss"></i></span>
+                </div>
+            </div>
+            <!------------------------------------>
+            <!--Buttons-->
+            <!------------------------------------>
+            <hr class="mb-4" />
+            <div class="mb-1 d-flex">
+                <button type="button" class="b-btn btn-text-icon me-2" ng-click="$.onExportModuleClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-git-stash-pop"></i>
+                    Export
+                </button>
+                <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelExportModuleClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-circle-slash"></i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </b-right-widget>
+
+    <!------------------------------------>
+    <!--Import Module->
+    <!------------------------------------>
+    <b-right-widget ng-if="$.workingMode=='import-module'" data-title="Import Module" data-icon="git-stash-pop"
+        data-subtitle="import module components(Module,Variables,Resources,Fields,...)"
+        data-await-action="$.awaitAction" class="b-import-scenario" data-module="$" data-reload-method="onPageLoad"
+        data-close-method="onCloseWindow">
+        <div class="import-scenario">
+            <div class="b-field">
+                <label class="form-label">Package Type</label>
+                <div class="b-input-group">
+                    <label class="b-input form-control">Module</label>
+                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Module Name</label>
+                <div class=" b-input-group">
+                    <input type="text" id="txtImportModuleName" ng-model="$.importParam.ModuleName"
+                        class="b-input form-control" placeholder="Enter module name" autocomplete="off" required />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+                <div ng-if="$.module.ModuleName && $.module.error.ModuleName">
+                    <p class="b-invalid">{{$.form.error.ModuleName}}</p>
+                    <button type="button" class="b-btn btn btn-action" ng-click="$.onSetModuleValidNameClick()"
+                        ng-disabled="$.running">
+                        Set Valid Name
+                    </button>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Module Title</label>
+                <div class=" b-input-group">
+                    <input type="text" id="txtImportModuleTitle" ng-model="$.importParam.ModuleTitle"
+                        class="b-input form-control" placeholder="Enter module name" autocomplete="off" required />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+            <div class="b-field" ng-if="$.module.Id">
+                <label class="form-label d-block">Delete Module Before Import</label>
+                <label class="b-switch">
+                    <input type="checkbox" ng-model="$.importParam.DeleteModuleBeforeImport">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Import File</label>
+                <div class="b-input-group">
+                    <input type="file" class="b-input form-control" accept=".zip"
+                        ngf-select="$.onImportModuleFileUploadChange($file, $invalidFiles)" ngf-max-size="103809024"
+                        ngf-fix-orientation="true" />
+                    <span><i class="codicon codicon-git-stash-pop"></i></span>
+                </div>
+            </div>
+            <!------------------------------------>
+            <!--Buttons-->
+            <!------------------------------------>
+            <hr class="mb-4" />
+            <div class="mb-1 d-flex">
+                <button type="button" class="b-btn btn-text-icon me-2" ng-click="$.onImportModuleClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-git-stash"></i>
+                    Import
+                </button>
+                <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelImportModuleClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-circle-slash"></i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </b-right-widget>
 </div>

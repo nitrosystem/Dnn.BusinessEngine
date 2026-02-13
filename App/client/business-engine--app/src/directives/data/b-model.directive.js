@@ -1,6 +1,9 @@
 export function BindModel(app, expressionService) {
     return {
         compile: function (attrs, element, scope) {
+            if (element.__b_model_processed) return;
+            element.__b_model_processed = true;
+
             const expr = attrs['b-model'];
             if (!expr) return;
 

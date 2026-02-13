@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables;
@@ -32,7 +31,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
                 (src, dest) => dest.AuthorizationViewField = src.AuthorizationViewField?.Split(','));
 
             HybridMapper.BeforeMap<ModuleFieldInfo, ModuleFieldDto>(
-                (src, dest) => dest.ConditionalValues = ReflectionUtil.TryJsonCasting<IEnumerable<ModuleFieldValueInfo>>(src.ConditionalValues));
+                (src, dest) => dest.ConditionalValues = ReflectionUtil.TryJsonCasting<IEnumerable<ModuleFieldConditionalValueDto>>(src.ConditionalValues));
 
             HybridMapper.BeforeMap<ModuleVariableInfo, ModuleVariableDto>(
                 (src, dest) => dest.Scope = (ModuleVariableScope)src.Scope);

@@ -1,247 +1,228 @@
 <div ng-controller="createAppModelController as $" class="create-app-model"
     ng-class="{'was-validated':$.form.validated}">
+    <!------------------------------------>
+    <!--Sidebar-->
+    <!------------------------------------>
+    <div class="mb-sidebar" b-custom-sidebar="builder">
+        <!------------------------------------>
+        <!--Search Box-->
+        <!------------------------------------>
+        <div class="search-box">
+            <input type="text" class="search-input" ng-model="$.searchEntity" placeholder="Search entity by name" />
+            <i class="codicon codicon-search" ng-click="$.collapsedComponentGroups=!$.collapsedComponentGroups"></i>
+        </div>
+        <!------------------------------------>
+        <!--Entity List-->
+        <!------------------------------------>
+        <div class="entity-list-wrapper b-scrollbar">
+            <ul class="entity-list">
+                <li ng-repeat="entity in $.entities | orderBy:'-isSelected' | filterBy: ['EntityName'] : $.searchEntity"
+                    class="entity-item">
+                    <button type="button" class="btn-add-entity" ng-click="$.onToggleSelectedEntityClick(entity)"
+                        ng-class="{'selected':entity.isSelected}">
+                        <i class="codicon"
+                            ng-class="{'codicon-debug-start':!entity.isSelected,'codicon-run-errors':entity.isSelected}"></i>
+                    </button>
+                    <div class="entity-primary-info">
+                        <i class="codicon"
+                            ng-class="{'codicon-table':entity.EntityType===0,'codicon-preview':entity.EntityType===1}"></i>
+                        <h5 class="entity-name">{{entity.EntityName}}</h5>
+                    </div>
+                    <div class="entity-sub-info">
+                        <label class="entity-table-name">{{entity.TableName}}</label>
+                    </div>
+                    <hr class="entity-splitter" />
+                    <div class="entity-columns-wrapper" ng-class="{'columns-expanded':entity.IsExpanded}">
+                        <ul class="entity-column-list">
+                            <li class="entity-column" ng-repeat="column in entity.Columns">
+                                <label class="entity-column-name">{{column.ColumnName}}</label>
+                                <span class="entity-column-type">{{column.ColumnType}}</span>
+                            </li>
+                        </ul>
+                        <button type="button" class="btn-expand-columns" ng-if="entity.Columns.length>2"
+                            ng-click="entity.IsExpanded=!entity.IsExpanded">
+                            <i class="codicon"
+                                ng-class="{'codicon-expand-all':!entity.IsExpanded,'codicon-collapse-all':entity.IsExpanded}"></i>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Content Panel  -->
+    <!------------------------------------>
     <b-content-widget data-title="Create App Model" data-icon="output" data-module-type="create-app-model"
-        data-subtitle="Add or edit scenario view model" data-await-action="$.awaitAction" data-module="$"
+        data-subtitle="Design interactive scenario models" data-await-action="$.awaitAction" data-module="$"
         data-reload-method="onPageLoad" data-close-method="onCloseWindow">
-        <!------------------------------------>
-        <!--App Model-->
-        <!------------------------------------>
-        <div class="app-model">
+        <div class="app-model-design-board">
             <!------------------------------------>
             <!--Left Side-->
             <!------------------------------------>
-            <div class="col-7 b-splitter border-end pe-5">
-                <div class="b-field">
-                    <label class="form-label">Scenario</label>
-                    <div class="b-input-group">
-                        <select id="drpScenarioId" ng-model="$.appModel.ScenarioId" class="b-input form-select"
-                            ng-options="scenario.Id as scenario.ScenarioTitle for scenario in $.$rootScope.scenarios"
-                            ng-disabled="true" chosen inherit-select-classes="true"
-                            placeholder-text-single="'Select appModel scenario'" required>
-                        </select>
-                        <span><i class="codicon codicon-activate-breakpoints"></i></span>
-                    </div>
-                </div>
-                <div class="b-field">
-                    <label class="form-label">Group</label>
-                    <div class="b-input-group">
-                        <select ng-model="$.appModel.GroupId" class="b-input form-select"
-                            ng-options="group.Id as group.GroupName for group in $.groups" chosen
-                            inherit-select-classes="true" placeholder-text-single="'Select a group(optional)'">
-                            <option value=""></option>
-                        </select>
-                        <span><i class="codicon codicon-layers"></i></span>
-                    </div>
-                </div>
-                <div class="b-field">
-                    <label class="form-label">App Model Name</label>
-                    <div class="b-input-group">
-                        <input type="text" id="txtModelName" ng-model="$.appModel.ModelName"
-                            class="b-input form-control" placeholder="Enter appModel name" autocomplete="off"
-                            required />
-                        <span><i class="codicon codicon-account"></i></span>
-                    </div>
-                    <div ng-if="$.appModel.ModelName && $.form.error.ModelName">
-                        <p class="b-invalid">{{$.form.error.ModelName}}</p>
-                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetValidNameClick()">
-                            Set Valid Name
-                        </button>
-                    </div>
-                </div>
-                <div class="b-field">
-                    <label class="form-label">Description</label>
-                    <div class="b-input-group">
-                        <textarea ng-model="$.appModel.Description" class="b-input form-control" rows="3"
-                            placeholder="Enter view model description"></textarea>
-                        <span class="my-auto"><i class="codicon codicon-debug-stackframe-active"></i></span>
-                    </div>
+            <div id="selectedEntitiesLeftWidget_{{$.appModel.Id}}"
+                class="model-designer-left b-scrollbar b-splitter border-end">
+                <!------------------------------------>
+                <!--Selected Entities -->
+                <!------------------------------------>
+                <div class="selected-entities-wrapper">
+                    <ul class="selected-entities">
+                        <li ng-repeat="entity in $.selectedEntities" class="entity-item">
+                            <div class="entity-info">
+                                <h5 class="entity-name">
+                                    <i class="codicon"
+                                        ng-class="{'codicon-table':entity.EntityType===0,'codicon-preview':entity.EntityType===1}"></i>
+                                    <span>{{entity.EntityName}}</span>
+                                </h5>
+                                <label class="entity-table-name">{{entity.TableName}}</label>
+                            </div>
+                            <div class="entity-columns-wrapper" ng-class="{'columns-collapsed':entity.IsCollapsed}">
+                                <ul class="entity-column-list">
+                                    <li class="entity-column"
+                                        ng-repeat="column in entity.Columns | orderBy : '-isSelected'"
+                                        ng-class="{'selected':column.isSelected}">
+                                        <label class="b-checkbox mt-1">
+                                            <input type="checkbox" ng-model="column.isSelected"
+                                                ng-change="$.onToggleEntityColumnChange(column)">
+                                            <i class="checkbox-icon"></i>
+                                        </label>
+                                        <label class="entity-column-name">{{column.ColumnName}}</label>
+                                        <span class="entity-column-type">{{column.ColumnType}}</span>
+                                    </li>
+                                </ul>
+                                <button type="button" class="btn-collapse-columns"
+                                    ng-click="entity.IsCollapsed=!entity.IsCollapsed">
+                                    <i class="codicon"
+                                        ng-class="{'codicon-collapse-all':!entity.IsCollapsed,'codicon-expand-all':entity.IsCollapsed}"></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
             <!------------------------------------>
             <!--Right Side-->
             <!------------------------------------>
-            <div class="col ps-5 d-flex flex-column">
-                <div class="b-field">
-                    <label class="form-label">Model Type</label>
-                    <div class="b-radio-list">
-                        <div class="radio-item">
-                            <input type="radio" id="appModelType{{$.appModel.Id}}_0" ng-model="$.appModel.ModelType"
-                                name="appModelType{{$.appModel.Id}}" ng-value="0">
-                            <label for="appModelType{{$.appModel.Id}}_0">None</label>
+            <div id="selectedEntitiesRightWidget_{{$.appModel.Id}}" class="model-designer-right">
+                <div class="app-model-card">
+                    <!-- Header -->
+                    <div class="model-card-header">
+                        <div class="dropdown app-model-type">
+                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <span ng-if="!$.appModel.ModelType">None</span>
+                                <span ng-if="$.appModel.ModelType===1">View Model</span>
+                                <span ng-if="$.appModel.ModelType===2">List Item</span>
+                                <span ng-if="$.appModel.ModelType===3">Dto</span>
+                                <span ng-if="$.appModel.ModelType===4">Info</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="" ng-click="$.onChangeModelTypeClick(0)">
+                                        None
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" ng-click="$.onChangeModelTypeClick(1)">
+                                        View Model
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" ng-click="$.onChangeModelTypeClick(2)">
+                                        List Item
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" ng-click="$.onChangeModelTypeClick(3)">
+                                        Dto
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" ng-click="$.onChangeModelTypeClick(4)">
+                                        Info
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
-                        <div class="radio-item">
-                            <input type="radio" id="appModelType{{$.appModel.Id}}_1" ng-model="$.appModel.ModelType"
-                                name="appModelType{{$.appModel.Id}}" ng-value="1">
-                            <label for="appModelType{{$.appModel.Id}}_1">View Model</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="appModelType{{$.appModel.Id}}_2" ng-model="$.appModel.ModelType"
-                                name="appModelType{{$.appModel.Id}}" ng-value="2">
-                            <label for="appModelType{{$.appModel.Id}}_2">Data Model</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="appModelType{{$.appModel.Id}}_3" ng-model="$.appModel.ModelType"
-                                name="appModelType{{$.appModel.Id}}" ng-value="3">
-                            <label for="appModelType{{$.appModel.Id}}_3">Dto</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="appModelType{{$.appModel.Id}}_4" ng-model="$.appModel.ModelType"
-                                name="appModelType{{$.appModel.Id}}" ng-value="4">
-                            <label for="appModelType{{$.appModel.Id}}_4">Info</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="b-field">
-                    <label class="form-label">View Order</label>
-                    <div class="b-input-group">
-                        <input type="number" ng-model="$.appModel.ViewOrder" class="b-input form-control"
-                            placeholder="Enter table view order" autocomplete="off" />
-                        <span><i class="codicon codicon-list-ordered"></i></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!------------------------------------>
-        <!--App Model Properties-->
-        <!------------------------------------>
-        <div class="app-model-properties">
-            <div class="b-table theme-gray">
-                <div class="table-header">
-                    <div class="header-label">
-                        <h4 class="header-title">App Model Properties</h4>
-                        <span class="header-subtitle">Properties of the current view model</span>
-                    </div>
-                    <div class="header-tools">
-                        <div class="b-btn-group">
-                            <button type="button" class="b-btn btn-text-icon btn-action"
-                                ng-click="$.onAddPropertyClick()" ng-disabled="$.property">
-                                <i class="codicon codicon-plus" ng-disabled="$.running"></i>
-                                Add Property
-                            </button>
-                            <button type="button" class="b-btn btn-action dropdown-toggle dropdown-toggle-split"
-                                ng-disabled="$.property" data-bs-toggle="dropdown" aria-expanded="false">
-                            </button>
-                            <div class="dropdown-menu b-dropdown-menu">
-                                <a class="dropdown-item" href="#">Import properties from excel file</a>
-                                <a class="dropdown-item" href="#">Import properties from text file</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="table-body">
-                    <div class="d-flex columns-name order-1">
-                        <div class="col-4">Property Name</div>
-                        <div class="col-4">Property Type</div>
-                        <div class="col-2">
-                            <button type="button" class="b-clean text-light" disabled>
-                                <i class="codicon codicon-arrow-up d-inline-block me-1"></i>
-                            </button>
-                            <button type="button" class="b-clean text-light" disabled>
-                                <i class="codicon codicon-arrow-down d-inline-block"></i>
-                            </button>
-                        </div>
-                        <div class="col-2">
-                            <i class="codicon codicon-ellipsis"></i>
-                        </div>
-                    </div>
-                    <div class="d-flex table-row" ng-repeat="property in $.appModel.Properties | orderBy : 'ViewOrder'"
-                        ng-if="!property.IsEdited" ng-style="{'order':($index+1)}">
-                        <div class="col-4 my-auto" ng-click="$.onRowItemClick(property,$index)">
-                            {{property.PropertyName}}
-                        </div>
-                        <div class="col-4 my-auto" ng-click="$.onRowItemClick(property,$index)">
-                            {{property.PropertyType}}
-                        </div>
-                        <div class="col-2 my-auto">
-                            <button type="button" class="b-clean text-light" ng-disabled="$.property || $index==0">
-                                <i class="codicon codicon-arrow-up d-inline-block me-1"
-                                    ng-click="$.onPropertySwapClick($index,$index-1)"></i>
-                            </button>
-                            <button type="button" class="b-clean text-light"
-                                ng-disabled="$.property || $index==$.appModel.Properties.length-1">
-                                <i class="codicon codicon-arrow-down d-inline-block"
-                                    ng-click="$.onPropertySwapClick($index,$index+1)"></i>
-                            </button>
-                        </div>
-                        <div class=" col-2">
-                            <div class="b-multi-btns">
-                                <button type="button" ng-click="$.appModel.Properties.splice($index,1)"
-                                    ng-disabled="$.property" b-custom-tooltip data-bs-placement="bottom"
-                                    title="Cancel Property">
-                                    <i class="codicon codicon-trash"></i>
+                        <div class="input-group">
+                            <input id="appModelBaseName_{{$.appModel.Id}}" class="model-name"
+                                ng-model="$.appModel.Settings.BaseName" placeholder="Enter model base name"
+                                ng-change="$.onModelBaseNameChange()" autocomplete="off" required />
+                            <input id="appModelPostfix_{{$.appModel.Id}}" class="model-type"
+                                ng-model="$.appModel.Settings.Postfix" ng-change="$.onModelNamePostfixChange()"
+                                placeholder="Enter postfix" autocomplete="off" />
+                            <div class="model-name-validate"
+                                ng-if="$.appModel.Settings.BaseName && $.form.error.Settings.BaseName">
+                                <button type="button" class="b-btn btn-action btn-lg"
+                                    ng-click="$.onSetValidNameClick()">
+                                    Set Valid Name
                                 </button>
                             </div>
                         </div>
-                    </div>
-                    <!------------------------------------>
-                    <!-- Edit Property -->
-                    <!------------------------------------>
-                    <div ng-if="$.property.IsEdited" class="d-flex table-row edit-row"
-                        ng-style="{'order':$.property.ViewOrder}">
-                        <div class="col-4 me-2">
-                            <input type="text" id="txtPropertyName" ng-model="$.property.PropertyName"
-                                class="b-input form-control" b-custom-focus="onEditProperty"
-                                placeholder="Enter property name" autocomplete="off" required />
-                            <p class="b-invalid">{{$.propertyForm.error.PropertyName}}</p>
+                        <div class="model-name-finalized" ng-if="$.appModel.Settings.BaseName">
+                            <span>Model Name : <b>{{$.appModel.ModelName}}</b></span>
                         </div>
-                        <div class="col-4 me-2">
-                            <select id="drpPropertyType" ng-model="$.property.PropertyType" class="b-input form-select"
-                                ng-options="type.Value as type.Text for type in $.propertyTypes" chosen
-                                inherit-select-classes="true" placeholder-text-single="'Select property type'" required>
+                        <p class="model-name-invalid text-danger"
+                            ng-if="$.form.error.ModelName || $.form.error.Settings.BaseName">
+                            {{$.form.error.ModelName}}
+                            {{$.form.error.Settings.BaseName}}
+                        </p>
+                    </div>
+                    <hr class="card-header-splitter" />
+                    <!-- Body -->
+                    <div class="model-card-body">
+                        <div ng-if="!$.appModel.Properties.length" class="b-notify notify-small notify-info m-3 mb-0">
+                            <i class="codicon codicon-info b-icon-2"></i>
+                            <div class="text">
+                                <h4 class="label">No properties.</h4>
+                                <span class="subtext">Click Add Property to add a property!.</span>
+                            </div>
+                        </div>
+                        <ul class="model-properties">
+                            <li class="prop-item" ng-repeat="property in $.appModel.Properties | orderBy : 'ViewOrder'">
+                                <input ng-model="property.PropertyName" class="prop-name" placeholder="Property name"
+                                    b-custom-focus="onEditProperty{{$index+1}}" required />
+                                <select ng-model="property.PropertyType" class="prop-type"
+                                    ng-options="type.Value as type.Text for type in $.propertyTypes" chosen
+                                    inherit-select-classes="true" placeholder-text-single="'Property type'" required>
+                                </select>
+                                <div class="prop-actions">
+                                    <button type="button" ng-click="$.onRemovePropertyClick(property,$index)"
+                                        ng-disabled="$.running">
+                                        <i class="codicon codicon-trash"></i>
+                                    </button>
+                                    <button type="button" ng-click="$.onPropertySwapClick($index,$index-1)"
+                                        ng-disabled="$.running || $index==0">
+                                        <i class="codicon codicon-arrow-up"></i>
+                                    </button>
+                                    <button type="button" ng-click="$.onPropertySwapClick($index,$index+1)"
+                                        ng-disabled="$.running || $index===$.appModel.Properties.length-1">
+                                        <i class="codicon codicon-arrow-down"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                        <p class="b-invalid msg-center" ng-if="$.form.error.Properties">{{$.form.error.Properties}}</p>
+                        <button type="button" class="btn-add-prop" ng-click="$.onAddPropertyClick()"
+                            ng-class="{'shine2':!$.appModel.Properties.length}" ng-disabled="$.running">
+                            <i class="codicon codicon-plus"></i>
+                        </button>
+                    </div>
+                    <hr class="card-body-splitter" />
+                    <!-- Footer -->
+                    <div class="model-card-footer">
+                        <textarea ng-model="$.appModel.Description" class="model-desc"
+                            placeholder="Enter model description (optional)"></textarea>
+                        <div class="footer-actions">
+                            <select ng-model="$.appModel.GroupId" class="model-group-name"
+                                ng-options="group.Id as group.GroupName for group in $.groups" chosen
+                                inherit-select-classes="true" placeholder-text-single="'Select a group(optional)'">
+                                <option value=""></option>
                             </select>
-                            <p class="b-invalid">{{$.propertyForm.error.PropertyType}}</p>
-                        </div>
-                        <div class="col-2"></div>
-                        <div class="col-2">
-                            <div class="b-multi-btns">
-                                <button type="button" ng-click="$.onSavePropertyClick()" b-custom-tooltip
-                                    data-bs-placement="bottom" title="Save Property">
-                                    <i class="codicon codicon-save"></i>
-                                </button>
-                                <button type="button" ng-click="$.onCancelPropertyClick()" b-custom-tooltip
-                                    data-bs-placement="bottom" title="Cancel Property">
-                                    <i class="codicon codicon-circle-slash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="table-footer">
-                    <button type="button" class="b-btn btn-action btn-sm mb-3" ng-click="$.onAddPropertyClick()"
-                        ng-disabled="$.property">
-                        <i class="codicon codicon-plus me-0" ng-disabled="$.running"></i>
-                    </button>
-                    <div ng-if="!$.appModel.Properties.length" class="b-notify notify-info mb-4">
-                        <i class="codicon codicon-info b-icon-2"></i>
-                        <div class="text">
-                            <h4 class="label">AppModel has no properties.</h4>
-                            <span class="subtext">
-                                Click
-                                Add Property
-                                to add a property!.
-                            </span>
-                        </div>
-                    </div>
-                    <p class="b-invalid">{{$.form.error.Properties}}</p>
-                    <div class="mb-1 d-flex">
-                        <div class="me-auto" ng-if="$.service.Id">
-                            <button type="button" class="b-btn btn-text-icon btn-danger"
-                                ng-click="$.onDeleteAppModelClick()" ng-disabled="$.running">
-                                <i class="codicon codicon-trash"></i>
-                                Remove App Model
-                            </button>
-                        </div>
-                        <div class="ms-auto d-flex">
-                            <button type="button" class="b-btn btn-text-icon btn-submit me-2"
-                                ng-click="$.onSaveAppModelClick()" ng-disabled="$.running || $.property">
+                            <button type="button" class="submit-model b-btn btn-primary btn-lg"
+                                ng-click="$.onSaveAppModelClick()" ng-disabled="$.running">
                                 <i class="codicon codicon-save"
                                     ng-class="{'loading-circle mini':$.running=='save-appModel'}"></i>
                                 Save App Model
-                            </button>
-                            <button type="button" class="b-btn btn-text-icon btn-cancel"
-                                ng-click="$.onCancelAppModelClick()" ng-disabled="$.running || $.property">
-                                <i class="codicon codicon-circle-slash"></i>
-                                Cancel
                             </button>
                         </div>
                     </div>

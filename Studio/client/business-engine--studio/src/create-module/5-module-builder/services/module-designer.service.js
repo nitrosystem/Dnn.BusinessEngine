@@ -164,7 +164,7 @@ export class ModuleDesignerService {
     const fieldTemplate = this.getBoardFieldItem(field);
     const $fieldItem = this.$compile(fieldTemplate)($scope);
     this.$timeout(() => {
-        if (!field.IsGroupField) {
+      if (!field.IsGroupField) {
         $defer.resolve($fieldItem);
       } else {
         $($fieldItem).find("*[data-pane]").each((index, element) => {
@@ -219,7 +219,7 @@ export class ModuleDesignerService {
     <!------------------------------------>
     <div class="field-drag-panel" data-drop="true" jqyoui-droppable="{onOver:'$.onFieldDragOver()',onOut:'$.onFieldDragOut()',onDrop:'$.onFieldDrop($.field.${field.FieldName}.PaneName,$.field.${field.FieldName}.ParentId,$.field.${field.FieldName}.Id)'}"></div>
     <div data-field="${field.Id}" class="b-field-item" 
-         ng-class="{'active':$.currentField.Id=='${field.Id}','field-show-conditional':$.currentField.Id!=='${field.Id}' && ($.field.${field.FieldName}.ShowConditions && $.field.${field.FieldName}.ShowConditions.length)}"
+         ng-class="{'active':$.currentField.Id=='${field.Id}','field-show-conditional':$.currentField.Id!=='${field.Id}' && ($.field.${field.FieldName}.HiddenConditions && $.field.${field.FieldName}.HiddenConditions.length)}"
          ng-click="$.onFieldItemClick($event,'${field.Id}')" tabindex="-1" ng-blur="$.onFieldItemBlur($event,$.field.${field.FieldName})">
         <div class="field-deleted-wrapper" ng-if="$.field.${field.FieldName}.isDeleted">
             <button type="button" class="shine2" ng-click="$.onUndoDeleteFieldClick($event,'${field.Id}','${field.FieldName}')"
@@ -348,16 +348,16 @@ export class ModuleDesignerService {
                 <div class="col-3">
                     <div class="field-title-wrapper">
                         <label class="b-switch switch-sm" title="Show Field Text(Label)">
-                            <input type="checkbox" ng-checked="!$.field.${field.FieldName}.Settings.IsHideFieldText"
-                                ng-click="$.field.${field.FieldName}.Settings.IsHideFieldText=!$.field.${field.FieldName}.Settings.IsHideFieldText">
+                            <input type="checkbox" ng-checked="!$.field.${field.FieldName}.Settings.IsHiddenFieldText"
+                                ng-click="$.field.${field.FieldName}.Settings.IsHiddenFieldText=!$.field.${field.FieldName}.Settings.IsHiddenFieldText">
                             <span class="slider"></span>
                         </label>
-                        <b ng-class="{'opacity-25':$.field.${field.FieldName}.Settings.IsHideFieldText}">
+                        <b ng-class="{'opacity-25':$.field.${field.FieldName}.Settings.IsHiddenFieldText}">
                           Label:
                         </b>
                         <input type="text" ng-model="$.field.${field.FieldName}.FieldText" class="b-input-edit"
-                            ng-class="{'opacity-25 text-decoration-line-through':$.field.${field.FieldName}.Settings.IsHideFieldText}"
-                            ng-readonly="$.field.${field.FieldName}.Settings.IsHideFieldText || $.currentField.Id!=='${field.Id}'"
+                            ng-class="{'opacity-25 text-decoration-line-through':$.field.${field.FieldName}.Settings.IsHiddenFieldText}"
+                            ng-readonly="$.field.${field.FieldName}.Settings.IsHiddenFieldText || $.currentField.Id!=='${field.Id}'"
                             placeholder="Enter field text(label)" autocomplete="off" />
                     </div>
                 </div>
@@ -438,104 +438,8 @@ export class ModuleDesignerService {
             </div>
         </div>
     </div>
-    <div id="pnlMoreOption_${field.Id}" class="collapse">
-      <!------------------------------------>
-      <!--Field conditional value -->
-      <!------------------------------------>
-      <div class="d-flex flex-column align-items-start small mb-3 b-notify hover-box-shadow" ng-if="$.field.${field.FieldName}.FieldValues && $.field.${field.FieldName}.FieldValues.length">
-        <label class="form-label small mb-0">Field Value(s)</label>
-        <table class="table small mt-2" ng-click="$.onShowConditionalValuesClick($event,'${field.Id}')" role="button">
-            <thead>
-                <tr>
-                    <th>
-                        Value Expressions
-                    </th>
-                    <th>
-                        Condition(s)
-                    </th>
-                    <th>
-                        <i class="codicon codicon-ellipsis"></i>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="item in $.field.${field.FieldName}.FieldValues">
-                    <td>
-                        {{item.ValueExpression}}
-                    </td>
-                    <td>
-                        <p ng-if="item.Conditions && item.Conditions.length" ng-repeat="condition in item.Conditions">
-                          {{condition.LeftExpression}}
-                          <b>{{condition.EvalType}}</b>
-                          {{condition.RightExpression}}                        
-                        </p>
-                        <span ng-if="!item.Conditions || !item.Conditions.length">
-                          No Condition!.
-                        </span>
-                    </td>
-                    <td>
-                        <i class="codicon codicon-trash"></i>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-      </div>
-      <!------------------------------------>
-      <!--Field show conditions-->
-      <!------------------------------------>
-      <div class="d-flex flex-column align-items-start small mb-3 b-notify hover-box-shadow" ng-if="$.field.${field.FieldName}.ShowConditions && $.field.${field.FieldName}.ShowConditions.length">
-        <label class="form-label small mb-0">Show Condition(s)</label>
-        <table class="table mt-2" ng-click="$.onShowConditionsClick($event,'${field.Id}')" role="button">
-            <thead>
-                <tr>
-                    <th>
-                        <i class="codicon codicon-eye"></i>
-                    </th>
-                    <th>
-                        Show Condition
-                    </th>
-                    <th>
-                        Group
-                    </th>
-                    <th>
-                        <i class="codicon codicon-ellipsis"></i>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="condition in $.field.${field.FieldName}.ShowConditions">
-                    <td>
-                        <i class="codicon codicon-eye-closed"></i>
-                    </td>
-                    <td>
-                        {{condition.LeftExpression}}
-                        <b>{{condition.EvalType}}</b>
-                        {{condition.RightExpression}}
-                    </td>
-                    <td>
-                        {{condition.GroupName}}
-                    </td>
-                    <td>
-                        <i class="codicon codicon-trash"></i>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-      </div>
-    </div>
-      <!------------------------------------>
-      <!--Expand/Collapse button -->
-      <!------------------------------------>
-    <button type="button" class="btn-expand-collapse" role="button" data-bs-toggle="collapse" data-bs-target="#pnlMoreOption_${field.Id}" aria-expanded="false" aria-controls="pnlMoreOption_${field.Id}"
-      ng-click="$.field.${field.FieldName}.isExpand=!$.field.${field.FieldName}.isExpand" ng-class="{'shine2':!$.field.${field.FieldName}.isExpand,'is-expand':$.field.${field.FieldName}.isExpand}"
-      ng-if=
-        "
-          ($.field.${field.FieldName}.ShowConditions && $.field.${field.FieldName}.ShowConditions.length) || 
-          ($.field.${field.FieldName}.FieldValues && $.field.${field.FieldName}.FieldValues.length)
-        ">
-        <i class="codicon" ng-class="{'codicon-expand-all':!$.field.${field.FieldName}.isExpand,'codicon-collapse-all':$.field.${field.FieldName}.isExpand}"></i>
-    </button>
 </div>`;
+
     return result;
   }
 }
