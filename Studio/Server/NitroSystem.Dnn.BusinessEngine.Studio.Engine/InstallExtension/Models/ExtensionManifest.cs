@@ -9,7 +9,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Models
         public string ExtensionName { get; set; }
         public string ExtensionType { get; set; }
         public string ExtensionImage { get; set; }
-        public bool IsNewExtension { get; set; }
         public string FolderName { get; set; }
         public string VersionType { get; set; }
         public string Version { get; set; }

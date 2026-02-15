@@ -26,6 +26,13 @@ export class ExtensionsController {
             disableActivityBarCallback: true
         });
 
+        $rootScope.$on('onListenToPushingServer', (e, args) => {
+            debugger
+            if (args.type == 'InstallExtension') {
+                this.notifyExtensionInstallStatus(args.message, args.percent);
+            }
+        });
+
         this.onPageLoad();
     }
 
@@ -59,44 +66,6 @@ export class ExtensionsController {
         this.$scope.$emit('onChangeActivityBar', { name: 'extensions' })
     }
 
-    onInstallExtensionClick() {
-        this.workingMode = "install-extension";
-        this.$scope.$emit("onShowRightWidget");
-
-        this.extInstalingStep = 1;
-    }
-
-    onUploadExtensionPackage($files, $file, $newFiles, $duplicateFiles, $invalidFiles, $event) {
-        if ($file) {
-            this.running = "upload-extension";
-            this.awaitAction = {
-                title: "Uploading Extensions",
-                subtitle: "Just a moment for uploading extension...",
-                showProgress: true
-            };
-
-            this.apiService.uploadFile('Studio', 'LoadExtensionFile', { files: $file }).then((data) => {
-                this.extension = JSON.parse(data.ManifestJson);
-                this.extensionFile = data.ManifestFile;
-                this.extInstalingStep = 2;
-
-                delete this.running;
-                delete this.awaitAction;
-            }, (error) => {
-                if (error.status == 401) this.$rootScope.$broadcast('onUnauthorized401', { error: error }); // if user is logoff then refresh page for redirect to login page
-
-                this.awaitAction.isError = true;
-                this.awaitAction.subtitle = error.statusText;
-                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-                delete this.running;
-            }, (evt) => {
-                var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                $('.progress-bar').css('width', progressPercentage + '%')
-            });
-        }
-    }
-
     onInstallAvailableExtension(item, $index) {
         this.running = "install-available-extensions";
         this.awaitAction = {
@@ -125,6 +94,44 @@ export class ExtensionsController {
         });
     }
 
+    onInstallExtensionClick() {
+        this.workingMode = "install-extension";
+        this.$scope.$emit("onShowRightWidget");
+
+        this.extInstalingStep = 1;
+    }
+
+    onUploadExtensionPackage($files, $file, $newFiles, $duplicateFiles, $invalidFiles, $event) {
+        if ($file) {
+            this.running = "upload-extension";
+            this.awaitAction = {
+                title: "Uploading Extensions",
+                subtitle: "Just a moment for uploading extension...",
+                showProgress: true
+            };
+
+            this.apiService.uploadFile('Studio', 'UploadExtensionPackage', { files: $file }).then((data) => {
+                this.extension = JSON.parse(data.ManifestJson);
+                this.extractPath = data.ExtractPath;
+                this.extInstalingStep = 2;
+
+                delete this.running;
+                delete this.awaitAction;
+            }, (error) => {
+                if (error.status == 401) this.$rootScope.$broadcast('onUnauthorized401', { error: error }); // if user is logoff then refresh page for redirect to login page
+
+                this.awaitAction.isError = true;
+                this.awaitAction.subtitle = error.statusText;
+                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+
+                delete this.running;
+            }, (evt) => {
+                var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                $('.progress-bar').css('width', progressPercentage + '%')
+            });
+        }
+    }
+
     onInstallExtensionStepClick() {
         this.extInstalingStep = 3;
 
@@ -135,29 +142,31 @@ export class ExtensionsController {
             showProgress: true,
         };
 
-        this.apiService.postWithMonitoring("Studio", "InstallExtension", hubID, null, {
-            installTemporaryItemId: this.extension.InstallTemporaryItemId
-        }).then((data) => {
-            this.extInstalingStep = 4;
+        this.apiService.post("Studio", "InstallExtension",
+            {
+                Channel: this.$rootScope.scenario.ScenarioName,
+                ExtractPath: this.extractPath
+            }).then((data) => {
+                this.extInstalingStep = 4;
 
-            delete this.awaitAction;
-            delete this.running;
-        }, (error) => {
-            if (error.status == 401) this.$rootScope.$broadcast('onUnauthorized401', { error: error }); // if user is logoff then refresh page for redirect to login page
+                delete this.awaitAction;
+                delete this.running;
+            }, (error) => {
+                if (error.status == 401) this.$rootScope.$broadcast('onUnauthorized401', { error: error }); // if user is logoff then refresh page for redirect to login page
 
-            this.awaitAction.isError = true;
-            this.awaitAction.subtitle = error.statusText;
-            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+                this.awaitAction.isError = true;
+                this.awaitAction.subtitle = error.statusText;
+                this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
 
-            this.notifyService.error(error.data.Message);
+                this.notifyService.error(error.data.Message);
 
-            $('#progressLog').append(error.data.Message + '\n');
+                $('#progressLog').append(error.data.Message + '\n');
 
-            clearInterval(this.monitoringTimer);
-            this.monitoringTimer = 0;
+                clearInterval(this.monitoringTimer);
+                this.monitoringTimer = 0;
 
-            delete this.running;
-        });
+                delete this.running;
+            });
     }
 
     onDoneInstallExtensionClick() {
@@ -168,60 +177,14 @@ export class ExtensionsController {
         location.reload();
     }
 
-    onDeleteExtensionClick(id, $index) {
-        swal({
-            title: "Are you sure?",
-            text: "Once deleted, you will not be able to recover this imaginary extension!",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((willDelete) => {
-            if (willDelete) {
-                this.running = "remove-extension";
-                this.awaitAction = {
-                    title: "Remove Extension",
-                    subtitle: "Just a moment for removing the extension...",
-                };
-
-                this.apiService.post("Studio", "DeleteExtension", { ID: id }).then((data) => {
-                    this.extensions.splice($index, 1);
-
-                    this.notifyService.success("Extension deleted has been successfully");
-
-                    this.$rootScope.refreshSidebarExplorerItems();
-
-                    delete this.awaitAction;
-                    delete this.running;
-                }, (error) => {
-                    if (error.status == 401) this.$rootScope.$broadcast('onUnauthorized401', { error: error }); // if user is logoff then refresh page for redirect to login page
-
-                    this.awaitAction.isError = true;
-                    this.awaitAction.subtitle = error.statusText;
-                    this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
-
-                    this.notifyService.error(error.data.Message);
-
-                    delete this.running;
-                });
-            }
-        });
-    }
-
-    disposeWorkingMode() {
-        location.reload();
-    }
-
     onCloseWindow() {
         location.reload();
     }
 
-    monitoring(hub, mode, content) {
-        if (mode == 'log') {
-            $('#progressLog').append(`<li>${content}</li>`)
-            $('#progressLog').scrollTop($('#progressLog')[0].scrollHeight);
-        }
-        else if (mode = 'progress') {
-            $('.progress-bar').css('width', content + '%');
-        }
+    notifyExtensionInstallStatus(message, percent) {
+        $('#progressLog').append(`<li>${message}</li>`)
+        $('#progressLog').scrollTop($('#progressLog')[0].scrollHeight);
+
+        $('.progress-bar').css('width', percent + '%');
     }
 }

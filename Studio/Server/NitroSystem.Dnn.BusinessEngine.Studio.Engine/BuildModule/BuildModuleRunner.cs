@@ -20,6 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
         private readonly ISseNotifier _notifier;
         private readonly LockService _lockService;
         private Guid _moduleId;
+        private string _channel;
 
         public BuildModuleRunner(
             IEngineRunner engineRunner,
@@ -39,6 +40,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
 
         public async Task<bool> RunAsync(BuildModuleRequest request)
         {
+            _channel = request.Module.ScenarioName;
+
             var lockAcquired = await _lockService.TryLockAsync(request.Module.Id);
             if (!lockAcquired)
                 throw new InvalidOperationException("This module is currently being build. Please try again in a few moments..");
@@ -72,7 +75,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
                     _cacheService.RemoveByPrefix("BE_Modules_");
                     HostController.Instance.Update("CrmVersion", (Host.CrmVersion + 1).ToString());
 
-                    await Engine_OnProgress(request.Module.ScenarioName, "Module build has been successfully!.", 100);
+                    await Engine_OnProgress("Module build has been successfully!.", 100);
                 }
                 else
                     throw response.Exception;
@@ -85,12 +88,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule
             }
         }
 
-        private async Task Engine_OnProgress(string channel, string message, double percent)
+        private async Task Engine_OnProgress(string message, double percent)
         {
-            await _notifier.Publish(channel,
+            await _notifier.Publish(_channel,
                 new
                 {
-                    channel = channel,
+                    channel = _channel,
                     type = "ActionCenter",
                     taskId = $"{_moduleId}-BuildModule",
                     message = message,

@@ -10,7 +10,7 @@ export class ActionCenterService {
             if (args.type == 'ActionCenter') {
                 this.updateTaskState(args);
             }
-        })
+        });
     }
 
     addTask(task) {

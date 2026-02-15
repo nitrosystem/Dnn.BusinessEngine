@@ -16,7 +16,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension
         protected override void ConfigurePipeline(EnginePipeline<InstallExtensionRequest, InstallExtensionResponse> pipeline)
         {
             pipeline
-                .Use<InitializeMiddleware>()
                 .Use<ValidateMiddleware>()
                 .Use<SqlDataProviderMiddleware>()
                 .Use<ResourcesMiddleware>();

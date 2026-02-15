@@ -41,7 +41,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
                     next = async () =>
                     {
                         // 🔴 Guard مرکزی
-                        if (context.CancellationTokenSource.IsCancellationRequested)
+                        if (context.CancellationTokenSource != null && context.CancellationTokenSource.IsCancellationRequested)
                             return response;
 
                         context.CurrentMiddleware = middleware.GetType().Name;
@@ -50,11 +50,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
                             context,
                             request,
                             previous,
-                            (channel, message, percent) =>
-                                engine.NotifyProgress(channel, message, percent));
+                            (message, percent) =>
+                                engine.NotifyProgress(message, percent));
 
                         // 🔴 Guard بعد از اجرا
-                        if (context.CancellationTokenSource.IsCancellationRequested)
+                        if (context.CancellationTokenSource != null && context.CancellationTokenSource.IsCancellationRequested)
                             return response;
 
                         return result;

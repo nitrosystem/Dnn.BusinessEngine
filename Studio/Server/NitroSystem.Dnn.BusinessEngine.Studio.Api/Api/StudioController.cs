@@ -744,31 +744,31 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             }
         }
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<HttpResponseMessage> onInstallAvailableExtension([FromUri] string extensionFilename)
+        //{
+        //    try
+        //    {
+        //        var scenarioID = Guid.Parse(Request.Headers.GetValues("ScenarioID").First());
+
+        //        var basePath = Constants.MapPath("~/DesktopModules/BusinessEngine/install");
+        //        var filename = Path.Combine(basePath, extensionFilename);
+        //        var result = await InstallExtension(filename);
+
+        //        File.Delete(filename);
+
+        //        return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> onInstallAvailableExtension([FromUri] string extensionFilename)
-        {
-            try
-            {
-                var scenarioID = Guid.Parse(Request.Headers.GetValues("ScenarioID").First());
-
-                var basePath = Constants.MapPath("~/DesktopModules/BusinessEngine/install");
-                var filename = Path.Combine(basePath, extensionFilename);
-                var result = await InstallExtension(filename);
-
-                File.Delete(filename);
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> LoadExtensionFile()
+        public async Task<HttpResponseMessage> UploadExtensionPackage()
         {
             try
             {
@@ -790,11 +790,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var manifestFile = files.FirstOrDefault(f => Path.GetFileName(f) == "manifest.json");
                 var manifestJson = await FileUtil.GetFileContentAsync(manifestFile);
 
-
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
                     ManifestJson = manifestJson,
-                    ManifestFile = manifestFile
+                    ExtractPath = extractPath
                 });
             }
             catch (Exception ex)
@@ -805,40 +804,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<HttpResponseMessage> InstallExtension()
+        public async Task<HttpResponseMessage> InstallExtension(InstallExtensionRequest request)
         {
-            try
-            {
-                var scenarioId = Guid.Parse(Request.Headers.GetValues("ScenarioId").First());
+            request.BasePath = PortalSettings.HomeSystemDirectory;
+            request.ModulePath = Constants.MapPath("~/DesktopModules/BusinessEngine");
 
-                if (!Request.Content.IsMimeMultipartContent())
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
+            var files = Directory.GetFiles(request.ExtractPath);
+            var manifestFile = files.FirstOrDefault(f => Path.GetFileName(f) == "manifest.json");
+            var manifestJson = await FileUtil.GetFileContentAsync(manifestFile);
 
-                // Create temp upload folder
-                var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\");
-                if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
-
-                var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
-                await Request.Content.ReadAsMultipartAsync(streamProvider);
-
-                var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
-
-                return await InstallExtension(filename);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-        private async Task<HttpResponseMessage> InstallExtension(string filename)
-        {
-            var request = new InstallExtensionRequest()
-            {
-                BasePath = PortalSettings.HomeSystemDirectory,
-                ModulePath = Constants.MapPath("/DesktopModules/BusinessEngine"),
-                ExtensionZipFile = filename,
-            };
+            request.Manifest = JsonConvert.DeserializeObject<ExtensionManifest>(manifestJson);
 
             var response = await _installExtensionRunner.RunAsync(request);
 

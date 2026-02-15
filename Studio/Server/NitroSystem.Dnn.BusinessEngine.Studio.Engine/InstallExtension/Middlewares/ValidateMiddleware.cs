@@ -17,10 +17,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
             _extensionService = extensionService;
         }
 
-        public async Task<InstallExtensionResponse> InvokeAsync(IEngineContext context, InstallExtensionRequest request, Func<Task<InstallExtensionResponse>> next, Action<string, string, double> progress = null)
+        public async Task<InstallExtensionResponse> InvokeAsync(IEngineContext context, InstallExtensionRequest request, Func<Task<InstallExtensionResponse>> next, Action<string, double> progress = null)
         {
             var isValid = true;
             var errors = new StringBuilder();
+
+            progress("Validation extension manifest", 10);
 
             var user = UserController.Instance.GetCurrentUserInfo();
             if (!user.IsSuperUser)
@@ -36,14 +38,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
                 errors.AppendLine("The installed extension should not be larger than the new extension");
             }
 
-            if(!isValid)
+            if (!isValid)
             {
                 context.CancellationTokenSource.Cancel();
                 return default;
             }
 
             context.Set<string>("CurrentVersion", currentVersion);
-            context.Set<string>("IsNewExtension" , currentVersion);
+            context.Set<bool>("IsNewExtension", string.IsNullOrEmpty(currentVersion));
+
+            progress("Validation extension manifest", 20);
 
             var result = await next();
             return result;

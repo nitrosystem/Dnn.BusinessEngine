@@ -90,8 +90,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api.Startup
             services.AddScoped<BuildTypeMiddleware>();
             services.AddScoped<BuildTypeRunner>();
 
+            services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, ValidateMiddleware>();
             services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, SqlDataProviderMiddleware>();
             services.AddScoped<IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>, ResourcesMiddleware>();
+            services.AddScoped<ValidateMiddleware>();
             services.AddScoped<SqlDataProviderMiddleware>();
             services.AddScoped<ResourcesMiddleware>();
             services.AddScoped<InstallExtensionRunner>();

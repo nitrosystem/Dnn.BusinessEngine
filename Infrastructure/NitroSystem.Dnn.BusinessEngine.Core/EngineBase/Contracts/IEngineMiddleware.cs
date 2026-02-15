@@ -5,6 +5,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts
 {
     public interface IEngineMiddleware<TRequest, TResponse>
     {
-        Task<TResponse> InvokeAsync(IEngineContext context, TRequest request, Func<Task<TResponse>> next, Action<string, string, double> progress = null);
+        Task<TResponse> InvokeAsync(IEngineContext context, TRequest request, Func<Task<TResponse>> next, Action<string, double> progress = null);
     }
 }

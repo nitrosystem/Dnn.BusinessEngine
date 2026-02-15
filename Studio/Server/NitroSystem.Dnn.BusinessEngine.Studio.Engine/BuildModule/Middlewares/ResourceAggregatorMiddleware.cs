@@ -14,7 +14,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
 {
     public class ResourceAggregatorMiddleware : IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>
     {
-        public async Task<BuildModuleResponse> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<BuildModuleResponse>> next, Action<string, string, double> progress = null)
+        public async Task<BuildModuleResponse> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<BuildModuleResponse>> next, Action<string, double> progress = null)
         {
             //var response = await _workflow.ExecuteTaskAsync<BuildModuleResponse>(request.ModuleId.Value.ToString(), request.UserId,
             //        "BuildModuleWorkflow", "BuildModule", "ResourceAggregatorMiddleware", false, true, false,
@@ -59,7 +59,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
                 LoadOrder = ++count
             });
 
-            progress.Invoke(request.Module.ScenarioName, $"Merged style resourcess for  {request.Module.ModuleName} module", 95);
+            progress.Invoke($"Merged style resourcess for  {request.Module.ModuleName} module", 95);
 
             var result = new BuildModuleResponse();
             result.IsSuccess = true;

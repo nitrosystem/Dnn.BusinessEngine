@@ -10,6 +10,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contrac
         Task<IEnumerable<ExtensionViewModel>> GetExtensionsViewModelAsync();
         IEnumerable<string> GetAvailableExtensionsViewModel();
         Task<string> GetCurrentVersionExtensionsAsync(string extensionName);
-        Task<Guid> SaveExtensionAsync(ExtensionViewModel extension, bool isNewExtension);
+        Task SaveExtensionAsync(ExtensionViewModel extension, bool isNewExtension);
     }
 }

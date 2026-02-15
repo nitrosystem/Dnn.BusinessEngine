@@ -17,7 +17,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares
             _expressionService = expressionService;
         }
 
-        public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next, Action<string, string, double> progress = null)
+        public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next, Action<string, double> progress = null)
         {
             var finalizedParams = new List<ActionParamDto>();
 

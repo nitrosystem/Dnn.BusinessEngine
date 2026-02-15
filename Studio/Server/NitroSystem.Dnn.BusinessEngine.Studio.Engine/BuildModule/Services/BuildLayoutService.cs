@@ -39,7 +39,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
         private volatile int _userId;
         private ModuleDto _module;
 
-        private Action<string, string, double> _onProgress;
+        private Action<string, double> _onProgress;
         private int _fieldIndex;
         private double _progressStep;
 
@@ -93,7 +93,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             _moduleFieldService = moduleFieldService;
         }
 
-        public async Task<string> BuildLayoutAsync(ModuleDto module, int userId, Action<string, string, double> progress)
+        public async Task<string> BuildLayoutAsync(ModuleDto module, int userId, Action<string, double> progress)
         {
             _module = module;
             _userId = userId;
@@ -118,7 +118,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
             await LoadTemplates(_module.Fields);
 
-            _onProgress.Invoke(_module.ScenarioName, $"Loaded resource content of {_module.ModuleName} module", 15);
+            _onProgress.Invoke($"Loaded resource content of {_module.ModuleName} module", 15);
 
             _buffer = new Queue<ModuleFieldDto>();
             foreach (var item in parents)
@@ -345,7 +345,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                     : string.Empty);
             }
 
-            _onProgress.Invoke(_module.ScenarioName, $"Render template {field.FieldType} of {_module.ModuleName} module", 15 + (_fieldIndex * _progressStep));
+            _onProgress.Invoke($"Render template {field.FieldType} of {_module.ModuleName} module", 15 + (_fieldIndex * _progressStep));
 
             return template.Replace("[TOKENS]", $@"data-fi=""{field.Id}""");
         }

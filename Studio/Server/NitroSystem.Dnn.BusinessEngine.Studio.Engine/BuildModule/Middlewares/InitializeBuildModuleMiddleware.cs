@@ -10,7 +10,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
 {
     public class InitializeBuildModuleMiddleware : IEngineMiddleware<BuildModuleRequest, BuildModuleResponse>
     {
-        public async Task<BuildModuleResponse> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<BuildModuleResponse>> next, Action<string, string, double> progress = null)
+        public async Task<BuildModuleResponse> InvokeAsync(IEngineContext context, BuildModuleRequest request, Func<Task<BuildModuleResponse>> next, Action<string, double> progress = null)
         {
             if (request.Module.Wrapper == ModuleWrapper.Dashboard)
                 request.BasePath = Path.Combine(request.BasePath, StringHelper.ToKebabCase(request.Module.ParentModuleName));
@@ -25,7 +25,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Middlewares
             context.Set("OutputDirectory", outputDirectory);
             context.Set("OutputRelativePath", relativeDirectory);
 
-            progress.Invoke(request.Module.ScenarioName, $"Initialized for build {request.Module.ModuleName} module", 5);
+            progress.Invoke($"Initialized for build {request.Module.ModuleName} module", 5);
 
             var result = await next();
             return result;

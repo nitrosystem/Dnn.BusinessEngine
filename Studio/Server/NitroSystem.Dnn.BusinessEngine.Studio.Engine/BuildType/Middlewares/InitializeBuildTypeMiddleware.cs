@@ -9,7 +9,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares
 {
     public class InitializeBuildTypeMiddleware : IEngineMiddleware<BuildTypeRequest, BuildTypeResponse>
     {
-        public async Task<BuildTypeResponse> InvokeAsync(IEngineContext context, BuildTypeRequest request, Func<Task<BuildTypeResponse>> next, Action<string, string, double> progress = null)
+        public async Task<BuildTypeResponse> InvokeAsync(IEngineContext context, BuildTypeRequest request, Func<Task<BuildTypeResponse>> next, Action<string, double> progress = null)
         {
             var scenarioFolder = StringHelper.ToKebabCase(request.ScenarioName);
             var relativePath = $"{request.BasePath}business-engine/{scenarioFolder}/app-model-types";

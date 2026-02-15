@@ -15,7 +15,6 @@ import { GlobalService } from "./services/global.service";
 import { ApiService } from "./services/api.service";
 import { ValidationService } from "./services/validation.service";
 import { ActionCenterService } from "./services/action-center.service";
-import { TaskQueueService } from "./services/task-queue.service";
 import { NotificationService } from "./services/notification.service";
 import { EventService } from "./services/event.service";
 import { StudioService } from "./services/studio.service";
@@ -97,7 +96,6 @@ const app = angular
     .service("apiService", ApiService)
     .service("studioService", StudioService)
     .service("sseClientService", SseClientService)
-    .service("taskQueueService", TaskQueueService)
     .service("notificationService", NotificationService)
     .service("eventService", EventService)
     .service("actionCenterService", ActionCenterService)

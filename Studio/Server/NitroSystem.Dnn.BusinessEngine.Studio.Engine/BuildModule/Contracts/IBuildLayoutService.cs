@@ -6,6 +6,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Contracts
 {
     public interface IBuildLayoutService
     {
-        Task<string> BuildLayoutAsync(ModuleDto module, int userId, Action<string, string, double> progress);
+        Task<string> BuildLayoutAsync(ModuleDto module, int userId, Action<string, double> progress);
     }
 }

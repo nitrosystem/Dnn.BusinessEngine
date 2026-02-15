@@ -29,8 +29,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
 
         protected internal abstract TResponse CreateEmptyResponse();
 
-        protected internal virtual Task NotifyProgress(string channel, string message, double percent)
-            => OnProgress?.Invoke(channel, message, percent) ?? Task.CompletedTask;
+        protected internal virtual Task NotifyProgress(string message, double percent)
+            => OnProgress?.Invoke(message, percent) ?? Task.CompletedTask;
 
         protected internal virtual Task OnErrorAsync(IEngineContext context, TRequest request, TResponse response, Exception ex)
             => Task.CompletedTask;

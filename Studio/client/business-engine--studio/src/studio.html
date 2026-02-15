@@ -136,34 +136,6 @@
     <!------------------------------------>
 
     <!------------------------------------>
-    <!--Begin Tasks Widget-->
-    <!------------------------------------>
-    <div class="task-widget" ng-class="{'show-widget':$.showTaskWidget}">
-        <div class="header-wrapper">
-            <label class="title">Tasks For Execution</label>
-            <span class="hide-widget" ng-click="$.onHideTaskWidgetClick()">
-                <i class="codicon codicon-chrome-minimize"></i>
-            </span>
-        </div>
-        <ul class="task-list">
-            <li ng-repeat="item in $.taskQueueService.tasks">
-                <div class="task-item animate__animated" ng-class="{'animate__fadeOutDown':item.status=='completed'}">
-                    <div class="type-wrapper" ng-class="{'shine-small':item.status=='running'}">
-                        <i class="codicon"
-                            ng-class="{'codicon-issue-reopened spin text-info':item.status=='running','codicon-{{item.icon}}':!item.status=='running'}"></i>
-                        <span class="item-type">{{item.category}}</span>
-                    </div>
-                    <p class="item-text">{{item.label}}</p>
-                </div>
-                <hr class="text-light shine-line" ng-class="{'shine2':item.status=='running'}" />
-            </li>
-        </ul>
-    </div>
-    <!------------------------------------>
-    <!--End Tasks Widget-->
-    <!------------------------------------>
-
-    <!------------------------------------>
     <!--Begin Action Center Widget-->
     <!------------------------------------>
     <div class="action-center-widget" ng-class="{'show-widget':$.showActionCenterWidget}">
@@ -202,13 +174,6 @@
     <!------------------------------------>
     <!--End Action Center Widget-->
     <!------------------------------------>
-
-    <!------------------------------------>
-    <!--Blue Bar Notification-->
-    <!------------------------------------>
-    <blue-bar class="blue-bar" form="$" handler="$.blueBar"
-        notification="{text:$.taskQueueService.total[$.moduleId].title,preIcon:true,showTaskWidgetOnMouseEnter:true}"
-        action="$.taskQueueService.action"></blue-bar>
 
     <!------------------------------------>
     <!--Begin Select Scenario-->

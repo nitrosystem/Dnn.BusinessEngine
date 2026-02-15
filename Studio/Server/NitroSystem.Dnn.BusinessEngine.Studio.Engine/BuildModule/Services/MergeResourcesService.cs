@@ -17,9 +17,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
     public class MergeResourcesService : IMergeResourcesService
     {
         private ModuleDto _module;
-        private Action<string, string, double> _onProgress;
+        private Action<string, double> _onProgress;
 
-        public async Task<(string Scripts, string Styles)> MergeResourcesAsync(ModuleDto module, int userId, IEnumerable<ModuleResourceDto> resources, Action<string, string, double> progress = null)
+        public async Task<(string Scripts, string Styles)> MergeResourcesAsync(ModuleDto module, int userId, IEnumerable<ModuleResourceDto> resources, Action<string, double> progress = null)
         {
             _module = module;
             _onProgress = progress;
@@ -104,7 +104,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             foreach (var chunk in scriptChunks)
                 finalBuilder.AppendLine(chunk);
 
-            _onProgress.Invoke(_module.ScenarioName, $"Merged style resourcess for  {_module.ModuleName} module", 87.5);
+            _onProgress.Invoke($"Merged style resourcess for  {_module.ModuleName} module", 87.5);
 
             return finalBuilder.ToString();
         }
@@ -174,7 +174,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             foreach (var chunk in scriptChunks)
                 finalBuilder.AppendLine(chunk);
 
-            _onProgress.Invoke(_module.ScenarioName, $"Merged style resourcess for  {_module.ModuleName} module", 90);
+            _onProgress.Invoke($"Merged style resourcess for  {_module.ModuleName} module", 90);
 
             return finalBuilder.ToString();
         }

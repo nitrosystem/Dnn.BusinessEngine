@@ -15,7 +15,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.TypeBuilder.Middlewares
             _registry = registry;
         }
 
-        public async Task<BuildTypeResponse> InvokeAsync(IEngineContext context, BuildTypeRequest request, Func<Task<BuildTypeResponse>> next, Action<string, string, double> progress = null)
+        public async Task<BuildTypeResponse> InvokeAsync(IEngineContext context, BuildTypeRequest request, Func<Task<BuildTypeResponse>> next, Action<string, double> progress = null)
         {
             await Task.Yield();
 

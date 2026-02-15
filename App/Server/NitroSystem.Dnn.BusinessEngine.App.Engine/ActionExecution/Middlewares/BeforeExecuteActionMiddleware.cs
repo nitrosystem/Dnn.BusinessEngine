@@ -22,7 +22,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares
             _service = service;
         }
 
-        public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next, Action<string, string, double> progress = null)
+        public async Task<ActionResponse> InvokeAsync(IEngineContext context, ActionRequest request, Func<Task<ActionResponse>> next, Action<string, double> progress = null)
         {
             await Task.Yield();
 

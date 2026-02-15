@@ -55,19 +55,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Extension
             return await _repository.GetColumnValueAsync<ExtensionInfo, string>("Version", "ExtensionName", extensionName);
         }
 
-        public async Task<Guid> SaveExtensionAsync(ExtensionViewModel extension, bool isNewExtension)
+        public async Task SaveExtensionAsync(ExtensionViewModel extension, bool isNewExtension)
         {
             var objExtensionInfo = HybridMapper.Map<ExtensionViewModel, ExtensionInfo>(extension);
 
             if (isNewExtension)
-                objExtensionInfo.Id = await _repository.AddAsync<ExtensionInfo>(objExtensionInfo);
+                await _repository.AddAsync<ExtensionInfo>(objExtensionInfo);
             else
             {
                 var isUpdated = await _repository.UpdateAsync<ExtensionInfo>(objExtensionInfo);
                 if (!isUpdated) ErrorHandling.ThrowUpdateFailedException(objExtensionInfo);
             }
-
-            return objExtensionInfo.Id;
         }
     }
 }

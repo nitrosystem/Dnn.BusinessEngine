@@ -1,7 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.IO;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
@@ -12,39 +12,48 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.DataService.ViewModels.
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Models;
 using NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewares
 {
     public class SqlDataProviderMiddleware : IEngineMiddleware<InstallExtensionRequest, InstallExtensionResponse>
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IExtensionService _service;
         private readonly IExecuteSqlCommand _sqlCommand;
 
         public SqlDataProviderMiddleware(IUnitOfWork unitOfWork, IExtensionService service, IExecuteSqlCommand sqlCommand)
         {
+            _unitOfWork = unitOfWork;
             _service = service;
             _sqlCommand = sqlCommand;
         }
 
-        public async Task<InstallExtensionResponse> InvokeAsync(IEngineContext context, InstallExtensionRequest request, Func<Task<InstallExtensionResponse>> next, Action<string, string, double> progress = null)
+        public async Task<InstallExtensionResponse> InvokeAsync(IEngineContext context, InstallExtensionRequest request, Func<Task<InstallExtensionResponse>> next, Action< string, double> progress = null)
         {
-            var unzipedPath = context.Get<string>("UnzipedPath");
-            var unitOfWork = context.Get<IUnitOfWork>("UnitOfWork");
+            var isNewExtension = context.Get<bool>("IsNewExtension");
 
             try
             {
+                progress("Start sql queries", 30);
+
                 var extension = HybridMapper.Map<ExtensionManifest, ExtensionViewModel>(request.Manifest,
                     (src, dest) =>
                     {
+                        dest.Id = src.Id.Value;
                         dest.Owner = src.Owner.OwnerName;
                         dest.Url = src.Owner.Url;
                         dest.Email = src.Owner.Email;
                     });
 
-                request.Manifest.Id = await _service.SaveExtensionAsync(extension, request.Manifest.IsNewExtension);
+                context.Set<IUnitOfWork>("UnitOfWork", _unitOfWork);
 
-                var sqlProviderFolder = Path.Combine(unzipedPath, "sql-providers");
+                _unitOfWork.BeginTransaction();
+
+                 await _service.SaveExtensionAsync(extension, isNewExtension);
+
+                var sqlProviderFolder = Path.Combine(request.ExtractPath, "sql-providers");
 
                 StringBuilder queries = new StringBuilder();
 
@@ -61,12 +70,17 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
                 {
                     sqlCommands = sqlCommands.Replace("[EXTENSIONID]", request.Manifest.Id.Value.ToString());
 
-                    await _sqlCommand.ExecuteSqlCommandTextAsync(unitOfWork, sqlCommands);
+                    await _sqlCommand.ExecuteSqlCommandTextAsync(_unitOfWork, sqlCommands);
                 }
+
+                progress("End sql queries", 60);
             }
             catch (Exception ex)
             {
-                unitOfWork.Rollback();
+                progress("sql queries has error", 60);
+                progress(ex.Message, 60);
+
+                _unitOfWork.Rollback();
 
                 throw ex;
             }

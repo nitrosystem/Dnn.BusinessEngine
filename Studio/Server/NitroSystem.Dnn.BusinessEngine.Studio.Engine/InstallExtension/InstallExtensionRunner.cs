@@ -13,6 +13,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension
         private readonly IDiagnosticStore _diagnosticStore;
         private readonly ISseNotifier _notifier;
         private readonly LockService _lockService;
+        private string _channel;
+        private string _extensionName;
 
         public InstallExtensionRunner(
             IEngineRunner engineRunner,
@@ -34,32 +36,23 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension
 
             try
             {
-                //await _notifier.Publish(request.Module.ScenarioName,
-                //    new
-                //    {
-                //        channel = request.Module.ScenarioName,
-                //        type = "ActionCenter",
-                //        taskId = $"{_moduleId}-InstallExtension",
-                //        icon = "codicon codicon-agent",
-                //        title = "Build Module Test1...",
-                //        subtitle = "The module required rebuild for apply changes",
-                //        message = $"Starting build {request.Module.ModuleName}",
-                //        percent = 0,
-                //    }
-                //);
+                _channel = request.Channel;
+                _extensionName = request.Manifest.ExtensionName;
+
+                await Engine_OnProgress($"Starting install {request.Manifest.ExtensionName} extension...", 0);
 
                 var engine = new InstallExtensionEngine(_diagnosticStore);
                 engine.OnProgress += Engine_OnProgress;
 
                 var response = await _engineRunner.RunAsync(engine, request);
-                //if (response.IsSuccess)
-                //{
-                //    //await Engine_OnProgress(request.Module.ScenarioName, "Module build has been successfully!.", 100);
-                //}
-                //else
-                //    throw response.Exception;
+                if (response.IsSuccess)
+                {
+                    await Engine_OnProgress($"{request.Manifest.ExtensionName} extension has been installing successfully!.", 100);
+                }
+                else
+                    throw response.Exception;
 
-                return response;//.IsSuccess;
+                return response;
             }
             finally
             {
@@ -67,19 +60,20 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension
             }
         }
 
-        private async Task Engine_OnProgress(string channel, string message, double percent)
+        private async Task Engine_OnProgress(string message, double percent)
         {
-            //await _notifier.Publish(channel,
-            //    new
-            //    {
-            //        channel = channel,
-            //        type = "ActionCenter",
-            //        taskId = $"{_moduleId}-InstallExtension",
-            //        message = message,
-            //        percent = percent,
-            //        end = percent == 100
-            //    }
-            //);
+            await _notifier.Publish(_channel,
+                new
+                {
+                    channel = _channel,
+                    type = "InstallExtension",
+                    taskId = $"{_extensionName}-installing",
+                    message = message,
+                    percent = percent
+                }
+            );
+
+            await Task.Delay(500);
         }
     }
 }
