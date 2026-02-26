@@ -26,7 +26,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares
             request.Action.Params = finalizedParams;
 
             var actionController = await GetActionExtensionInstance(request.Action.ActionType);
-            var actionResultData = await actionController.ExecuteAsync(request.Action,request.BasePath);
+            var actionResultData = await actionController.ExecuteAsync(request.Action, request.ModuleData, request.BasePath);
+
             context.Set<object>("ResultData", actionResultData);
 
             var result = await next();

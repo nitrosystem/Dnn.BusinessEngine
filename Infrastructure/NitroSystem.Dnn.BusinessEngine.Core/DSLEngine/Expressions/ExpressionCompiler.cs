@@ -302,8 +302,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Expressions
                 return Expression.Convert(left, targetType);
             }
 
-            throw new InvalidOperationException(
-                $"Cannot compare types '{left.Type}' and '{right.Type}'");
+            //throw new InvalidOperationException($"Cannot compare types '{left.Type}' and '{right.Type}'");
+
+            return left;
         }
 
 
@@ -340,8 +341,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Expressions
                 return Expression.Convert(left, targetType);
             }
 
-            throw new InvalidOperationException(
-                $"Cannot compare types '{left.Type}' and '{right.Type}'");
+            return left;
+
+            //throw new InvalidOperationException($"Cannot compare types '{left.Type}' and '{right.Type}'");
         }
 
         private static bool IsNullable(Type type)

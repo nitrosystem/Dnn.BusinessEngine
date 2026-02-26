@@ -73,6 +73,7 @@
     <Compile Include="ActionExecution\Middlewares\ActionSetParamsMiddleware.cs" />
     <Compile Include="ActionExecution\Middlewares\ActionWorkerMiddleware.cs" />
     <Compile Include="ActionExecution\Models\ActionException.cs" />
+    <Compile Include="ActionExecution\Models\ActionResult.cs" />
     <Compile Include="ActionExecution\Models\ActionTree.cs" />
     <Compile Include="ActionExecution\BuildActionsBuffer.cs" />
     <Compile Include="ActionExecution\ActionRunner.cs" />

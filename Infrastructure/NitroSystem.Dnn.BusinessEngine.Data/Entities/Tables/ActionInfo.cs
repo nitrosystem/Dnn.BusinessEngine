@@ -19,7 +19,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Tables
         public string ActionName { get; set; }
         public string Event { get; set; }
         public int? ParentActionTriggerCondition { get; set; }
-        public bool ExecuteInClientSide { get; set; }
         public string ActionConditionsDsl { get; set; }
         public string BeforeExecuteActionDsl { get; set; }
         public string ActionResultsDsl { get; set; }

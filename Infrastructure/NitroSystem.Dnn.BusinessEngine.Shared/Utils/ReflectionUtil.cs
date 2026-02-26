@@ -109,7 +109,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Utils
             }
         }
 
-        public static bool HasProperty(this object source, string name)
+        public static bool HasProperty(object source, string name)
         {
             return source.GetType().GetProperty(name) != null;
         }

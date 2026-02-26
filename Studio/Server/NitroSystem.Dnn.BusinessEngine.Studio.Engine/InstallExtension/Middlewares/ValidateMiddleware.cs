@@ -40,7 +40,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.InstallExtension.Middlewa
 
             if (!isValid)
             {
-                context.CancellationTokenSource.Cancel();
                 return default;
             }
 

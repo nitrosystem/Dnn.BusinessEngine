@@ -61,6 +61,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Procedures\ActionForClientSpResult.cs" />
+    <Compile Include="Entities\Procedures\ActionSpResult.cs" />
     <Compile Include="Entities\Procedures\DashboardPageModuleSpResult.cs" />
     <Compile Include="Entities\Procedures\GroupItemResult.cs" />
     <Compile Include="Entities\Procedures\ModuleFieldSettingSpResult.cs" />

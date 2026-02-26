@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution
 {
     public interface IActionExecutor
     {
-        Task<object> ExecuteAsync(ActionDto action, string basePath);
+        Task<object> ExecuteAsync(ActionDto action, ConcurrentDictionary<string, object> moduleData, string basePath);
     }
 }

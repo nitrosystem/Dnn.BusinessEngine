@@ -26,6 +26,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Helpers
         { "string", "System.String" },
         { "object", "System.Object" },
         { "DateTime", "System.DateTime" },
+        { "TimeSpan", "System.TimeSpan" },
         { "Guid", "System.Guid" }
         // هرچی لازم داری اضافه کن
     };

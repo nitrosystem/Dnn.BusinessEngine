@@ -61,10 +61,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             if (resources == null)
                 throw new ArgumentNullException(nameof(resources));
 
-            var scriptChunks = new ConcurrentBag<string>();
+            var stylesChunks = new ConcurrentBag<string>();
 
             await ParallelBatchExecutor.ExecuteInParallelBatchesAsync(
-                resources,
+                resources.Where(r => !string.IsNullOrEmpty(r.ResourcePath)),
                 batchSize: 5,
                 maxDegreeOfParallelism: 3,
                 async batch =>
@@ -96,12 +96,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
                     // در پایان batch خروجی خودش را به مجموعهٔ thread-safe اضافه می‌کند
                     if (localBuilder.Length > 0)
-                        scriptChunks.Add(localBuilder.ToString());
+                        stylesChunks.Add(localBuilder.ToString());
                 });
 
             // در انتها محتوای همه batch‌ها با ترتیب تقریبی ترکیب می‌شود
             var finalBuilder = new StringBuilder();
-            foreach (var chunk in scriptChunks)
+            foreach (var chunk in stylesChunks)
                 finalBuilder.AppendLine(chunk);
 
             _onProgress.Invoke($"Merged style resourcess for  {_module.ModuleName} module", 87.5);

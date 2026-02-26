@@ -11,6 +11,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
 using NitroSystem.Dnn.BusinessEngine.Core.DiagnosticCenter.Contracts;
 using NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Models;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Core.RenderTemplate;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution
 {
@@ -30,7 +31,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution
             _diagnosticStore = diagnosticStore;
         }
 
-        public async Task<ActionResultStatus> ExecuteAsync(
+        public async Task<(IEnumerable<ActionResult> Results, bool IsRequiredToUpdateData)> ExecuteAsync(
             List<ActionDto> actions,
             string connectionId,
             Guid moduleId,
@@ -38,22 +39,23 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution
             string pageUrl,
             string basePath,
             ConcurrentDictionary<string, object> moduleData,
-            Dictionary<string, object> extraParams = null,
-            bool raiseException = true)
+            Dictionary<string, object> extraParams = null)
         {
             moduleData["_PageParam"] = UrlHelper.ParsePageParameters(pageUrl);
             moduleData["_CurrentUserId"] = userId;
 
-            bool conditionIsNotTrue = false;
+            var results = new List<ActionResult>();
+            var isRequiredToUpdateData = false;
 
-            try
+            var buffer = BuildActionsBuffer.BuildBuffer(actions);
+            while (buffer.Any())
             {
-                var buffer = BuildActionsBuffer.BuildBuffer(actions);
-                while (buffer.Any())
-                {
-                    var node = buffer.Dequeue();
-                    var action = node.Action;
+                var result = new ActionResult();
+                var node = buffer.Dequeue();
 
+                try
+                {
+                    var action = node.Action;
                     var actionRequest = new ActionRequest()
                     {
                         UserId = userId,
@@ -63,45 +65,47 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution
                         ModuleData = moduleData
                     };
 
-                    conditionIsNotTrue = false;
-
-                    var engine = new ActionExecutionEngine(_diagnosticStore, raiseException);
+                    var engine = new ActionExecutionEngine(_diagnosticStore);
                     var response = await _engineRunner.RunAsync(engine, actionRequest);
-                    if (response.Status == ActionResultStatus.Successful && response.IsRequiredToUpdateData)
-                        await _userDataStore.UpdateModuleData(connectionId, moduleId,
-                            response.ModuleData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value), basePath);
 
-                    if (response.ConditionIsNotTrue)
+                    if (response.Status == ActionResultStatus.Successful && response.IsRequiredToUpdateData)
                     {
-                        conditionIsNotTrue = true;
+                        isRequiredToUpdateData = true;
+
+                        moduleData = await _userDataStore.UpdateModuleData(connectionId, moduleId,
+                              response.ModuleData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value), basePath);
+                    }
+                    else if (response.ConditionIsNotTrue)
+                    {
+                        result.Status = ActionResultStatus.ConditionIsNotTrue;
                         continue;
                     }
 
-                    if (response.Status == ActionResultStatus.Successful)
+                    if (action.IsRedirectable && !string.IsNullOrEmpty(response.RedirectUrl))
                     {
-                        EnqueueChildren(buffer, node.SuccessActions);
+                        result.IsRedirectable = true;
+                        result.RedirectUrl = response.RedirectUrl;
                     }
-                    if (response.Status == ActionResultStatus.Failure)
-                    {
-                        EnqueueChildren(buffer, node.ErrorActions);
-                    }
-                    else
-                    {
-                        EnqueueChildren(buffer, node.CompletedActions);
-                    }
+
+                    result.Status = ActionResultStatus.Successful;
+
+                    EnqueueChildren(buffer, node.SuccessActions);
                 }
+                catch (Exception)
+                {
+                    result.Status = ActionResultStatus.Failure;
 
-                if (conditionIsNotTrue)
-                    return ActionResultStatus.ConditionIsNotTrue;
-                else
-                    return ActionResultStatus.Successful;
-            }
-            catch (Exception ex)
-            {
-                if (raiseException) throw;
+                    EnqueueChildren(buffer, node.ErrorActions);
+                }
+                finally
+                {
+                    results.Add(result);
 
-                return ActionResultStatus.Failure;
+                    EnqueueChildren(buffer, node.CompletedActions);
+                }
             }
+
+            return (results, isRequiredToUpdateData);
         }
 
         private void EnqueueChildren(Queue<ActionTree> buffer, Queue<ActionTree> children)

@@ -810,29 +810,29 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         [HttpGet]
         public async Task<HttpResponseMessage> GetAction(Guid moduleId)
         {
-            return await GetAction(moduleId, Guid.Empty, string.Empty);
+            return await GetAction(moduleId, null, string.Empty);
         }
 
         [HttpGet]
         public async Task<HttpResponseMessage> GetAction(Guid moduleId, string fieldType)
         {
-            return await GetAction(moduleId, null, Guid.Empty, fieldType);
+            return await GetAction(moduleId, null, null, fieldType);
         }
 
         [HttpGet]
         public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid? fieldId, string fieldType)
         {
-            return await GetAction(moduleId, fieldId, Guid.Empty, fieldType);
+            return await GetAction(moduleId, fieldId, null, fieldType);
         }
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid actionId)
+        public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid? actionId)
         {
             return await GetAction(moduleId, null, actionId, string.Empty);
         }
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid? fieldId, Guid actionId, string fieldType)
+        public async Task<HttpResponseMessage> GetAction(Guid moduleId, Guid? fieldId, Guid? actionId, string fieldType)
         {
             try
             {
@@ -841,8 +841,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var actions = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, 1, 1000, null, null, "ActionName");
                 var variables = await _moduleVariableService.GetModuleVariablesListItemAsync(moduleId);
                 var events = new List<ModuleEventTypeListItem>();
-                var action = actionId != Guid.Empty
-                        ? await _actionService.GetActionViewModelAsync(actionId)
+                var action = actionId.HasValue
+                        ? await _actionService.GetActionViewModelAsync(actionId.Value)
                         : null;
 
                 var serviceType = action != null && action.ServiceId.HasValue

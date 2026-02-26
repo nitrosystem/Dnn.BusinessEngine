@@ -30,6 +30,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Globals
             { "Guid", "Guid?" },
             { "DateTime", "DateTime?" },
             { "TimeSpan", "TimeSpan?" },
+
+            { "Object", "object" },
         };
 
         public static readonly Dictionary<string, string> ModulePopularPaths = new Dictionary<string, string>()

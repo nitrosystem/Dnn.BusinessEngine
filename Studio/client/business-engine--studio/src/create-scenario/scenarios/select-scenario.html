@@ -1,0 +1,34 @@
+<div class="container-custom login-register-container" style="direction:ltr">
+    <div class="screen row">
+        <div class="slider-section col-md-7">
+            <span></span>
+        </div>
+        <div class="screen__content login-section col-md-5">
+            <div class="image-login">
+                <a href="https://azadisq.com"><img src="/Portals/0/azadisq-logo-main.png" class="logo__img" /></a>
+                <span class="title-login"> مجله میدان آزادی</span>
+            </div>
+
+            <!---------------------------------------------
+                            Login Section
+            --------------------------------------------->
+            <div class="login" b-if="!mode || mode=='login'" data-pane="LoginPane" data-pane-title="Login Pane">
+
+            </div>
+            <!---------------------------------------------
+                            Register Section
+            --------------------------------------------->
+            <div class="register" b-if="mode=='register'" data-pane="RegisterPane" data-pane-title="Register Pane">
+
+            </div>
+            <!---------------------------------------------
+                            Forget Password Section
+            --------------------------------------------->
+            <div class="forget" b-if="mode=='forget-password'" data-pane="ForgetPane" data-pane-title="Forget Pane">
+
+            </div>
+            <div class="login-link" data-pane="LinkButtonPane" data-pane-title="LinkButton Pane">
+            </div>
+        </div>
+    </div>
+</div>

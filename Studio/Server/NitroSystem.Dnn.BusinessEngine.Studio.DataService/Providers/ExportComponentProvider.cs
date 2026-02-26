@@ -28,74 +28,74 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Providers
         public IEnumerable<ExportComponent> GetComponents()
         {
             return new[]
+            {
+                new ExportComponent
                 {
-                    new ExportComponent
-                    {
-                        Name = "Scenario",
-                        Service = _sp.GetRequiredService<BaseService>(),
-                        Priority = 1
-                    },
-                    new ExportComponent
-                    {
-                        Name = "Entity",
-                        Service = _sp.GetRequiredService<EntityService>(),
-                        Priority = 2
-                    },
-                    new ExportComponent
-                    {
-                        Name = "AppModel",
-                        Service = _sp.GetRequiredService<AppModelService>(),
-                        Priority = 3
-                    },
-                    new ExportComponent
-                    {
-                        Name = "Service",
-                        Service = _sp.GetRequiredService<ServiceFactory>(),
-                        Priority = 4
-                    },
-                    new ExportComponent
-                    {
-                        Name = "DefinedList",
-                        Service = _sp.GetRequiredService<DefinedListService>(),
-                        Priority = 5
-                    },
-                    new ExportComponent
-                    {
-                        Name = "Module",
-                        Service = _sp.GetRequiredService<ModuleService>(),
-                        Priority = 6
-                    },
-                    new ExportComponent
-                    {
-                        Name = "ModuleLibraryAndResource",
-                        Service = _sp.GetRequiredService<ModuleLibraryAndResourceService>(),
-                        Priority = 7
-                    },
-                    new ExportComponent
-                    {
-                        Name = "ModuleVariable",
-                        Service = _sp.GetRequiredService<ModuleVariableService>(),
-                        Priority = 8
-                    },
-                    new ExportComponent
-                    {
-                        Name = "ModuleField",
-                        Service = _sp.GetRequiredService<ModuleFieldService>(),
-                        Priority = 9
-                    },
-                    new ExportComponent
-                    {
-                        Name = "Dashboard",
-                        Service = _sp.GetRequiredService<DashboardService>(),
-                        Priority = 10
-                    },
-                    new ExportComponent
-                    {
-                        Name = "Action",
-                        Service = _sp.GetRequiredService<ActionService>(),
-                        Priority = 11
-                    }
-                };
+                    Name = "Scenario",
+                    Service = _sp.GetRequiredService<BaseService>(),
+                    Priority = 1
+                },
+                new ExportComponent
+                {
+                    Name = "Entity",
+                    Service = _sp.GetRequiredService<EntityService>(),
+                    Priority = 2
+                },
+                new ExportComponent
+                {
+                    Name = "AppModel",
+                    Service = _sp.GetRequiredService<AppModelService>(),
+                    Priority = 3
+                },
+                new ExportComponent
+                {
+                    Name = "Service",
+                    Service = _sp.GetRequiredService<ServiceFactory>(),
+                    Priority = 4
+                },
+                new ExportComponent
+                {
+                    Name = "DefinedList",
+                    Service = _sp.GetRequiredService<DefinedListService>(),
+                    Priority = 5
+                },
+                new ExportComponent
+                {
+                    Name = "Module",
+                    Service = _sp.GetRequiredService<ModuleService>(),
+                    Priority = 6
+                },
+                new ExportComponent
+                {
+                    Name = "ModuleLibraryAndResource",
+                    Service = _sp.GetRequiredService<ModuleLibraryAndResourceService>(),
+                    Priority = 7
+                },
+                new ExportComponent
+                {
+                    Name = "ModuleVariable",
+                    Service = _sp.GetRequiredService<ModuleVariableService>(),
+                    Priority = 8
+                },
+                new ExportComponent
+                {
+                    Name = "ModuleField",
+                    Service = _sp.GetRequiredService<ModuleFieldService>(),
+                    Priority = 9
+                },
+                new ExportComponent
+                {
+                    Name = "Dashboard",
+                    Service = _sp.GetRequiredService<DashboardService>(),
+                    Priority = 10
+                },
+                new ExportComponent
+                {
+                    Name = "Action",
+                    Service = _sp.GetRequiredService<ActionService>(),
+                    Priority = 11
+                }
+            };
         }
     }
 }

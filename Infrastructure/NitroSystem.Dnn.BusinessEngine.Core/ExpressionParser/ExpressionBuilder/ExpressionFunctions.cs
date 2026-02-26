@@ -28,6 +28,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.ExpressionParser.ExpressionBuilder
                     else
                         throw new Exception("Param is not IEnumerable");
                 }),
+                ["RandomRange"] = new Func<int, int, int>((from, to) =>
+                {
+                    return new Random().Next(from, to);
+                }),
+                ["GetPropertyFromJson"] = new Func<string, string, object>((json, path) =>
+                {
+                    var token = JToken.Parse(json);
+                    return token.SelectToken(path);
+                }),
                 ["Length"] = new Func<object, object>((arg) =>
                 {
                     if (arg is string)

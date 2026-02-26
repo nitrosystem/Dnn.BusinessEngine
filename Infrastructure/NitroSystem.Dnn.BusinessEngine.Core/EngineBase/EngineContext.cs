@@ -10,7 +10,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
         private readonly Dictionary<string, object> _items = new();
 
         public string CurrentMiddleware { get; set; }
-        public CancellationTokenSource CancellationTokenSource { get; }
 
         public void Set<T>(string key, T value)
             => _items[key] = value;

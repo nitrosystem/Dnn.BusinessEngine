@@ -61,10 +61,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 ]]
                 [FIELD-COMPONENT]
                 [[IF:CanHaveValue == true && IsRequired == true:
-                    <p b-show=""[FIELD].isValidated==true && [FIELD].isValid==false && [FIELD].requiredError==true"" class=""[[Settings.RequiredMessageCssClass??b-field-invalid-message]]"">[[Settings.RequiredMessage]]</p>
+                    <p b-show=""[FIELD].isValidated==true && [FIELD].isValid==false && [FIELD].requiredError==true"" class=""[[Settings.RequiredMessageCssClass??b-field-invalid-message]]"" style=""display:none;"">[[Settings.RequiredMessage]]</p>
                 ]]
                 [[IF:CanHaveValue == true && GlobalSettings.EnableValidationPattern == true && GlobalSettings.ValidationPattern != null:
-                    <p b-show=""[FIELD].isValidated && ![FIELD].isValid && [FIELD].patternError"" class=""[[Settings.ValidationMessageCssClass??b-field-pattern-message]]"">[[Settings.ValidationMessage]]</p>
+                    <p b-show=""[FIELD].isValidated && ![FIELD].isValid && [FIELD].patternError"" class=""[[Settings.ValidationMessageCssClass??b-field-pattern-message]]"" style=""display:none;"">[[Settings.ValidationMessage]]</p>
                 ]]
                 [[IF:GlobalSettings.Subtext != null:
                     <span class=""[[Settings.SubtextCssClass??b-field-subtext]]"">[[Settings.Subtext]]</span>
@@ -105,7 +105,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             _layoutTemplate = module.LayoutTemplate;
             _panes = new Dictionary<string, PaneDefinition>();
 
+            await LoadTemplates(_module.Fields);
+
             InitializePanes();
+
+            _onProgress.Invoke($"Loaded resource content of {_module.ModuleName} module", 15);
 
             _fieldMap = _module.Fields
                 .GroupBy(f => f.ParentId ?? Guid.Empty)
@@ -113,15 +117,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                     g => g.Key,
                     g => g.OrderBy(f => f.ViewOrder).ToList()
                 );
-
-            _fieldMap.TryGetValue(Guid.Empty, out var parents);
-
-            await LoadTemplates(_module.Fields);
-
-            _onProgress.Invoke($"Loaded resource content of {_module.ModuleName} module", 15);
-
+            _fieldMap.TryGetValue(Guid.Empty, out var roots);
             _buffer = new Queue<ModuleFieldDto>();
-            foreach (var item in parents)
+
+            foreach (var item in roots)
             {
                 _buffer.Enqueue(item);
                 CreateBuffer(item);
@@ -203,8 +202,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
             foreach (var child in childs)
             {
                 _buffer.Enqueue(child);
-                if (field.ParentId.HasValue)
-                    CreateBuffer(child);
+                CreateBuffer(child);
             }
         }
 
@@ -347,7 +345,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
             _onProgress.Invoke($"Render template {field.FieldType} of {_module.ModuleName} module", 15 + (_fieldIndex * _progressStep));
 
-            return template.Replace("[TOKENS]", $@"data-fi=""{field.Id}""");
+            return template.Replace("[TOKENS]", $@"__b=""{field.Id}""");
         }
 
         #endregion

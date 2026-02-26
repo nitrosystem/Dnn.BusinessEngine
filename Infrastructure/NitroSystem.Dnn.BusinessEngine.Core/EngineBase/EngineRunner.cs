@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Core.EngineBase.Contracts;
 
@@ -31,19 +32,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
                     var middleware = factory(_services);
                     var previous = next;
 
-                    //next = async () =>
-                    //{
-                    //    context.CurrentMiddleware = middleware.GetType().Name;
-                    //    return await middleware.InvokeAsync(context, request, previous,
-                    //        (string channel, string message, double percent) => engine.NotifyProgress(channel, message, percent));
-                    //};
-
                     next = async () =>
                     {
-                        // 🔴 Guard مرکزی
-                        if (context.CancellationTokenSource != null && context.CancellationTokenSource.IsCancellationRequested)
-                            return response;
-
                         context.CurrentMiddleware = middleware.GetType().Name;
 
                         var result = await middleware.InvokeAsync(
@@ -53,13 +43,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.EngineBase
                             (message, percent) =>
                                 engine.NotifyProgress(message, percent));
 
-                        // 🔴 Guard بعد از اجرا
-                        if (context.CancellationTokenSource != null && context.CancellationTokenSource.IsCancellationRequested)
-                            return response;
-
                         return result;
                     };
-
                 }
 
                 response = await next();

@@ -27,34 +27,39 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution.Middlewares
             var action = request.Action;
             var moduleData = request.ModuleData;
             var isRequiredToUpdateData = false;
+            var result = new ActionResponse();
 
-            if (context.TryGet<object>("ResultData", out var actionResult) && !string.IsNullOrWhiteSpace(action.ActionResultsDsl))
+            if (context.TryGet<object>("ResultData", out var actionResult))
             {
-                WithServiceResult(moduleData, actionResult, () =>
+                if (request.Action.IsRedirectable)
+                    result.RedirectUrl = actionResult?.ToString();
+                else if (!string.IsNullOrWhiteSpace(action.ActionResultsDsl))
                 {
-                    var tokenizer = new Tokenizer(action.ActionResultsDsl);
-                    List<Token> tokens = tokenizer.Tokenize();
+                    WithServiceResult(moduleData, actionResult, () =>
+                    {
+                        var tokenizer = new Tokenizer(action.ActionResultsDsl);
+                        List<Token> tokens = tokenizer.Tokenize();
 
-                    var parser = new DslParser(tokens);
-                    DslScript script = parser.ParseScript();
+                        var parser = new DslParser(tokens);
+                        DslScript script = parser.ParseScript();
 
-                    var dslContext = new DslContext(moduleData);
+                        var dslContext = new DslContext(moduleData);
 
-                    var compiler = new ExpressionCompiler(dslContext);
-                    var executor = new DslExecutor(compiler);
+                        var compiler = new ExpressionCompiler(dslContext);
+                        var executor = new DslExecutor(compiler);
 
-                    executor.Execute(script, dslContext);
+                        executor.Execute(script, dslContext);
 
-                    isRequiredToUpdateData = true;
-                });
+                        isRequiredToUpdateData = true;
+                    });
+
+                    result.ModuleData = moduleData;
+                }
             }
 
-            var result = new ActionResponse()
-            {
-                IsRequiredToUpdateData = isRequiredToUpdateData,
-                Status = ActionResultStatus.Successful,
-                ModuleData = moduleData
-            };
+            result.IsRequiredToUpdateData = isRequiredToUpdateData;
+            result.Status = ActionResultStatus.Successful;
+
             return result;
         }
 

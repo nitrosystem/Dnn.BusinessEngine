@@ -289,9 +289,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             var childTable = AttributeCache.Instance.GetTableName<TChild>();
             var parentTable = AttributeCache.Instance.GetTableName<TParent>();
             var cacheAttr = AttributeCache.Instance.GetCache<TChild>();
-            var cacheKey = !string.IsNullOrEmpty(cacheAttr.key)
-               ? CacheKeyBuilder.BuildCacheKey(cacheAttr.key, null, new string[1] { parentColumn })
-               : string.Empty;
+            var cacheKey = "";
+            //!string.IsNullOrEmpty(cacheAttr.key)
+            //   ? CacheKeyBuilder.BuildCacheKey(cacheAttr.key, null, new string[1] { parentColumn })
+            //   : string.Empty;
 
             var query = $"SELECT * FROM {childTable} WHERE {childColumn} in (SELECT Id FROM {parentTable} WHERE {parentColumn} = @Value)";
 
@@ -327,7 +328,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             if (lastModifiedByUserProp != null)
                 lastModifiedByUserProp.SetValue(entity, Constants.CurrentUser.UserID);
 
-            var columns = string.Join(", ", properties.Select(p => p.Name));
+            var columns = string.Join(", ", properties.Select(p => $"[{p.Name}]"));
             var values = string.Join(", ", properties.Select(p => "@" + p.Name));
 
             var sql = $"INSERT INTO {table} ({columns}) VALUES ({values});";
@@ -426,7 +427,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Data.Repository
             if (!properties.Any())
                 throw new InvalidOperationException("No valid properties to update.");
 
-            var setClause = string.Join(", ", properties.Select(p => $"{p.Name} = @{p.Name}"));
+            var setClause = string.Join(", ", properties.Select(p => $"[{p.Name}] = @{p.Name}"));
             var sql = $"UPDATE {table} SET {setClause} WHERE Id = @Id;";
 
             try

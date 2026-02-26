@@ -194,7 +194,8 @@ export class CreateModuleModuleBuilderController {
             this.globalService.parseJsonItems(this.fields);
 
             this.variablesAsDataSource = _.filter(data.Variables, v =>
-                v.Scope !== 'ServerSide' && v.VariableType === 'AppModelList'
+                v.Scope !== 'ServerSide' &&
+                (v.VariableType === 'AppModelList' || v.VariableType === 'object')
             );
 
             let suggestions = {};

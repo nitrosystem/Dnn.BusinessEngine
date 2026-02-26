@@ -16,6 +16,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
 {
@@ -87,7 +88,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Action
 
         public async Task<Guid> SaveActionAsync(ActionViewModel action, bool isNew)
         {
-            var objActionInfo = HybridMapper.Map<ActionViewModel, ActionInfo>(action);
+            var objActionInfo = HybridMapper.Map<ActionViewModel, ActionInfo>(action,
+                (src, dest) =>
+                {
+                    if (src.Event != "OnActionCompleted" && dest.ParentId.HasValue) dest.ParentId = null;
+                });
             var actionParams = HybridMapper.MapCollection<ActionParamViewModel, ActionParamInfo>(action.Params);
 
             _unitOfWork.BeginTransaction();

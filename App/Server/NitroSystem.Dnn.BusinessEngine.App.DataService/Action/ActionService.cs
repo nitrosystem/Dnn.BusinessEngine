@@ -8,6 +8,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Data.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
 {
@@ -22,7 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
 
         public async Task<List<ActionDto>> GetActionsAsync(Guid moduleId, Guid? fieldId = null, Guid? actionId = null, string eventName = null, ModuleEventTriggerOn? triggerOn = null)
         {
-            var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionInfo, ActionParamInfo>(
+            var results = await _repository.ExecuteStoredProcedureMultipleAsync<ActionSpResult, ActionParamInfo>(
                "dbo.BusinessEngine_App_GetActions", "BE_Actions_App_",
                    new
                    {
@@ -37,7 +38,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
             var actions = results.Item1;
             var actionParams = results.Item2;
 
-            var result = HybridMapper.MapWithChildren<ActionInfo, ActionDto, ActionParamInfo, ActionParamDto>(
+            var result = HybridMapper.MapWithChildren<ActionSpResult, ActionDto, ActionParamInfo, ActionParamDto>(
               parents: actions,
               children: actionParams,
               parentKeySelector: p => p.Id,
@@ -50,7 +51,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
 
         public async Task<IEnumerable<ActionDto>> GetActionsDtoForClientAsync(Guid moduleId)
         {
-            var actions = await _repository.ExecuteStoredProcedureAsListAsync<ActionInfo>(
+            var actions = await _repository.ExecuteStoredProcedureAsListAsync<ActionForClientSpResult>(
                 "dbo.BusinessEngine_App_GetActionsForClient", "BE_Actions_App_ForClient_",
                     new
                     {
@@ -58,7 +59,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Action
                     }
                 );
 
-            return HybridMapper.MapCollection<ActionInfo, ActionDto>(actions).ToList();
+            return HybridMapper.MapCollection<ActionForClientSpResult, ActionDto>(actions).ToList();
         }
 
         public async Task<string> GetBusinessControllerClass(string actionType)

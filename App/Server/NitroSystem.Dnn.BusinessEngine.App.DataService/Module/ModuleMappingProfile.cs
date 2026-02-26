@@ -36,6 +36,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.Module
             HybridMapper.BeforeMap<ModuleVariableInfo, ModuleVariableDto>(
                 (src, dest) => dest.Scope = (ModuleVariableScope)src.Scope);
 
+            HybridMapper.BeforeMap<ModuleFieldDataSourceInfo, ModuleFieldDataSourceDto>(
+                (src, dest) => dest.Type = (ModuleFieldDataSourceType)src.Type);
+
             #endregion
 
             #region Module Variable

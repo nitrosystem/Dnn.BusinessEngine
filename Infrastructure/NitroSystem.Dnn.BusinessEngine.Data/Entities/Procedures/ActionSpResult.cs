@@ -1,10 +1,8 @@
-﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
-using System;
-using System.Collections.Generic;
+﻿using System;
 
-namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
+namespace NitroSystem.Dnn.BusinessEngine.Data.Entities.Procedures
 {
-    public class ActionDto
+    public class ActionSpResult
     {
         public Guid Id { get; set; }
         public Guid ModuleId { get; set; }
@@ -14,14 +12,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Dto
         public string ActionType { get; set; }
         public string ActionName { get; set; }
         public string Event { get; set; }
+        public int? ParentActionTriggerCondition { get; set; }
         public string ActionConditionsDsl { get; set; }
         public string BeforeExecuteActionDsl { get; set; }
         public string ActionResultsDsl { get; set; }
+        public string AuthorizationRunAction { get; set; }
+        public string Settings { get; set; }
         public int ViewOrder { get; set; }
         public bool IsRedirectable { get; set; }
-        public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
-        public IEnumerable<string> AuthorizationRunAction { get; set; }
-        public IEnumerable<ActionParamDto> Params { get; set; }
-        public Dictionary<string,object> Settings { get; set; }
     }
 }

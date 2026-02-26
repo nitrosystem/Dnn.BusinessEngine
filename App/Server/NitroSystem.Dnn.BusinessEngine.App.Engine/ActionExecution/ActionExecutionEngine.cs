@@ -13,10 +13,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution
     {
         private readonly bool _raiseException;
 
-        public ActionExecutionEngine(IDiagnosticStore diagnosticStore, bool raiseException)
+        public ActionExecutionEngine(IDiagnosticStore diagnosticStore)
             : base(diagnosticStore)
         {
-            _raiseException = raiseException;
         }
 
         protected override void ConfigurePipeline(EnginePipeline<ActionRequest, ActionResponse> pipeline)
@@ -42,42 +41,32 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution
             )
         {
             var entry =
-                   DiagnosticEntryBuilder
-                       .Runtime()
-                       .Error("BE-ACT-001", "Action execution failed")
-                       .From(
-                           module: "ActionExecutionEngine",
-                           component: context.CurrentMiddleware,
-                           operation: "Execute")
-                       .WithTraceId(TraceId)
-                       .WithContext(ctx =>
-                       {
-                           ctx.ModuleId = request.Action.ModuleId;
-                           ctx.EntryId = request.Action.Id;
-                           ctx.UserId = request.UserId;
-                           ctx.Data = new Dictionary<string, object>()
-                           {
-                               ["Request"] = request,
-                               ["Context"] = context,
-                               ["Response"] = response
-                           };
-                       })
-                       .WithException(ex)
-                       .Build();
+                DiagnosticEntryBuilder
+                    .Runtime()
+                    .Error("BE-ACT-001", "Action execution failed")
+                    .From(
+                        module: "ActionExecutionEngine",
+                        component: context.CurrentMiddleware,
+                        operation: "Execute")
+                    .WithTraceId(TraceId)
+                    .WithContext(ctx =>
+                    {
+                        ctx.ModuleId = request.Action.ModuleId;
+                        ctx.EntryId = request.Action.Id;
+                        ctx.UserId = request.UserId;
+                        ctx.Data = new Dictionary<string, object>()
+                        {
+                            ["Request"] = request,
+                            ["Context"] = context,
+                            ["Response"] = response
+                        };
+                    })
+                    .WithException(ex)
+                    .Build();
 
             await DiagnosticStore.Save(entry);
 
-            if (_raiseException) throw ex;
-
-            //response.Status = ActionResultStatus.Error;
-            //response.CompletionMiddleware = context.CurrentMiddleware;
-            //response.ErrorException =
-            //    new ActionException(
-            //        ex.Message,
-            //        ActionExceptionState.Execution,
-            //        context.Get<List<ActionParamDto>>("ParsedParams"),
-            //        ex
-            //    );
+            throw ex;
         }
     }
 }

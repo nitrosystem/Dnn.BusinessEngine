@@ -67,8 +67,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                         pageUrl,
                         PortalSettings.HomeSystemDirectoryMapPath,
                         moduleData,
-                        null,
-                        false);
+                        null);
 
                 var data = _userDataStore.GetDataForClients(connectionId, moduleId) ?? new ConcurrentDictionary<string, object>();
                 var variables = await _moduleService.GetVariables(moduleId, ModuleVariableScope.Global, ModuleVariableScope.ClientSide);
@@ -81,7 +80,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                     dashboard,
                     fields,
                     variables,
-                    actions = clientActions.Select(a => new { a.FieldId, a.Event })
+                    actions = clientActions.Select(a => new { a.FieldId, a.Event }),
+                    pageActions = actions
                 });
 
                 //return Request.CreateResponse(HttpStatusCode.OK, new
@@ -105,7 +105,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
             {
                 var moduleData = await _userDataStore.UpdateModuleData(action.ConnectionId, action.ModuleId, action.Data, PortalSettings.HomeSystemDirectoryMapPath);
                 var actions = await _actionService.GetActionsAsync(action.ModuleId, action.FieldId, action.ActionId, action.Event, ModuleEventTriggerOn.PageLoadOrComponentBehavior);
-                var result = await _actionRunner.ExecuteAsync(
+                var items = await _actionRunner.ExecuteAsync(
                         actions.Where(a => a.AuthorizationRunAction == null || a.AuthorizationRunAction.Any(r => UserInfo.IsInRole(r))).ToList(),
                         action.ConnectionId,
                         action.ModuleId,
@@ -117,14 +117,8 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                     );
 
                 var data = _userDataStore.GetDataForClients(action.ConnectionId, action.ModuleId) ?? new ConcurrentDictionary<string, object>();
-                var payload = new object();
 
-                if (result == ActionResultStatus.ConditionIsNotTrue)
-                    payload = new { status = result, message = "Condition Is Not True" };
-                else if (result == ActionResultStatus.Successful)
-                    payload = new { status = result, data = data };
-
-                return Request.CreateResponse(HttpStatusCode.OK, payload);
+                return Request.CreateResponse(HttpStatusCode.OK, new { items.Results, items.IsRequiredToUpdateData, Data = data });
             }
             catch (Exception ex)
             {

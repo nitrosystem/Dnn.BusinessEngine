@@ -95,6 +95,32 @@ namespace NitroSystem.Dnn.BusinessEngine.Shared.Helpers
             }
         }
 
+        public static Type ResolveType(string typeName)
+        {
+            return typeName.Trim() switch
+            {
+                "int?" => typeof(int?),
+                "int" => typeof(int),
+                "long?" => typeof(long?),
+                "long" => typeof(long),
+                "double?" => typeof(double?),
+                "double" => typeof(double),
+                "float?" => typeof(float?),
+                "float" => typeof(float),
+                "decimal?" => typeof(decimal?),
+                "decimal" => typeof(decimal),
+                "bool?" => typeof(bool?),
+                "bool" => typeof(bool),
+                "string" => typeof(string),
+                "DateTime?" => typeof(DateTime?),
+                "DateTime" => typeof(DateTime),
+                "Guid?" => typeof(Guid?),
+                "Guid" => typeof(Guid),
+                "object" => typeof(object),
+                _ => throw new NotSupportedException($"Type '{typeName}' is not supported.")
+            };
+        }
+
         public static bool CheckDataTypeIsNonObject(Type dataType)
         {
             if (dataType == typeof(string)) return true;

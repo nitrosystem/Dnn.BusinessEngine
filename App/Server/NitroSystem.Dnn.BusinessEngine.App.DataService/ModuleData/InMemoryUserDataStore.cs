@@ -10,6 +10,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.App.DataService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeLoader;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 
 namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
 {
@@ -94,18 +95,25 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
                 if (value != null && variable.VariableType != "string" && string.IsNullOrEmpty(value.ToString()))
                     value = null;
 
+                Type type = null;
+
                 if (variable.VariableType == "AppModel" && value != null && value.GetType() == typeof(JObject))
                 {
-                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, basePath);
+                    type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, basePath);
                     var json = incomingData[variable.VariableName].ToString();
                     value = Newtonsoft.Json.JsonConvert.DeserializeObject(json, type);
                 }
                 else if (variable.VariableType == "AppModelList" && value != null && value.GetType() == typeof(JArray))
                 {
-                    var type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, basePath);
+                    type = _typeLoaderFactory.GetTypeFromAssembly(variable.ModelTypeRelativePath, variable.ModelTypeFullName, variable.ScenarioName, basePath);
                     var listType = typeof(List<>).MakeGenericType(type);
                     var json = incomingData[variable.VariableName].ToString();
                     value = Newtonsoft.Json.JsonConvert.DeserializeObject(json, listType);
+                }
+                else if (variable.VariableType != "AppModel" && variable.VariableType != "AppModelList" && value != null)
+                {
+                    type = TypeChecker.ResolveType(variable.VariableType);
+                    value = ConvertValue(value, type);
                 }
 
                 moduleData.TryUpdate(variable.VariableName, value, moduleData[variable.VariableName]);
@@ -153,7 +161,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
                     }
                     else
                     {
-                        moduleData[variable.VariableName] = null;// TypeChecker.GetSystemTypeDefaultValue(variable.VariableType);
+                        moduleData[variable.VariableName] = null; Shared.Helpers.TypeChecker.GetSystemTypeDefaultValue(variable.VariableType);
 
                         if (!string.IsNullOrWhiteSpace(variable.DefaultValue))
                         {
@@ -210,7 +218,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
             }
         }
 
-        public static object ConvertOrNull(string value, string typeName)
+        private static object ConvertOrNull(string value, string typeName)
         {
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
@@ -243,6 +251,29 @@ namespace NitroSystem.Dnn.BusinessEngine.App.DataService.ModuleData
             {
                 return null;
             }
+        }
+
+        private static object ConvertValue(object rawValue, Type targetType)
+        {
+            // اگه null بود
+            if (rawValue == null || rawValue is string s && string.IsNullOrEmpty(s))
+            {
+                // چک کن nullable یا string باشه
+                bool isNullable = !targetType.IsValueType ||
+                                  Nullable.GetUnderlyingType(targetType) != null;
+                if (isNullable) return null;
+                throw new InvalidCastException($"Cannot assign null to non-nullable type {targetType}");
+            }
+
+            // اگه already همون تایپه، برگردون
+            if (targetType.IsInstanceOfType(rawValue))
+                return rawValue;
+
+            // تایپ زیرین Nullable رو بگیر (مثلاً int? => int)
+            var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+            // تبدیل
+            return Convert.ChangeType(rawValue, underlyingType);
         }
     }
 }
