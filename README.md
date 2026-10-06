@@ -41,6 +41,16 @@ The project is completely free and open source. There is no commercial edition o
 
 Its extension-based architecture also makes it possible for the community to build and share additional functionality in the future.
 
+## 🎥 Initial Demo & Introduction
+
+This video provides an **initial introduction and demo of Business Engine**, showing the application builder in action and demonstrating how a business application can be created using its visual development environment.
+
+It is **not a complete tutorial**. Instead, it provides a brief, output-focused overview of Business Engine and some of its core capabilities.
+
+▶️ **Watch the video on YouTube:**
+https://www.youtube.com/watch?v=R8yv6QlQwGM
+
+
 ### Project Status
 
 🚧 **Beta**
