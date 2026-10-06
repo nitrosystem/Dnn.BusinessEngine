@@ -1,0 +1,27 @@
+﻿<div class="b-field">
+    <label class="form-label">Enable Paging</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.EnablePaging" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div ng-if="$.currentField.Settings.EnablePaging">
+    <div class="b-field">
+        <label class="form-label">Total Count Variable</label>
+        <div properties-editor editor-id="propGridTotalCount_{{$.currentField.Id}}"
+            ng-model="$.currentField.Settings.TotalCount" suggestions="$.suggestions">
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Page Index</label>
+        <div properties-editor editor-id="propGridPageIndex_{{$.currentField.Id}}"
+            ng-model="$.currentField.Settings.PageIndex" suggestions="$.suggestions">
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Page Size</label>
+        <div properties-editor editor-id="propGridPageSize_{{$.currentField.Id}}"
+            ng-model="$.currentField.Settings.PageSize" suggestions="$.suggestions">
+        </div>
+    </div>
+</div>

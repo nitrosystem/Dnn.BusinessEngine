@@ -1,0 +1,12 @@
+<svg viewBox="25.7 25.7 68.6 70.6" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ufAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 32 H72 L88 48 V90 H32 Z" fill="#171b22" stroke="url(#ufAccent)" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M72 32 V48 H88" fill="none" stroke="url(#ufAccent)" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M52 78 V54" stroke="#e7ecf3" stroke-width="4" stroke-linecap="round"/>
+  <path d="M44 62 L52 54 L60 62" fill="none" stroke="#e7ecf3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

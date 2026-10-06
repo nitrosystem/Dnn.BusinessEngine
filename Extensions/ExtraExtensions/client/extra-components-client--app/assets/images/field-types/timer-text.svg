@@ -1,0 +1,14 @@
+<svg viewBox="23.7 17.0 72.9 83.3" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ttAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbbf5f"/>
+      <stop offset="100%" stop-color="#e08a2f"/>
+    </linearGradient>
+  </defs>
+  <rect x="50" y="22" width="20" height="8" rx="4" fill="#5a6472"/>
+  <circle cx="60" cy="64" r="30" fill="#171b22" stroke="#3a4250" stroke-width="2.5"/>
+  <path d="M60 34 A30 30 0 0 1 85 79" fill="none" stroke="url(#ttAccent)" stroke-width="5" stroke-linecap="round"/>
+  <line x1="60" y1="64" x2="60" y2="44" stroke="#e7ecf3" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="60" y1="64" x2="74" y2="64" stroke="#e7ecf3" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="60" cy="64" r="3.5" fill="url(#ttAccent)"/>
+</svg>

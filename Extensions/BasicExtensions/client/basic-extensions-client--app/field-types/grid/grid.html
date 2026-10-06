@@ -1,0 +1,77 @@
+﻿<div class="b-grid-responsive" [TOKENS]>
+    <div b-if="[FIELD].isLoading" class="grid-loading">
+        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-arrow-repeat"
+            viewBox="0 0 16 16">
+            <path
+                d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
+            <path fill-rule="evenodd"
+                d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
+        </svg>
+    </div>
+    <table class="b-grid-table">
+        <thead class="g-header">
+            <tr class="g-header-row">
+                <th b-list="column in [FIELD].Settings.Columns | orderBy:'ViewOrder'"
+                    class="g-header-column {{column.HeaderCssClass}}" style="width:{{column.Width}};"
+                    b-text="column.Title" data-listen="false">
+                </th>
+            </tr>
+        </thead>
+        <tbody class="g-body">
+            <tr b-for="row in [FIELD].rows" class="g-body-row" b-class="{'g-row-even':$even}">
+                <td b-list="column in row.columns | orderBy:'ViewOrder'" class="g-body-column {{column.CssClass}}"
+                    style="width:{{column.Width}};">
+                    <!------------------------------------>
+                    <!-- Property -->
+                    <!------------------------------------>
+                    <div b-if="column.ColumnType=='BindToProperty'">
+                        <span b-if="column.DataType=='Text'">{{row[column.Content]}}</span>
+                        <span b-if="column.DataType=='DateTime'" b-date="row[column.Content]" data-listen="false"
+                            data-options="{format:column.DateTimeFormat}" format="{{column.DateTimeFormat}}"></span>
+                        <div b-if="column.DataType=='Image'">
+                            <div b-if="!column.ImageType" class="{{column.ImageWrapperCssClass}}">
+                                <img b-image="row[column.Content]" data-listen="false"
+                                    data-options="{thumbnail:column.ShowThumbnail,width:column.ThumbnailWidth,height:column.ThumbnailHeight}" />
+                            </div>
+                        </div>
+                    </div>
+                    <!------------------------------------>
+                    <!-- Conditional Contents -->
+                    <!------------------------------------>
+                    <div b-if="column.ColumnType=='ConditionalContents'">
+                        <span b-for="item in column.ContentItems" b-if='item.Conditions' class="{{item.CssClass}}">
+                            <i b-if="item.Icon" class="{{item.Icon}}"></i>
+                            {{item.Content}}
+                        </span>
+                    </div>
+                    <!------------------------------------>
+                    <!-- Link Url -->
+                    <!------------------------------------>
+                    <a b-if="column.ColumnType=='LinkUrl'" b-link="{{column.LinkUrl}}" class="{{column.LinkCssClass}}">
+                        <i b-if="column.Icon" class="{{column.Icon}}"></i>
+                        {{column.LinkText}}
+                    </a>
+                    <!------------------------------------>
+                    <!--Html Content -->
+                    <!------------------------------------>
+                    <div b-if="column.ColumnType=='Html'" b-element="column.HtmlContent"></div>
+                    <!------------------------------------>
+                    <!-- Action Button  -->
+                    <!------------------------------------>
+                    <button type="button" b-if="column.ColumnType=='ActionButton'" class="btn-grid-action"
+                        title="{{column.TooltipTitle}}" b-click="[FIELD].onRowButtonClick([FIELD],row,column)">
+                        <i b-if="column.Icon" class="{{column.Icon}}"></i>
+                        <span b-if="column.HtmlContent" b-element="column.HtmlContent"></span>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr b-if="[FIELD].Settings.EnablePaging">
+                <th colspan="100">
+                    <ul id="bGridPaging[FIELD_ID]"></ul>
+                </th>
+            </tr>
+        </tfoot>
+    </table>
+</div>

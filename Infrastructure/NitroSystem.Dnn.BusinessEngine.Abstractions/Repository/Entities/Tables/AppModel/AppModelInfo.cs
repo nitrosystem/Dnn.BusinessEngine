@@ -1,0 +1,28 @@
+﻿using System;
+using System.Web.Caching;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.AppModel
+{
+    [Table("BusinessEngine_AppModels")]
+    [Cacheable("BE_AppModels_", CacheItemPriority.Default, 20)]
+    [Scope("ScenarioId")]
+    public class AppModelInfo : IEntity
+    {
+        public Guid Id { get; set; }
+        public Guid ScenarioId { get; set; }
+        public Guid? GroupId { get; set; }
+        public int ModelType { get; set; }
+        public string ModelName { get; set; }
+        public string TypeFullName { get; set; }
+        public string TypeRelativePath { get; set; }
+        public string Settings { get; set; }
+        public string Description { get; set; }
+        public DateTime CreatedOnDate { get; set; }
+        public int CreatedByUserId { get; set; }
+        public DateTime LastModifiedOnDate { get; set; }
+        public int LastModifiedByUserId { get; set; }
+        public int ViewOrder { get; set; }
+    }
+}

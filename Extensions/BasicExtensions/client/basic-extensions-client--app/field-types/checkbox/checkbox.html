@@ -1,0 +1,8 @@
+﻿<label class="b-checkbox" [TOKENS]>
+    <input type="checkbox" b-model="[[FieldValueProperty]]" b-change="[FIELD].onChange([FIELD])"
+        b-disabled='[[Settings.DisabledConditions]]' />
+    <span class="b-check-mark"></span>
+    <b-condition'con="Field.Settings.ShowLabel==true'>
+        <span class="b-check-text" b-if="[FIELD].Settings.ShowLabel" b-text="[FIELD].Settings.LabelText"></span>
+    </b-condition>
+</label>

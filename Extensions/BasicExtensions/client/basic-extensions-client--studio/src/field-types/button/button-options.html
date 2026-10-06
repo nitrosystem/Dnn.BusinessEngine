@@ -1,0 +1,72 @@
+<div class="d-flex">
+    <div class="col-7 border-end b-splitter pe-3">
+        <div class="b-field">
+            <label class="form-label">Button Type</label>
+            <div class="b-input-group">
+                <select ng-model="$.currentField.Settings.ButtonType" class="b-input form-select">
+                    <option value="" disabled>Select button type</option>
+                    <option value="button">Standard Button</option>
+                    <option value="submit">Submit Button</option>
+                </select>
+                <span><i class="codicon codicon-symbol-interface"></i></span>
+            </div>
+        </div>
+        <div class="b-field">
+            <label class="form-label">Button Text</label>
+            <div class="b-input-group">
+                <input type="text" ng-model="$.currentField.Settings.ButtonText" class="b-input form-control"
+                    placeholder="Enter button text" />
+                <span><i class="codicon codicon-symbol-string"></i></span>
+            </div>
+        </div>
+        <div ng-class="{'opacity-25':$.currentField.Settings.ButtonType!='button'}">
+            <div class="b-field">
+                <label class="form-label">Validation Panes</label>
+                <div class="b-input-group">
+                    <select ng-model="$.currentField.Settings.ValidationPanes" class="b-input form-select" chosen
+                        inherit-select-classes="true" ng-options="pane.paneName as pane.paneTitle for pane in $.panes"
+                        multiple>
+                        <option value=""></option>
+                    </select>
+                    <span><i class="codicon codicon-screen-normal"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col ps-3">
+        <div class="b-field">
+            <label class="form-label">With Icon</label>
+            <label class="b-switch d-block">
+                <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.WithIcon" />
+                <div class="slider"></div>
+            </label>
+        </div>
+        <div ng-class="{'opacity-25':!$.currentField.Settings.WithIcon}">
+            <div class="b-field">
+                <label class="form-label">Icon Position</label>
+                <div class="b-radio-list inline-items">
+                    <div class="radio-item">
+                        <input type="radio" id="leftPosition" name="positionRadio" value="Left"
+                            ng-model="$.currentField.Settings.IconPosition"
+                            ng-disabled="!$.currentField.Settings.WithIcon">
+                        <label for="leftPosition">Left</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="rightPosition" name="positionRadio" value="Right"
+                            ng-model="$.currentField.Settings.IconPosition"
+                            ng-disabled="!$.currentField.Settings.WithIcon">
+                        <label for="rightPosition">Right</label>
+                    </div>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Font Icon</label>
+                <div class="b-input-group">
+                    <input type="text" ng-model="$.currentField.Settings.FontIcon" class="b-input form-control"
+                        placeholder="Enter font icon" />
+                    <span><i class="codicon codicon-smiley"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

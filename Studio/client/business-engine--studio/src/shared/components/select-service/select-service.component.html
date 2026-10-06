@@ -1,0 +1,77 @@
+<div class="b-table theme-gray">
+    <div class="table-header">
+        <div class="header-label">
+            <h4 class="header-title">Select Service</h4>
+            <span class="header-subtitle">Select one service for current action.</span>
+        </div>
+        <div class="header-tools me-3 col-6">
+            <div class="col-10 me-2">
+                <div class="b-input-group">
+                    <b-selective ng-model="$.action.ServiceId" placeholder="Select a service"
+                        table="{headers:[{'title':'Service Name','column':'ServiceName'}],'search':['ServiceName']}"
+                        paging="{visiblePages:5}"
+                        modal="{'title':'Services','showCloseButton':true,'placeholder':'Search by service name(Press enter)'}"
+                        on-fetch-items="$.getServices(pageIndex, searchText)" on-select-item="$.onServiceChange()"
+                        items-key="Services" text="ServiceName" value="Id" filter="{searchText:$.searchText}"
+                        ng-disabled="$.running"></b-selective>
+                    <span><i class="codicon codicon-symbol-parameter"></i></span>
+                </div>
+            </div>
+            <div class="col-1">
+                <button type="button" class="b-btn btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="codicon codicon-kebab-vertical me-0"></i>
+                </button>
+                <div class="dropdown-menu b-dropdown-menu">
+                    <a class="dropdown-item" href="" ng-click="$.onRefreshServiceParamsClick()">
+                        <i class="codicon codicon-refresh me-2"></i> Refresh Service Params
+                    </a>
+                    <a class="dropdown-item" href="" ng-click="$.onAddServiceClick()">
+                        <i class="codicon codicon-plus me-2"></i> Add New Service
+                    </a>
+                    <a class="dropdown-item" href="" ng-if="$.action.ServiceId" ng-click="$.onEditServiceClick()">
+                        <i class="codicon codicon-edit me-2"></i> Edit Service
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-body">
+        <div class="d-flex columns-name">
+            <div class="col-6">Param Name</div>
+            <div class="col-6">Param Value</div>
+        </div>
+        <div class="d-flex table-row" ng-repeat="param in $.action.Params | orderBy : 'ViewOrder'"
+            ng-if="!param.isEdited" ng-click="$.onRowItemClick(param,$index)" role="button"
+            ng-style="{'order':($index+1)}">
+            <div class="col-6 my-auto">
+                {{param.ParamName}}
+            </div>
+            <div class="col-6 my-auto">
+                {{param.ParamValue}}
+            </div>
+        </div>
+        <!------------------------------------>
+        <!-- Edit Param -->
+        <!------------------------------------>
+        <div ng-if="$.param.isEdited" class="d-flex table-row edit-row" ng-style="{'order':$.param.orderId}">
+            <div class="col-6 my-auto">{{$.param.ParamName}}</div>
+            <div class="col-5 my-auto">
+                <div properties-editor ng-model="$.param.ParamValue" b-focus="onEditParam" suggestions="$.suggestions"
+                    disable-functions="true" required></div>
+            </div>
+            <div class="col-1 my-auto">
+                <button type="button" class="b-btn btn-action ms-1" ng-click="$.onDoneClick()">
+                    <i class="codicon codicon-check"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="table-footer">
+        <div ng-if="!$.action.Params.length" class="b-notify notify-info mb-4">
+            <i class="codicon codicon-info b-icon-2"></i>
+            <div class="text">
+                <h4 class="label">Service has not any params.</h4>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+<div ng-controller="selectScenarioController as $" ng-class="{'was-validated':$.form.validated}">
+    <div id="wnSelectScenario" bootstrap-modal class="modal fade b-modal-dark" tabindex="-1" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Scenario</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="b-field">
+                        <label class="form-label">Scenario</label>
+                        <div class="b-input-group">
+                            <select id="drpScenarioId" ng-model="$.scenario.Id" class="b-input form-select"
+                                ng-options="scenario.Id as scenario.ScenarioTitle for scenario in $.$rootScope.scenarios"
+                                ng-disabled="$.running" chosen inherit-select-classes="true"
+                                placeholder-text-single="'Select scenario'" required>
+                            </select>
+                            <span><i class="codicon codicon-activate-breakpoints"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="b-btn btn-action me-auto" ng-click="$.onAddScenarioClick()"
+                        bootstrap-tooltip title="Add New Scenario" ng-disabled="$.running">
+                        <i class="codicon codicon-plus me-0"></i>
+                    </button>
+                    <button type="button" class="b-btn btn-text-icon btn-submit me-2"
+                        ng-click="$.onSelectScenarioClick()" ng-disabled="$.running">
+                        <i class="codicon codicon-save"></i>
+                        Select Scenario
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

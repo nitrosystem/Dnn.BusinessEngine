@@ -1,0 +1,35 @@
+.b-date-picker-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0;
+    position: relative;
+    padding: .35em .6em;
+    border: solid .1em rgb(0 0 0 / 14%);
+    column-gap: .4em;
+    font-size: .9em;
+    width: 100%;
+}
+
+.b-date-picker-group.b-date-picker-small {
+    font-size: .75em;
+}
+
+.b-date-picker-group.b-date-picker-large {
+    font-size: 1.2em;
+}
+
+.b-date-picker-group>.b-date-picker-icon {
+    display: inline-flex;
+    font-size: 1.2em;
+}
+
+.b-date-picker-group>.b-date-picker-control {
+    background: none;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    display: inline-flex;
+    flex-grow: 1;
+    font-size: 1em;
+}

@@ -1,0 +1,94 @@
+<div ng-controller="createScenarioController as $" ng-class="{'was-validated':$.form.validated}">
+    <!------------------------------------>
+    <!--Add/Edit Scenario-->
+    <!------------------------------------>
+    <b-content-widget data-icon="archive" data-title="Create Scenario" data-subtitle="Add or edit scenario"
+        data-module="$" data-await-action="$.awaitAction" data-reload-method="onPageLoad"
+        data-close-method="onCloseWindow">
+        <div class="d-flex">
+            <div class="col-7 b-splitter border-end pe-5">
+                <div class="b-field">
+                    <label class="form-label">Scenario Name</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtScenarioName" ng-model="$.scenario.ScenarioName"
+                            class="b-input form-control" placeholder="Enter scenario name(must be unique)"
+                            autocomplete="off" required />
+                        <span>
+                            <i class="codicon codicon-symbol-parameter"></i>
+                        </span>
+                    </div>
+                    <div ng-if="$.scenario.ScenarioName && $.form.error.ScenarioName">
+                        <p class="b-invalid">{{$.form.error.ScenarioName}}</p>
+                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetValidNameClick()">
+                            Set Valid Name
+                        </button>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Scenario Title</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtScenarioTitle" ng-model="$.scenario.ScenarioTitle"
+                            class="b-input form-control" placeholder="Enter scenario title"
+                            autocomplete="off" required />
+                        <span>
+                            <i class="codicon codicon-symbol-parameter"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Database Object Prefix</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtDatabaseObjectPrefix" ng-model="$.scenario.DatabaseObjectPrefix"
+                            class="b-input form-control" placeholder="Enter database object prefix"
+                            autocomplete="off" required />
+                        <span>
+                            <i class="codicon codicon-symbol-interface"></i>
+                        </span>
+                    </div>
+                    <div ng-if="$.scenario.DatabaseObjectPrefix && $.form.error.DatabaseObjectPrefix">
+                        <p class="b-invalid">{{$.form.error.DatabaseObjectPrefix}}</p>
+                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetValidDbObjectPrefixClick()">
+                            Set Valid Name
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col ps-5">
+                <div class="b-notify notify-info mb-4">
+                    <i class="codicon codicon-warning b-icon-2"></i>
+                    <div class="text">
+                        <h4 class="label d-flex">
+                            HIGH RISK
+                            <i class="codicon codicon-terminal-debian ms-auto spin" bootstrap-tooltip
+                                data-bs-placement="left"
+                                title="Everything is getting sucked into the black hole!! ;)"></i>
+                        </h4>
+                        <span class="subtext">
+                            Warning!!: This operation is highly risky and irreversible. Upon confirmation, the entire
+                            scenario and all its dependencies will be permanently deleted.
+                        </span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <button type="button" class="b-btn btn-text-icon btn-danger btn-lg btn-full" ng-disabled="true">
+                        <i class="codicon codicon-trash"></i>
+                        Delete Scenario & Childs
+                    </button>
+                </div>
+            </div>
+        </div>
+        <hr class="mb-4" />
+        <div class="mb-1 d-flex justify-content-end mt-auto">
+            <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveScenarioClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-save"></i>
+                Save Scenario
+            </button>
+            <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCloseWindow()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-circle-slash"></i>
+                Cancel
+            </button>
+        </div>
+    </b-content-widget>
+</div>

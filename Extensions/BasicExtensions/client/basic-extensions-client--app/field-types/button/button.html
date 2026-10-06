@@ -1,0 +1,12 @@
+﻿<button type="button" id="button_[FIELD_ID]" class="b-btn [[ThemeCssClass]]" b-click="[FIELD].onClick([FIELD])"
+    b-disabled='[[Settings.DisabledConditions]]' [TOKENS]>
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Left"'>
+        <i class="[[Settings.FontIcon]]"></i>
+    </b-condition>
+
+    [[Settings.ButtonText]]
+
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Right"'>
+        <i class="[[Settings.FontIcon]]"></i>
+    </b-condition>
+</button>

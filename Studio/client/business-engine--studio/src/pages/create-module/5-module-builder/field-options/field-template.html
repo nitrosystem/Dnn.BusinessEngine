@@ -1,0 +1,81 @@
+<b-right-widget ng-if="$.workingMode==='field-template'" data-module="$"
+    data-title="{{$.currentField.FieldName}} Field Template" data-icon="preview"
+    data-subtitle="Build custom module with more components" data-await-action="$.awaitAction" class="create-field"
+    data-close-method="onCancelFieldTemplateClick" data-hide-reload="true">
+    <!------------------------------------>
+    <!--Field Template-->
+    <!------------------------------------>
+    <div class="b-group mb-4">
+        <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpFieldTemplates">
+            <h3 class="group-label">
+                <span class="group-icon">
+                    <i class="codicon codicon-server-process"></i>
+                </span> Field Template
+            </h3>
+            <span class="group-collapse">
+                <i class="codicon codicon-chevron-up"></i>
+            </span>
+        </div>
+        <div id="grpFieldTemplates" class="group-content collapse show">
+            <ul class="field-templates">
+                <li class="template-item" ng-repeat="template in $.currentField.FieldTypeObject.Templates"
+                    ng-class="{'active':template.TemplateName===$.currentField.Template}">
+                    <button type="button" class="item-button" ng-click="$.onSelectFieldTemplate(template)">
+                        <h6 class="template-name w-100" title="{{template.TemplateName}}">{{template.TemplateName}}</h6>
+                        <div class="image-wrapper">
+                            <i ng-if="!template.TemplateImage" class="codicon codicon-preview"></i>
+                            <img ng-if="template.TemplateImage" ng-src="{{template.TemplateImage}}" />
+                        </div>
+                        <p ng-if="template.Description" class="template-description">{{template.Description}}</p>
+                        <p ng-if="!template.Description" class="template-no-description">No description!</p>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Field Theme-->
+    <!------------------------------------>
+    <div class="b-group mb-4">
+        <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpFieldThemes">
+            <h3 class="group-label">
+                <span class="group-icon">
+                    <i class="codicon codicon-server-process"></i>
+                </span> Field Theme
+            </h3>
+            <span class="group-collapse">
+                <i class="codicon codicon-chevron-up"></i>
+            </span>
+        </div>
+        <div id="grpFieldThemes" class="group-content collapse show">
+            <ul class="field-templates">
+                <li class="template-item" ng-repeat="theme in $.currentField.FieldTypeObject.Themes"
+                    ng-if="!theme.TemplateName||theme.TemplateName===$.currentField.Template"
+                    ng-class="{'active':theme.ThemeName===$.currentField.Theme}">
+                    <button type="button" class="item-button" ng-click="$.onSelectFieldTheme(theme)">
+                        <h6 class="template-name w-100">{{theme.ThemeName}}</h6>
+                        <div class="image-wrapper">
+                            <i ng-if="!theme.ThemeImage" class="codicon codicon-preview"></i>
+                            <img ng-if="theme.ThemeImage" ng-src="{{theme.ThemeImage}}" />
+                        </div>
+                        <p ng-if="theme.Description" class="template-description">{{theme.Description}}</p>
+                        <p ng-if="!theme.Description" class="template-no-description">No description!</p>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <hr class="mb-4" />
+    <div class="mb-1 d-flex justify-content-end mt-auto">
+        <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveFieldTemplateClick()"
+            ng-disabled="$.running">
+            <i class="codicon codicon-save"></i>
+            Save Field
+        </button>
+        <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelFieldTemplateClick()"
+            ng-disabled="$.running">
+            <i class="codicon codicon-circle-slash"></i>
+            Cancel
+        </button>
+    </div>
+</b-right-widget>

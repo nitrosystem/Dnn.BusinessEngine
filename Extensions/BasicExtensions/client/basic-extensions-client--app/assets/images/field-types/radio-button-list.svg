@@ -1,0 +1,16 @@
+<svg viewBox="18.7 22.7 80.3 74.6" xmlns="http://www.w3.org/2000/svg">
+  <defs>    <linearGradient id="rlAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5fb0ff"/>
+      <stop offset="100%" stop-color="#2f7fe0"/>
+    </linearGradient>
+  </defs>
+  <circle cx="34" cy="38" r="9" fill="none" stroke="url(#rlAccent)" stroke-width="2.5"/>
+  <circle cx="34" cy="38" r="4" fill="url(#rlAccent)"/>
+  <rect x="52" y="35" width="42" height="4" rx="2" fill="#6b7686"/>
+
+  <circle cx="34" cy="60" r="9" fill="none" stroke="#3a4250" stroke-width="2.5"/>
+  <rect x="52" y="57" width="34" height="4" rx="2" fill="#3a4250"/>
+
+  <circle cx="34" cy="82" r="9" fill="none" stroke="#3a4250" stroke-width="2.5"/>
+  <rect x="52" y="79" width="38" height="4" rx="2" fill="#3a4250"/>
+</svg>

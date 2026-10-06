@@ -1,0 +1,90 @@
+﻿<div class="send-sms-service">
+    <div class="b-field">
+        <label class="form-label">Provider Name</label>
+        <div class="b-input-group">
+            <input type="text" class="b-input form-control" ng-model="$.service.Settings.ProviderName" autocomplete="off"
+                required />
+            <span><i class="codicon codicon-gear"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">To</label>
+        <div class="b-input-group">
+            <input type="text" class="b-input form-control" ng-model="$.service.Settings.To" autocomplete="off"
+                required />
+            <span><i class="codicon codicon-gear"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Body</label>
+        <div class="b-input-group">
+            <textarea class="b-input form-control" ng-model="$.service.Settings.Body" autocomplete="off" rows="3"
+                required></textarea>
+            <span><i class="codicon codicon-gear"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Template Code</label>
+        <div class="b-input-group">
+            <input type="text" class="b-input form-control" ng-model="$.service.Settings.TemplateCode"
+                autocomplete="off" />
+
+            <span><i class="codicon codicon-gear"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Parameters</label>
+        <table class="table table-bordered table-dark table-columns-vmiddle">
+            <thead>
+                <tr>
+                    <th>Param Name</th>
+                    <th>Param Value</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="param in $.service.Settings.Parameters">
+                    <td>
+                        <input type="text" ng-model="param.ParamName" class="b-input form-control" />
+                    </td>
+                    <td>
+                        <input type="text" ng-model="param.ParamValue" class="b-input form-control" />
+                    </td>
+                    <td style="width:25px;">
+                        <button class="btn btn-sm btn-default"
+                            ng-click="$.service.Settings.Parameters.splice($index,1)">
+                            <i class="codicon codicon-trash text-white"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3">
+                        <button type="button" class="b-btn btn-sm" ng-click="$.onAddParamsClick()">
+                            <i class="codicon codicon-plus me-0"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!------------------------------------>
+    <!--Service Params-->
+    <!------------------------------------>
+    <div class="b-group">
+        <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpServiceParams">
+            <h3 class="group-label">
+                <span class="group-icon">
+                    <i class="codicon codicon-server-process"></i>
+                </span> Service Params
+            </h3>
+            <span class="group-collapse">
+                <i class="codicon codicon-chevron-up"></i>
+            </span>
+        </div>
+        <div id="grpServiceParams" class="group-content collapse show">
+            <b-service-params data-service="$.service" data-hide-param-type="true"></b-service-params>
+        </div>
+    </div>
+</div>

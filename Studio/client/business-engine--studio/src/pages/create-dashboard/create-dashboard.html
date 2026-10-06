@@ -1,0 +1,32 @@
+<div ng-controller="createDashboardController as $" class="create-dashboard">
+    <div class="wizard-boja">
+        <div class="wz-steps">
+            <div class="wz-step" ng-class="{'active':$.step===1,'disabled':$.running}">
+                <div class="box" role="button" ng-click="$.onStepClick(1,true,$event)">
+                    <span class="step-number">1</span>
+                    <i class="codicon codicon-credit-card"></i>
+                </div>
+                <div class="step-title-wrapper">
+                    <span class="word1">Dashboard</span>
+                    <span class="word2">Options</span>
+                </div>
+            </div>
+            <div class="wz-step" ng-class="{'active':$.step===2,'disabled':$.running}">
+                <div class="box" role="button" ng-click="$.onStepClick(2,true,$event)">
+                    <span class="step-number">3</span>
+                    <i class="codicon codicon-gear"></i>
+                </div>
+                <div class="step-title-wrapper">
+                    <span class="word1">Dashboard</span>
+                    <span class="word2">Pages</span>
+                </div>
+            </div>
+        </div>
+        <div class="step-contents">
+            <div  ng-if="createDashboardValidatedStep.indexOf(1)>=0" ng-show="$.step===1"
+                ng-include="$.basicOptionsTemplate"></div>
+            <div  ng-if="createDashboardValidatedStep.indexOf(2)>=0" ng-show="$.step===2"
+                ng-include="$.pagesTemplate"></div>
+        </div>
+    </div>
+</div>

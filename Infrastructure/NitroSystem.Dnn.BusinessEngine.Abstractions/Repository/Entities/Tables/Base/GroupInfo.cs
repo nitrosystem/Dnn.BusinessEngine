@@ -1,0 +1,26 @@
+﻿using System;
+using System.Web.Caching;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Base
+{
+    [Table("BusinessEngine_Groups")]
+    [Cacheable("BE_Groups_", CacheItemPriority.Default, 20)]
+    [Scope("ScenarioId")]
+    public class GroupInfo : IEntity
+    {
+        public Guid Id { get; set; }
+        public Guid? ScenarioId { get; set; }
+        public string GroupDomain { get; set; }
+        public string GroupType { get; set; }
+        public string GroupName { get; set; }
+        public string Description { get; set; }
+        public bool IsSystemGroup { get; set; }
+        public DateTime CreatedOnDate { get; set; }
+        public int CreatedByUserId { get; set; }
+        public DateTime LastModifiedOnDate { get; set; }
+        public int LastModifiedByUserId { get; set; }
+        public int ViewOrder { get; set; }
+    }
+}

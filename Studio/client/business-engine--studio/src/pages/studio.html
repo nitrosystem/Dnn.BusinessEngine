@@ -1,0 +1,236 @@
+<div class="business-engine-studio" data-bs-theme="dark">
+    <!------------------------------------>
+    <!--Begin Menu Bar-->
+    <!------------------------------------>
+    <div class="menu-bar"></div>
+    <!------------------------------------>
+    <!--End Menu Bar-->
+    <!------------------------------------>
+
+    <!------------------------------------>
+    <!--Begin Activity Bar-->
+    <!------------------------------------>
+    <div class="activity-bar">
+        <div class="top-actions">
+            <ul class="actions-container">
+                <li class="action-item" ng-repeat="item in $.$rootScope.activityBarItems | filter:{visible:true}"
+                    ng-class="{'active':item.name==$.$rootScope.currentActivityBar}">
+                    <a class="action-label" role="button" title="{{item.title}}" bootstrap-tooltip
+                        data-bs-placement="right" ng-click="$.onActivityBarItemClick(item.name)">
+                        <i class="codicon codicon-{{item.icon}}"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="user-actions">
+            <ul class="actions-container">
+                <li class="action-item">
+                    <a class="action-label" ng-click="$.onClearChaceClick()" role="button" bootstrap-tooltip
+                        data-bs-placement="right" title="Clear Chache & Inc Version">
+                        <i class="codicon codicon-issue-reopened" ng-class="{'spin':$.running=='clear-cache'}"></i>
+                    </a>
+                </li>
+                <li class="action-item">
+                    <a class="action-label" ng-click="$.onShowSettingsWidget()" role="button" bootstrap-tooltip
+                        data-bs-placement="right" title="Settings">
+                        <i class="codicon codicon-settings-gear"></i>
+                    </a>
+                </li>
+                <li class="action-item">
+                    <a class="action-label" href="/Default.aspx?tabid={{$.returnUrl}}" role="button" bootstrap-tooltip
+                        data-bs-placement="right" title="Return to the dnn page you came">
+                        <i class="codicon codicon-sign-in"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--End Activity Bar-->
+    <!------------------------------------>
+
+    <!------------------------------------>
+    <!--Begin Side Bar-->
+    <!------------------------------------>
+    <div class="sidebar">
+        <!------------------------------------>
+        <!-- Sidebar Explorer Widget-->
+        <!------------------------------------>
+        <b-sidebar-explorer ng-if="$.$rootScope.currentActivityBar=='explorer' && $.$rootScope.explorerItems">
+        </b-sidebar-explorer>
+    </div>
+    <!------------------------------------>
+    <!--End Side Bar-->
+    <!------------------------------------>
+
+    <!------------------------------------>
+    <!--Begin Workspace Panel-->
+    <!------------------------------------>
+    <div class="workspace-panel">
+        <!------------------------------------>
+        <!--Top bar tabs-->
+        <!------------------------------------>
+        <div class="top-bar-tabs" id="workspaceTabs">
+            <ul class="nav nav-tabs">
+                <li class="nav-item" role="presentation" ng-repeat="tab in $.$rootScope.tabs track by tab.key"
+                    ng-click="$.onTabClick(tab)">
+                    <a class="nav-link text-secondary" ng-class="{'active':tab.key == $.$rootScope.currentTab.key}"
+                        role="tab">
+                        <i class="codicon codicon-{{tab.icon}} item-icon b-{{tab.moduleType}}-icon"></i>
+                        {{tab.title}}
+                        <i ng-if="tab.isChanged" class="codicon codicon-circle-filled change-tab-icon"></i>
+                        <i ng-if="!tab.isChanged" class="codicon codicon-chrome-close close-icon" role="button"
+                            ng-click="$.onCloseTabClick($event,tab.key)"></i>
+                    </a>
+                </li>
+                <li class="nav-item more-item" ng-if="$.$rootScope.tabs.length">
+                    <div class="btn-group mt-1">
+                        <button type="button" class="more-button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="codicon codicon-kebab-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" ng-click="$.onCloseAllTabsClick()">Close All Tabs</a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+            <div id="pnlShortcutSection" class="top-bar-more-menu"></div>
+        </div>
+        <!------------------------------------>
+        <!-- Tabs Content-->
+        <!------------------------------------>
+        <div class="tab-content " id="workspaceTabsContent">
+            <div class="tab-pane fade show active" role="tabpanel" ng-repeat="tab in $.$rootScope.tabs track by tab.key"
+                ng-show="tab.key == $.$rootScope.currentTab.key">
+                <div class="widget-body" ng-if="tab.isLoaded" ng-include="tab.content"> </div>
+            </div>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--End Workspace Panel-->
+    <!------------------------------------>
+
+    <!------------------------------------>
+    <!--Begin Status Bar-->
+    <!------------------------------------>
+    <div class="status-bar">
+        <div class="active-scenario">
+            <span class="scenario-link small text-white d-flex justify-content-end me-2 pe-none"
+                ng-click="$.onSelectScenarioClick()">Scenario : {{$.$rootScope.scenario.ScenarioName}}</span>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--End Status Bar-->
+    <!------------------------------------>
+
+    <!------------------------------------>
+    <!--Begin Notifications-->
+    <!------------------------------------>
+    <div id="bNotifications" class="notifications"> </div>
+    <!------------------------------------>
+    <!--End Notifications-->
+    <!------------------------------------>
+
+    <!------------------------------------>
+    <!--Begin Action Center Widget-->
+    <!------------------------------------>
+    <div class="action-center-widget" ng-class="{'show-widget':$.showActionCenterWidget}">
+        <div class="header-wrapper">
+            <label class="title">Action Center</label>
+            <span class="hide-widget" ng-click="$.onHideActionCenterWidgetClick()" role="button">
+                <i class="codicon codicon-chrome-minimize"></i>
+            </span>
+        </div>
+        <ul class="task-list">
+            <li ng-repeat="task in $.actionCenterTasks" class="task-item-wrapper animate__animated animate__backInUp">
+                <div class="task-item" ng-class="{'animate__fadeOutDown':item.status=='completed'}">
+                    <i class="task-icon {{task.icon}}" ng-class="{'shine-small':item.status=='running'}"></i>
+                    <div class="task-title-wrapper">
+                        <h5 class="task-title">{{task.title}}</h5>
+                        <span class="task-subtitle">{{task.subtitle}}</span>
+                    </div>
+                    <div class="task-actions" ng-if="task.actions && task.actions.length">
+                        <button type="button" ng-repeat="action in task.actions" ng-click="action.callback()"
+                            class="b-btn btn-sm btn-task-action {{action.buttonCssClass}}">
+                            {{action.text}}
+                            <span ng-if="action.timer">({{action.timer}})</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="action-progress-wrapper">
+                    <div class="action-progress-bar" ng-style="{'width': task.percent + '%'}"></div>
+                </div>
+                <p ng-if="task.message" class="task-messages" ng-class="{'alert alert-danger':task.isError}">
+                    {{task.message}}
+                </p>
+                <div ng-if="task.link" class="mt-2">
+                    <a href="{{task.link}}" class="b-btn btn-action" target="_blank">Download Export</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <!------------------------------------>
+    <!--End Action Center Widget-->
+    <!------------------------------------>
+
+    <!------------------------------------>
+    <!--Begin Settings Widget-->
+    <!------------------------------------>
+    <!------------------------------------>
+    <!--End Settings Widget-->
+    <!------------------------------------>
+    <b-right-widget ng-if="$.workingMode==='global-settings'" data-title="Global Settings" data-icon="settings"
+        data-subtitle="Studio settings & options" class="b-studio-settings" data-module="$" data-hide-reload="true"
+        data-close-method="onCloseSettingsWidgetClick">
+        <div class="b-group">
+            <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpStudioSize">
+                <h3 class="group-label">
+                    <span class="group-icon">
+                        <i class="codicon codicon-text-size"></i>
+                    </span>
+                    Studio Size
+                </h3>
+                <span class="group-collapse">
+                    <i class="codicon codicon-chevron-up"></i>
+                </span>
+            </div>
+            <div id="grpStudioSize" class="group-content collapse show">
+                <div class="studio-size">
+                    <button type="button" class="d-inline-block  fs-1" ng-click="$.onChangeStudioSizeClick(1)"
+                        ng-class="{'active':$.studioSize===1}">
+                        <i class="codicon codicon-text-size fs-1"></i>
+                    </button>
+                    <button type="button" class="d-inline-block  fs-2" ng-click="$.onChangeStudioSizeClick(2)"
+                        ng-class="{'active':$.studioSize===2}">
+                        <i class=" codicon codicon-text-size fs-2"></i>
+                    </button>
+                    <button type="button" class="d-inline-block  fs-3" ng-click="$.onChangeStudioSizeClick(3)"
+                        ng-class="{'active':$.studioSize===3}">
+                        <i class=" codicon codicon-text-size fs-3"></i>
+                    </button>
+                    <button type="button" class="d-inline-block  fs-4" ng-click="$.onChangeStudioSizeClick(4)"
+                        ng-class="{'active':$.studioSize===4}">
+                        <i class=" codicon codicon-text-size fs-4"></i>
+                    </button>
+                    <button type="button" class="d-inline-block  fs-5" ng-click="$.onChangeStudioSizeClick(5)"
+                        ng-class="{'active':$.studioSize===5}">
+                        <i class=" codicon codicon-text-size fs-5"></i>
+                    </button>
+                    <button type="button" class="d-inline-block  fs-6" ng-click="$.onChangeStudioSizeClick(6)"
+                        ng-class="{'active':$.studioSize===6}">
+                        <i class=" codicon codicon-text-size fs-6"></i>
+                    </button>
+                    <button type="button" class="d-inline-block  fs-7" ng-click="$.onChangeStudioSizeClick(7)"
+                        ng-class="{'active':$.studioSize===7}">
+                        <i class=" codicon codicon-text-size fs-7"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </b-right-widget>
+
+    <!------------------------------------>
+    <!--Select Scenario-->
+    <!------------------------------------>
+    <div ng-include="$.selectScenarioTemplate"></div>
+</div>

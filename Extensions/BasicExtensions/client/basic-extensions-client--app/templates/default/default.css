@@ -1,0 +1,120 @@
+.b-default-template {
+    font-size: 16px;
+    line-height: 1.5;
+    direction: ltr;
+    text-align: left;
+}
+
+.b-default-template .b-field {
+    margin-bottom: 1em;
+}
+
+.b-default-template .b-field-label {
+    font-size: .8em;
+    font-weight: 700;
+    margin-bottom: .6em;
+}
+
+.b-default-template.b-default-sm {
+    font-size: 13px;
+    line-height: 1.25;
+}
+
+.b-default-template.b-default-lg {
+    font-size: 19px;
+    line-height: 1.75;
+}
+
+/* ===== B-Grid System ===== */
+
+.b-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-inline: -12px;
+}
+
+[class^="b-col-"] {
+    box-sizing: border-box;
+    padding-inline: 12px;
+    min-width: 0;
+}
+
+/* desktop */
+.b-col-1 {
+    flex: 0 0 calc(1/12 * 100%);
+    max-width: calc(1/12 * 100%);
+}
+
+.b-col-2 {
+    flex: 0 0 calc(2/12 * 100%);
+    max-width: calc(2/12 * 100%);
+}
+
+.b-col-3 {
+    flex: 0 0 calc(3/12 * 100%);
+    max-width: calc(3/12 * 100%);
+}
+
+.b-col-4 {
+    flex: 0 0 calc(4/12 * 100%);
+    max-width: calc(4/12 * 100%);
+}
+
+.b-col-5 {
+    flex: 0 0 calc(5/12 * 100%);
+    max-width: calc(5/12 * 100%);
+}
+
+.b-col-6 {
+    flex: 0 0 calc(6/12 * 100%);
+    max-width: calc(6/12 * 100%);
+}
+
+.b-col-7 {
+    flex: 0 0 calc(7/12 * 100%);
+    max-width: calc(7/12 * 100%);
+}
+
+.b-col-8 {
+    flex: 0 0 calc(8/12 * 100%);
+    max-width: calc(8/12 * 100%);
+}
+
+.b-col-9 {
+    flex: 0 0 calc(9/12 * 100%);
+    max-width: calc(9/12 * 100%);
+}
+
+.b-col-10 {
+    flex: 0 0 calc(10/12 * 100%);
+    max-width: calc(10/12 * 100%);
+}
+
+.b-col-11 {
+    flex: 0 0 calc(11/12 * 100%);
+    max-width: calc(11/12 * 100%);
+}
+
+.b-col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.b-col-split {
+    border-right: solid .1em #eae9eb;
+    padding-right: 1.5em;
+    margin-right: 1.5em;
+}
+
+@media (max-width: 767.98px) {
+    [class^="b-col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .b-col-split {
+        border-right: none;
+        padding-right: revert-layer;
+        margin-right: revert-layer;
+    }
+}

@@ -1,0 +1,337 @@
+.b-small-nowrap {
+  font-size: 0.75rem !important;
+  font-weight: 300;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.b-full-screen {
+  position: fixed !important;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 95vh;
+  z-index: 9999;
+}
+
+.b-full-screen .monaco-scrollable-element {
+  max-height: 93vh;
+}
+
+textarea.progress-log {
+  width: 100%;
+  background: transparent;
+  color: #ddd;
+  padding: 1em;
+  line-height: 2em;
+  white-space: pre-line;
+}
+
+/* --------------------------------------------------------
+        Width Styles
+    -----------------------------------------------------------*/
+
+.b-w0 {
+  width: 0 !important;
+}
+
+.w1-rem {
+  width: 1rem !important;
+}
+
+.w2-rem {
+  width: 2rem !important;
+}
+
+.w3-rem {
+  width: 3rem !important;
+}
+
+.w4-rem {
+  width: 4rem !important;
+}
+
+.w5-rem {
+  width: 5rem !important;
+}
+
+.w6-rem {
+  width: 6rem !important;
+}
+
+.w7-rem {
+  width: 7rem !important;
+}
+
+.w8-rem {
+  width: 8rem !important;
+}
+
+.w9-rem {
+  width: 9rem !important;
+}
+
+.w10-rem {
+  width: 10rem !important;
+}
+
+.w15-rem {
+  width: 15rem !important;
+}
+
+.w20-rem {
+  width: 20rem !important;
+}
+
+.w25-rem {
+  width: 25rem !important;
+}
+
+.w30-rem {
+  width: 30rem !important;
+}
+
+.w40-rem {
+  width: 40rem !important;
+}
+
+.w50-rem {
+  width: 50rem !important;
+}
+
+.w-fit {
+  width: fit-content;
+}
+
+/* --------------------------------------------------------
+        height Styles
+    -----------------------------------------------------------*/
+
+.b-h0 {
+  height: 0 !important;
+}
+
+.h1-rem {
+  height: 1rem !important;
+}
+
+.h2-rem {
+  height: 2rem !important;
+}
+
+.h3-rem {
+  height: 3rem !important;
+}
+
+.h4-rem {
+  height: 4rem !important;
+}
+
+.h5-rem {
+  height: 5rem !important;
+}
+
+.h6-rem {
+  height: 6rem !important;
+}
+
+.h7-rem {
+  height: 7rem !important;
+}
+
+.h8-rem {
+  height: 8rem !important;
+}
+
+.h9-rem {
+  height: 9rem !important;
+}
+
+.h10-rem {
+  height: 10rem !important;
+}
+
+.h15-rem {
+  height: 15rem !important;
+}
+
+.h20-rem {
+  height: 20rem !important;
+}
+
+.h25-rem {
+  height: 25rem !important;
+}
+
+.h30-rem {
+  height: 30rem !important;
+}
+
+.h40-rem {
+  height: 40rem !important;
+}
+
+.h50-rem {
+  height: 50rem !important;
+}
+
+.w-fit {
+  height: fit-content;
+}
+
+/* --------------------------------------------------------
+        Font  Styles
+    -----------------------------------------------------------*/
+
+.fs08-rem {
+  font-size: 0.8rem !important;
+}
+
+.fs085-rem {
+  font-size: 0.85rem !important;
+}
+
+.fs09-rem {
+  font-size: 0.9rem !important;
+}
+
+.fs095-rem {
+  font-size: 0.95rem !important;
+}
+
+.fs1-rem {
+  font-size: 1rem !important;
+}
+
+.fs1-5-rem {
+  font-size: 1.5rem !important;
+}
+
+.fs2-rem {
+  font-size: 2rem !important;
+}
+
+.fs25-rem {
+  font-size: 2.5rem !important;
+}
+
+.fs-7 {
+  font-size: .75rem !important;
+}
+
+/* --------------------------------------------------------
+        Icon Font  Styles
+    -----------------------------------------------------------*/
+
+.b-icon-1 {
+  font-size: 1rem !important;
+}
+
+.b-icon-1_5 {
+  font-size: 1.5rem !important;
+}
+
+.b-icon-2 {
+  font-size: 2rem !important;
+}
+
+.b-hide-elem {
+  opacity: 0 !important;
+  filter: alpha(opacity=0) !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+.b-clean {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.table-columns-vmiddle {
+  vertical-align: middle;
+}
+
+.b-front {
+  z-index: 9999999999999999;
+}
+
+/* --------------------------------------------------------
+        Custom Upload Box
+    -----------------------------------------------------------*/
+
+.b-upload-box {
+  position: relative;
+  padding: 3rem;
+  margin: 0.3rem 0.3rem 1rem;
+  border: dotted 0.4rem #ab9a5f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.1rem;
+}
+
+.b-upload-box>input {
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.b-upload-box>p {
+  color: #c7ae55;
+  text-shadow: 0 0 3px #ff0000, 0 0 5px #0000ff;
+}
+
+.b-upload-box>i {
+  font-size: 3rem !important;
+  color: #ffc700;
+}
+
+.b-color-1 {
+  color: #f55385;
+}
+
+.b-color-2 {
+  color: #0000ff;
+}
+
+.b-color-3 {
+  color: #519aba;
+}
+
+.b-color-4 {
+  color: #cbcb41;
+}
+
+.b-color-5 {
+  color: #ff0000;
+}
+
+.b-color-6 {
+  color: #f55385;
+}
+
+.b-color-7 {
+  color: #c7ae55;
+}
+
+.b-color-8 {
+  color: #ffc700;
+}
+
+/* --------------------------------------------------------
+        Hove box shadow
+    -----------------------------------------------------------*/
+.hover-box-shadow:hover {
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+  transition: box-shadow 0.4s linear;
+}

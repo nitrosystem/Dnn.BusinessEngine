@@ -1,0 +1,166 @@
+<div ng-controller="createModuleVariablesController as $" class="module-variables">
+    <b-content-widget data-title="Module Variables" data-icon="variable-group" data-module-type="create-module"
+        data-subtitle="Create module - variables" data-await-action="$.awaitAction" data-module="$"
+        data-reload-method="onPageLoad" data-close-method="onCloseWindow">
+        <!------------------------------------>
+        <!--Search Box-->
+        <!------------------------------------>
+        <div class="search-box">
+            <div class="row">
+                <div class="col-3">
+                    <div class="b-input-group">
+                        <input type="text" ng-model="$.filter.variableName" class="b-input form-control"
+                            placeholder="Variable Name" ng-disabled="$.running" />
+                        <span><i class="codicon codicon-bell"></i></span>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="b-input-group">
+                        <select ng-model="$.filter.scope" class="b-input form-select" chosen
+                            inherit-select-classes="true" placeholder-text-single="'Scope'" ng-disabled="$.running">
+                            <option ng-value="">Scope</option>
+                            <option ng-value="0">Global</option>
+                            <option ng-value="1">Client Side</option>
+                            <option ng-value="2">Server Side</option>
+                        </select>
+                        <span><i class="codicon codicon-circuit-board"></i></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <button type="button" class="b-btn btn-text-icon btn-primary ms-auto"
+                        ng-click="$.onAddVariableClick()" ng-disabled="$.running">
+                        <i class="codicon codicon-plus"></i>
+                        Add Variable
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!-- Variable Items -->
+        <!------------------------------------>
+        <div class="variable-items">
+            <div ng-if="!$.groupItems">
+                <div class="variable-item"
+                    ng-repeat="variable in $.variables | filter:{Scope:$.filter.scope} | filter:{VariableName:$.filter.variableName}"
+                    data-id="{{variable.Id}}" ng-include="'variableItem.html'">
+                </div>
+            </div>
+            <div ng-if="$.groupItems">
+                <!------------------------------------>
+                <!--Non Group Variables-->
+                <!------------------------------------>
+                <div class="b-group mb-5" ng-if="$.nonGroupItems && $.nonGroupItems.length">
+                    <div class="group-header" data-bs-toggle="collapse"
+                        data-bs-target="#grpNonGroupVariables{{$.module.Id}}">
+                        <h3 class="group-label">
+                            <span class="group-icon">
+                                <i class="codicon codicon-server-process"></i>
+                            </span>
+                            Non Group Variables
+                        </h3>
+                        <span class="group-collapse">
+                            <i class="codicon codicon-chevron-up"></i>
+                        </span>
+                    </div>
+                    <div id="grpNonGroupVariables{{$.module.Id}}" class="group-content collapse show">
+                        <div class="variable-item"
+                            ng-repeat="variable in $.nonGroupItems | filter:{Scope:$.filter.scope} | filter:{VariableName:$.filter.variableName}"
+                            data-id="{{variable.Id}}" ng-include="'variableItem.html'">
+                        </div>
+                    </div>
+                </div>
+                <!------------------------------------>
+                <!--Group Variables-->
+                <!------------------------------------>
+                <div class="b-group mb-5" ng-repeat="(key,variables) in $.groupItems">
+                    <div class="group-header" data-bs-toggle="collapse"
+                        data-bs-target="#grpGroupVariables{{$.module.Id}}">
+                        <h3 class="group-label">
+                            <span class="group-icon">
+                                <i class="codicon codicon-server-process"></i>
+                            </span>
+                            {{key}} Variables
+                        </h3>
+                        <span class="group-collapse">
+                            <i class="codicon codicon-chevron-up"></i>
+                        </span>
+                    </div>
+                    <div id="grpGroupVariables{{$.module.Id}}" class="group-content collapse show">
+                        <div class="variable-item"
+                            ng-repeat="variable in variables | filter:{Scope:$.filter.scope} | filter:{VariableName:$.filter.variableName} | orderBy : 'ViewOrder'"
+                            data-id="{{variable.Id}}" ng-include="'variableItem.html'">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="!$.variables.length" class="b-notify notify-info mb-4">
+                <i class="codicon codicon-info b-icon-2"></i>
+                <div class="text">
+                    <h4 class="label">The module has no variables.</h4>
+                    <span class="subtext">
+                        Click
+                        <button type="button" class="b-btn btn-sm ms-1 me-1" ng-click="$.onAddVariableClick()">
+                            Add Variable
+                        </button>
+                        for creating a new variable.
+                    </span>
+                </div>
+            </div>
+        </div>
+        <hr class="mb-4" />
+        <!------------------------------------>
+        <!-- Buttons -->
+        <!------------------------------------>
+        <div class="d-flex mb-4">
+            <div class="justify-content-start">
+                <!-- Previous Button -->
+                <button type="button" class="b-btn me-2" ng-click="$.onPreviousStepClick()" ng-disabled="$.running">
+                    <i class="codicon codicon-arrow-left"></i>
+                </button>
+                <!-- Next Button -->
+                <button type="button" class="b-btn me-2" ng-click="$.onNextStepClick()" ng-disabled="$.running">
+                    <i class="codicon codicon-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </b-content-widget>
+
+    <div ng-include="$.variableEditWidget"></div>
+
+    <script type="text/ng-template" id="variableItem.html">
+        <div class="vi-row">
+            <label class="variable-scope"
+                ng-class="{'global':variable.Scope===0,'client-side':variable.Scope===1,'server-side':variable.Scope===2}">
+                <span ng-if="variable.Scope===0">Global</span>
+                <span ng-if="variable.Scope===1">Client Side</span>
+                <span ng-if="variable.Scope===2">Server Side</span>
+            </label>
+            <h3 class="variable-name">{{variable.VariableName}}</h3>
+            <h5 class="variable-type">
+                <span ng-if="!variable.ModelName">{{variable.VariableType}}</span>
+                <span ng-if="variable.ModelName" title="{{variable.ModelName}}">
+                    <pre ng-if="variable.VariableType==='AppModelList'">List Of </pre>
+                    <abbr>{{variable.ModelName}}</abbr>
+                </span>
+            </h5>
+            <p class="variable-description">
+                <span ng-if="variable.Description" title="{{variable.Description}}">{{variable.Description}}</span>
+                <span ng-if="!variable.Description">No description</span>
+            </p>
+            <div class="v-actions">
+                <button type="button" class="b-clean" ng-click="$.onSwapVariableClick(variable,1)">
+                    <i class="codicon codicon-arrow-up" ></i>
+                </button>
+                <button type="button" class="b-clean me-2" ng-click="$.onSwapVariableClick(variable,2)">
+                    <i class="codicon codicon-arrow-down" ></i>
+                </button>
+                <button type="button" class="b-clean" ng-click="$.onEditVariableClick(variable)">
+                    <i class="codicon codicon-edit"></i>
+                </button>
+                <button type="button" class="b-clean" ng-click="$.onDeleteVariableClick(variable)">
+                    <i class="codicon codicon-trash"></i>
+                </button>
+            </div>
+        </div>
+    </script>
+</div>

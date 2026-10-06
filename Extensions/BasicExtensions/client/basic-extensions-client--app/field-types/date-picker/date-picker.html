@@ -1,0 +1,12 @@
+<div class="b-date-picker-group [[ThemeCssClass]]" [TOKENS]>
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Left"'>
+        <i class="b-date-picker-icon [[Settings.FontIcon]]"></i>
+    </b-condition>
+
+    <input type="text" id="datePicker_[FIELD_ID]" class="b-date-picker-control" placeholder="[[Settings.Placeholder]]"
+        b-readonly='[[Settings.ReadonlyConditions]]' b-disabled='[[Settings.DisabledConditions]]' />
+
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Right"'>
+        <i class="b-date-picker-icon [[Settings.FontIcon]]"></i>
+    </b-condition>
+</div>

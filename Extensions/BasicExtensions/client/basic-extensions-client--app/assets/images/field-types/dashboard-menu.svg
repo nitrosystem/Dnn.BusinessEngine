@@ -1,0 +1,19 @@
+<svg viewBox="18.0 20.0 84.0 80.0" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dmAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#2f9fe8"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="26" width="34" height="34" rx="8" fill="url(#dmAccent)"/>
+  <rect x="66" y="26" width="30" height="34" rx="8" fill="#171b22" stroke="#3a4250" stroke-width="2"/>
+  <line x1="73" y1="38" x2="89" y2="38" stroke="#5a6472" stroke-width="3" stroke-linecap="round"/>
+  <line x1="73" y1="47" x2="83" y2="47" stroke="#5a6472" stroke-width="3" stroke-linecap="round"/>
+  <rect x="24" y="68" width="30" height="26" rx="8" fill="#171b22" stroke="#3a4250" stroke-width="2"/>
+  <line x1="31" y1="78" x2="47" y2="78" stroke="#5a6472" stroke-width="3" stroke-linecap="round"/>
+  <line x1="31" y1="86" x2="41" y2="86" stroke="#5a6472" stroke-width="3" stroke-linecap="round"/>
+  <rect x="66" y="68" width="30" height="26" rx="8" fill="#171b22" stroke="#3a4250" stroke-width="2"/>
+  <rect x="72" y="86" width="4" height="6" rx="1.5" fill="url(#dmAccent)"/>
+  <rect x="79" y="82" width="4" height="10" rx="1.5" fill="url(#dmAccent)"/>
+  <rect x="86" y="78" width="4" height="14" rx="1.5" fill="url(#dmAccent)"/>
+</svg>

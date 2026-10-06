@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A2CAF8DA-7B01-48D1-8FD6-C6CC8E755987}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NitroSystem.Dnn.BusinessEngine.Core</RootNamespace>
+    <AssemblyName>NitroSystem.Dnn.BusinessEngine.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.JScript" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Reflection.Metadata, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reflection.Metadata.8.0.0\lib\net462\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attributes\AttributeCache.cs" />
+    <Compile Include="Attributes\AttributeExtensions.cs" />
+    <Compile Include="BackgroundJob\BackgroundJobWorker.cs" />
+    <Compile Include="BackgroundJob\Contracts\IJob.cs" />
+    <Compile Include="BackgroundJob\Events\Delegates.cs" />
+    <Compile Include="BackgroundJob\JobContext.cs" />
+    <Compile Include="BackgroundJob\JobQueue.cs" />
+    <Compile Include="BackgroundJob\Models\ProgressInfo.cs" />
+    <Compile Include="BackgroundJob\Models\RunningJobInfo.cs" />
+    <Compile Include="DiagnosticCenter\CompositeDiagnosticReporter.cs" />
+    <Compile Include="DiagnosticCenter\Contracts\IDiagnosticReporter.cs" />
+    <Compile Include="DiagnosticCenter\Contracts\IDiagnosticStore.cs" />
+    <Compile Include="DiagnosticCenter\DatabaseDiagnosticReporter.cs" />
+    <Compile Include="DiagnosticCenter\DiagnosticContext.cs" />
+    <Compile Include="DiagnosticCenter\DiagnosticEntryBuilder.cs" />
+    <Compile Include="DiagnosticCenter\DiagnosticStore.cs" />
+    <Compile Include="DiagnosticCenter\Enums\DiagnosticScope.cs" />
+    <Compile Include="DiagnosticCenter\Enums\DiagnosticSeverity.cs" />
+    <Compile Include="DiagnosticCenter\Enums\DiagnosticSort.cs" />
+    <Compile Include="DiagnosticCenter\Models\DiagnosticEntry.cs" />
+    <Compile Include="DiagnosticCenter\Models\DiagnosticQuery.cs" />
+    <Compile Include="DslEngine\Base\DslNode.cs" />
+    <Compile Include="DslEngine\Base\DslStatement.cs" />
+    <Compile Include="DslEngine\DslExecutor.cs" />
+    <Compile Include="DslEngine\DslParser.cs" />
+    <Compile Include="DslEngine\DslScript.cs" />
+    <Compile Include="DslEngine\Enums\TokenType.cs" />
+    <Compile Include="DslEngine\Expressions\ExpressionCompiler.cs" />
+    <Compile Include="DslEngine\Expressions\BinaryExpression.cs" />
+    <Compile Include="DslEngine\Expressions\FunctionCallExpression.cs" />
+    <Compile Include="DslEngine\Expressions\LiteralExpression.cs" />
+    <Compile Include="DslEngine\Expressions\MemberAccessExpression.cs" />
+    <Compile Include="DslEngine\Expressions\MemberAccessResolver.cs" />
+    <Compile Include="DslEngine\Expressions\UnaryExpression.cs" />
+    <Compile Include="DslEngine\Models\Token.cs" />
+    <Compile Include="DslEngine\Statements\AssignmentStatement.cs" />
+    <Compile Include="DslEngine\Statements\FunctionCallStatement.cs" />
+    <Compile Include="DslEngine\Statements\IfStatement.cs" />
+    <Compile Include="DslEngine\Tokenizer.cs" />
+    <Compile Include="EngineBase\Contracts\EngineRunner.cs" />
+    <Compile Include="EngineBase\Contracts\IEngineContext.cs" />
+    <Compile Include="EngineBase\Contracts\IEngineMiddleware.cs" />
+    <Compile Include="EngineBase\EngineBase.cs" />
+    <Compile Include="EngineBase\EngineContext.cs" />
+    <Compile Include="EngineBase\EnginePipeline.cs" />
+    <Compile Include="EngineBase\EngineRunner.cs" />
+    <Compile Include="EngineBase\Events\Delegates.cs" />
+    <Compile Include="ExpressionEngine\Base\ExpressionCompilerBase.cs" />
+    <Compile Include="ExpressionEngine\ExpressionContext.cs" />
+    <Compile Include="ExpressionEngine\ExpressionService.cs" />
+    <Compile Include="ExpressionEngine\Base\ExpressionBase.cs" />
+    <Compile Include="ExpressionEngine\Contracts\IExpressionContext.cs" />
+    <Compile Include="ExpressionEngine\Contracts\IExpressionService.cs" />
+    <Compile Include="ExpressionEngine\Functions\ExpressionFunctionScanner.cs" />
+    <Compile Include="Providers\Payment\Contracts\IPaymentProvider.cs" />
+    <Compile Include="Providers\Payment\Contracts\IPaymentService.cs" />
+    <Compile Include="Providers\Payment\Contracts\IPaymentWebhookHandler.cs" />
+    <Compile Include="Providers\Payment\Enums\PaymentStatus.cs" />
+    <Compile Include="Providers\Payment\Models\PaymentInitializationResult.cs" />
+    <Compile Include="Providers\Payment\Models\PaymentIntent.cs" />
+    <Compile Include="Providers\Payment\Models\PaymentVerificationResult.cs" />
+    <Compile Include="Providers\Payment\Models\PaymentWebhookEvent.cs" />
+    <Compile Include="Providers\Payment\PaymentProviderResolver.cs" />
+    <Compile Include="Providers\Email\Contracts\IEmailProvider.cs" />
+    <Compile Include="Providers\Email\Contracts\IEmailProviderResolver.cs" />
+    <Compile Include="Providers\Email\Contracts\IEmailService.cs" />
+    <Compile Include="Providers\Email\Models\EmailData.cs" />
+    <Compile Include="Providers\Email\Models\EmailSendOptions.cs" />
+    <Compile Include="Providers\Email\Models\EmailSendResult.cs" />
+    <Compile Include="Providers\Email\EmailProviderResolver.cs" />
+    <Compile Include="Providers\Email\EmailService.cs" />
+    <Compile Include="Providers\SMS\Contracts\ISmsProvider.cs" />
+    <Compile Include="Providers\SMS\Contracts\ISmsProviderResolver.cs" />
+    <Compile Include="Providers\SMS\Contracts\ISmsService.cs" />
+    <Compile Include="Providers\SMS\Enums\SmsPriority.cs" />
+    <Compile Include="Providers\SMS\Models\SmsMessage.cs" />
+    <Compile Include="Providers\SMS\Models\SmsSendOptions.cs" />
+    <Compile Include="Providers\SMS\Models\SmsSendResult.cs" />
+    <Compile Include="Providers\SMS\SmsProviderResolver.cs" />
+    <Compile Include="Providers\SMS\SmsService.cs" />
+    <Compile Include="Reflection\TypeGeneration\GeneratedModelRegistry.cs" />
+    <Compile Include="Reflection\TypeGeneration\Models\GeneratedModelDescriptor.cs" />
+    <Compile Include="RepositoryCollectionExtensions.cs" />
+    <Compile Include="TemplateEngine\BlockContext.cs" />
+    <Compile Include="TemplateEngine\BuildTemplate.cs" />
+    <Compile Include="TemplateEngine\Expressions\ExpressionEvaluator.cs" />
+    <Compile Include="TemplateEngine\Expressions\ExpressionInterpolator.cs" />
+    <Compile Include="TemplateEngine\Nodes\ForNode.cs" />
+    <Compile Include="TemplateEngine\Nodes\FunctionNode.cs" />
+    <Compile Include="TemplateEngine\Nodes\IfNode.cs" />
+    <Compile Include="TemplateEngine\Nodes\Node.cs" />
+    <Compile Include="TemplateEngine\TemplateContext.cs" />
+    <Compile Include="TemplateEngine\Nodes\RootNode.cs" />
+    <Compile Include="TemplateEngine\TemplateExpressionContext.cs" />
+    <Compile Include="TemplateEngine\TemplateExpressionEngine.cs" />
+    <Compile Include="TemplateEngine\TemplateParser.cs" />
+    <Compile Include="TemplateEngine\Nodes\TextNode.cs" />
+    <Compile Include="SseNotifier\ISseNotifier.cs" />
+    <Compile Include="SseNotifier\SseClient.cs" />
+    <Compile Include="SseNotifier\SseConnectionManager.cs" />
+    <Compile Include="SseNotifier\SseNotifier.cs" />
+    <Compile Include="WebApi\HttpRequestMessageExtensions.cs" />
+    <Compile Include="General\LockService.cs" />
+    <Compile Include="General\BatchExecutor.cs" />
+    <Compile Include="General\ParallelBatchExecutor.cs" />
+    <Compile Include="Reflection\Reflection\ReflectionService.cs" />
+    <Compile Include="Reflection\TypeLoader\ITypeLoaderFactory.cs" />
+    <Compile Include="Caching\CacheService.cs" />
+    <Compile Include="ExpressionEngine\Functions\ExpressionFunctions.cs" />
+    <Compile Include="Reflection\TypeGeneration\AssemblyBuilderHost.cs" />
+    <Compile Include="Reflection\TypeGeneration\Models\GeneratedModelAttribute.cs" />
+    <Compile Include="Reflection\TypeGeneration\GeneratedTypeRegistry.cs" />
+    <Compile Include="Reflection\TypeGeneration\Models\ModelDefinition.cs" />
+    <Compile Include="Reflection\TypeGeneration\Models\PropertyDefinition.cs" />
+    <Compile Include="Reflection\TypeGeneration\TypeGenerationFactory.cs" />
+    <Compile Include="Reflection\TypeLoader\PluginLoader.cs" />
+    <Compile Include="Reflection\ServiceLocator\ServiceLocator.cs" />
+    <Compile Include="Reflection\TypeLoader\TypeLoaderFactory.cs" />
+    <Compile Include="Reflection\TypeLoader\TypeDescriptor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitOfWork\UnitOfWork.cs" />
+    <Compile Include="WebApi\CustomMultipartFormDataStreamProvider.cs" />
+    <Compile Include="WebApi\CustomMultipartFormDataStreamProviderChangeFileName.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Abstractions\NitroSystem.Dnn.BusinessEngine.Abstractions.csproj">
+      <Project>{f4c66d02-6cbe-4afd-93e1-16c56e69e86e}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
+      <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DotNetNuke.Core">
+      <Version>9.4.0</Version>
+    </PackageReference>
+    <PackageReference Include="DotNetNuke.DependencyInjection">
+      <Version>9.4.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client">
+      <Version>5.2.3</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection">
+      <Version>2.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+      <Version>2.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>6.0.4</Version>
+    </PackageReference>
+    <PackageReference Include="SharpZipLib">
+      <Version>0.86.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Runtime.Caching">
+      <Version>4.7.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

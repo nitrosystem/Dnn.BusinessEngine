@@ -1,0 +1,15 @@
+﻿<div class="b-dropdown-group [[ThemeCssClass]]" [TOKENS]>
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Left"'>
+        <i class="b-dropdown-icon [[Settings.FontIcon]]"></i>
+    </b-condition>
+    <select b-model="[[FieldValueProperty]]" class="b-dropdown-control" b-change="[FIELD].onChange([FIELD])"
+        b-disabled='[[Settings.DisabledConditions]]'>
+        <option value="">[[Settings.Placeholder]]</option>
+        <option b-for="option in [FIELD].DataSource.Items" value="{{option.[[DataSource.ValueField??Value]]}}">
+            {{option.[[DataSource.TextField??Text]]}}
+        </option>
+    </select>
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Right"'>
+        <i class="b-dropdown-icon [[Settings.FontIcon]]"></i>
+    </b-condition>
+</div>

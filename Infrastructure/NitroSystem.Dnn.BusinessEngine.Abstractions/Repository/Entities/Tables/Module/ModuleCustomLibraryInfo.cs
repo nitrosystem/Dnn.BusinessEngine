@@ -1,0 +1,19 @@
+﻿using System;
+using System.Web.Caching;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module
+{
+    [Table("BusinessEngine_ModuleCustomLibraries")]
+    [Cacheable("BE_Modules_CustomLibraries_", CacheItemPriority.Default, 20)]
+    [Scope("ModuleId")]
+    public class ModuleCustomLibraryInfo : IEntity
+    {
+        public Guid Id { get; set; }
+        public Guid ModuleId { get; set; }
+        public string LibraryName { get; set; }
+        public string Version { get; set; }
+        public int LoadOrder { get; set; }
+    }
+}

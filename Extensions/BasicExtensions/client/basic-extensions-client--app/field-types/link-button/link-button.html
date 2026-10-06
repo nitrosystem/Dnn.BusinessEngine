@@ -1,0 +1,14 @@
+﻿<a b-link="[FIELD].Settings.LinkUrl" class="[[ThemeCssClass]]" target="[[Settings.LinkTarget]]" [TOKENS]>
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Left"'>
+        <i class="[[Settings.FontIcon]]"></i>
+    </b-condition>
+
+    <b-condition con='Field.Settings.LinkButtonText!=null and Field.Settings.LinkButtonText!=""'>
+        <span class="link-text">[[Settings.LinkButtonText]]</span>
+    </b-condition>
+    
+
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Right"'>
+        <i class="[[Settings.FontIcon]]"></i>
+    </b-condition>
+</a>

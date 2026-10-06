@@ -1,0 +1,23 @@
+﻿using System;
+using System.Web.Caching;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Service
+{
+    [Table("BusinessEngine_ServiceTypes")]
+    [Cacheable("BE_ServiceTypes_", CacheItemPriority.Default, 20)]
+    public class ServiceTypeInfo : IEntity
+    {
+        public Guid Id { get; set; }
+        public Guid ExtensionId { get; set; }
+        public string ServiceDomain { get; set; }
+        public string ServiceType { get; set; }
+        public string Title { get; set; }
+        public string ServiceComponent { get; set; }
+        public string BusinessControllerClass { get; set; }
+        public string Icon { get; set; }
+        public string Description { get; set; }
+        public int ViewOrder { get; set; }
+    }
+}

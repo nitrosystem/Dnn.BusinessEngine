@@ -1,0 +1,23 @@
+.b-simple-template {
+    font-size: 16px;
+    line-height: 1.5;
+    direction: ltr;
+    text-align: left;
+}
+
+.b-simple-template .b-field {
+    margin-bottom: 1em;
+}
+
+.b-simple-template .b-field .b-field-label {
+    font-size: .8em;
+    font-weight: 700;
+    margin-bottom: .6em;
+}
+
+.b-simple-template .b-field .b-field-invalid-message {
+    padding: .5em;
+    font-size: .8em;
+    font-weight: 700;
+    color: red;
+}

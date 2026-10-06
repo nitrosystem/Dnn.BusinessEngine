@@ -1,0 +1,131 @@
+<div ng-class="{'was-validated':$.form.validated}">
+    <b-right-widget ng-if="$.workingMode==='variable-edit'" data-title="Edit {{$.variable.VariableName}} Variable"
+        data-icon="variable-group" data-subtitle="Add or edit module variable" data-module="$"
+        data-await-action="$.awaitAction" data-close-method="onCloseEditVariableWindow" data-hide-reload="true">
+        <!------------------------------------>
+        <!--Variable Info-->
+        <!------------------------------------>
+        <div class="d-flex">
+            <div class="col-7 b-splitter border-end pe-3">
+                <div class="b-field">
+                    <label class="form-label">Variable Type</label>
+                    <div class="b-input-group">
+                        <select id="drpVariableType" ng-model="$.variable.VariableType" class="b-input form-select"
+                            ng-options="type.Value as type.Text for type in $.variableTypes" chosen
+                            inherit-select-classes="true" placeholder-text-single="'Select variable type'" required>
+                        </select>
+                        <span><i class="codicon codicon-activate-breakpoints"></i></span>
+                    </div>
+                </div>
+                <div class="b-field"
+                    ng-if="$.variable.VariableType==='AppModel' || $.variable.VariableType==='AppModelList'">
+                    <label class="form-label">App Model</label>
+                    <div class="b-input-group">
+                        <select id="drpAppModel" ng-model="$.variable.AppModelId" class="b-input form-select"
+                            ng-options="vm.Id as vm.ModelName for vm in $.appModels" chosen
+                            inherit-select-classes="true" placeholder-text-single="'Select app model'" required>
+                            <option value="">Select view model</option>
+                        </select>
+                        <span><i class="codicon codicon-activate-breakpoints"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Variable Name</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtVariableName" class="b-input form-control"
+                            ng-model="$.variable.VariableName" placeholder="Enter variable name" autocomplete="off"
+                            b-focus="onEditVariable" required />
+                        <span><i class="codicon codicon-symbol-parameter"></i></span>
+                    </div>
+                    <div ng-if="$.variable.VariableName && $.form.error.VariableName">
+                        <p class="b-invalid">{{$.form.error.VariableName}}</p>
+                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetValidNameClick()">
+                            Set Valid Name
+                        </button>
+                    </div>
+                </div>
+                <div class="b-field"
+                    ng-class="{'opacity-25':$.variable.VariableType==='AppModel' || $.variable.VariableType==='AppModelList'}">
+                    <label class="form-label">Default Value</label>
+                    <div class="b-input-group">
+                        <input type="text" class="b-input form-control" ng-model="$.variable.DefaultValue"
+                            placeholder="Enter default value"
+                            ng-disabled="$.variable.VariableType==='AppModel' || $.variable.VariableType==='AppModelList'" />
+                        <span><i class="codicon codicon-symbol-namespace"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Scope</label>
+                    <div class="b-radio-list inline-items mb-2">
+                        <div class="radio-item">
+                            <input type="radio" id="rdModuleVariableGlobal" name="moduleVariableScope{{$.module.Id}}"
+                                ng-value="0" ng-model="$.variable.Scope" />
+                            <i class="input-helper"></i>
+                            <label for="rdModuleVariableGlobal">Global</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="rdModuleVariableClientSide"
+                                name="moduleVariableScope{{$.module.Id}}" ng-value="1" ng-model="$.variable.Scope" />
+                            <i class="input-helper"></i>
+                            <label for="rdModuleVariableClientSide">Client Side</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="rdModuleVariableServerSide"
+                                name="moduleVariableScope{{$.module.Id}}" ng-value="2" ng-model="$.variable.Scope" />
+                            <i class="input-helper"></i>
+                            <label for="rdModuleVariableServerSide">Server Side</label>
+                        </div>
+                    </div>
+                    <p class="b-invalid msg-center" ng-if="$.form.error.Scope">{{$.form.error.Scope}}</p>
+                    <div class="b-notify notify-small notify-note">
+                        <i class="codicon codicon-target b-icon-2"></i>
+                        <p class="text text-justify mb-0">
+                            The variable scope is very important!.This option allows you to set variable access ranges.
+                            And
+                            it helps you in data security.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-5 ps-3">
+                <div class="b-field">
+                    <label class="form-label">Group Name</label>
+                    <div class="b-input-group">
+                        <input type="text" class="b-input form-control" ng-model="$.variable.GroupName"
+                            placeholder="Enter group name" />
+                        <span><i class="codicon codicon-layers"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label d-block">Description</label>
+                    <div class="b-input-group">
+                        <textarea ng-model="$.variable.Description" class="b-input form-control" rows="5"
+                            placeholder="Enter variable description"></textarea>
+                        <span><i class="codicon codicon-symbol-constant"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">View Order</label>
+                    <div class="b-input-group">
+                        <input type="number" class="b-input form-control" ng-model="$.variable.ViewOrder"
+                            placeholder="Enter variable order" autocomplete="off" />
+                        <span><i class="codicon codicon-list-ordered"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="mb-4" />
+        <!------------------------------------>
+        <!--Action Buttons-->
+        <!------------------------------------>
+        <div class="mb-1 d-flex justify-content-end mt-auto">
+            <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveVariableClick()">
+                <i class="codicon codicon-save"></i>
+                Save Variable
+            </button>
+            <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCloseEditVariableWindow()">
+                <i class="codicon codicon-circle-slash"></i>
+                Cancel
+            </button>
+        </div>
+    </b-right-widget>

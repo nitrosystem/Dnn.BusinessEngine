@@ -1,0 +1,47 @@
+﻿<div class="send-sms-service">
+    <div class="b-field">
+        <label class="form-label">Email Provider</label>
+        <div class="b-input-group">
+            <select ng-model="$.service.Settings.ProviderName" class="b-input form-control" chosen
+                inherit-select-classes="true" placeholder-text-single="'Select an provider'"
+                ng-options="provider.ProviderName as provider.Title for provider in $.providers">
+            </select>
+            <span><i class="codicon codicon-github-action"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">From</label>
+        <div class="b-input-group">
+            <input type="text" class="b-input form-control" ng-model="$.service.Settings.From" autocomplete="off"
+                required />
+            <span><i class="codicon codicon-gear"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">To</label>
+        <div class="b-input-group">
+            <input type="text" class="b-input form-control" ng-model="$.service.Settings.To" autocomplete="off"
+                required />
+            <span><i class="codicon codicon-gear"></i></span>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Service Params-->
+    <!------------------------------------>
+    <div class="b-group">
+        <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpServiceParams">
+            <h3 class="group-label">
+                <span class="group-icon">
+                    <i class="codicon codicon-server-process"></i>
+                </span> Service Params
+            </h3>
+            <span class="group-collapse">
+                <i class="codicon codicon-chevron-up"></i>
+            </span>
+        </div>
+        <div id="grpServiceParams" class="group-content collapse show">
+            <b-service-params data-service="$.service" data-hide-param-type="true"
+                data-hide-default-value="true"></b-service-params>
+        </div>
+    </div>
+</div>

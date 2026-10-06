@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems
+{
+    public class ActionListItem
+    {
+        public Guid Id { get; set; }
+        public Guid? ParentId { get; set; }
+        public Guid? FieldId { get; set; }
+        public string ActionType { get; set; }
+        public string ActionName { get; set; }
+        public string Event { get; set; }
+        public ActionExecutionCondition? ParentActionTriggerCondition { get; set; }
+        public IEnumerable<ActionParamListItem> Params { get; set; }
+    }
+}

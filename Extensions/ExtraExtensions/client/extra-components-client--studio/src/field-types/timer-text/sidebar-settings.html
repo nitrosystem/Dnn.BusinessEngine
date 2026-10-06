@@ -1,0 +1,39 @@
+﻿<div class="b-field">
+    <label class="form-label">Timer Text</label>
+    <div class="b-input-group">
+        <textarea ng-model="$.currentField.Settings.TimerText" class="b-input form-control" rows="2"
+            placeholder="Enter timer text [Timer]"></textarea>
+        <span><i class="codicon codicon-whole-word"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Timer Interval(ms)</label>
+    <div class="b-input-group">
+        <input type="number" ng-model="$.currentField.Settings.TimerInterval" class="b-input form-control"
+            placeholder="Enter timer interval default 1000ms" />
+        <span><i class="codicon codicon-sync"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Duration<small>(Constant Number or Use Variable)</small></label>
+    <div properties-editor editor-id="propFieldDuration_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.Duration" suggestions="$.suggestions">
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Timer Variable<small>(set true|false in Actions)</small></label>
+    <div properties-editor editor-id="propFieldTimerVariable_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.TimerVariable" suggestions="$.suggestions">
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Call Action On Timer Complete </label>
+    <div class="b-input-group">
+        <select ng-model="$.currentField.Settings.OnTimerComplete" class="b-input form-control" chosen
+            inherit-select-classes="true" placeholder-text-single="'Select an action'"
+            ng-options="action.Id as action.ActionName for action in $.currentField.Actions">
+            <option value="">---None---</option>
+        </select>
+        <span><i class="codicon codicon-github-action"></i></span>
+    </div>
+</div>

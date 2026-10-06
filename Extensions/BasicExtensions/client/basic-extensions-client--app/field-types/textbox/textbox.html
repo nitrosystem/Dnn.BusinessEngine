@@ -1,0 +1,14 @@
+<div class="b-input-group" [TOKENS]>
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Left"'>
+        <i class="b-input-icon [[Settings.FontIcon]]"></i>
+    </b-condition>
+
+    <input type="[[Settings.InputType]]" id="textbox_[FIELD_ID]" b-model="[[FieldValueProperty]]"
+        class="b-input-control" placeholder="[[Settings.Placeholder]]" autocomplete="[[Settings.Autocomplete??off]]"
+        b-maxlength="[[Settings.MaxLength]]" b-readonly='[[Settings.ReadonlyConditions]]'
+        b-disabled='[[Settings.DisabledConditions]]' />
+
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Right"'>
+        <i class="b-input-icon [[Settings.FontIcon]]"></i>
+    </b-condition>
+</div>

@@ -1,0 +1,19 @@
+﻿using System;
+using System.Web.Caching;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Attributes;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+
+namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Service
+{
+    [Table("BusinessEngine_ServiceParams")]
+    [Cacheable("BE_Services_Params_", CacheItemPriority.Default, 20)]
+    [Scope("ServiceId")]
+    public class ServiceParamInfo : IEntity
+    {
+        public Guid Id { get; set; }
+        public Guid ServiceId { get; set; }
+        public string ParamName { get; set; }
+        public string ParamType { get; set; }
+        public int ViewOrder { get; set; }
+    }
+}

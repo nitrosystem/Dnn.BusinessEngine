@@ -1,0 +1,38 @@
+﻿<ul class="b-upload-image" [TOKENS]>
+    <li class="upload-box">
+        <input type="file" id="uploadImage_[FIELD_ID]" accept="[[Settings.AllowedContentTypes??image/*]]" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="65" height="65" fill="currentColor" viewBox="0 0 16 16">
+            <path
+                d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+        </svg>
+        <label class="upload-label" b-text="[FIELD].Settings.UploadLabel"></label>
+    </li>
+    <li class="b-file" b-if="[FIELD].previewImage or [[FieldValueProperty??'']]">
+        <div class="upload-image-percent" b-hide="[FIELD].isUploaded">
+            <div id="uploadImagePercent_[FIELD_ID]" class="upload-percent-bar"></div>
+        </div>
+        <img b-if="[FIELD].previewImage and ![[FieldValueProperty??'']]" class="file-image"
+            b-image="[FIELD].previewImage" />
+        <img b-if="[[FieldValueProperty]]" class="file-image" b-image="[[FieldValueProperty]]" />
+        <span class="image-info" b-text="[FIELD].filename"></span>
+        <div class="item-actions">
+            <span class="image-size" b-text="[FIELD].filesize"></span>
+            <svg b-if="[FIELD].isUploaded" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                viewBox="0 0 16 16">
+                <path
+                    d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0" />
+                <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708" />
+            </svg>
+            <button type="button" class="btn-remove" b-click="[FIELD].onRemoveFile([FIELD])">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path
+                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                    <path
+                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                </svg>
+            </button>
+        </div>
+    </li>
+    <li class="upload-box upload-image-error" b-if="[FIELD].error" b-text="[FIELD].error">
+    </li>
+</ul>

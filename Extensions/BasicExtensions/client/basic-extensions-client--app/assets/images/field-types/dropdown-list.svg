@@ -1,0 +1,15 @@
+<svg viewBox="19.7 27.7 80.6 72.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dlAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5fb0ff"/>
+      <stop offset="100%" stop-color="#2f7fe0"/>
+    </linearGradient>
+  </defs>
+  <rect x="26" y="34" width="68" height="24" rx="6" fill="#171b22" stroke="url(#dlAccent)" stroke-width="2.5"/>
+  <rect x="34" y="43" width="32" height="4" rx="2" fill="#5a6472"/>
+  <path d="M78 42 L84 48 L90 42" fill="none" stroke="url(#dlAccent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="26" y="64" width="68" height="30" rx="6" fill="#12151a" stroke="#3a4250" stroke-width="1.5"/>
+  <rect x="30" y="68" width="60" height="9" rx="3" fill="url(#dlAccent)" fill-opacity="0.35"/>
+  <rect x="34" y="71.5" width="30" height="3" rx="1.5" fill="url(#dlAccent)"/>
+  <rect x="34" y="82" width="34" height="3" rx="1.5" fill="#4a5362"/>
+</svg>

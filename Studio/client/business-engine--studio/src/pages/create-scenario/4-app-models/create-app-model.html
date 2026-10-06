@@ -1,0 +1,235 @@
+<div ng-controller="createAppModelController as $" class="create-app-model"
+    ng-class="{'was-validated':$.form.validated}">
+    <!------------------------------------>
+    <!--Sidebar-->
+    <!------------------------------------>
+    <div class="mb-sidebar" b-sidebar="builder">
+        <!------------------------------------>
+        <!--Search Box-->
+        <!------------------------------------>
+        <div class="search-box">
+            <input type="text" class="search-input" ng-model="$.searchEntity" placeholder="Search entity by name" />
+            <i class="codicon codicon-search"></i>
+        </div>
+        <!------------------------------------>
+        <!--Entity List-->
+        <!------------------------------------>
+        <div class="entity-list-wrapper b-scrollbar">
+            <ul class="entity-list">
+                <li ng-repeat="entity in $.entities | orderBy:'-isSelected' | filter:{EntityName:$.searchEntity}"
+                    class="entity-item">
+                    <button type="button" class="btn-add-entity" ng-click="$.onToggleSelectedEntityClick(entity)"
+                        ng-class="{'selected':entity.isSelected}">
+                        <i class="codicon"
+                            ng-class="{'codicon-debug-start':!entity.isSelected,'codicon-run-errors':entity.isSelected}"></i>
+                    </button>
+                    <div class="entity-primary-info">
+                        <i class="codicon"
+                            ng-class="{'codicon-table':entity.EntityType===0,'codicon-preview':entity.EntityType===1}"></i>
+                        <h5 class="entity-name">{{entity.EntityName}}</h5>
+                    </div>
+                    <div class="entity-sub-info">
+                        <label class="entity-table-name">{{entity.TableName}}</label>
+                    </div>
+                    <hr class="entity-splitter" />
+                    <div class="entity-columns-wrapper" ng-class="{'columns-expanded':entity.IsExpanded}">
+                        <ul class="entity-column-list">
+                            <li class="entity-column" ng-repeat="column in entity.Columns">
+                                <label class="entity-column-name">{{column.ColumnName}}</label>
+                                <span class="entity-column-type">{{column.ColumnType}}</span>
+                            </li>
+                        </ul>
+                        <button type="button" class="btn-expand-columns" ng-if="entity.Columns.length>2"
+                            ng-click="entity.IsExpanded=!entity.IsExpanded">
+                            <i class="codicon"
+                                ng-class="{'codicon-expand-all':!entity.IsExpanded,'codicon-collapse-all':entity.IsExpanded}"></i>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Content Panel  -->
+    <!------------------------------------>
+    <b-content-widget data-title="Create App Model" data-icon="output" data-module-type="create-app-model"
+        data-subtitle="Design interactive scenario models" data-await-action="$.awaitAction" data-module="$"
+        data-reload-method="onPageLoad" data-close-method="onCloseWindow">
+        <div class="app-model-design-board">
+            <!------------------------------------>
+            <!--Left Side-->
+            <!------------------------------------>
+            <div id="selectedEntitiesLeftWidget_{{$.appModel.Id}}"
+                class="model-designer-left b-scrollbar b-splitter border-end">
+                <!------------------------------------>
+                <!--Selected Entities -->
+                <!------------------------------------>
+                <div class="selected-entities-wrapper">
+                    <ul class="selected-entities">
+                        <li ng-repeat="entity in $.selectedEntities" class="entity-item">
+                            <div class="entity-info">
+                                <h5 class="entity-name">
+                                    <i class="codicon"
+                                        ng-class="{'codicon-table':entity.EntityType===0,'codicon-preview':entity.EntityType===1}"></i>
+                                    <span>{{entity.EntityName}}</span>
+                                </h5>
+                                <label class="entity-table-name">{{entity.TableName}}</label>
+                            </div>
+                            <div class="entity-columns-wrapper" ng-class="{'columns-collapsed':entity.IsCollapsed}">
+                                <ul class="entity-column-list">
+                                    <li class="entity-column" ng-repeat="column in entity.Columns"
+                                        ng-class="{'selected':column.isSelected}">
+                                        <label class="b-checkbox mt-1">
+                                            <input type="checkbox" ng-model="column.isSelected"
+                                                ng-change="$.onToggleEntityColumnChange(column)">
+                                            <i class="checkbox-icon"></i>
+                                        </label>
+                                        <label class="entity-column-name">{{column.ColumnName}}</label>
+                                        <span class="entity-column-type">{{column.ColumnType}}</span>
+                                    </li>
+                                </ul>
+                                <button type="button" class="btn-collapse-columns"
+                                    ng-click="entity.IsCollapsed=!entity.IsCollapsed">
+                                    <i class="codicon"
+                                        ng-class="{'codicon-collapse-all':!entity.IsCollapsed,'codicon-expand-all':entity.IsCollapsed}"></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!------------------------------------>
+            <!--Right Side-->
+            <!------------------------------------>
+            <div id="selectedEntitiesRightWidget_{{$.appModel.Id}}" class="model-designer-right">
+                <div class="app-model-card">
+                    <!-- Header -->
+                    <div class="model-card-header">
+                        <div class="dropdown app-model-type">
+                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <span ng-if="!$.appModel.ModelType">None</span>
+                                <span ng-if="$.appModel.ModelType===1">View Model</span>
+                                <span ng-if="$.appModel.ModelType===2">List Item</span>
+                                <span ng-if="$.appModel.ModelType===3">Info</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="" ng-click="$.onChangeModelTypeClick(0)">
+                                        None
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" ng-click="$.onChangeModelTypeClick(1)">
+                                        View Model
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" ng-click="$.onChangeModelTypeClick(2)">
+                                        List Item
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="" ng-click="$.onChangeModelTypeClick(3)">
+                                        Info
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="input-group">
+                            <input id="appModelBaseName_{{$.appModel.Id}}" class="model-name"
+                                ng-model="$.appModel.Settings.BaseName" placeholder="Enter model base name"
+                                ng-change="$.onModelBaseNameChange()" autocomplete="off" required />
+                            <input id="appModelPostfix_{{$.appModel.Id}}" class="model-type"
+                                ng-model="$.appModel.Settings.Postfix"
+                                ng-change="$.appModel.Settings.PostfixModified=true" placeholder="Enter postfix"
+                                autocomplete="off" />
+                            <div class="model-name-validate"
+                                ng-if="$.appModel.Settings.BaseName && $.form.error.Settings.BaseName">
+                                <button type="button" class="b-btn btn-action btn-lg"
+                                    ng-click="$.onSetValidNameClick()">
+                                    Set Valid Name
+                                </button>
+                            </div>
+                        </div>
+                        <div class="model-name-finalized" ng-if="$.appModel.Settings.BaseName">
+                            <span>Model Name : <b>{{$.appModel.ModelName}}</b></span>
+                        </div>
+                        <p class="model-name-invalid text-danger"
+                            ng-if="$.form.error.ModelName || $.form.error.Settings.BaseName">
+                            {{$.form.error.ModelName}}
+                            {{$.form.error.Settings.BaseName}}
+                        </p>
+                    </div>
+                    <hr class="card-header-splitter" />
+                    <!-- Body -->
+                    <div class="model-card-body">
+                        <div ng-if="!$.appModel.Properties.length" class="b-notify notify-small notify-info m-3 mb-0">
+                            <i class="codicon codicon-info b-icon-2"></i>
+                            <div class="text">
+                                <h4 class="label">No properties.</h4>
+                                <span class="subtext">Click Add Property to add a property!.</span>
+                            </div>
+                        </div>
+                        <ul class="model-properties">
+                            <li class="prop-item" ng-repeat="property in $.appModel.Properties | orderBy : 'ViewOrder'">
+                                <!-- Property Name -->
+                                <input ng-model="property.PropertyName" class="prop-name" placeholder="Property name"
+                                    b-focus="onEditProperty{{$index+1}}" required />
+                                <!-- Property Type -->
+                                <select ng-model="property.PropertyType" class="prop-type"
+                                    ng-options="type.Value as type.Text for type in $.propertyTypes" chosen
+                                    inherit-select-classes="true" placeholder-text-single="'Property type'" required>
+                                </select>
+                                <div class="prop-actions">
+                                    <!-- Delete Button -->
+                                    <button type="button" ng-click="$.onRemovePropertyClick(property,$index)"
+                                        ng-disabled="$.running">
+                                        <i class="codicon codicon-trash"></i>
+                                    </button>
+                                    <!-- View Order -->
+                                    <button type="button" ng-click="$.onPropertySwapClick($index,$index-1)"
+                                        ng-disabled="$.running || $index==0">
+                                        <i class="codicon codicon-arrow-up"></i>
+                                    </button>
+                                    <button type="button" ng-click="$.onPropertySwapClick($index,$index+1)"
+                                        ng-disabled="$.running || $index===$.appModel.Properties.length-1">
+                                        <i class="codicon codicon-arrow-down"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                        <p class="b-invalid msg-center" ng-if="$.form.error.Properties">{{$.form.error.Properties}}</p>
+                        <button type="button" class="btn-add-prop" ng-click="$.onAddPropertyClick()"
+                            ng-class="{'shine2':!$.appModel.Properties.length}" ng-disabled="$.running">
+                            <i class="codicon codicon-plus"></i>
+                        </button>
+                    </div>
+                    <hr class="card-body-splitter" />
+                    <!-- Footer -->
+                    <div class="model-card-footer">
+                        <textarea ng-model="$.appModel.Description" class="model-desc"
+                            placeholder="Enter model description (optional)"></textarea>
+                        <div class="footer-actions">
+                            <button type="button" class="b-btn btn-red-lite" ng-click="$.onDeleteAppModelClick()"
+                                ng-disabled="$.running">
+                                <i class="codicon codicon-trash"></i>
+                            </button>
+                            <select ng-model="$.appModel.GroupId" class="model-group-name"
+                                ng-options="group.Id as group.GroupName for group in $.$rootScope.groups | filter:{GroupType:'AppModel'}"
+                                chosen inherit-select-classes="true"
+                                placeholder-text-single="'Select a group(optional)'">
+                                <option value=""></option>
+                            </select>
+                            <button type="button" class="b-btn btn-submit btn-lg" ng-click="$.onSaveAppModelClick()"
+                                ng-disabled="$.running">
+                                <i class="codicon codicon-save"></i>
+                                Save App Model
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </b-content-widget>
+</div>

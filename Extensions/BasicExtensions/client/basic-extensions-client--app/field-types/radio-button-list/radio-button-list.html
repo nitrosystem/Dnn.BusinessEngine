@@ -1,0 +1,15 @@
+﻿<div class="b-radio-list" b-class='{"b-radio-inline":[FIELD].Settings.RadioListDisplayType=="perline"}' [TOKENS]>
+    <label class="b-radio-item" b-if="[FIELD].Settings.ShowNoneOption">
+        <input type="radio" name="bRadio_[FIELD_ID]" b-model="[[FieldValueProperty]]" value=""
+            b-change="[FIELD].onChange([FIELD])" b-disabled='[[Settings.DisabledConditions]]' />
+        <span class="b-radio-mark"></span>
+        <span class="b-radio-text">{{[FIELD].Settings.NoneOptionText}}</span>
+    </label>
+    <label class="b-radio-item" b-for="option in [FIELD].DataSource.Items">
+        <input type="radio" name="bRadio_[FIELD_ID]" value="{{option.[[DataSource.ValueField??Value]]}}"
+            b-model="[[FieldValueProperty]]" b-change="[FIELD].onChange([FIELD])"
+            b-disabled='[[Settings.DisabledConditions]]' />
+        <span class="b-radio-mark"></span>
+        <span class="b-radio-text" b-text="option.[[DataSource.TextField??Text]]"></span>
+    </label>
+</div>

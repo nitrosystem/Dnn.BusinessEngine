@@ -1,0 +1,36 @@
+<div class="d-flex">
+    <div class="col-7 border-end b-splitter pe-3">
+        <div class="b-field">
+            <label class="form-label">Radio List Display Type</label>
+            <div class="b-radio-list inline-items">
+                <div class="radio-item">
+                    <input type="radio" id="inlineListDisplayType" name="radioListDisplayType" value="inline"
+                        ng-model="$.currentField.Settings.OptionsDisplayType">
+                    <label for="inlineListDisplayType">Inline</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" id="perlineListDisplayType" name="radioListDisplayType" value="perline"
+                        ng-model="$.currentField.Settings.OptionsDisplayType">
+                    <label for="perlineListDisplayType">Perline</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col ps-3">
+        <div class="b-field">
+            <label class="form-label">Show None Option</label>
+            <label class="b-switch d-block">
+                <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.ShowNoneOption" />
+                <div class="slider"></div>
+            </label>
+        </div>
+        <div class="b-field" ng-class="{'opacity-25':!$.currentField.Settings.ShowNoneOption}">
+            <label class="form-label">None Option Text</label>
+            <div class="b-input-group">
+                <input type="text" ng-model="$.currentField.Settings.NoneOptionText" class="b-input form-control"
+                    placeholder="Enter none option text" ng-disabled="!$.currentField.Settings.ShowNoneOption" />
+                <span><i class="codicon codicon-type-hierarchy"></i></span>
+            </div>
+        </div>
+    </div>
+</div>

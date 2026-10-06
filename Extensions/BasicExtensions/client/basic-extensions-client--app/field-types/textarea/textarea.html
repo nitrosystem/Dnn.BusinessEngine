@@ -1,0 +1,14 @@
+<div class="b-textarea-group [[ThemeCssClass]]">
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Left"'>
+        <i class="b-textarea-icon [[Settings.FontIcon]]"></i>
+    </b-condition>
+
+    <textarea id="textarea_[FIELD_ID]" b-model="[[FieldValueProperty]]" class="b-textarea-control"
+        placeholder="[[Settings.Placeholder]]" rows="[[Settings.Rows??2]]" b-maxlength="[[Settings.MaxLength]]"
+        b-readonly='[[Settings.ReadonlyConditions]]' b-disabled='[[Settings.DisabledConditions]]'>
+    </textarea>
+
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Right"'>
+        <i class="b-textarea-icon [[Settings.FontIcon]]"></i>
+    </b-condition>
+</div>

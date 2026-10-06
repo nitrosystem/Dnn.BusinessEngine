@@ -1,0 +1,22 @@
+<div class="d-flex">
+    <div class="col-7 border-end b-splitter pe-3">
+        <div class="b-field">
+            <label class="form-label">Timer Text</label>
+            <div class="b-input-group">
+                <textarea ng-model="$.currentField.Settings.TimerText" class="b-input form-control" rows="2"
+                    placeholder="Enter your text [Timer]"></textarea>
+                <span><i class="codicon codicon-whole-word"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="col ps-3">
+        <div class="b-field">
+            <label class="form-label">Timer Interval(ms)</label>
+            <div class="b-input-group">
+                <input type="number" ng-model="$.currentField.Settings.TimerInterval" class="b-input form-control"
+                    placeholder="Timer interval default 1000ms" />
+                <span><i class="codicon codicon-sync"></i></span>
+            </div>
+        </div>
+    </div>
+</div>

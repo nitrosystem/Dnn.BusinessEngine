@@ -1,0 +1,115 @@
+﻿<div class="b-field">
+    <label class="form-label">Placeholder</label>
+    <div class="b-input-group">
+        <input type="text" ng-model="$.currentField.Settings.Placeholder" class="b-input form-control"
+            placeholder="Enter placeholder" />
+        <span><i class="codicon codicon-symbol-string"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Date Format</label>
+    <div class="b-input-group">
+        <input ng-model="$.currentField.Settings.Format" class="b-input form-control" placeholder="Enter date format" />
+        <span><i class="codicon codicon-calendar"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">First Day Of Week</label>
+    <div class="b-input-group">
+        <select ng-model="$.currentField.Settings.FirstDayOfWeek" class="b-input form-control" chosen
+            inherit-select-classes="true" placeholder-text-single="'Select default first day of week'">
+            <option value=""></option>
+            <option ng-value="1">Sunday</option>
+            <option ng-value="2">Monday</option>
+            <option ng-value="3">Tuesday</option>
+            <option ng-value="4">Wednesday</option>
+            <option ng-value="5">Thursday</option>
+            <option ng-value="6">Friday</option>
+            <option ng-value="7">Saturday</option>
+        </select>
+        <span><i class="codicon codicon-pass-filled"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Disable Mobile</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.DisableMobile" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div class="b-field">
+    <label class="form-label">Allow Input</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.AllowInput" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div class="b-field">
+    <label class="form-label">Enable Time</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.EnableTime" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div class="b-field">
+    <label class="form-label">With Icon</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.WithIcon" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div ng-if="$.currentField.Settings.WithIcon">
+    <div class="b-field">
+        <label class="form-label">Icon Position</label>
+        <div class="b-radio-list inline-items">
+            <div class="radio-item">
+                <input type="radio" id="leftPosition" name="positionRadio" value="Left"
+                    ng-model="$.currentField.Settings.IconPosition">
+                <label for="leftPosition">Left</label>
+            </div>
+            <div class="radio-item">
+                <input type="radio" id="rightPosition" name="positionRadio" value="Right"
+                    ng-model="$.currentField.Settings.IconPosition">
+                <label for="rightPosition">Right</label>
+            </div>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Font Icon</label>
+        <div class="b-input-group">
+            <input type="text" ng-model="$.currentField.Settings.FontIcon" class="b-input form-control"
+                placeholder="Enter font icon" />
+            <span><i class="codicon codicon-smiley"></i></span>
+        </div>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Min Date</label>
+    <div properties-editor editor-id="propMinDate_{{$.currentField.Id}}" ng-model="$.currentField.Settings.MinDate"
+        suggestions="$.suggestions">
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Max Date</label>
+    <div properties-editor editor-id="propMaxDate_{{$.currentField.Id}}" ng-model="$.currentField.Settings.MaxDate"
+        suggestions="$.suggestions">
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Default Date</label>
+    <div properties-editor editor-id="propDefaultDate_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.DefaultDate" suggestions="$.suggestions">
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Disabled Condition(s)</label>
+    <div properties-editor editor-id="propFieldDisabledCondition_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.DisabledConditions" suggestions="$.suggestions">
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Readonly Condition(s)</label>
+    <div properties-editor editor-id="propFieldReadonlyCondition_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.ReadonlyConditions" suggestions="$.suggestions">
+    </div>
+</div>

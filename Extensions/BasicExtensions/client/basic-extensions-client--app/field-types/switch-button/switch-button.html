@@ -1,0 +1,6 @@
+﻿<div class="b-switch [[ThemeCssClass]]" [TOKENS]>
+    <input type="checkbox" b-model="[[FieldValueProperty]]" b-change="[FIELD].onChange([FIELD])"
+        b-disabled='[[Settings.DisabledConditions]]' />
+    <div class="slider"></div>
+    <span b-if="[FIELD].Settings.ShowLabel" class="switch-label">[[Settings.LabelText]]</span>
+</div>

@@ -1,0 +1,36 @@
+﻿<div class="b-field">
+    <label class="form-label">Options Display Type</label>
+    <div class="b-radio-list">
+        <div class="radio-item">
+            <input type="radio" id="inlineCheckboxOptionsDisplayType" name="checkboxOptionsDisplayType"
+                value="inline" ng-model="$.currentField.Settings.OptionsDisplayType">
+            <label for="inlineCheckboxOptionsDisplayType">Inline</label>
+        </div>
+        <div class="radio-item">
+            <input type="radio" id="perlineCheckboxOptionsDisplayType" name="checkboxOptionsDisplayType"
+                value="perline" ng-model="$.currentField.Settings.OptionsDisplayType">
+            <label for="perlineCheckboxOptionsDisplayType">Perline</label>
+        </div>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Storage Type</label>
+    <div class="b-radio-list">
+        <div class="radio-item">
+            <input type="radio" id="checkboxStorageTypeDelimited" name="checkboxStorageType" value="delimited"
+                ng-model="$.currentField.Settings.StorageType">
+            <label for="checkboxStorageTypeDelimited">Delimited</label>
+        </div>
+        <div class="radio-item">
+            <input type="radio" id="checkboxStorageTypeJsonArray" name="checkboxStorageType" value="json"
+                ng-model="$.currentField.Settings.StorageType">
+            <label for="checkboxStorageTypeJsonArray">Json Array</label>
+        </div>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Disabled Condition(s)</label>
+    <div properties-editor editor-id="propFieldDisabledCondition_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.DisabledConditions" suggestions="$.suggestions">
+    </div>
+</div>

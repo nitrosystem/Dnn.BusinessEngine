@@ -1,0 +1,44 @@
+{
+  "name": "business-engine-studio",
+  "version": "01.00.00",
+  "description": "Business Engine Studio.",
+  "author": "Nitro System Group",
+  "private": false,
+  "license": "MIT",
+  "scripts": {
+    "dev": "webpack-dev-server  --progress --port 9080",
+    "build": "webpack --env production"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.10.2",
+    "@types/angular": "^1.8.3",
+    "@vscode/codicons": "^0.0.45",
+    "angular": "^1.8.2",
+    "bootstrap": "5.3.3",
+    "chosen-js": "^1.8.7",
+    "jquery": "^3.7.1",
+    "monaco-editor": "^0.55.1",
+    "sweetalert2": "^11.14.5"
+  },
+  "devDependencies": {
+    "babel-plugin-dynamic-import-webpack": "^1.1.0",
+    "css-loader": "^6.5.0",
+    "express": "^4.17.1",
+    "file-loader": "^6.2.0",
+    "html-loader": "^3.0.1",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.4.3",
+    "monaco-editor-webpack-plugin": "^7.1.1",
+    "ngtemplate-loader": "^2.1.0",
+    "null-loader": "^4.0.1",
+    "script-loader": "^0.7.2",
+    "style-loader": "^3.3.1",
+    "terser-webpack-plugin": "^5.3.1",
+    "url-loader": "^4.0.0",
+    "webpack": "^5.61.0",
+    "webpack-cli": "^7.2.3",
+    "webpack-dev-middleware": "^5.2.2",
+    "webpack-dev-server": "^4.10.0"
+  },
+  "main": "./src/studio.js"
+}

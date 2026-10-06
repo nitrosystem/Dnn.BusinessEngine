@@ -1,0 +1,57 @@
+<div class="b-table theme-gray">
+    <div class="table-header">
+        <div class="header-label">
+            <h4 class="header-title">Action Params</h4>
+            <span class="header-subtitle">Parameters of the selected action</span>
+        </div>
+        <div class="header-tools">
+            <div class="col-1">
+                <button type="button" class="b-btn btn-text-icon btn-action" ng-click="$.onRefreshActionParamsClick()"
+                    disabled>
+                    <i class="codicon codicon-refresh me-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="table-body">
+        <div class="d-flex columns-name">
+            <div class="col-5">Param Name</div>
+            <div class="col-6">Param Value</div>
+        </div>
+        <div class="d-flex table-row" ng-repeat="param in $.params | orderBy : 'ViewOrder'" ng-if="!param.isEdited"
+            ng-click="$.onRowItemClick(param,$index)" role="button" ng-style="{'order':($index+1)}">
+            <div class="col-5 my-auto">
+                {{param.ParamName}}
+            </div>
+            <div class="col-6 my-auto">
+                {{param.ParamValue}}
+            </div>
+        </div>
+        <!------------------------------------>
+        <!-- Edit Param -->
+        <!------------------------------------>
+        <div ng-if="$.param.isEdited" class="d-flex table-row edit-row" ng-style="{'order':$.param.orderId}">
+            <div class="col-5 my-auto">
+                <span>{{$.param.ParamName}}</span>
+            </div>
+            <div class="col-6 my-auto">
+                <div properties-editor editor-id="monacoActionParamName{{$.param.ParamName}}" ng-model="$.param.ParamValue"
+                    b-focus="onEditParam" data-suggestions="$.suggestions" required>
+                </div>
+            </div>
+            <div class="col-1 my-auto">
+                <button type="button" class="b-btn btn-action" ng-click="$.onDoneClick()">
+                    <i class="codicon codicon-check"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="table-footer">
+        <div ng-if="!$.params.length" class="b-notify notify-info mb-4">
+            <i class="codicon codicon-info b-icon-2"></i>
+            <div class="text">
+                <h4 class="label">Action has not any params.</h4>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{57E9A1EA-6603-4CD5-9914-5F79F60923ED}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NitroSystem.Dnn.BusinessEngine.Repository</RootNamespace>
+    <AssemblyName>NitroSystem.Dnn.BusinessEngine.Repository</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="RepositoryCollectionExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Action\ActionParamRepository.cs" />
+    <Compile Include="Action\ActionTypeRepository.cs" />
+    <Compile Include="Action\ActionRepository.cs" />
+    <Compile Include="AppModel\AppModelPropertyRepository.cs" />
+    <Compile Include="AppModel\AppModelRepository.cs" />
+    <Compile Include="Base\ScenarioRepository.cs" />
+    <Compile Include="Base\GroupRepository.cs" />
+    <Compile Include="Library\LibraryRepository.cs" />
+    <Compile Include="Library\LibraryResourceRepository.cs" />
+    <Compile Include="Dashboard\DashboardPageModuleRepository.cs" />
+    <Compile Include="Dashboard\DashboardPageRepository.cs" />
+    <Compile Include="Dashboard\DashboardRepository.cs" />
+    <Compile Include="DefinedList\DefinedListItemsRepository.cs" />
+    <Compile Include="DefinedList\DefinedListRepository.cs" />
+    <Compile Include="Entity\EntityColumnRepository.cs" />
+    <Compile Include="Entity\EntityRepository.cs" />
+    <Compile Include="Extension\ExtensionRepository.cs" />
+    <Compile Include="Module\ModuleCustomResourceRepository.cs" />
+    <Compile Include="Module\ModuleFieldTypeRepository.cs" />
+    <Compile Include="Module\ModuleFieldSettingRepository.cs" />
+    <Compile Include="Module\ModuleFieldDataSourceRepository.cs" />
+    <Compile Include="Module\ModuleFieldTypeThemeRepository.cs" />
+    <Compile Include="Module\ModuleFieldTypeTemplateRepository.cs" />
+    <Compile Include="Module\ModuleOutputResourceRepository.cs" />
+    <Compile Include="Module\ModuleEventTypeRepository.cs" />
+    <Compile Include="Module\ModuleVariableRepository.cs" />
+    <Compile Include="Module\ModuleRepository.cs" />
+    <Compile Include="Module\ModuleCustomLibraryRepository.cs" />
+    <Compile Include="Module\ModuleFieldRepository.cs" />
+    <Compile Include="Extension\ProviderRepository.cs" />
+    <Compile Include="Service\ServiceTypeRepository.cs" />
+    <Compile Include="Service\ServiceParamRepository.cs" />
+    <Compile Include="Service\ServiceRepository.cs" />
+    <Compile Include="Template\TemplateThemeRepository.cs" />
+    <Compile Include="Template\TemplateRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Abstractions\NitroSystem.Dnn.BusinessEngine.Abstractions.csproj">
+      <Project>{f4c66d02-6cbe-4afd-93e1-16c56e69e86e}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
+      <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NitroSystem.Dnn.BusinessEngine.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
+      <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection">
+      <Version>2.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+      <Version>2.1.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

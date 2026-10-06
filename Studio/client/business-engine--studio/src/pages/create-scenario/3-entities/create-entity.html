@@ -1,0 +1,303 @@
+<div ng-controller="createEntityController as $" class="create-entity" ng-class="{'was-validated':$.form.validated}">
+    <b-content-widget data-title="Create Entity" data-icon="table" data-module-type="create-entity"
+        data-subtitle="Add or edit scenario entity" data-await-action="$.awaitAction" data-module="$"
+        data-reload-method="onPageLoad" data-close-method="onCloseWindow">
+        <div class="d-flex">
+            <div class="col-8 b-splitter border-end pe-3">
+                <!------------------------------------>
+                <!--Entity Columns Table-->
+                <!------------------------------------>
+                <div class="entity-columns">
+                    <div class="b-table theme-gray cursor-default">
+                        <div class="table-header p-4">
+                            <div class="header-label">
+                                <h4 class="header-title">Entity Columns</h4>
+                                <span class="header-subtitle">Columns of Table or view on database</span>
+                            </div>
+                            <div class="header-tools">
+                                <button type="button" ng-if="$.entity.Id || !$.entity.IsReadonly"
+                                    class="b-btn btn-text-icon btn-action" ng-click="$.onAddColumnClick()"
+                                    ng-disabled="column || $.entity.IsReadonly">
+                                    <i class="codicon codicon-plus"></i>
+                                    Add Column
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-body ps-4 pe-4">
+                            <div class="d-flex columns-name">
+                                <div class="col-5 d-flex align-items-center">
+                                    <i class="codicon codicon-key opacity-50 me-2"></i>
+                                    Column Name
+                                </div>
+                                <div class="col-3">Column Type</div>
+                                <div class="col-1" bootstrap-tooltip data-bs-placement="bottom" title="Allows ">
+                                    Nulls
+                                </div>
+                                <div class="col-2 text-center" ng-if="!$.entity.IsReadonly">
+                                    <i class="codicon codicon-arrow-up d-inline-block ms-1 me-3"></i>
+                                    <i class="codicon codicon-arrow-down d-inline-block"></i>
+                                </div>
+                                <div class="col-1" ng-if="!$.entity.IsReadonly">
+                                    <i class="codicon codicon-ellipsis"></i>
+                                </div>
+                            </div>
+                            <div class="d-flex table-row" ng-repeat="column in $.entity.Columns | orderBy:'ViewOrder'">
+                                <div class="col-5 d-flex flex-wrap position-relative">
+                                    <span class="column-is-primary">
+                                        <i ng-if="column.IsPrimary" class="codicon codicon-key" bootstrap-tooltip
+                                            data-bs-placement="bottom" title="Is Primary Key"></i>
+                                    </span>
+                                    <input type="text" ng-model="column.ColumnName" class="b-input-nobg flex-fill ms-4"
+                                        b-focus="onEditColumn" placeholder="Enter column name" autocomplete="off"
+                                        ng-disabled="$.entity.IsReadonly" required />
+                                    <p class="b-invalid flex-fill" ng-if="$.validatedColumns[$index].error.ColumnName">
+                                        {{$.validatedColumns[$index].error.ColumnName}}
+                                    </p>
+                                </div>
+                                <div class="col-3">
+                                    <input type="text" ng-model="column.ColumnType" class="b-input-nobg"
+                                        placeholder="Enter column type" list="sqlDataTypes"
+                                        ng-disabled="$.entity.IsReadonly" required />
+                                    <datalist id="sqlDataTypes">
+                                        <option value="bigint"></option>
+                                        <option value="binary(50)"></option>
+                                        <option value="bit"></option>
+                                        <option value="char(10)"></option>
+                                        <option value="date"></option>
+                                        <option value="datetime"></option>
+                                        <option value="datetime2(7)"></option>
+                                        <option value="datetimeoffset(7)"></option>
+                                        <option value="decimal(18, 0)"></option>
+                                        <option value="float"></option>
+                                        <option value="geography"></option>
+                                        <option value="geometry"></option>
+                                        <option value="hierarchyid"></option>
+                                        <option value="image"></option>
+                                        <option value="int"></option>
+                                        <option value="money"></option>
+                                        <option value="nchar(10)"></option>
+                                        <option value="ntext"></option>
+                                        <option value="numeric(18, 0)"></option>
+                                        <option value="nvarchar(50)"></option>
+                                        <option value="nvarchar(MAX)"></option>
+                                        <option value="real"></option>
+                                        <option value="smalldatetime"></option>
+                                        <option value="smallint"></option>
+                                        <option value="smallmoney"></option>
+                                        <option value="sql_variant"></option>
+                                        <option value="text"></option>
+                                        <option value="time(7)"></option>
+                                        <option value="timestamp"></option>
+                                        <option value="tinyint"></option>
+                                        <option value="uniqueidentifier"></option>
+                                        <option value="varbinary(50)"></option>
+                                        <option value="varbinary(MAX)"></option>
+                                        <option value="varchar(50)"></option>
+                                        <option value="varchar(MAX)"></option>
+                                        <option value="xml"></option>
+                                    </datalist>
+                                    <p class="b-invalid flex-fill" ng-if="$.validatedColumns[$index].error.ColumnType">
+                                        {{$.validatedColumns[$index].error.ColumnType}}
+                                    </p>
+                                </div>
+                                <div class="col-1">
+                                    <label class="b-switch switch-sm">
+                                        <input type="checkbox" ng-model="column.AllowNulls"
+                                            ng-disabled="$.entity.IsReadonly || column.IsPrimary">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <p class="b-invalid" ng-if="$.validatedColumns[$index].error.AllowNulls">*</p>
+                                </div>
+                                <div class="col-2 text-center" ng-if="!$.entity.IsReadonly">
+                                    <button type="button" class="b-clean text-light" ng-disabled="$index==0">
+                                        <i class="codicon codicon-arrow-up d-inline-block"
+                                            ng-click="$.onColumnSwapClick($index,$index-1)"></i>
+                                    </button>
+                                    <button type="button" class="b-clean text-light"
+                                        ng-disabled="$index==$.entity.Columns.length-1">
+                                        <i class="codicon codicon-arrow-down d-inline-block"
+                                            ng-click="$.onColumnSwapClick($index,$index+1)"></i>
+                                    </button>
+                                </div>
+                                <div class=" col-1" ng-if="!$.entity.IsReadonly">
+                                    <i class="codicon codicon-trash" ng-if="!column.IsPrimary"
+                                        ng-click="$.entity.Columns.splice($index,1)"></i>
+                                    <i class="codicon codicon-kebab-vertical" ng-if="!$.entity.Id && column.IsPrimary"
+                                        data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-item small d-flex align-items-center">
+                                            <input type="checkbox" ng-model="column.IsIdentity" class="me-2">
+                                            Is Identity
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-footer ps-4 pe-4">
+                            <button type="button" ng-if="!$.entity.IsReadonly" class="b-btn btn-action btn-sm mb-3"
+                                ng-click="$.onAddColumnClick()" ng-disabled="column">
+                                <i class="codicon codicon-plus me-0"></i>
+                            </button>
+                            <div ng-if="!$.entity.Columns.length" class="b-notify notify-info mb-4">
+                                <i class="codicon codicon-info b-icon-2"></i>
+                                <div class="text">
+                                    <h4 class="label">Entity has no columns.</h4>
+                                    <span class="subtext">
+                                        Click
+                                        Add Column
+                                        to add a column!.
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="b-invalid">{{$.form.error.Columns}}</p>
+                        </div>
+                    </div>
+                </div>
+                <!------------------------------------>
+                <!-- More Info -->
+                <!------------------------------------>
+                <div class="more-info">
+                    <div class="b-field">
+                        <div class="b-input-group">
+                            <textarea ng-model="$.entity.Description" class="b-input form-control" rows="4"
+                                placeholder="Enter entity description(for better development)"></textarea>
+                            <span class="my-auto"><i class="codicon codicon-symbol-constant"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <!------------------------------------>
+                <!-- Buttons -->
+                <!------------------------------------>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="b-btn btn-red-lite me-auto"
+                        ng-click="$.onDeleteEntityClick()" ng-disabled="$.running">
+                        <i class="codicon codicon-trash"></i>
+                    </button>
+                    <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveEntityClick()"
+                        ng-disabled="$.running">
+                        <i class="codicon codicon-save"></i>
+                        Save Entity
+                    </button>
+                    <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelEntityClick()"
+                        ng-disabled="$.running">
+                        <i class="codicon codicon-circle-slash"></i>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="col-4 ps-3 d-flex flex-column">
+                <!------------------------------------>
+                <!--Edit Entity Basic Info-->
+                <!------------------------------------>
+                <div class="b-field">
+                    <label class="form-label">Group</label>
+                    <div class="b-input-group">
+                        <select ng-model="$.entity.GroupId" class="b-input form-select"
+                            ng-options="group.Id as group.GroupName for group in $.$rootScope.groups | filter:{GroupType:'Entity'}"
+                            chosen inherit-select-classes="true" placeholder-text-single="'Select a group(optional)'">
+                            <option value=""></option>
+                        </select>
+                        <span><i class="codicon codicon-layers"></i></span>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Entity Name</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtEntityName{{$.entity.Id}}" ng-model="$.entity.EntityName"
+                            class="b-input form-control" placeholder="Enter entity name" autocomplete="off" required />
+                        <span><i class="codicon codicon-symbol-parameter"></i></span>
+                    </div>
+                    <div ng-if="$.entity.EntityName && $.form.error.EntityName">
+                        <p class="b-invalid">{{$.form.error.EntityName}}</p>
+                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetValidNameClick()">
+                            Set Valid Name
+                        </button>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label d-block">Is Readonly
+                        <span class="text-muted small ms-1"> (Use of the existing table/view) </span>
+                    </label>
+                    <label class="b-switch">
+                        <input type="checkbox" ng-model="$.entity.IsReadonly" ng-change="$.onEntityIsReadOnlyChange()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="b-field" ng-class="{'opacity-25':!$.entity.IsReadonly}">
+                    <label class="form-label">Entity Type</label>
+                    <div class="b-radio-list inline-items">
+                        <div class="radio-item">
+                            <input type="radio" id="rdEntityTypeTable{{$.entity.Id}}" name="entityType{{$.entity.Id}}"
+                                ng-value="0" ng-model="$.entity.EntityType" ng-disabled="!$.entity.IsReadonly"
+                                ng-required="$.entity.IsReadonly">
+                            <label for="rdEntityTypeTable{{$.entity.Id}}">Table</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="rdEntityTypeView{{$.entity.Id}}" name="entityType{{$.entity.Id}}"
+                                ng-value="1" ng-model="$.entity.EntityType" ng-disabled="!$.entity.IsReadonly"
+                                ng-required="$.entity.IsReadonly">
+                            <label for="rdEntityTypeView{{$.entity.Id}}">View</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="b-field" ng-if="!$.entity.IsReadonly">
+                    <label class="form-label">
+                        <span ng-show="$.entity.EntityType===0">Table</span>
+                        <span ng-show="$.entity.EntityType===1">View</span>
+                        Name
+                    </label>
+                    <div class="b-input-group">
+                        <div class="b-input form-control d-flex">
+                            <div class="col-4">
+                                <input type="text" id="txtTablePrefix{{$.entity.Id}}"
+                                    ng-model="$.entity.Settings.DatabaseObjectPrefixName" class="b-input-nobg"
+                                    placeholder="Table prefix" autocomplete="off" required />
+                            </div>
+                            <div class="col-8">
+                                <input type="text" id="txtTablePostfix{{$.entity.Id}}"
+                                    ng-model="$.entity.Settings.DatabaseObjectPostfixName" class="b-input-nobg"
+                                    ng-change="$.entity.Settings.DatabaseObjectNameModified=true"
+                                    placeholder="Enter table name" autocomplete="off" required />
+                            </div>
+                        </div>
+                        <span><i class="codicon codicon-table"></i></span>
+                    </div>
+                    <p class="b-invalid">{{$.form.error.Settings.DatabaseObjectPrefixName}}</p>
+                    <p class="b-invalid">{{$.form.error.Settings.DatabaseObjectPostfixName}}</p>
+                </div>
+                <div class="b-field" ng-if="$.entity.IsReadonly && $.entity.EntityType===0">
+                    <label class="form-label">Table</label>
+                    <div class="b-input-group">
+                        <select id="drpEntityTable{{$.entity.Id}}" ng-model="$.entity.TableName"
+                            class="b-input form-select" ng-options="table for table in $.dataBaseObjects.Tables"
+                            ng-change="$.onDatabaseObjectChange()" ng-disabled="$.running" chosen
+                            inherit-select-classes="true" placeholder-text-single="'Select database table'" required>
+                        </select>
+                        <span><i class="codicon codicon-table"></i></span>
+                    </div>
+                    <p class="b-invalid">{{$.form.error.TableName}}</p>
+                </div>
+                <div class="b-field" ng-if="$.entity.IsReadonly && $.entity.EntityType===1">
+                    <label class="form-label">View</label>
+                    <div class="b-input-group">
+                        <select id="drpEntityTable{{$.entity.Id}}" ng-model="$.entity.TableName"
+                            class="b-input form-select" ng-options="view for view in $.dataBaseObjects.Views"
+                            ng-change="$.onDatabaseObjectChange()" ng-disabled="$.running" chosen
+                            inherit-select-classes="true" placeholder-text-single="'Select database table'" required>
+                        </select>
+                        <span><i class="codicon codicon-eye"></i></span>
+                    </div>
+                    <p class="b-invalid">{{$.form.error.TableName}}</p>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">View Order</label>
+                    <div class="b-input-group">
+                        <input type="number" ng-model="$.entity.ViewOrder" class="b-input form-control"
+                            placeholder="Enter table view order" autocomplete="off" />
+                        <span><i class="codicon codicon-list-ordered"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </b-content-widget>
+</div>

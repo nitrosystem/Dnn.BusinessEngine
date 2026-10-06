@@ -1,0 +1,300 @@
+<div ng-controller="createModuleActionsController as $" class="actions">
+    <b-content-widget data-title="Actions" data-icon="combine" data-module-type="actions"
+        data-subtitle="Module actions - all events on the module" data-await-action="$.awaitAction"
+        extra-icon1="codicon codicon-table" extra-icon1-title="Table Mode" data-module="$"
+        data-reload-method="onPageLoad" data-close-method="onCloseWindow" extra-icon1-method="onTableModeClick"
+        extra-icon2="codicon codicon-chrome-restore" extra-icon2-title="Box Mode" extra-icon2-method="onBoxModeClick">
+        <!------------------------------------>
+        <!--Search Box-->
+        <!------------------------------------>
+        <div class="search-box">
+            <div class="row">
+                <div class="col-3">
+                    <div class="b-input-group">
+                        <input type="text" ng-model="$.filter.searchText" class="b-input form-control"
+                            b-enter-key="$.onApplyFilter()" placeholder="Action Name(Press Enter)"
+                            ng-disabled="$.running" />
+                        <span><i class="codicon codicon-bell"></i></span>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="b-input-group">
+                        <select ng-model="$.filter.actionType" class="b-input form-select"
+                            ng-options="at.ActionType as at.Title for at in $.actionTypes" chosen
+                            ng-change="$.onApplyFilter()" inherit-select-classes="true"
+                            placeholder-text-single="'Action Type'" ng-disabled="$.running">
+                            <option value="">Action Type</option>
+                        </select>
+                        <span><i class="codicon codicon-briefcase"></i></span>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="b-input-group">
+                        <select ng-model="$.filter.fieldId" class="b-input form-select"
+                            ng-options="field.Id as field.FieldName for field in $.fields" chosen
+                            ng-change="$.onApplyFilter()" inherit-select-classes="true"
+                            placeholder-text-single="'Field Name'" ng-disabled="$.running">
+                            <option value="">Field Name</option>
+                        </select>
+                        <span><i class="codicon codicon-circuit-board"></i></span>
+                    </div>
+                </div>
+                <div class="col-1">
+                    <div class="b-input-group">
+                        <button type="button" ng-if="!$.filter.filtered" class="b-input form-control ps-1"
+                            ng-click="$.onApplyFilter()">
+                            <i class="codicon codicon-search"></i>
+                        </button>
+                        <button type="button" ng-if="$.filter.filtered" class="b-input form-control ps-1"
+                            ng-click="$.onClearFilterClick()">
+                            <i class="codicon codicon-chrome-close"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <button type="button" class="b-btn btn-text-icon btn-primary ms-auto"
+                        ng-click="$.onAddActionClick()" ng-disabled="$.running">
+                        <i class="codicon codicon-plus"></i>
+                        Add Action
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!--Display Mode : Box-->
+        <!------------------------------------>
+        <div class="actions" ng-if="!$.displayMode || $.displayMode==='box'">
+            <!------------------------------------>
+            <!--Module Actions-->
+            <!------------------------------------>
+            <div class="b-group mb-5" ng-if="$.moduleActions && $.moduleActions.length">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpModuleActions{{$.module.Id}}">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Module Actions
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpModuleActions{{$.module.Id}}" class="group-content collapse show">
+                    <div class="action-item" ng-repeat="action in $.moduleActions"
+                        ng-class="{'action-has-childs':action.Childs.length}" ng-include="'actionItem.html'"></div>
+                </div>
+            </div>
+            <!------------------------------------>
+            <!--Field Actions-->
+            <!------------------------------------>
+            <div class="b-group mb-4" ng-repeat="(key,actions) in $.fieldActions">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grp{{key}}Actions">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> {{key}} Field Actions
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grp{{key}}Actions" class="group-content collapse show">
+                    <div class="action-item" ng-repeat="action in actions"
+                        ng-class="{'action-has-childs':action.Childs.length}" ng-include="'actionItem.html'"></div>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!--Display Mode : Table-->
+        <!------------------------------------>
+        <div class="b-table" ng-if="$.displayMode==='table'">
+            <div class="table-body">
+                <div class="grid columns-name">
+                    <div class="g-col-5">Action Name</div>
+                    <div class="g-col-2">Action Type</div>
+                    <div class="g-col-3">Event</div>
+                    <div class="g-col-2">
+                        <i class="codicon codicon-ellipsis"></i>
+                    </div>
+                </div>
+                <div class="grid table-row" ng-repeat="action in $.actions">
+                    <div class="g-col-5">
+                        <span class="text"> {{action.ActionName}} </span>
+                        <span class="subtext"> {{action.FieldName}} Field</span>
+                    </div>
+                    <div class="g-col-2">
+                        {{action.ActionType}}
+                    </div>
+                    <div class="g-col-3">
+                        {{action.Event}}
+                    </div>
+                    <div class="g-col-2">
+                        <div class="b-multi-btns">
+                            <button type="button"
+                                ng-click="$.onEditActionClick(action.Id,action.FieldType,action.FieldId)">
+                                <i class="codicon codicon-edit"></i>
+                            </button>
+                            <button type="button" ng-click="$.onDeleteActionClick(action.Id,$index)">
+                                <i class="codicon codicon-trash"></i>
+                            </button>
+                            <button type="button">
+                                <i class="codicon codicon-ellipsis"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-footer">
+                <div ng-if="!$.actions.length" class="b-notify notify-info mb-4">
+                    <i class="codicon codicon-info b-icon-2"></i>
+                    <div class="text">
+                        <h4 class="label">No actions.</h4>
+                        <span class="subtext">
+                            Click
+                            <button type="button" class="b-btn btn-text-icon btn-sm ms-2 me-2"
+                                ng-click="$.onAddActionClick()">
+                                Add Action
+                            </button>
+                            for creating a new
+                            action.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="mb-4" />
+        <!------------------------------------>
+        <!-- Buttons -->
+        <!------------------------------------>
+        <div class="d-flex mb-1">
+            <div class="justify-content-start">
+                <!-- Previous Button -->
+                <button type="button" class="b-btn me-2" ng-click="$.onPreviousStepClick()" ng-disabled="$.running">
+                    <i class="codicon codicon-arrow-left"></i>
+                </button>
+                <!-- Next Button -->
+                <button type="button" class="b-btn me-2" ng-disabled="true">
+                    <i class="codicon codicon-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </b-content-widget>
+</div>
+
+<script type="text/ng-template" id="actionItem.html">
+        <div class="item-wrapper">
+            <div class="row">
+                <div class="col-2">
+                    <div class="d-flex flex-column align-items-center">
+                        <i ng-if="!action.ActionTypeIcon" class="codicon codicon-github-action action-type-icon"></i>
+                        <img ng-if="action.ActionTypeIcon" ng-src="{{action.ActionTypeIcon}}" class="action-type-icon" />
+                        <p class="action-type">{{action.ActionTypeTitle}}</p>
+                        <a class="text-white" href="#actionSubItems{{action.Id}}" data-bs-toggle="collapse" role="button" ng-if="action.Childs.length" ng-click="action.IsExpanded=!action.IsExpanded">
+                            <i ng-if="!action.IsExpanded" class="codicon codicon-collapse-all"></i>
+                            <i ng-if="action.IsExpanded" class="codicon codicon-expand-all"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6 b-splitter border-end">
+                    <h5 class="h5 text-white">{{action.ActionName}}</h5>
+                    <p class="text-mute mb-3">
+                        {{action.Event}}
+                        <span class="small" ng-if="action.Event==='OnActionCompleted'"> 
+                                -
+                        <span ng-if="action.ParentActionTriggerCondition===0">Always Execute</span>
+                        <span ng-if="action.ParentActionTriggerCondition===1">Execute On Success</span>
+                        <span ng-if="action.ParentActionTriggerCondition===2">Execute On Error</span>
+                        </span>
+                    </p>
+                    <p class="text-white-50 mb-0">
+                        {{action.Description}}
+                    </p>                    
+                </div>
+                <div class="col-3 b-splitter border-end small">
+                    <div class="action-user">
+                        <div class="d-flex align-items-center mb-2">
+                            <img title="Created By"
+                                ng-src="/DnnImageHandler.ashx?mode=profilepic&w=30&h=30&userid={{action.CreatedByUserId}}" />
+                            <label title="{{action.CreatedByUserDisplayName}}">
+                                {{action.CreatedByUserDisplayName}}
+                            </label>
+                        </div>
+                        <span>
+                            Created In
+                            <span b-date-format="{{action.CreatedOnDate}}" data-relative="true"
+                                title="Created On Date">
+                            </span>
+                        </span>
+
+                    </div>
+                    <div class="action-user mb-0 pb-0 border-0">
+                        <div class="d-flex align-items-center mb-2">
+                            <img title="Last Modified By"
+                                ng-src="/DnnImageHandler.ashx?mode=profilepic&w=30&h=30&userid={{action.LastModifiedByUserId}}" />
+                            <label title="{{action.LastModifiedByUserDisplayName}}">
+                                {{action.LastModifiedByUserDisplayName}}
+                            </label>
+                        </div>
+                        <span>
+                            Last Modified In
+                            <span b-date-format="{{action.LastModifiedOnDate}}" data-relative="true"
+                                title="Last Modified On Date">
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-1">
+                    <button type="button" class="b-btn btn-action btn-sm mb-3" ng-click="$.onEditActionClick(action.Id,action.FieldType,action.FieldId)">
+                        <i class="codicon codicon-edit me-0"></i>
+                    </button>
+                    <button type="button" class="b-btn btn-action btn-sm mb-3" ng-click="$.onDeleteActionClick(action.Id,$index)">
+                        <i class="codicon codicon-trash me-0"></i>
+                    </button>
+                    <a class="b-btn btn-action btn-sm" href="#actionMoreData{{action.Id}}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">
+                        <i class="codicon codicon-chevron-down me-0"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="collapse multi-collapse" id="actionMoreData{{action.Id}}">
+                <div class="action-options">
+                    <h5 class="option-name">More Data </h5>
+                    <div class="option-item">
+                        <label class="item-label">Action Id:</label>
+                        <label class="item-label">{{action.Id}}</label>
+                    </div>
+                    <div class="option-item">
+                        <label class="item-label">Module Id:</label>
+                        <label class="item-label">{{action.ModuleId}}</label>
+                    </div>
+                    <div class="option-item" ng-if="action.FieldId">
+                        <label class="item-label">Field Id:</label>
+                        <label class="item-label">{{action.FieldId}}</label>
+                    </div>
+                    <div class="option-item" ng-if="action.ServiceId">
+                        <label class="item-label">Service Id:</label>
+                        <a class="item-label" href="" ng-click="$.onEditServiceClick(action.ServiceId)">{{action.ServiceId}}</a>
+                    </div>
+                </div>
+                <div class="action-options" ng-if="action.ActionConditionsDsl">
+                    <h5 class="option-name">Action Conditions Dsl: </h5>
+                    <div class="option-item" >
+                        <label class="item-label">{{action.ActionConditionsDsl}}</label>
+                    </div>
+                </div>
+                 <div class="action-options" ng-if="action.BeforeExecuteActionDsl">
+                    <h5 class="option-name">Before Execute Action Dsl: </h5>
+                    <div class="option-item" >
+                        <label class="item-label">{{action.BeforeExecuteActionDsl}}</label>
+                    </div>
+                </div>
+                 <div class="action-options" ng-if="action.ActionResultsDsl">
+                    <h5 class="option-name">Action Results Dsl: </h5>
+                    <div class="option-item" >
+                        <label class="item-label">{{action.ActionResultsDsl}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="action-sub-items collapse show ms-3" id="actionSubItems{{action.Id}}" ng-if="action.Childs.length">
+            <div class="sub-item action-item" ng-repeat="action in action.Childs" ng-class="{'action-has-childs':action.Childs.length}" ng-include="'actionItem.html'"></div>
+        </div>
+</script>

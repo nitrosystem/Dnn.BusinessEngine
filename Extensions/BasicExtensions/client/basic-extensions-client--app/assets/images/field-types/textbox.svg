@@ -1,0 +1,10 @@
+<svg viewBox="19.7 33.7 80.6 61.3" xmlns="http://www.w3.org/2000/svg">
+  <defs>    <linearGradient id="tbAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5fb0ff"/>
+      <stop offset="100%" stop-color="#2f7fe0"/>
+    </linearGradient>
+  </defs>  <rect x="26" y="40" width="68" height="40" rx="8" fill="#171b22" stroke="url(#tbAccent)" stroke-width="2.5"/>
+  <line x1="46" y1="52" x2="46" y2="68" stroke="#e7ecf3" stroke-width="3" stroke-linecap="round"/>
+  <rect x="54" y="57" width="24" height="3.5" rx="1.75" fill="#5a6472"/>
+  <rect x="26" y="86" width="42" height="4" rx="2" fill="#3a4250"/>
+</svg>

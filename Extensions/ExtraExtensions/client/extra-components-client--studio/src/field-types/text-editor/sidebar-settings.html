@@ -1,0 +1,24 @@
+﻿<div class="b-field">
+    <label class="form-label">Height(px)</label>
+    <div class="b-input-group">
+        <input type="number" ng-model="$.currentField.Settings.Height" class="b-input form-control"
+            placeholder="Enter editor height default 300px" />
+        <span><i class="codicon codicon-arrow-down"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Language</label>
+    <div class="b-input-group">
+        <input type="text" ng-model="$.currentField.Settings.Language" class="b-input form-control"
+            placeholder="Enter editor language default en" />
+        <span><i class="codicon codicon-globe"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Toolbar(Json Array)</label>
+    <div class="b-input-group">
+        <textarea ng-model="$.currentField.Settings.Toolbar" class="b-input form-control" rows="4"
+            placeholder="Enter toolbar options as json array"></textarea>
+        <span><i class="codicon codicon-tools "></i></span>
+    </div>
+</div>

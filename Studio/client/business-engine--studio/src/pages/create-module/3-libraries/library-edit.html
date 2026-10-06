@@ -1,0 +1,67 @@
+<div ng-class="{'was-validated':$.libraryForm.validated}">
+    <b-right-widget ng-if="$.workingMode==='library-edit'" data-title="Add {{$.library.LibraryName}} Library"
+        data-icon="library-group" data-subtitle="Add or edit module custom library" data-module="$"
+        data-await-action="$.awaitAction" data-close-method="onCloseEditLibraryWindow" data-hide-reload="true">
+        <!------------------------------------>
+        <!--Library Info-->
+        <!------------------------------------>
+        <div class="d-flex">
+            <div class="col-5 b-splitter border-end pe-3">
+                <div class="b-field">
+                    <label class="form-label">Library</label>
+                    <div class="b-input-group">
+                        <select id="drpLibraryName" ng-model="$.libraryId" class="b-input form-select"
+                            ng-options="l.Id as (l.LibraryName+'-'+l.Version) for l in $.libraries" chosen
+                            ng-change="$.onLibraryChange()" inherit-select-classes="true"
+                            placeholder-text-single="'Select library'" ng-disabled="$.running" required>
+                        </select>
+                        <span><i class="codicon codicon-library"></i></span>
+                    </div>
+                </div>
+                <div class="b-field" ng-if="$.libraryId">
+                    <label class="form-label">Version</label>
+                    <label class="b-input form-control">{{$.library.Version}}</label>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Load Order</label>
+                    <input type="number" id="txtLoadOrder" ng-model="$.library.LoadOrder" class="b-input form-control"
+                        placeholder="Enter load order" autocomplete="off" required />
+                </div>
+                <div class="b-field d-flex align-items-center" ng-if="$.library.Logo">
+                    <img ng-src="{{$.library.Logo}}" class="img-thumbnail object-fit-cover me-2" width="80"
+                        height="80" />
+                    <p class="b-scrollbar text-muted small h4-rem">{{$.library.Summary}}</p>
+
+                </div>
+            </div>
+            <div class="col-7 ps-3">
+                <div class="b-field mb-2" ng-repeat="resource in $.libraryResources | orderBy: 'LoadOrder'">
+                    <label class="form-label">Resource Path</label>
+                    <label class="b-input form-control">{{resource.ResourcePath}}</label>
+                    <br>
+                    <label class="form-label">Resource Type</label>
+                    <label class="b-input form-control">
+                        <span ng-if="resource.ResourceContentType===1">css</span>
+                        <span ng-if="resource.ResourceContentType===2">js</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <hr class="mb-4" />
+        <!------------------------------------>
+        <!-- Buttons -->
+        <!------------------------------------>
+        <div class="mb-1 d-flex justify-content-end mt-auto">
+            <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveLibraryClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-save"></i>
+                Save Library
+            </button>
+            <button type=" button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCloseEditLibraryWindow()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-circle-slash"></i>
+                Cancel
+            </button>
+        </div>
+    </b-right-widget>
+</div>

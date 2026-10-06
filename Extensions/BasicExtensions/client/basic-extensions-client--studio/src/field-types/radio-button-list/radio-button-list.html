@@ -1,0 +1,9 @@
+﻿<div class="b-field">
+    <div class="b-radio-list">
+        <div class="radio-item" ng-repeat="option in $.field.DataSource.Items">
+            <input type="radio" id="{{$.field.Id+$index}}" name="{{$.field.Id}}" ng-value="{{$index}}"
+                ng-model="option.Value">
+            <label for="{{$.field.Id+$index}}">{{option.Text}}</label>
+        </div>
+    </div>
+</div>

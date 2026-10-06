@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.props" Condition="Exists('..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2288A8C2-8F3A-4777-B997-86AC9A00D8EB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions</RootNamespace>
+    <AssemblyName>NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Actions\Database\BindEntityAction.cs" />
+    <Compile Include="Actions\Database\CustomQueryAction.cs" />
+    <Compile Include="Actions\Database\DataRowAction.cs" />
+    <Compile Include="Actions\Database\DataSourceAction.cs" />
+    <Compile Include="Actions\Database\DeleteEntityRowAction.cs" />
+    <Compile Include="Actions\Database\SubmitEntityAction.cs" />
+    <Compile Include="Actions\Form\RedirectUrlAction.cs" />
+    <Compile Include="Actions\Form\SetVariableAction.cs" />
+    <Compile Include="Functions\DateFunctions.cs" />
+    <Compile Include="Functions\NumericFunctions.cs" />
+    <Compile Include="Functions\StringFunctions.cs" />
+    <Compile Include="Studio\Enums\SubmitEntityActionType.cs" />
+    <Compile Include="Studio\ViewModels\EntityViewModel.cs" />
+    <Compile Include="Studio\ViewModels\EntityJoinRelationViewModel.cs" />
+    <Compile Include="Studio\ViewModels\FilterItemViewModel.cs" />
+    <Compile Include="Studio\ViewModels\ModelPropertyViewModel.cs" />
+    <Compile Include="Studio\ViewModels\SortItemViewModel.cs" />
+    <Compile Include="Studio\ViewModels\SubmitEntity\ColumnViewModel.cs" />
+    <Compile Include="Studio\ViewModels\SubmitEntity\ConditionViewModel.cs" />
+    <Compile Include="Studio\ViewModels\SubmitEntity\EntityViewModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\BindEntityService.cs" />
+    <Compile Include="Services\CustomQueryService.cs" />
+    <Compile Include="Services\DataRowService.cs" />
+    <Compile Include="Services\DataSourceService.cs" />
+    <Compile Include="Services\DeleteEntityRowService.cs" />
+    <Compile Include="Services\SubmitEntityService.cs" />
+    <Compile Include="Startup\Startup.cs" />
+    <Compile Include="Studio\Services\BindEntityService.cs" />
+    <Compile Include="Studio\Services\CustomQueryService.cs" />
+    <Compile Include="Studio\Services\DataRowService.cs" />
+    <Compile Include="Studio\Services\DataSourceService.cs" />
+    <Compile Include="Studio\Services\DeleteEntityRowService.cs" />
+    <Compile Include="Studio\Services\ServiceMappingProfile.cs" />
+    <Compile Include="Studio\Services\SubmitEntityService.cs" />
+    <Compile Include="Studio\ViewModels\BindEntityServiceViewModel.cs" />
+    <Compile Include="Studio\ViewModels\CustomQueryServiceViewModel.cs" />
+    <Compile Include="Studio\ViewModels\DataRowServiceViewModel.cs" />
+    <Compile Include="Studio\ViewModels\DataSourceServiceViewModel.cs" />
+    <Compile Include="Studio\ViewModels\DeleteEntityRowServiceViewModel.cs" />
+    <Compile Include="Studio\ViewModels\SubmitEntityServiceViewModel.cs" />
+    <Compile Include="_DatabaseEntities\Tables\BindEntityServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Tables\CustomQueryServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Tables\DataRowServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Tables\DataSourceServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Tables\DeleteEntityRowServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Tables\SubmitEntityServiceInfo.cs" />
+    <Compile Include="_DatabaseEntities\Views\BindEntityServiceView.cs" />
+    <Compile Include="_DatabaseEntities\Views\CustomQueryServiceView.cs" />
+    <Compile Include="_DatabaseEntities\Views\DataRowServiceView.cs" />
+    <Compile Include="_DatabaseEntities\Views\DataSourceServiceView.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Abstractions\NitroSystem.Dnn.BusinessEngine.Abstractions.csproj">
+      <Project>{f4c66d02-6cbe-4afd-93e1-16c56e69e86e}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Core\NitroSystem.Dnn.BusinessEngine.Core.csproj">
+      <Project>{a2caf8da-7b01-48d1-8fd6-c6cc8e755987}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Repository\NitroSystem.Dnn.BusinessEngine.Repository.csproj">
+      <Project>{57e9a1ea-6603-4cd5-9914-5f79f60923ed}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Infrastructure\NitroSystem.Dnn.BusinessEngine.Shared\NitroSystem.Dnn.BusinessEngine.Shared.csproj">
+      <Project>{91678844-5b48-4ee1-bdd0-cfca92ba1924}</Project>
+      <Name>NitroSystem.Dnn.BusinessEngine.Shared</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DotNetNuke.Core">
+      <Version>9.4.0</Version>
+    </PackageReference>
+    <PackageReference Include="DotNetNuke.DependencyInjection">
+      <Version>9.4.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection">
+      <Version>2.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+      <Version>2.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>10.0.3</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,52 @@
+/* --------------------------------------------------------
+         Radio Button List
+    -----------------------------------------------------------*/
+.b-radio-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.b-radio-list.b-radio-inline {
+    flex-direction: row;
+    align-items: center;
+}
+
+.b-radio-item {
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    column-gap: .6em;
+}
+
+.b-radio-item input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.b-radio-mark {
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    transition: all 0.25s ease;
+    box-sizing: border-box;
+    height: 1em;
+    width: 1em;
+
+}
+
+.b-radio-item input:checked~.b-radio-mark {
+    border-color: #0078d7;
+    background: radial-gradient(#0078d7 45%, transparent 50%);
+}
+
+.b-radio-item:hover .b-radio-mark {
+    border-color: #0078d7;
+}
+
+.b-radio-item .b-radio-text {
+    font-size: .85em;
+}

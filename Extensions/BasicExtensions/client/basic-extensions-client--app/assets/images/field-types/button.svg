@@ -1,0 +1,9 @@
+<svg viewBox="18.2 35.0 83.6 44.8" xmlns="http://www.w3.org/2000/svg">
+  <defs>    <linearGradient id="btFace" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a4250"/>
+      <stop offset="100%" stop-color="#262d38"/>
+    </linearGradient>
+  </defs>  <rect x="24" y="46" width="72" height="28" rx="8" fill="url(#btFace)" stroke="#5a6472" stroke-width="1.5"/>
+  <rect x="38" y="57.5" width="44" height="5" rx="2.5" fill="#e7ecf3"/>
+  <path d="M60 40 L54 46 L66 46 Z" fill="#5fb0ff"/>
+</svg>

@@ -1,0 +1,46 @@
+﻿<div class="b-field">
+    <label class="form-label">Placeholder</label>
+    <div class="b-input-group">
+        <input type="text" ng-model="$.currentField.Settings.Placeholder" class="b-input form-control"
+            placeholder="Enter placeholder" />
+        <span><i class="codicon codicon-symbol-string"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">With Icon</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.WithIcon" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div ng-if="$.currentField.Settings.WithIcon">
+    <div class="b-field">
+        <label class="form-label">Icon Position</label>
+        <div class="b-radio-list inline-items">
+            <div class="radio-item">
+                <input type="radio" id="leftPosition" name="positionRadio" value="Left"
+                    ng-model="$.currentField.Settings.IconPosition">
+                <label for="leftPosition">Left</label>
+            </div>
+            <div class="radio-item">
+                <input type="radio" id="rightPosition" name="positionRadio" value="Right"
+                    ng-model="$.currentField.Settings.IconPosition">
+                <label for="rightPosition">Right</label>
+            </div>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Font Icon</label>
+        <div class="b-input-group">
+            <input type="text" ng-model="$.currentField.Settings.FontIcon" class="b-input form-control"
+                placeholder="Enter font icon" />
+            <span><i class="codicon codicon-smiley"></i></span>
+        </div>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Disabled Condition(s)</label>
+    <div properties-editor editor-id="propFieldDisabledCondition_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.DisabledConditions" suggestions="$.suggestions">
+    </div>
+</div>

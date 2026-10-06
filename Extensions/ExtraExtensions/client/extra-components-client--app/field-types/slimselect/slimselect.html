@@ -1,0 +1,19 @@
+﻿<div class="b-slimselect-group" [TOKENS]>
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Left"'>
+        <i class="b-slimselect-icon [[Settings.FontIcon]]"></i>
+    </b-condition>
+
+    <b-condition con='Field.Settings.AllowMultiple==true'>
+        <select id="slimselect_[FIELD_NAME]" class="b-slimselect-control" multiple
+            b-disabled='[[Settings.DisabledConditions]]'></select>
+    </b-condition>
+
+    <b-condition con='Field.Settings.AllowMultiple==false'>
+        <select id="slimselect_[FIELD_NAME]" class="b-slimselect-control"
+            b-disabled='[[Settings.DisabledConditions]]'></select>
+    </b-condition>
+
+    <b-condition con='Field.Settings.WithIcon==true and Field.Settings.IconPosition=="Right"'>
+        <i class="b-slimselect-icon [[Settings.FontIcon]]"></i>
+    </b-condition>
+</div>

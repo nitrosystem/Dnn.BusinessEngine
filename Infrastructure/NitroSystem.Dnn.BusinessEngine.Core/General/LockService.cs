@@ -1,0 +1,59 @@
+﻿using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
+namespace NitroSystem.Dnn.BusinessEngine.Core.General
+{
+    public class LockService
+    {
+        // Stores a semaphore per module to synchronize build operations.
+        private static readonly Dictionary<object, SemaphoreSlim> _locks = new Dictionary<object, SemaphoreSlim>();
+
+        // Used to synchronize access to the _locks dictionary itself.
+        private static readonly object _locksAccess = new object();
+
+        /// <summary>
+        /// Tries to acquire a lock for the given module ID.
+        /// Returns true if the lock was acquired within the specified timeout.
+        /// </summary>
+        public async Task<bool> TryLockAsync(object lockId, int timeoutMilliseconds = 0)
+        {
+            SemaphoreSlim semaphore;
+
+            lock (_locksAccess)
+            {
+                if (!_locks.TryGetValue(lockId, out semaphore))
+                {
+                    semaphore = new SemaphoreSlim(1, 1);
+                    _locks[lockId] = semaphore;
+                }
+            }
+
+            return await semaphore.WaitAsync(timeoutMilliseconds);
+        }
+
+        /// <summary>
+        /// Releases the lock for the given module ID.
+        /// </summary>
+        public void ReleaseLock(object lockId)
+        {
+            lock (_locksAccess)
+            {
+                if (_locks.TryGetValue(lockId, out var semaphore))
+                {
+                    semaphore.Release();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Async-compatible version of ReleaseLock.
+        /// Useful when calling from async methods for clarity.
+        /// </summary>
+        public Task ReleaseLockAsync(object lockId)
+        {
+            ReleaseLock(lockId);
+            return Task.CompletedTask;
+        }
+    }
+}

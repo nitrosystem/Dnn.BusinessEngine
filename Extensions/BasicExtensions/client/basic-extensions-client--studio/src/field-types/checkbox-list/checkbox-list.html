@@ -1,0 +1,6 @@
+<div class="form-check" ng-repeat="item in $.field.DataSource.Items">
+    <input type="checkbox" id="{{$.field.Id+$index}}" class="form-check-input" value="{{index}}">
+    <label class="form-check-label" for="{{$.field.Id+$index}}">
+        {{item.Text}}
+    </label>
+</div>

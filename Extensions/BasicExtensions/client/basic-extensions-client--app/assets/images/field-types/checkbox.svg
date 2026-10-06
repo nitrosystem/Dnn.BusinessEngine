@@ -1,0 +1,10 @@
+<svg viewBox="24.5 24.5 71.0 71.0" xmlns="http://www.w3.org/2000/svg">
+  <defs>    <linearGradient id="cbAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4fd3ff"/>
+      <stop offset="100%" stop-color="#2f9fe8"/>
+    </linearGradient>
+  </defs>  <circle cx="60" cy="60" r="30" fill="url(#cbAccent)"/>
+  <circle cx="60" cy="60" r="30" fill="none" stroke="#171b22" stroke-width="1"/>
+  <path d="M46 60 L56 70 L76 48" stroke="#0d1117" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M46 60 L56 70 L76 48" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,107 @@
+﻿.b-upload-file {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin: 0;
+    gap: .6em;
+    align-items: stretch;
+}
+
+.b-upload-file .upload-box {
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    padding: 1em;
+    position: relative;
+    width: 10em;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    list-style: none;
+}
+
+.b-upload-file .upload-box input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+}
+
+.b-upload-file .upload-box .upload-label {
+    font-size: 1em;
+    font-weight: 400;
+}
+
+.b-upload-file .b-file {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    border-radius: .3em;
+    list-style: none;
+    width: 10em;
+    height: auto;
+    row-gap: .4em;
+    justify-content: center;
+}
+
+.b-upload-file .b-file .file-file {
+    object-fit: cover;
+    width: 100%;
+    max-height: 8em;
+}
+
+.b-upload-file .b-file .file-info {
+    display: block;
+    font-size: .8em;
+    width: 100%;
+    text-align: center;
+}
+
+.b-upload-file .b-file .item-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    padding: 0 .3em;
+    align-items: flex-start;
+}
+
+.b-upload-file .b-file .item-actions>button {
+    background: no-repeat;
+    border: none;
+    font-size: .75em;
+}
+
+.b-upload-file .b-file .item-actions .file-size {
+    font-size: .7em;
+}
+
+.b-upload-file .b-file .upload-file-percent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 1.2em;
+    background-color: #e3e3e3ad;
+    width: 100%;
+}
+
+.b-upload-file .b-file .upload-file-percent .upload-percent-bar {
+    height: 100%;
+    background: #007effad;
+}
+
+.b-upload-file .upload-file-error {
+    font-size: .8em;
+    font-weight: 400;
+    color: red;
+    margin: 0;
+    padding: .4em;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}

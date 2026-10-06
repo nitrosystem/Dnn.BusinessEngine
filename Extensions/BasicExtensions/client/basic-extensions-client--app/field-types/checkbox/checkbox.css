@@ -1,0 +1,40 @@
+/* --------------------------------------------------------
+         Checkbox 
+    -----------------------------------------------------------*/
+.b-checkbox {
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    column-gap: .6em;
+}
+
+.b-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.b-checkbox .b-check-mark {
+    border: 2px solid #ccc;
+    transition: all 0.25s ease;
+    box-sizing: border-box;
+    height: 1em;
+    width: 1em;
+
+}
+
+.b-checkbox input:checked~.b-check-mark {
+    border-color: #0078d7;
+    background: radial-gradient(#0078d7 45%, transparent 50%);
+}
+
+.b-checkbox:hover .b-check-mark {
+    border-color: #0078d7;
+}
+
+.b-checkbox .b-check-text {
+    font-size: .85em;
+}

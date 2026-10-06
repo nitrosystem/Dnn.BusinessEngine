@@ -1,0 +1,73 @@
+<div class="d-flex">
+    <div class="col-7 border-end b-splitter pe-3">
+        <div class="b-field">
+            <label class="form-label">Placeholder</label>
+            <div class="b-input-group">
+                <input type="text" ng-model="$.currentField.Settings.Placeholder" class="b-input form-control"
+                    placeholder="Enter placeholder" />
+                <span><i class="codicon codicon-symbol-string"></i></span>
+            </div>
+        </div>
+        <div class="b-field">
+            <label class="form-label">Date Format</label>
+            <div class="b-input-group">
+                <input ng-model="$.currentField.Settings.Format" class="b-input form-control"
+                    placeholder="Enter date format" />
+                <span><i class="codicon codicon-calendar"></i></span>
+            </div>
+        </div>
+        <div class="b-field">
+            <label class="form-label">First Day Of Week</label>
+            <div class="b-input-group">
+                <select ng-model="$.currentField.Settings.FirstDayOfWeek" class="b-input form-control" chosen
+                    inherit-select-classes="true" placeholder-text-single="'Select default first day of week'">
+                    <option value=""></option>
+                    <option value="1">Sunday</option>
+                    <option value="2">Monday</option>
+                    <option value="3">Tuesday</option>
+                    <option value="4">Wednesday</option>
+                    <option value="5">Thursday</option>
+                    <option value="6">Friday</option>
+                    <option value="7">Saturday</option>
+                </select>
+                <span><i class="codicon codicon-pass-filled"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="col ps-3">
+        <div class="b-field">
+            <label class="form-label">With Icon</label>
+            <label class="b-switch d-block">
+                <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.WithIcon" />
+                <div class="slider"></div>
+            </label>
+        </div>
+        <div ng-class="{'opacity-25':!$.currentField.Settings.WithIcon}">
+            <div class="b-field">
+                <label class="form-label">Icon Position</label>
+                <div class="b-radio-list inline-items">
+                    <div class="radio-item">
+                        <input type="radio" id="leftPosition" name="positionRadio" value="Left"
+                            ng-model="$.currentField.Settings.IconPosition"
+                            ng-disabled="!$.currentField.Settings.WithIcon">
+                        <label for="leftPosition">Left</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="rightPosition" name="positionRadio" value="Right"
+                            ng-model="$.currentField.Settings.IconPosition"
+                            ng-disabled="!$.currentField.Settings.WithIcon">
+                        <label for="rightPosition">Right</label>
+                    </div>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Font Icon</label>
+                <div class="b-input-group">
+                    <input type="text" ng-model="$.currentField.Settings.FontIcon" class="b-input form-control"
+                        placeholder="Enter font icon" />
+                    <span><i class="codicon codicon-smiley"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

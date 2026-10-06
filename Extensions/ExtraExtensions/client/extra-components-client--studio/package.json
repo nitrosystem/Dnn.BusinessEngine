@@ -1,0 +1,25 @@
+{
+  "name": "business-engine-extra-extensions",
+  "version": "01.00.00",
+  "author": "Nitro System Group",
+  "private": false,
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --env production"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "babel-plugin-dynamic-import-webpack": "^1.1.0",
+    "file-loader": "^6.2.0",
+    "html-loader": "^3.0.1",
+    "html-webpack-plugin": "^5.5.0",
+    "ngtemplate-loader": "^2.1.0",
+    "terser-webpack-plugin": "^5.3.1",
+    "url-loader": "^4.0.0",
+    "webpack": "^5.61.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-middleware": "^5.2.2",
+    "webpack-dev-server": "^5.2.2"
+  }
+}

@@ -1,0 +1,36 @@
+.b-dropdown-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0;
+    position: relative;
+    padding: .6em;
+    border: solid .1em rgb(0 0 0 / 14%);
+    column-gap: .4em;
+    font-size: .9em;
+    width: 100%;
+}
+
+.b-dropdown-group.b-dropdown-small {
+    font-size: .75em;
+}
+
+.b-dropdown-group.b-dropdown-large {
+    font-size: 1.2em;
+}
+
+.b-dropdown-group>.b-dropdown-icon {
+    display: inline-flex;
+    font-size: 1.2em;
+}
+
+.b-dropdown-group>.b-dropdown-control {
+    background: none;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    display: inline-flex;
+    flex-grow: 1;
+    font-size: 1em;
+    line-height: 1em;
+}

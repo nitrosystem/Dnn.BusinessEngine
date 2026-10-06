@@ -1,0 +1,125 @@
+﻿<div class="create-custom-query">
+    <div class="row">
+        <div class="col-6">
+            <!------------------------------------>
+            <!--Service Info-->
+            <!------------------------------------>
+            <div class="b-group">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpDatabase">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Database
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpDatabase" class="group-content collapse show">
+                    <div class="b-field">
+                        <label class="form-label">Stored Procedure Name</label>
+                        <div class="b-input-group">
+                            <div class="b-input form-control d-flex">
+                                <div class="col-4">
+                                    <input type="text"
+                                        ng-model="$.customQueryService.Settings.StoredProcedurePrefixName"
+                                        class="b-input-nobg" placeholder="Prefix name"
+                                        ng-change="$.customQueryService.Settings.StoredProcedureNameModified=true" />
+                                </div>
+                                <div class="col-8">
+                                    <input type="text" id="txtSpPostfix"
+                                        ng-model="$.customQueryService.Settings.StoredProcedurePostfixName"
+                                        ng-change="$.customQueryService.Settings.StoredProcedureNameModified=true"
+                                        class="b-input-nobg" placeholder="Example GetProducts" autocomplete="off"
+                                        required />
+                                </div>
+                            </div>
+                            <span><i class="codicon codicon-table"></i></span>
+                        </div>
+                    </div>
+                    <div class="b-notify notify-small notify-note mb-2">
+                        <i class="codicon codicon-feedback b-icon-2"></i>
+                        <p class="text text-justify mb-0">
+                            <b>Very important note:</b>
+                            Be careful in choosing the name of the module because it is not possible to change the
+                            name
+                            of the module after saving the module.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <!------------------------------------>
+            <!--Service Params-->
+            <!------------------------------------>
+            <div class="b-group">
+                <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpServiceParams">
+                    <h3 class="group-label">
+                        <span class="group-icon">
+                            <i class="codicon codicon-server-process"></i>
+                        </span> Service Params
+                    </h3>
+                    <span class="group-collapse">
+                        <i class="codicon codicon-chevron-up"></i>
+                    </span>
+                </div>
+                <div id="grpServiceParams" class="group-content collapse show">
+                    <b-service-params data-service="$.serviceController.service"></b-service-params>
+                    <button type="button" class="b-btn btn-text-icon btn-action" ng-click="$.onDetectServiceParams()">
+                        <i class="codicon codicon-refresh"></i>
+                        Sync Params
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Custom Query Editor-->
+    <!------------------------------------>
+    <div class="b-group">
+        <div class="group-header" data-bs-toggle="collapse" data-bs-target="#grpSQLQuery">
+            <h3 class="group-label">
+                <span class="group-icon">
+                    <i class="codicon codicon-server-process"></i>
+                </span> SQL Query
+            </h3>
+            <span class="group-collapse">
+                <i class="codicon codicon-chevron-up"></i>
+            </span>
+        </div>
+        <div id="grpSQLQuery" class="group-content collapse show">
+            <label class="form-label">Sql Query</label>
+            <div id="editorSqlQuery" html-editor ng-model="$.customQueryService.Query" data-language="sql"
+                data-height="350px" required>
+            </div>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!-- Result Type-->
+    <!------------------------------------>
+    <div class="b-field">
+        <label class="form-label">Result Type</label>
+        <div class="b-input-group">
+            <select ng-model="$.customQueryService.ResultType" class="b-input form-select" chosen
+                inherit-select-classes="true" required>
+                <option ng-value="">None</option>
+                <option ng-value="1">Scaler</option>
+                <option ng-value="2">Row</option>
+                <option ng-value="3">List</option>
+            </select>
+            <span><i class="codicon codicon-screen-normal"></i></span>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!-- Map To App Model-->
+    <!------------------------------------>
+    <div class="b-field" ng-if="$.customQueryService.ResultType>1">
+        <label class="form-label">App Model</label>
+        <select id="drpAppModelId" ng-model="$.customQueryService.AppModelId"
+            class="b-input form-select b-btn btn-action text-start"
+            ng-options="vm.Id as vm.ModelName for vm in $.appModels" ng-change="$.onSelectedAppModelChange()" chosen
+            inherit-select-classes="true" placeholder-text-single="'Select app model'" required>
+        </select>
+    </div>
+</div>

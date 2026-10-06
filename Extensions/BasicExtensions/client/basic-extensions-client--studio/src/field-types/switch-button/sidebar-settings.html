@@ -1,0 +1,28 @@
+﻿<div class="b-field">
+    <label class="form-label">Use null when unchecked</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.ConvertFalseToNull" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div class="b-field">
+    <label class="form-label">Show Label</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.ShowLabel" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div class="b-field" ng-if="$.currentField.Settings.ShowLabel">
+    <label class="form-label">Label Text</label>
+    <div class="b-input-group">
+        <input type="text" ng-model="$.currentField.Settings.LabelText" class="b-input form-control"
+            placeholder="Enter label text" />
+        <span><i class="codicon codicon-label"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Disabled Condition(s)</label>
+    <div properties-editor editor-id="propFieldDisabledCondition_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.DisabledConditions" suggestions="$.suggestions">
+    </div>
+</div>

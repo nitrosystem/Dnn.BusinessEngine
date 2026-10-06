@@ -1,0 +1,71 @@
+.b-link {
+    display: inline-flex;
+    border-radius: .4em;
+    border: none;
+    color: #fff !important;
+    font-size: .9em;
+    font-weight: 400;
+    text-align: center;
+    align-items: center;
+    padding: .5em .8em;
+    transition: all 100ms;
+    user-select: none;
+    touch-action: manipulation;
+    column-gap: .5em;
+}
+
+.b-link.b-link-default {
+    background-image: linear-gradient(-180deg, #37aee2 0%, #1e96c8 100%);
+}
+
+.b-link.b-link-default:hover {
+    background-image: linear-gradient(-180deg, #1d95c9 0%, #17759c 100%);
+}
+
+.b-link.b-link-submit {
+    background-image: linear-gradient(-180deg, #4caf50 0%, #2e7d32 100%);
+}
+
+.b-link.b-link-submit:hover {
+    background-image: linear-gradient(-180deg, #66bb6a 0%, #388e3c 100%);
+}
+
+.b-link.b-link-action {
+    background-image: linear-gradient(-180deg, #f05e4b 0%, #ef4d36 100%);
+}
+
+.b-link.b-link-action:hover {
+    background-image: linear-gradient(-180deg, #ffb84d 0%, #ef4d36 100%);
+}
+
+.b-link.b-link-cancel {
+    background-image: linear-gradient(-180deg, #b0b0b0 0%, #707070 100%);
+}
+
+.b-link.b-link-cancel:hover {
+    background-image: linear-gradient(-180deg, #c9c9c9 0%, #5c5c5c 100%);
+}
+
+.b-link.b-link-remove {
+    background-image: linear-gradient(-180deg, #ff4d4d 0%, #cc0000 100%);
+}
+
+.b-link.b-link-remove:hover {
+    background-image: linear-gradient(-180deg, #ff6666 0%, #e60000 100%);
+}
+
+.b-link.b-link-icon {
+    color: #ef4d36 !important;
+    font-size: 2em !important;
+    padding: 0;
+    margin: 0;
+    transition: all .4s ease-in-out;
+}
+
+.b-link.b-link-icon:hover {
+    color: #333 !important;
+}
+
+.b-link-simple {
+    font-size: 1.2em;
+}

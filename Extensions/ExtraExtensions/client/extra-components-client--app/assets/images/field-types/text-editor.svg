@@ -1,0 +1,18 @@
+<svg viewBox="17.7 21.7 84.6 76.6" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="teAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5fb0ff"/>
+      <stop offset="100%" stop-color="#2f7fe0"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="28" width="72" height="64" rx="8" fill="#171b22" stroke="url(#teAccent)" stroke-width="2.5"/>
+  <rect x="24" y="28" width="72" height="18" rx="8" fill="#20262f"/>
+  <rect x="24" y="36" width="72" height="10" fill="#20262f"/>
+  <rect x="31" y="33" width="10" height="10" rx="2" fill="url(#teAccent)"/>
+  <text x="33.5" y="41.5" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#0d1117">B</text>
+  <line x1="49" y1="34" x2="45" y2="42" stroke="#9aa4b2" stroke-width="2" stroke-linecap="round"/>
+  <line x1="55" y1="40" x2="65" y2="40" stroke="#9aa4b2" stroke-width="2" stroke-linecap="round"/>
+  <rect x="32" y="56" width="56" height="4" rx="2" fill="url(#teAccent)"/>
+  <rect x="32" y="66" width="48" height="3.5" rx="1.75" fill="#5a6472"/>
+  <rect x="32" y="76" width="40" height="3.5" rx="1.75" fill="#5a6472"/>
+</svg>

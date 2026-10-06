@@ -1,0 +1,75 @@
+﻿/* --------------------------------------------------------
+         Switch Button 
+    -----------------------------------------------------------*/
+
+.b-switch {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    height: 1.4em;
+    column-gap: .6em;
+}
+
+.b-switch input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 9999;
+    opacity: 0;
+}
+
+.b-switch .slider {
+    background: #969696;
+    border-radius: 5em;
+    position: relative;
+    cursor: pointer;
+    transition: 0.4s;
+    width: 2.8em;
+}
+
+.b-switch .slider:before,
+.b-switch .slider:after {
+    position: absolute;
+    content: "";
+    border-radius: 50%;
+    left: 0.1em;
+    bottom: 0.1em;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+    height: 1.25em;
+    width: 1.25em;
+}
+
+.b-switch .slider:before {
+    background: #dbeafe;
+    box-shadow: 0.2em 0 0.4em 0.1em hsl(18deg 77% 15% / 5%), 0 0.8em 0.7em 0.1em hsl(18deg 77% 15% / 20%), -0.1em 0 0.3em 0.1em hsl(0deg 0% 0% / 36%);
+}
+
+.b-switch .slider:after {
+    background: transparent;
+    box-shadow: inset 0px 3px 8px 4px hsl(0deg 0% 0% / 10%);
+}
+
+.b-switch input:checked+.slider {
+    background: #0896fc;
+}
+
+.b-switch input:checked+.slider:before {
+    -webkit-transform: translateX(1.5em);
+    -moz-transform: translateX(1.5em);
+    transform: translateX(1.5em);
+}
+
+.b-switch input:checked+.slider:after {
+    -webkit-transform: translateX(1.5em);
+    -moz-transform: translateX(1.5em);
+    transform: translateX(1.5em);
+}
+
+.b-switch .switch-label {
+    font-size: .85em;
+    font-weight: 300;
+}

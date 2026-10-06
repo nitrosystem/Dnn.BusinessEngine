@@ -1,0 +1,51 @@
+/* --------------------------------------------------------
+         Checkbox List
+    -----------------------------------------------------------*/
+.b-check-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.b-check-list.b-check-inline {
+    flex-direction: row;
+    align-items: center;
+}
+
+.b-check-list .b-check-item {
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    position: relative;
+    margin-bottom: .5em;
+    cursor: pointer;
+    user-select: none;
+    column-gap: .6em;
+}
+
+.b-check-list .b-check-item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.b-check-list .b-check-item .b-check-mark {
+    border: 2px solid #ccc;
+    transition: all 0.25s ease;
+    box-sizing: border-box;
+    height: 1em;
+    width: 1em;
+
+}
+
+.b-check-list .b-check-item input:checked~.b-check-mark {
+    border-color: #0078d7;
+    background: radial-gradient(#0078d7 45%, transparent 50%);
+}
+
+.b-check-list .b-check-item:hover .b-check-mark {
+    border-color: #0078d7;
+}
+
+.b-check-list .b-check-text {
+    font-size: .85em;
+}

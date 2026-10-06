@@ -1,0 +1,55 @@
+﻿<div class="b-field">
+    <label class="form-label">Show Close Button</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.ShowCloseButton" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div class="b-field">
+    <label class="form-label">Header Title</label>
+    <div class="b-input-group">
+        <input type="text" ng-model="$.currentField.Settings.HeaderTitle" class="b-input form-control"
+            placeholder="Enter modal header title" />
+        <span><i class="codicon codicon-info"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Body Pane Css Class</label>
+    <div class="b-input-group">
+        <input type="text" ng-model="$.currentField.Settings.BodyPaneCssClass" class="b-input form-control"
+            placeholder="Enter body pane css class" />
+        <span><i class="codicon codicon-symbol-class"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Footer Pane Css Class</label>
+    <div class="b-input-group">
+        <input type="text" ng-model="$.currentField.Settings.FooterPaneCssClass" class="b-input form-control"
+            placeholder="Enter footer pane css class" />
+        <span><i class="codicon codicon-symbol-class"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Modal Size</label>
+    <div class="b-input-group">
+        <select ng-model="$.currentField.Settings.Size" class="b-input form-select">
+            <option value="">Default</option>
+            <option value="modal-sm">Small</option>
+            <option value="modal-lg">Large</option>
+            <option value="modal-xl">Extra large </option>
+        </select>
+        <span><i class="codicon codicon-symbol-parameter"></i></span>
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Backdrop Type</label>
+    <div class="b-input-group">
+        <select ng-model="$.currentField.Settings.BackdropType" class="b-input form-select">
+            <option value="">Select backdrop type</option>
+            <option value="true">True</option>
+            <option value="false">False</option>
+            <option value="static">Static</option>
+        </select>
+        <span><i class="codicon codicon-symbol-interface"></i></span>
+    </div>
+</div>

@@ -1,0 +1,130 @@
+<div ng-controller="createModuleModuleBuilderController as $" id="mobule-builder{{$.module.Id}}" class="module-builder">
+    <!------------------------------------>
+    <!--Sidebar-->
+    <!------------------------------------>
+    <section class="mb-sidebar" b-sidebar="builder">
+        <ul class="sidebar-tabs">
+            <li class="tab-item" ng-class="{'active':$.currentSidebarTab==='toolbox'}" role="presentation"
+                ng-click="$.onSidebarTabClick('toolbox')" bootstrap-tooltip data-bs-placement="bottom"
+                title="Components Toolbox">
+                <a class="item-link" role="button">
+                    <i class="codicon codicon-extensions"></i>
+                </a>
+            </li>
+            <li class="tab-item" ng-class="{'active':$.currentSidebarTab==='field-settings'}" role="presentation"
+                ng-click="$.onSidebarTabClick('field-settings')" bootstrap-tooltip data-bs-placement="bottom"
+                title="Current Field Settings">
+                <a class="item-link" role="button">
+                    <i class="codicon codicon-settings-gear"></i>
+                </a>
+            </li>
+        </ul>
+        <div class="search-box">
+            <input type="text" class="search-input" ng-model="$.searchComponent" ng-change="$.onSearchComponentChange()"
+                placeholder="Search field type by title" ng-disabled="$.currentSidebarTab!=='toolbox'"
+                ng-class="{'opacity-25':$.currentSidebarTab!=='toolbox'}" autocomplete="off" />
+            <i class="codicon"
+                ng-class="{'codicon-collapse-all':!$.collapsedComponentGroups,'codicon-expand-all':$.collapsedComponentGroups}"
+                ng-click="$.collapsedComponentGroups=!$.collapsedComponentGroups"></i>
+        </div>
+        <div class="tab-contents b-scrollbar">
+            <!------------------------------------>
+            <!--Toolbox Tab-->
+            <!------------------------------------>
+            <div class="tab-content" ng-show="$.currentSidebarTab==='toolbox'">
+                <div class=" field-types">
+                    <div class="b-group group-sm mb-2" ng-repeat="(key,value) in $.components | groupBy:'FieldDomain'">
+                        <div class="group-header" data-bs-toggle="collapse"
+                            data-bs-target="#grpFieldType_{{$index}}_{{$.module.Id}}"
+                            ng-class="{'collapsed':$.collapsedComponentGroups}">
+                            <h3 class="group-label">
+                                <span class="group-icon">
+                                    <i class="codicon codicon-server-process"></i>
+                                </span> {{key}}
+                            </h3>
+                            <span class="group-collapse">
+                                <i class="codicon codicon-chevron-up"></i>
+                            </span>
+                        </div>
+                        <div id="grpFieldType_{{$index}}_{{$.module.Id}}" class="group-content collapse"
+                            ng-class="{'show':!$.collapsedComponentGroups}">
+                            <div class="row">
+                                <div class="col-6" ng-repeat="fieldType in value | toArray:false">
+                                    <div class="field-type" data-drag="true" data-field-type="{{fieldType.FieldType}}"
+                                        title="{{fieldType.Title}}">
+                                        <img class="field-image" ng-src="{{fieldType.Icon}}?ver={{$.version}}" />
+                                        <label class="title">{{fieldType.Title}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!------------------------------------>
+            <!--Field Settings Tab-->
+            <!------------------------------------>
+            <div class="tab-content" ng-if="$.currentSidebarTab==='field-settings' && $.currentField">
+                <div ng-include="$.fieldSettingsWidget"></div>
+            </div>
+            <div class="tab-content" ng-if="$.currentSidebarTab==='filter-components'">
+            </div>
+        </div>
+    </section>
+    <!------------------------------------>
+    <!--Workspace Board-->
+    <!------------------------------------>
+    <b-content-widget data-title="{{$.module.ModuleTitle}}"
+        data-subtitle="{{$.module.ModuleType===1?'Form':$.module.ModuleType===2?'List':'Details'}} Module Builder"
+        data-icon="notebook-template" data-module-type="module-builder" data-subtitle="{{$.module.ModuleName}}"
+        data-await-action="$.awaitAction" class="mb-workspace" data-module="$" data-reload-method="onPageLoad"
+        data-close-method="onCloseWindow" data-progress-id="progress{{$.currentTabKey}}">
+        <div class="top-bar">
+            <div class="workspace-actions">
+                <button type="button" class="b-btn btn-text-icon btn-action me-3" ng-click="$.onAddActionClick()">
+                    <i class="codicon codicon-git-pull-request-create"></i>
+                    New Action
+                </button>
+                <button type="button" class="b-btn btn-text-icon btn-action me-3"
+                    ng-click="$.onShowLayoutTemplateClick()">
+                    <i class="codicon codicon-preview"></i>
+                    Edit Layout Template
+                </button>
+                <!------------------------------------>
+                <!-- Module Builder Action Items-->
+                <!------------------------------------>
+                <div id="buildWrapper{{$.module.Id}}" class="b-btn-group build-wrapper">
+                    <span class="building progress-bar" ng-show="$.running==='building-module'"
+                        ng-class="{'error':$.awaitAction.isError}">
+                    </span>
+                    <button type="button" class="b-btn btn-submit btn-text-icon overflow-hidden"
+                        ng-click="$.onBuildModuleClick()" ng-disabled="$.running" title="Build Module(F10)">
+                        <i class="codicon codicon-terminal-ubuntu spin"></i>
+                        Build Module
+                    </button>
+                    <button type="button" class="b-btn btn-submit dropdown-toggle dropdown-toggle-split"
+                        data-bs-toggle="dropdown" aria-expanded="false" ng-disabled="$.running">
+                    </button>
+                    <div class="dropdown-menu b-dropdown-menu">
+                        <a class="dropdown-item" href="" ng-click="$.onRenderDesignFormClick(true)" bootstrap-tooltip
+                            data-bs-placement="top" title="Render design Form and display Fields in edit mode.">
+                            <i class="codicon codicon-symbol-color"></i>Render Design Board(Reinit Panes & Fields)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!--Workspace Board-->
+        <!------------------------------------>
+        <div class="workspace-fields">
+            <div id="board{{$.module.Id}}" class="panes"></div>
+        </div>
+    </b-content-widget>
+
+    <div ng-include="$.editLayoutTemplateWidget"></div>
+    <div ng-include="$.moduleTemplateWidget"></div>
+    <div ng-include="$.fieldTemplateWidget"></div>
+    <div ng-include="$.fieldEditWidget"></div>
+    <div ng-include="$.fieldDataSourceWidget"></div>
+</div>

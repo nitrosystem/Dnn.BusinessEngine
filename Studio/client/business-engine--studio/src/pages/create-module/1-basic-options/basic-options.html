@@ -1,0 +1,100 @@
+<div ng-controller="createModuleBasicOptionsController as $" ng-class="{'was-validated':$.form.validated}">
+    <b-content-widget data-title="Basic Options" data-icon="archive" data-module-type="create-module"
+        data-subtitle="Create module - basic options" data-module="$" data-await-action="$.awaitAction"
+        data-reload-method="onPageLoad" data-close-method="onCloseWindow">
+        <div class="d-flex">
+            <!------------------------------------>
+            <!--Module Type Options-->
+            <!------------------------------------>
+            <div class="col-6 b-splitter border-end pe-5">
+                <div class="b-field">
+                    <label class="form-label">Module Type</label>
+                    <div class=" b-input-group">
+                        <select id="drpModuleType" ng-model="$.module.ModuleType" class="b-input form-select" chosen
+                            inherit-select-classes="true" placeholder-text-single="'Select module type'"
+                            ng-disabled="$.running" required>
+                            <option ng-value="1">Form</option>
+                            <option ng-value="2">List</option>
+                            <option ng-value="3">Details</option>
+                        </select>
+                        <span><i class="codicon codicon-symbol-misc"></i></span>
+                    </div>
+                </div>
+                <div ng-if="$.fieldTypeExists===false" class="b-notify notify-info" ng-class="{'shine2':$.activeShine}">
+                    <i class="codicon codicon-warning b-icon-2"></i>
+                    <div class="text">
+                        <h4 class="label d-flex">
+                            Field type not found!!
+                            <i class="codicon codicon-milestone shine2 ms-auto"></i>
+                        </h4>
+                        <span class="subtext">
+                            To continue and build the module, you first need to install the extension.
+                            <button type="button" class="b-btn btn-primary btn-text-icon mt-2"
+                                ng-click="$.onGotoExtensionClick()">
+                                <i class="codicon codicon-extensions shine2"></i>
+                                Goto Extensions Page
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!------------------------------------>
+            <!--Module Name Options-->
+            <!------------------------------------>
+            <div class="col ps-5">
+                <div class="b-field">
+                    <label class="form-label">Module Name</label>
+                    <div class=" b-input-group">
+                        <input type="text" id="txtModuleName" ng-model="$.module.ModuleName"
+                            class="b-input form-control" placeholder="Enter form name(like top examples)"
+                            autocomplete="off" required />
+                        <span><i class="codicon codicon-symbol-parameter"></i></span>
+                    </div>
+                    <div ng-if="$.module.ModuleName && $.form.error.ModuleName">
+                        <p class="b-invalid">{{$.form.error.ModuleName}}</p>
+                        <button type="button" class="b-btn btn btn-action" ng-click="$.onSetModuleValidNameClick()"
+                            ng-disabled="$.running">
+                            Set Valid Name
+                        </button>
+                    </div>
+                </div>
+                <div class="b-field">
+                    <label class="form-label">Module Title</label>
+                    <div class="b-input-group">
+                        <input type="text" id="txtModuleTitle" ng-model="$.module.ModuleTitle"
+                            class="b-input form-control" placeholder="Enter form title" autocomplete="off" required />
+                        <span><i class="codicon codicon-symbol-parameter"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="mb-4" />
+        <!------------------------------------>
+        <!-- Buttons -->
+        <!------------------------------------>
+        <div class="d-flex mb-1">
+            <div class="justify-content-start">
+                <!-- Previous Button -->
+                <button type="button" class="b-btn me-2" ng-click="$.onPreviousStepClick()" ng-disabled="$.running">
+                    <i class="codicon codicon-arrow-left"></i>
+                </button>
+                <!-- Next Button -->
+                <button type="button" class="b-btn me-2" ng-click="$.onNextStepClick()" ng-disabled="$.running">
+                    <i class="codicon codicon-arrow-right"></i>
+                </button>
+            </div>
+            <div class="d-flex justify-content-end ms-auto">
+                <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveModuleClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-save"></i>
+                    Save Module
+                </button>
+                <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelModuleClick()"
+                    ng-disabled="$.running">
+                    <i class="codicon codicon-circle-slash"></i>
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </b-content-widget>
+</div>

@@ -1,0 +1,61 @@
+.b-slimselect-group {
+  display: flex;
+  position: relative;
+  border: solid .1em rgb(0 0 0 / 14%);
+  padding: .35em .6em;
+  background: #fff;
+  align-items: center;
+  font-size: .9em;
+  column-gap: .4em;
+  width: 100%;
+}
+
+.b-slimselect-group .b-slimselect-icon {
+  color: gray;
+  display: inline-flex;
+  font-size: 1.2em;
+}
+
+.b-slimselect-group .ss-main {
+  min-height: auto !important;
+  flex: 1;
+}
+
+.b-slimselect-group .ss-content .ss-search input {
+  text-align: right;
+}
+
+.b-slimselect-group .ss-single-selected,
+.b-slimselect-group .ss-multi-selected {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.b-slimselect-group .ss-main:focus-within {
+  outline: none;
+}
+
+.b-slimselect-group>.b-slimselect-control {
+  background: none;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  display: inline-flex;
+  flex-grow: 1;
+  font-size: 1em;
+  line-height: 1em;
+}
+
+.b-slimselect-group .ss-main,
+.b-slimselect-group .ss-single-selected,
+.b-slimselect-group .ss-multi-selected {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.b-slimselect-group .ss-main .ss-values .ss-single {
+  line-height: 1.8;
+}

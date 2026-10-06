@@ -1,0 +1,8 @@
+﻿<div class="b-check-list" b-class='{"b-check-inline":[FIELD].Settings.OptionsDisplayType=="Inline"}' [TOKENS]>
+    <label class="b-check-item" b-for="option in [FIELD].DataSource.Items">
+        <input type="checkbox" b-model="option.isSelected" b-change="[FIELD].onChange([FIELD])"
+            b-disabled='[[Settings.DisabledConditions]]' />
+        <span class="b-check-mark"></span>
+        <span class="b-check-text" b-text="option.[[DataSource.TextField??Text]]"></span>
+    </label>
+</div>

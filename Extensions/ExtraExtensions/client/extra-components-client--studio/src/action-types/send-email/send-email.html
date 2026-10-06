@@ -1,0 +1,19 @@
+<div class="send-email-service">
+    <div class="b-field">
+        <b-select-service controller="$" action="$.action" services="$.services" service-type="SendEmail"
+            search-text="{{$.action.ServiceName}}" suggestions="$.suggestions">
+            <b-select-service>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Email Subject</label>
+        <div class="b-input-group">
+            <input type="text" class="b-input form-control" ng-model="$.action.Settings.Subject"
+                placeholder="Enter email subject" autocomplete="off" />
+            <span><i class="codicon codicon-gear"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Email Body</label>
+        <div html-editor ng-model="$.action.Settings.Body" data-language="html" data-height="400px"></div>
+    </div>
+</div>

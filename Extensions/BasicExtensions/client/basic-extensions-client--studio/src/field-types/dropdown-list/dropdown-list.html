@@ -1,0 +1,8 @@
+﻿<div class="b-field">
+    <select ng-model="$.field.Value" class="b-input form-select">
+        <option value="" ng-selected="true">{{$.field.Settings.Placeholder}}</option>
+        <option ng-repeat="option in $.field.DataSource.Items" ng-value="{{option.Value}}">
+            {{option.Text}}
+        </option>
+    </select>
+</div>
