@@ -4,6 +4,16 @@
 
 Instead of being limited to simple forms and CRUD screens, Business Engine is designed to help you define **business entities, relationships, workflows, actions, data sources, and application logic** through a visual development environment.
 
+## 🎥 Initial Demo & Introduction
+
+This video provides an **initial introduction and demo of Business Engine**, showing how quickly a real-world business application can be built using its visual development environment.
+
+In this demo, we build a **ticketing system** and demonstrate how Business Engine can be used to model business entities, create forms and management pages, define application logic, and bring the application together in a short time.
+
+This is **not a complete tutorial**. It is an output-focused introduction designed to give you a quick overview of Business Engine and its approach to building business applications.
+
+[▶️ Watch the Initial Demo on YouTube](https://www.youtube.com/watch?v=R8yv6QlQwGM)
+
 ### What can you build?
 
 Business Engine can be used to create a wide range of business applications, including:
@@ -40,16 +50,6 @@ Business Engine is released under the **MIT License**.
 The project is completely free and open source. There is no commercial edition of Business Engine itself.
 
 Its extension-based architecture also makes it possible for the community to build and share additional functionality in the future.
-
-## 🎥 Initial Demo & Introduction
-
-This video provides an **initial introduction and demo of Business Engine**, showing the application builder in action and demonstrating how a business application can be created using its visual development environment.
-
-It is **not a complete tutorial**. Instead, it provides a brief, output-focused overview of Business Engine and some of its core capabilities.
-
-▶️ **Watch the video on YouTube:**
-https://www.youtube.com/watch?v=R8yv6QlQwGM
-
 
 ### Project Status
 
