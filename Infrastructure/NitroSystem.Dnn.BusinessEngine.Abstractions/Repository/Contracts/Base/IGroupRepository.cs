@@ -9,6 +9,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Base
     public interface IGroupRepository
     {
         Task<Guid> AddAsync(GroupInfo objGroupInfo);
+        Task BulkInsertAsync(IReadOnlyList<GroupInfo> groups);
 
         Task<GroupInfo> GetAsync(Guid id);
         Task<IReadOnlyList<GroupInfo>> GetsAsync(Guid scenarioId, params string[] columns);

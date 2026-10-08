@@ -22,6 +22,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Base
             return await _sql.InsertAsync<GroupInfo>(objGroupInfo);
         }
 
+        public async Task BulkInsertAsync(IReadOnlyList<GroupInfo> groups)
+        {
+            await _sql.BulkInsertAsync<GroupInfo>(groups);
+        }
+
         public async Task<GroupInfo> GetAsync(Guid id)
         {
             return await _sql.GetAsync<GroupInfo>(id);

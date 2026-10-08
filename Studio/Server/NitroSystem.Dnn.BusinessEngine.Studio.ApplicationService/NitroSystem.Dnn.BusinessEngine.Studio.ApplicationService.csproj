@@ -49,6 +49,8 @@
     <Compile Include="Dashboard\DashboardService.cs" />
     <Compile Include="Extension\ExtensionMappingProfile.cs" />
     <Compile Include="Extension\ExtensionService.cs" />
+    <Compile Include="ImportExportProviders\ExportComponentProvider.cs" />
+    <Compile Include="ImportExportProviders\ImportComponentProvider.cs" />
     <Compile Include="Module\ModuleFieldService.cs" />
     <Compile Include="Module\ModuleLibraryAndResourceService.cs" />
     <Compile Include="Module\ModuleVariableService.cs" />

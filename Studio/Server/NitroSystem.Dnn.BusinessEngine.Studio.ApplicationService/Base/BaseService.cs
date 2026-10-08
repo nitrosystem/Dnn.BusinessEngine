@@ -2,21 +2,26 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Base;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Library;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Base;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Library;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Base;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Base;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Base
 {
-    public class BaseService : IBaseService
+    public class BaseService : IBaseService, IExportable, IImportable
     {
         private readonly ISql _sql;
         private readonly IScenarioRepository _scenarioRepository;
@@ -150,6 +155,62 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Base
                 childKeySelector: c => c.LibraryId,
                 assignChildren: (parent, childs) => parent.Resources = childs
             );
+        }
+
+        #endregion
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var items = await GetScenarioAndGroupsAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = items,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var items = JsonConvert.DeserializeObject<List<object>>(json);
+                    var scenario = JsonConvert.DeserializeObject<ScenarioInfo>(items[0].ToString());
+                    var groups = JsonConvert.DeserializeObject<IReadOnlyList<GroupInfo>>(items[1].ToString());
+
+                    await SaveScenarioAndGroupsAsync(scenario, groups);
+
+                    context.Set<string>("ScenarioName", scenario.ScenarioName);
+                    break;
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetScenarioAndGroupsAsync(Guid scenarioId)
+        {
+            var scenario = await _scenarioRepository.GetAsync(scenarioId);
+            var groups = await _groupRepository.GetsAsync(scenarioId);
+
+            return new List<object>() { scenario, groups };
+        }
+
+        private async Task SaveScenarioAndGroupsAsync(ScenarioInfo scenario, IReadOnlyList<GroupInfo> groups)
+        {
+            await _scenarioRepository.AddAsync(scenario);
+            await _groupRepository.BulkInsertAsync(groups);
         }
 
         #endregion
