@@ -1,19 +1,21 @@
-﻿using System;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Text.RegularExpressions;
-using Dapper;
-using static Dapper.SqlMapper;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+﻿using Dapper;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Core.Attributes;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using static Dapper.SqlMapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.ORM.Dapper.Sql
 {
@@ -1080,6 +1082,81 @@ namespace NitroSystem.Dnn.BusinessEngine.ORM.Dapper.Sql
 
             var result = await _unitOfWork.Connection.QuerySingleOrDefaultAsync<string>(query, new { SpName = spName }, _unitOfWork.Transaction);
             return result;
+        }
+
+        #endregion
+
+        #region More Methods
+
+        public async Task<string> GenerateCreateTableScript(string schema, string table)
+        {
+            var columns = await GetDatabaseObjectColumnsAsync(table);
+            var pk = await GetPrimaryKey(schema, table);
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"CREATE TABLE [{schema}].[{table}] (");
+
+            for (int i = 0; i < columns.Count; i++)
+            {
+                var c = columns[i];
+                sb.Append("    ");
+                sb.Append(BuildColumnLine(c));
+
+                if (i < columns.Count - 1 || pk != null)
+                    sb.Append(",");
+
+                sb.AppendLine();
+            }
+
+            if (pk.HasValue)
+            {
+                sb.AppendLine($"CONSTRAINT [{pk.Value.Name}] PRIMARY KEY ({pk.Value.Columns})");
+            }
+
+            sb.AppendLine(");");
+
+            return sb.ToString();
+        }
+
+        public async Task<(string Name, string Columns)?> GetPrimaryKey(string schema, string table)
+        {
+            string query = @"
+                SELECT kc.name,
+                       STRING_AGG(c.name, ', ')
+                FROM sys.key_constraints kc
+                JOIN sys.index_columns ic ON kc.parent_object_id = ic.object_id AND kc.unique_index_id = ic.index_id
+                JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+                JOIN sys.tables t ON kc.parent_object_id = t.object_id
+                JOIN sys.schemas s ON t.schema_id = s.schema_id
+                WHERE kc.type = 'PK' AND t.name = @Table AND s.name = @Schema
+                GROUP BY kc.name";
+
+
+            using (var result = await _unitOfWork.Connection.ExecuteReaderAsync(query, new { Schema = schema, Table = table }))
+            {
+                if (result.Read())
+                    return (result.GetString(0), result.GetString(1));
+            }
+
+            return null;
+        }
+
+        private string BuildColumnLine(DbTableColumnInfo column)
+        {
+            var sb = new StringBuilder();
+
+            sb.Append($"[{column.ColumnName}] {column.ColumnType}");
+
+            if (column.IsIdentity)
+                sb.Append(" IDENTITY(1,1)");
+
+            sb.Append(column.AllowNulls ? " NULL" : " NOT NULL");
+
+            if (!string.IsNullOrEmpty(column.DefaultValue))
+                sb.Append($" DEFAULT {column.DefaultValue}");
+
+            return sb.ToString();
         }
 
         #endregion

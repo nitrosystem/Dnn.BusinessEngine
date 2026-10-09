@@ -6,6 +6,7 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Entity;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Entity;
 
+
 namespace NitroSystem.Dnn.BusinessEngine.Repository.Entity
 {
     public class EntityRepository : IEntityRepository
@@ -21,6 +22,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Entity
         {
             return await _sql.InsertAsync<EntityInfo>(objEntityInfo);
         }
+
+        public async Task BulkInsertAsync(IReadOnlyList<EntityInfo> entities)
+        {
+            await _sql.BulkInsertAsync<EntityInfo>(entities);
+        }
+
 
         public async Task<string> GetTableNameAsync(Guid id)
         {

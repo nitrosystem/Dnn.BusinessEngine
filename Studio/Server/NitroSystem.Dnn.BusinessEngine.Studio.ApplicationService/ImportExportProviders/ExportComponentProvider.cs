@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Base;
+using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Entity;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Providers
 {
@@ -25,6 +26,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.DataService.Providers
                     Name = "Scenario",
                     Service = _sp.GetRequiredService<BaseService>(),
                     Priority = 1
+                },
+                new ExportComponent
+                {
+                    Name = "Entity",
+                    Service = _sp.GetRequiredService<EntityService>(),
+                    Priority = 2
                 }
             };
         }

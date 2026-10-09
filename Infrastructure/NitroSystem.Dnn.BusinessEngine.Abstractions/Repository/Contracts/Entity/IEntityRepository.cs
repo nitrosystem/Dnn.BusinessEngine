@@ -8,6 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Entit
     public interface IEntityRepository
     {
         Task<Guid> AddAsync(EntityInfo objEntityInfo);
+        Task BulkInsertAsync(IReadOnlyList<EntityInfo> entities);
 
         Task<string> GetTableNameAsync(Guid id);
         Task<bool> GetIsReadonlyAsync(Guid id);

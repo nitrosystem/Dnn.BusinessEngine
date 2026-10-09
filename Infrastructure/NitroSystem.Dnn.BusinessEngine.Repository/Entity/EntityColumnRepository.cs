@@ -21,6 +21,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Entity
             return await _sql.InsertAsync<EntityColumnInfo>(objEntityColumnInfo);
         }
 
+        public async Task BulkInsertAsync(IReadOnlyList<EntityColumnInfo> columns)
+        {
+            await _sql.BulkInsertAsync<EntityColumnInfo>(columns);
+        }
+
         public async Task<EntityColumnInfo> GetAsync(Guid id)
         {
             return await _sql.GetAsync<EntityColumnInfo>(id);

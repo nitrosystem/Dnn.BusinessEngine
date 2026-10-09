@@ -8,6 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Entit
     public interface IEntityColumnRepository
     {
         Task<Guid> AddAsync(EntityColumnInfo objEntityColumnInfo);
+        Task BulkInsertAsync(IReadOnlyList<EntityColumnInfo> columns);
 
         Task<EntityColumnInfo> GetAsync(Guid id);
         Task<IReadOnlyList<EntityColumnInfo>> GetsAsync(Guid entityId, params string[] columns);
@@ -17,6 +18,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Entit
 
         Task<bool> DeleteAsync(Guid id);
         Task<bool> DeletesAsync(Guid entityId);
-
     }
 }

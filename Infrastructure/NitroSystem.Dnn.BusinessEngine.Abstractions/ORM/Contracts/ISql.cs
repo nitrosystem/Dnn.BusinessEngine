@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Data;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts
 {
@@ -129,6 +129,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts
         Task<List<DbTableColumnInfo>> GetDatabaseObjectColumnsAsync(string objectName);
         Task<string> GetStoredProcedureScriptAsync(string spName);
 
+        #endregion
+
+        #region More Methods
+
+        Task<string> GenerateCreateTableScript(string schema, string table);
+        Task<(string Name, string Columns)?> GetPrimaryKey(string schema, string table);
+        
         #endregion
     }
 }
