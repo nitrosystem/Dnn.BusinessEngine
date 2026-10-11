@@ -7,8 +7,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
 {
     public interface IModuleFieldDataSourceRepository
     {
-
         Task<Guid> AddAsync(ModuleFieldDataSourceInfo objModuleFieldDataSourceInfo);
+        Task BulkInsertAsync(IReadOnlyList<ModuleFieldDataSourceInfo> fieldsDataSources);
 
         Task<ModuleFieldDataSourceInfo> GetAsync(Guid id);
         Task<IReadOnlyList<ModuleFieldDataSourceInfo>> GetsByAncestorAsync(Guid moduleId);
@@ -18,5 +18,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
 
         Task<bool> DeleteAsync(Guid id);
         Task<bool> DeletesAsync(Guid fieldId);
+
+        Task<IReadOnlyList<Guid>> GetModuleListIdsAsync(Guid moduleId);
     }
 }

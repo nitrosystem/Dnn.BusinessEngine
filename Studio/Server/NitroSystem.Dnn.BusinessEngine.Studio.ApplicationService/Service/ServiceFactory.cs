@@ -1,22 +1,29 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+﻿using DotNetNuke.Data;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Service;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Service;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Service;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Service;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Service;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Service
 {
-    public class ServiceFactory : IServiceFactory
+    public class ServiceFactory : IServiceFactory, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISql _sql;
@@ -142,7 +149,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Service
                 }
 
                 //Add new ActionParams
-                await _serviceParamRepository.BulkInsertAsync(serviceParams.Select(p => { p.ServiceId = objServiceInfo.Id; return p; }));
+                await _serviceParamRepository.BulkInsertAsync(serviceParams.Select(p => { p.ServiceId = objServiceInfo.Id; return p; }).ToList());
 
                 //Handle Extension
                 var type = await _serviceRepository.GetBusinessControllerClassAsync(service.ServiceType);
@@ -194,6 +201,63 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Service
         {
             var serviceParams = await _serviceParamRepository.GetsAsync(serviceId);
             return HybridMapper.MapCollection<ServiceParamInfo, ParamInfo>(serviceParams);
+        }
+
+        #endregion
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var items = await GetServicesAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = items,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            var items = JsonConvert.DeserializeObject<List<object>>(json);
+            var services = JsonConvert.DeserializeObject<IReadOnlyList<ServiceInfo>>(items[0].ToString());
+            var servicesParams = JsonConvert.DeserializeObject<IReadOnlyList<ServiceParamInfo>>(items[1].ToString());
+
+            if (context.Scope == ImportExportScope.ScenarioFullComponents)
+            {
+                await BulkInsertServicesAndParamsAsync(services, servicesParams);
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetServicesAsync(Guid scenarioId)
+        {
+            var services = await _serviceRepository.GetsAsync(scenarioId);
+            var serviceParams = new List<ServiceParamInfo>();
+
+            foreach (var service in services)
+            {
+                serviceParams.AddRange(await _serviceParamRepository.GetsAsync(service.Id));
+            }
+
+            return new List<object>() { services, serviceParams };
+        }
+
+        private async Task BulkInsertServicesAndParamsAsync(IReadOnlyList<ServiceInfo> services, IReadOnlyList<ServiceParamInfo> servicesParams)
+        {
+            await _serviceRepository.BulkInsertAsync(services);
+            await _serviceParamRepository.BulkInsertAsync(servicesParams);
         }
 
         #endregion

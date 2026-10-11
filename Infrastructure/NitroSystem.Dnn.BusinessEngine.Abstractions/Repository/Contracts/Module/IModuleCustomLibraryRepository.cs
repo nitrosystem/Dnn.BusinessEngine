@@ -12,6 +12,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
 
         Task<ModuleCustomLibraryInfo> GetAsync(Guid id);
         Task<IReadOnlyList<ModuleCustomLibraryInfo>> GetsAsync(Guid moduleId, params string[] columns);
+        Task<IReadOnlyList<ModuleCustomLibraryInfo>> GetsByAncestorAsync(Guid scenarioId);
         Task<IReadOnlyList<ModuleCustomLibraryView>> GetsViewAsync(Guid moduleId, params string[] columns);
         Task<IReadOnlyList<ModuleCustomLibraryResourceView>> GetsResourceViewAsync(Guid moduleId, params string[] columns);
 

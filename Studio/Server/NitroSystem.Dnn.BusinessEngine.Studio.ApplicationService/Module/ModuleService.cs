@@ -1,26 +1,34 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using DotNetNuke.Data;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Template;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Procedures.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Module;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Procedures.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Module;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundJob;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.BackgroundJobs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 {
-    public class ModuleService : IModuleService
+    public class ModuleService : IModuleService, IExportable, IImportable
     {
         private readonly IBaseService _baseService;
         private readonly IModuleRepository _moduleRepository;
@@ -275,6 +283,131 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
                 });
 
             return result;
+        }
+
+        #endregion
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            Guid scenarioId;
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    scenarioId = context.Get<Guid>("ScenarioId");
+                    var modules = await _moduleRepository.GetAsync(scenarioId);
+
+                    return new ExportResponse()
+                    {
+                        Result = modules,
+                        IsSuccess = true
+                    };
+                case ImportExportScope.Module:
+                    scenarioId = context.Get<Guid>("ScenarioId");
+                    var moduleId = context.Get<Guid>("ModuleId");
+                    var module = await _moduleRepository.GetAsync(moduleId);
+
+                    return new ExportResponse()
+                    {
+                        Result = module,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var modules = JsonConvert.DeserializeObject<IReadOnlyList<ModuleInfo>>(json);
+
+                    context.TryGet<JObject>("ModulesNewPages", out var newPages);
+
+                    foreach (var mod in modules.OrderBy(m => m.ParentId))
+                    {
+                        if (mod.SiteModuleId.HasValue)
+                        {
+                            var portalId = context.Get<int>("CurrentPortalId");
+                            var userId = context.Get<int>("CurrentUserId");
+                            var newTabId = newPages[mod.Id.ToString()].Value<int>();
+                            var moduleDefName = mod.ModuleType == 0
+                                ? "BusinessEngine.Dashboard"
+                                : "BusinessEngine.Module";
+
+                            mod.SiteModuleId = await AddModuleToSitePage(portalId, userId, newTabId, moduleDefName, mod.ModuleTitle);
+                        }
+
+                        await SaveModuleAsync(mod);
+                    }
+
+                    return new ImportResponse()
+                    {
+                        IsSuccess = true
+                    };
+                case ImportExportScope.Module:
+                    var module = JsonConvert.DeserializeObject<ModuleInfo>(json);
+                    var oldScenarioId = module.ScenarioId;
+
+                    var scenarioId = context.Get<Guid>("ScenarioId");
+                    var moduleName = context.Get<string>("ModuleName");
+                    var moduleTitle = context.Get<string>("ModuleTitle");
+
+                    context.TryGet<Guid?>("ModuleId", out var moduleId);
+                    context.TryGet<Guid?>("ParentId", out var parentId);
+                    context.TryGet<int?>("SiteModuleId", out var siteModuleId);
+                    context.TryGet<bool?>("DeleteModuleBeforeImport", out var deleteModule);
+
+                    module.ScenarioId = scenarioId;
+                    module.ModuleName = moduleName;
+                    module.ModuleTitle = moduleTitle;
+                    module.ParentId = parentId;
+                    module.SiteModuleId = siteModuleId;
+
+                    var id = await SaveModuleAsync(module, moduleId, deleteModule);
+
+                    context.DataTrack.Add("ScenarioId", scenarioId);
+                    context.DataTrack.Add("ModuleId", id);
+                    context.DataTrack.Add("OldScenarioId", oldScenarioId);
+
+                    return new ImportResponse()
+                    {
+                        Result = id,
+                        IsSuccess = true
+                    };
+
+                default:
+                    return null;
+            }
+        }
+
+        private async Task<int> AddModuleToSitePage(int portalId, int userId, int pageId, string moduleDefName, string moduleTitle, string paneName = "ContentPane")
+        {
+            return await _moduleRepository.AddModuleToSitePage(portalId, userId, pageId, moduleDefName, moduleTitle, paneName);
+        }
+
+        private async Task<Guid> SaveModuleAsync(ModuleInfo module, Guid? moduleId, bool? deleteModule)
+        {
+            if (moduleId.HasValue && deleteModule.HasValue && deleteModule.Value)
+                await DeleteModuleAsync(moduleId.Value);
+            else if (moduleId.HasValue && (!deleteModule.HasValue || !deleteModule.Value))
+            {
+                module.Id = moduleId.Value;
+                await _moduleRepository.UpdateAsync(module);
+
+                return module.Id;
+            }
+
+            module.Id = Guid.NewGuid();
+            return await _moduleRepository.AddAsync(module);
+        }
+
+        private async Task SaveModuleAsync(ModuleInfo module)
+        {
+            await _moduleRepository.AddAsync(module);
         }
 
         #endregion

@@ -10,11 +10,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
     public interface IModuleRepository
     {
         Task<Guid> AddAsync(ModuleInfo objModuleInfo);
+        Task<int> AddModuleToSitePage(int portalId, int userId, int pageId, string moduleDefName, string moduleTitle, string paneName);
 
         Task<string> GetModuleNameAsync(Guid id);
         Task<string> GetScenarioNameAsync(Guid id);
         Task<ModuleInfo> GetAsync(Guid id);
         Task<ModuleView> GetViewAsync(Guid id);
+        Task<IReadOnlyList<ModuleInfo>> GetsAsync(Guid scenarioId, params string[] columns);
         Task<IReadOnlyList<ModuleView>> GetsViewAsync(Guid scenarioId, params string[] columns);
         Task<(
            IReadOnlyList<ModuleFieldSpResult> Fields,

@@ -8,7 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Defin
     public interface IDefinedListItemRepository
     {
         Task<Guid> AddAsync(DefinedListItemInfo objDefinedListItemInfo);
-        Task BulkInsertAsync(IEnumerable<DefinedListItemInfo> items);
+        Task BulkInsertAsync(IReadOnlyList<DefinedListItemInfo> items);
 
         Task<DefinedListItemInfo> GetAsync(Guid id);
         Task<IReadOnlyList<DefinedListItemInfo>> GetsByAncestorAsync(Guid scenarioId);

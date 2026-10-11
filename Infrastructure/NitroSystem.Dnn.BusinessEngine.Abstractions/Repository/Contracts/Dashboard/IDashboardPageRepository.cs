@@ -8,6 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Dashb
     public interface IDashboardPageRepository
     {
         Task<Guid> AddAsync(DashboardPageInfo objDashboardPageInfo);
+        Task BulkInsertAsync(IReadOnlyList<DashboardPageInfo> pages);
 
         Task<DashboardPageInfo> GetAsync(Guid id);
         Task<IReadOnlyList<DashboardPageInfo>> GetsAsync(Guid dashboardId, params string[] sortBy);

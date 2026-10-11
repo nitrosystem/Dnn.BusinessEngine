@@ -8,6 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
     public interface IModuleFieldSettingRepository
     {
         Task<Guid> AddAsync(ModuleFieldSettingInfo objModuleFieldSettingInfo);
+        Task BulkInsertAsync(IReadOnlyList<ModuleFieldSettingInfo> fieldsSettings);
 
         Task<ModuleFieldSettingInfo> GetAsync(Guid id);
         Task<IReadOnlyList<ModuleFieldSettingInfo>> GetsByAncestorAsync(Guid moduleId);

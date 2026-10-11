@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Action;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Action;
@@ -10,11 +11,15 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Cont
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Action;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Action
 {
-    public class ActionService : IActionService
+    public class ActionService : IActionService, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IActionTypeRepository _actionTypeRepository;
@@ -122,7 +127,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Action
                 }
 
                 //Add new ActionParams
-                await _actionParamRepository.BulkInsertAsync(actionParams.Select(p => { p.ActionId = objActionInfo.Id; return p; }));
+                await _actionParamRepository.BulkInsertAsync(actionParams.Select(p => { p.ActionId = objActionInfo.Id; return p; }).ToList());
 
                 _unitOfWork.Commit();
             }
@@ -149,6 +154,111 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Action
             {
                 _unitOfWork.Rollback();
                 throw ex;
+            }
+        }
+
+        #endregion
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            if (context.Scope == ImportExportScope.ScenarioFullComponents)
+            {
+                var items = await GetScenarioActionsAsync(context.Get<Guid>("ScenarioId"));
+
+                return new ExportResponse()
+                {
+                    Result = items,
+                    IsSuccess = true
+                };
+            }
+            else if (context.Scope == ImportExportScope.Module)
+            {
+                var items = await GetActionsAsync(context.Get<Guid>("ModuleId"));
+
+                return new ExportResponse()
+                {
+                    Result = items,
+                    IsSuccess = true
+                };
+            }
+
+            return null;
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            var items = JsonConvert.DeserializeObject<List<object>>(json);
+            var actions = JsonConvert.DeserializeObject<IReadOnlyList<ActionInfo>>(items[0].ToString());
+            var actionsParams = JsonConvert.DeserializeObject<IReadOnlyList<ActionParamInfo>>(items[1].ToString());
+
+            if (context.Scope == ImportExportScope.ScenarioFullComponents)
+            {
+                await BulkInsertActionsAndParamsAsync(actions, actionsParams);
+            }
+            else if (context.Scope == ImportExportScope.Module)
+            {
+                var moduleId = (Guid)context.DataTrack["ModuleId"];
+                await AddActionsAndParamsAsync(moduleId, actions, actionsParams, context);
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetScenarioActionsAsync(Guid scenarioId)
+        {
+            var actions = await _actionRepository.GetsByAncestorAsync(scenarioId);
+            var actionsParams = new List<ActionParamInfo>();
+            foreach (var action in actions)
+            {
+                actionsParams.AddRange(await _actionParamRepository.GetsAsync(action.Id));
+            }
+
+            return new List<object>() { actions, actionsParams };
+        }
+
+        private async Task<object> GetActionsAsync(Guid moduleId)
+        {
+            var actions = await _actionRepository.GetsAsync(moduleId);
+            var actionsParams = await _actionParamRepository.GetsByAncestorAsync(moduleId);
+            return new List<object>() { actions, actionsParams };
+        }
+
+        private async Task BulkInsertActionsAndParamsAsync(IReadOnlyList<ActionInfo> actions, IReadOnlyList<ActionParamInfo> actionsParams)
+        {
+            await _actionRepository.BulkInsertAsync(actions);
+            await _actionParamRepository.BulkInsertAsync(actionsParams);
+        }
+
+        private async Task AddActionsAndParamsAsync(Guid moduleId, IReadOnlyList<ActionInfo> actions, IReadOnlyList<ActionParamInfo> actinsParams, ImportContext context)
+        {
+            var dict = new Dictionary<Guid, Guid>();
+            foreach (var action in actions.OrderBy(f => f.ParentId))
+            {
+                var oldActionId = action.Id;
+
+                action.ModuleId = moduleId;
+                action.Id = Guid.NewGuid();
+                if (action.FieldId.HasValue && context.DataTrack.TryGetValue(action.FieldId.Value.ToString(), out var fieldId))
+                    action.FieldId = (Guid)fieldId;
+
+                if (action.ParentId.HasValue)
+                    action.ParentId = dict[action.ParentId.Value];
+
+                var actionId = await _actionRepository.AddAsync(action);
+
+                dict.Add(oldActionId, actionId);
+            }
+
+            foreach (var param in actinsParams)
+            {
+                param.ActionId = dict[param.ActionId];
+                param.Id = Guid.NewGuid();
+                await _actionParamRepository.AddAsync(param);
             }
         }
 

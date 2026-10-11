@@ -1,18 +1,23 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Module;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 {
-    public class ModuleLibraryAndResourceService : IModuleLibraryAndResourceService
+    public class ModuleLibraryAndResourceService : IModuleLibraryAndResourceService, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IModuleCustomLibraryRepository _moduleCustomLibraryRepository;
@@ -126,6 +131,90 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
         public async Task<bool> DeleteCustomResourceAsync(Guid itemId)
         {
             return await _moduleCustomResourceRepository.DeleteAsync(itemId);
+        }
+
+        #endregion
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var itemss = await GetScenarioLibrariesAndResourcesAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = itemss,
+                        IsSuccess = true
+                    };
+                case ImportExportScope.Module:
+                    var items = await GetLibrariesAndResourcesAsync(context.Get<Guid>("ModuleId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = items,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.Module:
+                    var moduleId = (Guid)context.DataTrack["ModuleId"];
+                    var items = JsonConvert.DeserializeObject<List<object>>(json);
+
+                    if (items[0] as IEnumerable<ModuleCustomLibraryInfo> != null)
+                        await AddLibrariesAsync(moduleId, (IReadOnlyList<ModuleCustomLibraryInfo>)items[0]);
+
+                    if (items[1] as IEnumerable<ModuleCustomResourceInfo> != null)
+                        await AddResourcesAsync(moduleId, (IReadOnlyList<ModuleCustomResourceInfo>)items[1]);
+
+                    return new ImportResponse()
+                    {
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        private async Task<object> GetScenarioLibrariesAndResourcesAsync(Guid scenarioId)
+        {
+            var libraries = await _moduleCustomLibraryRepository.GetsByAncestorAsync(scenarioId);
+            var resources = await _moduleCustomResourceRepository.GetsByAncestorAsync(scenarioId);
+            return new List<object>() { libraries, resources };
+        }
+
+        private async Task<IEnumerable<object>> GetLibrariesAndResourcesAsync(Guid moduleId)
+        {
+            var libraries = await _moduleCustomLibraryRepository.GetsAsync(moduleId);
+            var resources = await _moduleCustomResourceRepository.GetsAsync(moduleId);
+            return new List<object>() { libraries, resources };
+        }
+
+        private async Task AddLibrariesAsync(Guid moduleId, IEnumerable<ModuleCustomLibraryInfo> libraries)
+        {
+            foreach (var library in libraries)
+            {
+                library.ModuleId = moduleId;
+                await _moduleCustomLibraryRepository.AddAsync(library);
+            }
+        }
+
+        private async Task AddResourcesAsync(Guid moduleId, IEnumerable<ModuleCustomResourceInfo> resources)
+        {
+            foreach (var resource in resources)
+            {
+                resource.ModuleId = moduleId;
+                await _moduleCustomResourceRepository.AddAsync(resource);
+            }
         }
 
         #endregion

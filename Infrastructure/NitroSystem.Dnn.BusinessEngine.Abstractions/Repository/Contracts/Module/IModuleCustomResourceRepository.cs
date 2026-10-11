@@ -11,6 +11,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
 
         Task<ModuleCustomResourceInfo> GetAsync(Guid id);
         Task<IReadOnlyList<ModuleCustomResourceInfo>> GetsAsync(Guid moduleId, params string[] columns);
+        Task<IReadOnlyList<ModuleCustomResourceInfo>> GetsByAncestorAsync(Guid scenarioId);
 
         Task<bool> UpdateAsync(ModuleCustomResourceInfo objModuleCustomResourceInfo, params string[] columns);
 

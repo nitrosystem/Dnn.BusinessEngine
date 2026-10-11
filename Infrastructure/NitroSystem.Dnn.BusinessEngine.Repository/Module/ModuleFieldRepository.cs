@@ -25,6 +25,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
             return await _sql.InsertAsync<ModuleFieldInfo>(objModuleFieldInfo);
         }
 
+        public async Task BulkInsertAsync(IReadOnlyList<ModuleFieldInfo> fields)
+        {
+            await _sql.BulkInsertAsync<ModuleFieldInfo>(fields);
+        }
+
         public async Task<string> GetFieldTypeAsync(Guid id)
         {
             return await _sql.GetColumnValueAsync<ModuleFieldTypeInfo, string>(id, "FieldType");
@@ -38,6 +43,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
         public async Task<IReadOnlyList<ModuleFieldInfo>> GetsAsync(Guid moduleId, params string[] columns)
         {
             return await _sql.GetByScopeAsync<ModuleFieldInfo>(moduleId, columns);
+        }
+
+        public async Task<IReadOnlyList<ModuleFieldInfo>> GetsByAncestorAsync(Guid scenarioId)
+        {
+            return await _sql.GetChildsByParentColumnAsync<ModuleInfo, ModuleFieldInfo>
+             (
+                 "ScenarioId", "ModuleId", scenarioId
+             );
         }
 
         public async Task<bool> UpdateAsync(ModuleFieldInfo objModuleFieldInfo, params string[] columns)

@@ -9,6 +9,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Servi
     public interface IServiceRepository
     {
         Task<Guid> AddAsync(ServiceInfo objServiceInfo);
+        Task BulkInsertAsync(IReadOnlyList<ServiceInfo> services);
 
         Task<string> GetServiceTypeAsync(Guid id);
         Task<string> GetBusinessControllerClassAsync(string serviceType);

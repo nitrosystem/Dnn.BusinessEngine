@@ -1,23 +1,29 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+﻿using DotNetNuke.Data;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildType.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildType;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.AppModel;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Base;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.AppModel;
-using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildType;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildType.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.AppModel
 {
-    public class AppModelService : IAppModelService
+    public class AppModelService : IAppModelService, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IBuildTypeRunner _buildTypeRunner;
@@ -123,7 +129,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.AppModel
                 }
 
                 //Add new ActionParams
-                await _appModelPropertyRepository.BulkInsertAsync(modelProperties.Select(m => { m.AppModelId = objAppModelInfo.Id; return m; }));
+                await _appModelPropertyRepository.BulkInsertAsync(modelProperties.Select(m => { m.AppModelId = objAppModelInfo.Id; return m; }).ToList());
 
                 _unitOfWork.Commit();
             }
@@ -157,5 +163,81 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.AppModel
                 throw ex;
             }
         }
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var items = await GetModelsAndPropertiesAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = items,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            var items = JsonConvert.DeserializeObject<List<object>>(json);
+            var models = JsonConvert.DeserializeObject<IReadOnlyList<AppModelInfo>>(items[0].ToString());
+            var modelsProperties = JsonConvert.DeserializeObject<IReadOnlyList<AppModelPropertyInfo>>(items[1].ToString()).ToList();
+
+            if (context.Scope == ImportExportScope.ScenarioFullComponents)
+            {
+                await BulkInsertAppModelsAndPropertiesAsync(models, modelsProperties);
+
+                var basePath = context.Get<string>("BasePath");
+                var scenarioName = context.Get<string>("ScenarioName");
+
+                foreach (var model in models)
+                {
+                    var props = modelsProperties.Where(p => p.AppModelId == model.Id);
+                    var properties = HybridMapper.MapCollection<AppModelPropertyInfo, PropertyDefinition>(props);
+                    var request = new BuildTypeRequest()
+                    {
+                        ScenarioName = scenarioName,
+                        BasePath = basePath,
+                        ModelName = model.ModelName,
+                        Version = "01.00.00",
+                        Properties = properties.Cast<IPropertyDefinition>().ToList()
+                    };
+
+                    await _buildTypeRunner.RunAsync(request);
+                }
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetModelsAndPropertiesAsync(Guid scenarioId)
+        {
+            var models = await _appModelRepository.GetsAsync(scenarioId);
+            var modelsProperties = new List<AppModelPropertyInfo>();
+
+            foreach (var model in models)
+            {
+                modelsProperties.AddRange(await _appModelPropertyRepository.GetsAsync(model.Id));
+            }
+
+            return new List<object>() { models, modelsProperties };
+        }
+
+        private async Task BulkInsertAppModelsAndPropertiesAsync(IReadOnlyList<AppModelInfo> models, IReadOnlyList<AppModelPropertyInfo> modelsProperties)
+        {
+            await _appModelRepository.BulkInsertAsync(models);
+            await _appModelPropertyRepository.BulkInsertAsync(modelsProperties);
+        }
+
+        #endregion
     }
 }

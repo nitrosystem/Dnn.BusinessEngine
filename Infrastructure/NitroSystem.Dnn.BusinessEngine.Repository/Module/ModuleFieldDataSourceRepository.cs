@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
@@ -19,6 +19,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
         public async Task<Guid> AddAsync(ModuleFieldDataSourceInfo objModuleFieldDataSourceInfo)
         {
             return await _sql.InsertAsync<ModuleFieldDataSourceInfo>(objModuleFieldDataSourceInfo);
+        }
+
+        public async Task BulkInsertAsync(IReadOnlyList<ModuleFieldDataSourceInfo> fieldsDataSources)
+        {
+            await _sql.BulkInsertAsync<ModuleFieldDataSourceInfo>(fieldsDataSources);
         }
 
         public async Task<ModuleFieldDataSourceInfo> GetAsync(Guid id)
@@ -53,5 +58,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
         {
             return await _sql.DeleteByScopeAsync<ModuleFieldDataSourceInfo>(fieldId);
         }
+
+        #region Stored Procedures
+
+        public async Task<IReadOnlyList<Guid>> GetModuleListIdsAsync(Guid moduleId)
+        {
+            return await _sql.ExecuteStoredProcedureAsListAsync<Guid>("dbo.BusinessEngine_GetModuleDefinedListIds", "BE_Modules_Fields_DataSource_ListIds_",
+                new
+                {
+                    ModuleId = moduleId,
+                }
+            );
+        }
+
+        #endregion
     }
 }

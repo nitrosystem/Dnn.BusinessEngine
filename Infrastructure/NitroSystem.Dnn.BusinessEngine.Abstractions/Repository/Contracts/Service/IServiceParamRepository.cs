@@ -8,7 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Servi
     public interface IServiceParamRepository
     {
         Task<Guid> AddAsync(ServiceParamInfo objServiceParamInfo);
-        Task BulkInsertAsync(IEnumerable<ServiceParamInfo> serviceParams);
+        Task BulkInsertAsync(IReadOnlyList<ServiceParamInfo> serviceParams);
 
         Task<ServiceParamInfo> GetAsync(Guid id);
         Task<IReadOnlyList<ServiceParamInfo>> GetsAsync(Guid serviceId, params string[] columns);

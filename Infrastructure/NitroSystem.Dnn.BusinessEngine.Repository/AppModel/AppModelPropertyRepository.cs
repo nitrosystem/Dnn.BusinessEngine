@@ -21,7 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.AppModel
             return await _sql.InsertAsync<AppModelPropertyInfo>(objAppModelPropertyInfo);
         }
 
-        public async Task BulkInsertAsync(IEnumerable<AppModelPropertyInfo> properties)
+        public async Task BulkInsertAsync(IReadOnlyList<AppModelPropertyInfo> properties)
         {
             await _sql.BulkInsertAsync<AppModelPropertyInfo>(properties);
         }

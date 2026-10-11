@@ -14,10 +14,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
 
         Task<string> GetVariableNameAsync(Guid id);
         Task<IReadOnlyList<ModuleVariableInfo>> GetsAsync(Guid moduleId, params string[] columns);
+
         Task<(IReadOnlyList<ModuleVariableSpResult> Variables, IReadOnlyList<AppModelPropertyInfo> Properties)> GetsAsync(
             Guid moduleId,
             ModuleVariableScope fromScope,
             ModuleVariableScope toScope);
+        Task<IReadOnlyList<ModuleVariableInfo>> GetsByAncestorAsync(Guid scenarioId);
 
         Task<bool> UpdateAsync(ModuleVariableInfo objModuleVariableInfo, params string[] columns);
 

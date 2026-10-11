@@ -1,16 +1,18 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Procedures.Action;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Action;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Action;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Procedures.Action;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Action
 {
     public interface IActionRepository
     {
         Task<Guid> AddAsync(ActionInfo objActionInfo);
+        Task BulkInsertAsync(IReadOnlyList<ActionInfo> actions);
 
         Task<string> GetBusinessControllerClassAsync(string actionType);
         Task<ActionInfo> GetAsync(Guid id);
@@ -18,6 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Actio
         Task<IReadOnlyList<ActionInfo>> GetsAsync(Guid moduleId, Guid? fieldId, params string[] columns);
         Task<IReadOnlyList<ActionInfo>> GetsByFieldIdAsync(Guid fieldId);
         Task<IReadOnlyList<ActionInfo>> GetsAsync(Guid moduleId, params string[] columns);
+        Task<IReadOnlyList<ActionInfo>> GetsByAncestorAsync(Guid scenarioId);
         Task<IReadOnlyList<ActionView>> GetViewsAsync(Guid moduleId, Guid? fieldId, Guid? parentId, string eventName, int executeOrder);
         Task<(IReadOnlyList<ActionView> Actions, IReadOnlyList<ActionParamInfo> Params, int TotalCount)> GetsAsync(
            Guid moduleId, Guid? fieldId, string searchText, string actionType);

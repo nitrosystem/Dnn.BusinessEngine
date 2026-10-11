@@ -10,8 +10,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Dashb
     public interface IDashboardPageModuleRepository
     {
         Task<Guid> AddAsync(DashboardPageModuleInfo objDashboardPageModuleInfo);
+        Task BulkInsertAsync(IReadOnlyList<DashboardPageModuleInfo> modules);
 
         Task<DashboardPageModuleInfo> GetAsync(Guid id);
+        Task<IReadOnlyList<DashboardPageModuleInfo>> GetsByAncestorAsync(Guid scenarioId);
         Task<IReadOnlyList<DashboardPageModuleView>> GetsViewAsync(Guid id);
         DashboardPageModuleSpResult Get(Guid dashboardModuleId, string pageName);
 

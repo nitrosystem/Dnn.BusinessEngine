@@ -5,21 +5,25 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.DefinedList;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Action;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.DefinedList;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Module;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Action;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 {
-    public class ModuleFieldService : IModuleFieldService
+    public class ModuleFieldService : IModuleFieldService, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cacheService;
@@ -327,6 +331,159 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
                 _unitOfWork.Rollback();
                 throw ex;
             }
+        }
+
+        #endregion
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var itemss = await GetScenarioFieldsAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = itemss,
+                        IsSuccess = true
+                    };
+                case ImportExportScope.Module:
+                    var items = await GetModuleFieldsAsync(context.Get<Guid>("ModuleId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = items,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            var items = JsonConvert.DeserializeObject<List<object>>(json);
+            var fields = JsonConvert.DeserializeObject<IReadOnlyList<ModuleFieldInfo>>(items[0].ToString());
+            var fieldsDataSource = JsonConvert.DeserializeObject<IReadOnlyList<ModuleFieldDataSourceInfo>>(items[1].ToString());
+            var fieldsSettings = JsonConvert.DeserializeObject<IReadOnlyList<ModuleFieldSettingInfo>>(items[2].ToString());
+
+            if (context.Scope == ImportExportScope.ScenarioFullComponents)
+            {
+                await BulkInsertFieldsAndSettingsAsync(fields, fieldsDataSource, fieldsSettings);
+
+            }
+            else if (context.Scope == ImportExportScope.Module)
+            {
+                var moduleId = (Guid)context.DataTrack["ModuleId"];
+
+                await AddFieldsAndSettingsAsync(moduleId, fields, fieldsDataSource, fieldsSettings, context);
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetScenarioFieldsAsync(Guid scenarioId)
+        {
+            var fields = await _moduleFieldRepository.GetsByAncestorAsync(scenarioId);
+            var fieldsDataSources = new List<ModuleFieldDataSourceInfo>();
+            var fieldsSettings = new List<ModuleFieldSettingInfo>();
+            foreach (var field in fields)
+            {
+                fieldsDataSources.AddRange(await _moduleFieldDataSourceRepository.GetsAsync(field.Id));
+                fieldsSettings.AddRange(await _moduleFieldSettingRepository.GetsAsync(field.Id));
+            }
+
+            return new List<object>() { fields, fieldsDataSources, fieldsSettings };
+        }
+
+        private async Task<object> GetModuleFieldsAsync(Guid moduleId)
+        {
+            var fields = await _moduleFieldRepository.GetsAsync(moduleId);
+            var fieldsDataSources = await _moduleFieldDataSourceRepository.GetsByAncestorAsync(moduleId);
+            var fieldsSettings = await _moduleFieldSettingRepository.GetsByAncestorAsync(moduleId);
+            return new List<object>() { fields, fieldsDataSources, fieldsSettings };
+        }
+
+        private async Task AddFieldsAndSettingsAsync(Guid moduleId, IReadOnlyList<ModuleFieldInfo> fields, IReadOnlyList<ModuleFieldDataSourceInfo> fieldsDataSources, IReadOnlyList<ModuleFieldSettingInfo> fieldsSettings, ImportContext context)
+        {
+            var inserted = new HashSet<Guid>();
+            var remaining = new List<ModuleFieldInfo>(fields);
+            while (remaining.Any())
+            {
+                var batch = remaining
+                    .Where(f => f.ParentId == null || inserted.Contains(f.ParentId.Value))
+                    .ToList();
+
+                if (!batch.Any())
+                    throw new InvalidOperationException(
+                        "Circular reference or missing parent detected in ModuleFieldInfo.");
+
+                foreach (var field in batch)
+                {
+                    var oldFieldId = field.Id;
+
+                    field.ModuleId = moduleId;
+                    field.Id = Guid.NewGuid();
+                    if (field.ParentId.HasValue && context.DataTrack.TryGetValue(field.ParentId.Value.ToString(), out var parentId))
+                        field.ParentId = (Guid)parentId;
+
+                    await _moduleFieldRepository.AddAsync(field);
+
+                    context.DataTrack.Add(oldFieldId.ToString(), field.Id);
+                }
+
+                foreach (var f in batch)
+                {
+                    inserted.Add(f.Id);
+                }
+
+                remaining.RemoveAll(f => inserted.Contains(f.Id));
+            }
+
+            foreach (var datasource in fieldsDataSources)
+            {
+                datasource.FieldId = (Guid)context.DataTrack[datasource.FieldId.ToString()];
+                datasource.Id = Guid.NewGuid();
+                await _moduleFieldDataSourceRepository.AddAsync(datasource);
+            }
+
+            foreach (var setting in fieldsSettings)
+            {
+                setting.FieldId = (Guid)context.DataTrack[setting.FieldId.ToString()];
+                setting.Id = Guid.NewGuid();
+                await _moduleFieldSettingRepository.AddAsync(setting);
+            }
+        }
+
+        private async Task BulkInsertFieldsAndSettingsAsync(IReadOnlyList<ModuleFieldInfo> fields, IReadOnlyList<ModuleFieldDataSourceInfo> fieldsDataSource, IReadOnlyList<ModuleFieldSettingInfo> fieldsSettings)
+        {
+            var inserted = new HashSet<Guid>();
+            var remaining = new List<ModuleFieldInfo>(fields);
+            while (remaining.Any())
+            {
+                var batch = remaining
+                    .Where(f => f.ParentId == null || inserted.Contains(f.ParentId.Value))
+                    .ToList();
+
+                if (!batch.Any())
+                    throw new InvalidOperationException(
+                        "Circular reference or missing parent detected in ModuleFieldInfo.");
+
+                await _moduleFieldRepository.BulkInsertAsync(batch);
+
+                foreach (var f in batch)
+                    inserted.Add(f.Id);
+
+                remaining.RemoveAll(f => inserted.Contains(f.Id));
+            }
+
+            await _moduleFieldDataSourceRepository.BulkInsertAsync(fieldsDataSource);
+            await _moduleFieldSettingRepository.BulkInsertAsync(fieldsSettings);
         }
 
         #endregion

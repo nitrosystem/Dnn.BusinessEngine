@@ -21,6 +21,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Dashboard
             return await _sql.InsertAsync<DashboardPageInfo>(objDashboardPageInfo);
         }
 
+        public async Task BulkInsertAsync(IReadOnlyList<DashboardPageInfo> pages)
+        {
+            await _sql.BulkInsertAsync<DashboardPageInfo>(pages);
+        }
+
         public async Task<DashboardPageInfo> GetAsync(Guid id)
         {
             return await _sql.GetAsync<DashboardPageInfo>(id);

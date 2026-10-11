@@ -21,7 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Action
             return await _sql.InsertAsync<ActionParamInfo>(objActionParamInfo);
         }
 
-        public async Task BulkInsertAsync(IEnumerable<ActionParamInfo> actionParams)
+        public async Task BulkInsertAsync(IReadOnlyList<ActionParamInfo> actionParams)
         {
             await _sql.BulkInsertAsync<ActionParamInfo>(actionParams);
         }

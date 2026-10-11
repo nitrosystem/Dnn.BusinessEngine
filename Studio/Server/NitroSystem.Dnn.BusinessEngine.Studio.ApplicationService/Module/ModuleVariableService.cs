@@ -1,21 +1,28 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+﻿using DotNetNuke.Data;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.AppModel;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 {
-    public class ModuleVariableService : IModuleVariableService
+    public class ModuleVariableService : IModuleVariableService, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IModuleVariableRepository _moduleVariableRepository;
@@ -89,5 +96,75 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
         {
             return await _moduleVariableRepository.DeleteAsync(moduleId);
         }
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var itemss = await GetScenarioVariablesAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = itemss,
+                        IsSuccess = true
+                    };
+                case ImportExportScope.Module:
+                    var variables = await GetVariablesAsync(context.Get<Guid>("ModuleId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = variables,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.Module:
+                    var moduleId = (Guid)context.DataTrack["ModuleId"];
+                    var variables = JsonConvert.DeserializeObject<IReadOnlyList<ModuleVariableInfo>>(json);
+
+                    await SaveVariablesAsync(moduleId, variables);
+
+                    return new ImportResponse()
+                    {
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        private async Task<IEnumerable<ModuleVariableInfo>> GetScenarioVariablesAsync(Guid scenarioId)
+        {
+            var variables = await _moduleVariableRepository.GetsByAncestorAsync(scenarioId);
+            return variables;
+        }
+
+        private async Task<IEnumerable<ModuleVariableInfo>> GetVariablesAsync(Guid moduleId)
+        {
+            return await _moduleVariableRepository.GetsAsync(moduleId);
+        }
+
+        private async Task SaveVariablesAsync(Guid moduleId, IEnumerable<ModuleVariableInfo> variables)
+        {
+            foreach (var variable in variables)
+            {
+                variable.ModuleId = moduleId;
+                variable.Id = Guid.NewGuid();
+
+                await _moduleVariableRepository.AddAsync(variable);
+            }
+        }
+
+        #endregion
     }
 }

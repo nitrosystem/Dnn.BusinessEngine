@@ -8,10 +8,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
     public interface IModuleFieldRepository
     {
         Task<Guid> AddAsync(ModuleFieldInfo objModuleFieldInfo);
+        Task BulkInsertAsync(IReadOnlyList<ModuleFieldInfo> fields);
 
         Task<string> GetFieldTypeAsync(Guid id);
         Task<ModuleFieldInfo> GetAsync(Guid id);
         Task<IReadOnlyList<ModuleFieldInfo>> GetsAsync(Guid moduleId, params string[] columns);
+        Task<IReadOnlyList<ModuleFieldInfo>> GetsByAncestorAsync(Guid scenarioId);
 
         Task<bool> UpdateAsync(ModuleFieldInfo objModuleFieldInfo, params string[] columns);
 

@@ -43,6 +43,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
             return await _sql.GetAsync<ModuleView>(id);
         }
 
+        public async Task<IReadOnlyList<ModuleInfo>> GetsAsync(Guid scenarioId, params string[] columns)
+        {
+            return await _sql.GetByScopeAsync<ModuleInfo>(scenarioId, columns);
+        }
+
         public async Task<IReadOnlyList<ModuleView>> GetsViewAsync(Guid scenarioId, params string[] columns)
         {
             return await _sql.GetByScopeAsync<ModuleView>(scenarioId, columns);
@@ -99,6 +104,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
                 {
                     SiteModuleId = siteModuleId,
                     ModuleId = id
+                });
+        }
+
+        public async Task<int> AddModuleToSitePage(int portalId, int userId, int pageId, string moduleDefName, string moduleTitle, string paneName)
+        {
+            return await _sql.ExecuteStoredProcedureAsync<int>(
+                "dbo.BusinessEngine_AddModuleToSitePage", "Be_Modules_App_LiteData",
+                new
+                {
+                    Portald = portalId,
+                    UserId = userId,
+                    PageId = pageId,
+                    ModuleDefName = moduleDefName,
+                    ModuleTitle = moduleTitle,
+                    PaneName = paneName
                 });
         }
 

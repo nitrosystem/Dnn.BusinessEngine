@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Procedures.Dashboard;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
 
 namespace NitroSystem.Dnn.BusinessEngine.Repository.Dashboard
 {
@@ -23,9 +24,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Dashboard
             return await _sql.InsertAsync<DashboardPageModuleInfo>(objDashboardPageModuleInfo);
         }
 
+        public async Task BulkInsertAsync(IReadOnlyList<DashboardPageModuleInfo> modules)
+        {
+            await _sql.BulkInsertAsync<DashboardPageModuleInfo>(modules);
+        }
+
         public async Task<DashboardPageModuleInfo> GetAsync(Guid id)
         {
             return await _sql.GetAsync<DashboardPageModuleInfo>(id);
+        }
+
+        public async Task<IReadOnlyList<DashboardPageModuleInfo>> GetsByAncestorAsync(Guid scenarioId)
+        {
+            return await _sql.GetChildsByParentColumnAsync<ModuleInfo, DashboardPageModuleInfo>
+             (
+                 "ScenarioId", "ModuleId", scenarioId
+             );
         }
 
         public async Task<IReadOnlyList<DashboardPageModuleView>> GetsViewAsync(Guid id)

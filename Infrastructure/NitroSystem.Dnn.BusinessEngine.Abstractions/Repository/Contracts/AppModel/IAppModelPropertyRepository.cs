@@ -8,7 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.AppMo
     public interface IAppModelPropertyRepository
     {
         Task<Guid> AddAsync(AppModelPropertyInfo objAppModelPropertyInfo);
-        Task BulkInsertAsync(IEnumerable<AppModelPropertyInfo> properties);
+        Task BulkInsertAsync(IReadOnlyList<AppModelPropertyInfo> properties);
 
         Task<AppModelPropertyInfo> GetAsync(Guid id);
         Task<IReadOnlyList<AppModelPropertyInfo>> GetsAsync(Guid appModelId, params string[] columns);

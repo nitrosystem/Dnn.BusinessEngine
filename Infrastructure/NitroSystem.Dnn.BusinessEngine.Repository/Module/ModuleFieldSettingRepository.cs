@@ -21,6 +21,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
             return await _sql.InsertAsync<ModuleFieldSettingInfo>(objModuleFieldSettingInfo);
         }
 
+        public async Task BulkInsertAsync(IReadOnlyList<ModuleFieldSettingInfo> fieldsSettings)
+        {
+            await _sql.BulkInsertAsync<ModuleFieldSettingInfo>(fieldsSettings);
+        }
+
         public async Task<ModuleFieldSettingInfo> GetAsync(Guid id)
         {
             return await _sql.GetAsync<ModuleFieldSettingInfo>(id);

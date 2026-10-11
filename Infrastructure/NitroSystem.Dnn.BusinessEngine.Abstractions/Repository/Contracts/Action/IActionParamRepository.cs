@@ -8,7 +8,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Actio
     public interface IActionParamRepository
     {
         Task<Guid> AddAsync(ActionParamInfo objActionParamInfo);
-        Task BulkInsertAsync(IEnumerable<ActionParamInfo> actionParams);
+        Task BulkInsertAsync(IReadOnlyList<ActionParamInfo> actionParams);
 
         Task<ActionParamInfo> GetAsync(Guid id);
         Task<IReadOnlyList<ActionParamInfo>> GetsByAncestorAsync(Guid moduleId, params string[] columns);

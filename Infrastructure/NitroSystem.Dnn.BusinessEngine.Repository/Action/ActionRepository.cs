@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Action;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Action;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Action;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Procedures.Action;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Action;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Action;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+
 
 namespace NitroSystem.Dnn.BusinessEngine.Repository.Action
 {
@@ -23,6 +25,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Action
         public async Task<Guid> AddAsync(ActionInfo objActionInfo)
         {
             return await _sql.InsertAsync<ActionInfo>(objActionInfo);
+        }
+
+        public async Task BulkInsertAsync(IReadOnlyList<ActionInfo> actions)
+        {
+            await _sql.BulkInsertAsync<ActionInfo>(actions);
         }
 
         public async Task<string> GetBusinessControllerClassAsync(string actionType)
@@ -59,6 +66,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Action
         public async Task<IReadOnlyList<ActionInfo>> GetsAsync(Guid moduleId, params string[] columns)
         {
             return await _sql.GetByScopeAsync<ActionInfo>(moduleId, columns);
+        }
+
+        public async Task<IReadOnlyList<ActionInfo>> GetsByAncestorAsync(Guid scenarioId)
+        {
+            return await _sql.GetChildsByParentColumnAsync<ModuleInfo, ActionInfo>
+             (
+                 "ScenarioId", "ModuleId", scenarioId
+             );
         }
 
         public async Task<IReadOnlyList<ActionView>> GetViewsAsync(Guid moduleId, Guid? fieldId, Guid? parentId, string eventName, int executeOrder)

@@ -1,23 +1,30 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+﻿using DotNetNuke.Data;
+using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Dashboard;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Dashboard;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Dashboard
 {
-    public class DashboardService : IDashboardService
+    public class DashboardService : IDashboardService, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IModuleService _moduleService;
@@ -268,6 +275,69 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Dashboard
                    dest.Pages = await PopulateDashboardPages(src.Id, lookup);
                }
             );
+        }
+
+        #endregion
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var module = await GetDashboarsdAndPagesAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = module,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            var items = JsonConvert.DeserializeObject<List<object>>(json);
+            var dashboards = JsonConvert.DeserializeObject<IReadOnlyList<DashboardInfo>>(items[0].ToString());
+            var dashboardsPages = JsonConvert.DeserializeObject<IReadOnlyList<DashboardPageInfo>>(items[1].ToString());
+            var dashboardsPagesModules = JsonConvert.DeserializeObject<IReadOnlyList<DashboardPageModuleInfo>>(items[2].ToString());
+
+            if (context.Scope == ImportExportScope.ScenarioFullComponents)
+            {
+                await BulkInsertDashboardsAndPagesAsync(dashboards, dashboardsPages, dashboardsPagesModules);
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetDashboarsdAndPagesAsync(Guid scenarioId)
+        {
+            var dashboards = await _dashboardRepository.GetsByAncestorAsync(scenarioId);
+            var dashboardsPages = new List<DashboardPageInfo>();
+            var dashboardsPagesModules = new List<DashboardPageModuleInfo>();
+
+            foreach (var dashboard in dashboards)
+            {
+                var pages = await _dashboardPageRepository.GetsAsync(dashboard.Id);
+                var pageModules = await _dashboardPageModuleRepository.GetsByAncestorAsync(dashboard.ModuleId);
+                dashboardsPages.AddRange(pages);
+                dashboardsPagesModules.AddRange(pageModules);
+            }
+
+            return new List<object>() { dashboards, dashboardsPages, dashboardsPagesModules };
+        }
+
+        private async Task BulkInsertDashboardsAndPagesAsync(IReadOnlyList<DashboardInfo> dashboards, IReadOnlyList<DashboardPageInfo> dashboardsPages, IReadOnlyList<DashboardPageModuleInfo> dashboardsPagesModules)
+        {
+            await _dashboardRepository.BulkInsertAsync(dashboards);
+            await _dashboardPageRepository.BulkInsertAsync(dashboardsPages);
+            await _dashboardPageModuleRepository.BulkInsertAsync(dashboardsPagesModules);
         }
 
         #endregion

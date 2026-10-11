@@ -23,6 +23,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.AppModel
             return await _sql.InsertAsync<AppModelInfo>(objAppModelInfo);
         }
 
+        public async Task BulkInsertAsync(IReadOnlyList<AppModelInfo> models)
+        {
+            await _sql.BulkInsertAsync<AppModelInfo>(models);
+        }
+
         public async Task<AppModelInfo> GetAsync(Guid id)
         {
             return await _sql.GetAsync<AppModelInfo>(id);

@@ -21,6 +21,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.DefinedList
             return await _sql.InsertAsync<DefinedListInfo>(objDefinedListInfo);
         }
 
+        public async Task BulkInsertAsync(IReadOnlyList<DefinedListInfo> lists)
+        {
+            await _sql.BulkInsertAsync<DefinedListInfo>(lists);
+        }
 
         public async Task<DefinedListInfo> GetAsync(string listName)
         {

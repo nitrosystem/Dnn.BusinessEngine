@@ -1,11 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
+﻿using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Service;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.DefinedList;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Service;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Service;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Repository.Service
 {
@@ -21,6 +22,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Service
         public async Task<Guid> AddAsync(ServiceInfo objServiceInfo)
         {
             return await _sql.InsertAsync<ServiceInfo>(objServiceInfo);
+        }
+
+        public async Task BulkInsertAsync(IReadOnlyList<ServiceInfo> services)
+        {
+            await _sql.BulkInsertAsync<ServiceInfo>(services);
         }
 
         public async Task<string> GetServiceTypeAsync(Guid id)

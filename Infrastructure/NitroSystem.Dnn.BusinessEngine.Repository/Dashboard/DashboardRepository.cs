@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Dashboard;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Dashboard;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Dashboard;
 
 namespace NitroSystem.Dnn.BusinessEngine.Repository.Dashboard
@@ -20,6 +21,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Dashboard
         public async Task<Guid> AddAsync(DashboardInfo objDashboardInfo)
         {
             return await _sql.InsertAsync<DashboardInfo>(objDashboardInfo);
+        }
+
+        public async Task BulkInsertAsync(IReadOnlyList<DashboardInfo> pages)
+        {
+            await _sql.BulkInsertAsync<DashboardInfo>(pages);
         }
 
         public async Task<Guid> GetIdByModuleIdAsync(Guid moduleId)
@@ -50,6 +56,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Dashboard
         public async Task<IReadOnlyList<DashboardInfo>> GetsAsync(params string[] columns)
         {
             return await _sql.GetAllAsync<DashboardInfo>(columns);
+        }
+
+        public async Task<IReadOnlyList<DashboardInfo>> GetsByAncestorAsync(Guid scenarioId)
+        {
+            return await _sql.GetChildsByParentColumnAsync<ModuleInfo, DashboardInfo>
+             (
+                 "ScenarioId", "ModuleId", scenarioId
+             );
         }
 
         public async Task<bool> UpdateAuthorizationViewDashboardAsync(DashboardInfo objDashboardInfo)

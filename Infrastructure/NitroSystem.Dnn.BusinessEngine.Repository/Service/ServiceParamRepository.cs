@@ -21,7 +21,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Service
             return await _sql.InsertAsync<ServiceParamInfo>(objServiceParamInfo);
         }
 
-        public async Task BulkInsertAsync(IEnumerable<ServiceParamInfo> serviceParams)
+        public async Task BulkInsertAsync(IReadOnlyList<ServiceParamInfo> serviceParams)
         {
             await _sql.BulkInsertAsync<ServiceParamInfo>(serviceParams);
         }

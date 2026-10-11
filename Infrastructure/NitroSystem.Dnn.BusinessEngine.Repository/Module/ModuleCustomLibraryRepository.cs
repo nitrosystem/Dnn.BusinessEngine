@@ -32,6 +32,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
             return await _sql.GetByScopeAsync<ModuleCustomLibraryInfo>(moduleId, columns);
         }
 
+        public async Task<IReadOnlyList<ModuleCustomLibraryInfo>> GetsByAncestorAsync(Guid scenarioId)
+        {
+            return await _sql.GetChildsByParentColumnAsync<ModuleInfo, ModuleCustomLibraryInfo>
+             (
+                 "ScenarioId", "ModuleId", scenarioId
+             );
+        }
+
         public async Task<IReadOnlyList<ModuleCustomLibraryView>> GetsViewAsync(Guid moduleId, params string[] columns)
         {
             return await _sql.GetByScopeAsync<ModuleCustomLibraryView>(moduleId, columns);
