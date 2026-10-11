@@ -1,27 +1,33 @@
-﻿using System;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
-using System.Linq;
-using System.Threading.Tasks;
-using DotNetNuke.Web.Api;
-using DotNetNuke.Security.Roles;
+﻿using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Entities.Host;
 using DotNetNuke.Entities.Portals;
-using DotNetNuke.Entities.Controllers;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using DotNetNuke.Entities.Tabs;
+using DotNetNuke.Security.Roles;
+using DotNetNuke.Web.Api;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Base;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Entity;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.AppModel;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Base;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.DefinedList;
-using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Entity;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Dto;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Core.WebApi;
+using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -711,6 +717,96 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             }
 
             return result;
+        }
+
+        #endregion
+
+        #region Import / Export
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> LoadExportedFile()
+        {
+            try
+            {
+                if (!Request.Content.IsMimeMultipartContent())
+                    return Request.CreateResponse(HttpStatusCode.InternalServerError, BadRequest("Invalid request format. Multipart content expected."));
+
+                // Create temp upload folder
+                var uploadPath = Path.Combine(PortalSettings.HomeSystemDirectoryMapPath, @"business-engine\temp\import\");
+                if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+                var streamProvider = new CustomMultipartFormDataStreamProviderChangeFileName(uploadPath);
+                await Request.Content.ReadAsMultipartAsync(streamProvider);
+
+                var filename = uploadPath + Path.GetFileName(streamProvider.FileData[0].LocalFileName);
+                var extractPath = uploadPath + Path.GetFileNameWithoutExtension(filename);
+                ZipUtil.Unzip(filename, extractPath);
+
+                var tabs = TabController.Instance.GetTabsByPortal(PortalSettings.PortalId)
+                .Values
+                .Where(t => !t.IsDeleted) // Exclude deleted pages
+                .OrderBy(t => t.TabOrder)
+                .Select(t => new { t.TabID, t.TabName })
+                .ToList();
+
+                var exportedFile = $@"{extractPath}\export.json";
+                var json = await FileUtil.GetFileContentAsync(exportedFile);
+
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    ExportedJson = json,
+                    ExportedFile = exportedFile,
+                    Pages = tabs,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> Export(ExportRequest postData)
+        {
+            try
+            {
+                var basePath = PortalSettings.HomeSystemDirectoryMapPath;
+                var baseRelativePath = PortalSettings.HomeSystemDirectory;
+
+                postData.Id = Guid.NewGuid();
+
+                var exportRunner = new ExportRunner(_serviceProvider, postData, basePath, baseRelativePath);
+                await exportRunner.Export();
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> Import(ImportRequest postData)
+        {
+            try
+            {
+                postData.Params.Add("BasePath", PortalSettings.HomeSystemDirectoryMapPath);
+                postData.Params.Add("CurrentPortalId", PortalSettings.PortalId);
+                postData.Params.Add("CurrentUserId", UserInfo.UserID);
+
+                var importRunner = new ImportRunner(_serviceProvider, postData);
+                await importRunner.Import();
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
         }
 
         #endregion
