@@ -493,3 +493,4 @@ $RECYCLE.BIN/
 node_modules/
 dist/
 /CopyAfterBuild.bat
+/AfterBuild.bat
