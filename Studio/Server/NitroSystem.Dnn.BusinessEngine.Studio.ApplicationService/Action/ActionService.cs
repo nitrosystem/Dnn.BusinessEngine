@@ -17,6 +17,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 
+
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Action
 {
     public class ActionService : IActionService, IExportable, IImportable
@@ -228,12 +229,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Action
             return new List<object>() { actions, actionsParams };
         }
 
-        private async Task BulkInsertActionsAndParamsAsync(IReadOnlyList<ActionInfo> actions, IReadOnlyList<ActionParamInfo> actionsParams)
-        {
-            await _actionRepository.BulkInsertAsync(actions);
-            await _actionParamRepository.BulkInsertAsync(actionsParams);
-        }
-
         private async Task AddActionsAndParamsAsync(Guid moduleId, IReadOnlyList<ActionInfo> actions, IReadOnlyList<ActionParamInfo> actinsParams, ImportContext context)
         {
             var dict = new Dictionary<Guid, Guid>();
@@ -260,6 +255,31 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Action
                 param.Id = Guid.NewGuid();
                 await _actionParamRepository.AddAsync(param);
             }
+        }
+
+        private async Task BulkInsertActionsAndParamsAsync(IReadOnlyList<ActionInfo> actions, IReadOnlyList<ActionParamInfo> actionsParams)
+        {
+            var inserted = new HashSet<Guid>();
+            var remaining = new List<ActionInfo>(actions);
+            while (remaining.Any())
+            {
+                var batch = remaining
+                    .Where(f => f.ParentId == null || inserted.Contains(f.ParentId.Value))
+                    .ToList();
+
+                if (!batch.Any())
+                    throw new InvalidOperationException(
+                        "Circular reference or missing parent detected in ActionInfo.");
+
+                await _actionRepository.BulkInsertAsync(batch);
+
+                foreach (var f in batch)
+                    inserted.Add(f.Id);
+
+                remaining.RemoveAll(f => inserted.Contains(f.Id));
+            }
+
+            await _actionParamRepository.BulkInsertAsync(actionsParams);
         }
 
         #endregion

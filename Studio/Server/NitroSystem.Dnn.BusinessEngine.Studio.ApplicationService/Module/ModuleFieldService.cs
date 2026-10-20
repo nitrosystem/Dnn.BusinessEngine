@@ -1,25 +1,26 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using DotNetNuke.Data;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Action;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.DefinedList;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Action;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Module;
-using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
-using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
+using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 {
@@ -34,6 +35,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
         private readonly IModuleFieldRepository _moduleFieldRepository;
         private readonly IModuleFieldDataSourceRepository _moduleFieldDataSourceRepository;
         private readonly IModuleFieldSettingRepository _moduleFieldSettingRepository;
+        private readonly IModuleClientBehaviorRepository _moduleClientBehaviorRepository;
         private readonly IActionRepository _actionRepository;
         private readonly IActionParamRepository _actionParamRepository;
         private readonly IDefinedListItemRepository _definedListItemRepository;
@@ -48,6 +50,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
             IModuleFieldRepository moduleFieldRepository,
             IModuleFieldDataSourceRepository moduleFieldDataSourceRepository,
             IModuleFieldSettingRepository moduleFieldSettingRepository,
+            IModuleClientBehaviorRepository moduleClientBehaviorRepository,
             IActionRepository actionRepository,
             IActionParamRepository actionParamRepository,
             IDefinedListItemRepository definedListItemRepository)
@@ -61,6 +64,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
             _moduleFieldRepository = moduleFieldRepository;
             _moduleFieldDataSourceRepository = moduleFieldDataSourceRepository;
             _moduleFieldSettingRepository = moduleFieldSettingRepository;
+            _moduleClientBehaviorRepository = moduleClientBehaviorRepository;
             _actionRepository = actionRepository;
             _actionParamRepository = actionParamRepository;
             _definedListItemRepository = definedListItemRepository;
@@ -177,16 +181,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
             var task3 = _moduleFieldSettingRepository.GetsByAncestorAsync(moduleId);
             var task4 = _actionRepository.GetsAsync(moduleId, "ParentId", "ExecuteOrder");
             var task5 = _actionParamRepository.GetsByAncestorAsync(moduleId, "ViewOrder");
-            var task6 = _moduleEventTypeRepository.GetsAsync();
+            var task6 = _moduleClientBehaviorRepository.GetsAsync(moduleId);
+            var task7 = _moduleEventTypeRepository.GetsAsync();
 
-            await Task.WhenAll(task1, task2, task3, task4, task5, task6);
+            await Task.WhenAll(task1, task2, task3, task4, task5, task6, task7);
 
             var fields = await task1;
             var fieldsDataSource = await task2;
             var fieldsSettings = await task3;
             var actions = await task4;
             var actionParams = await task5;
-            var events = await task6;
+            var clientBehaviors = await task6;
+            var events = await task7;
 
             var actionList = HybridMapper.MapWithChildren<ActionInfo, ActionListItem, ActionParamInfo, ActionParamListItem>(
                  parents: actions,
@@ -195,6 +201,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
                  childKeySelector: c => c.ActionId,
                  assignChildren: (parent, childs) => parent.Params = childs
              );
+
+            var clientBehaviorList = HybridMapper.MapCollection<ModuleClientBehaviorInfo, ModuleClientBehaviorViewModel>(clientBehaviors);
 
             return await HybridMapper.MapCollectionAsync<ModuleFieldInfo, ModuleFieldViewModel>(fields,
                 async (src, dest) =>
@@ -210,6 +218,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 
                     dest.CanHaveAction = events.Any(e => e.Component == src.FieldType);
                     dest.Actions = actionList.Where(a => a.FieldId == dest.Id).ToList();
+                    dest.ClientBehaviors = clientBehaviorList.Where(c => c.FieldId.HasValue && c.FieldId.Value == dest.Id).ToList();
                 }
             );
         }
@@ -316,13 +325,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
             await _moduleFieldRepository.SortFieldsAsync(data.ModuleId, data.PaneName, fieldIds);
         }
 
-        public async Task<bool> DeleteFieldAsync(Guid moduleId)
+        public async Task<bool> DeleteFieldAsync(Guid fieldId)
         {
             _unitOfWork.BeginTransaction();
 
             try
             {
-                await _moduleFieldRepository.DeleteAsync(moduleId);
+                await _moduleFieldRepository.DeleteAsync(fieldId);
                 _unitOfWork.Commit();
                 return true;
             }
@@ -331,6 +340,30 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
                 _unitOfWork.Rollback();
                 throw ex;
             }
+        }
+
+        #endregion
+
+        #region Module  Client Behaviors
+
+        public IEnumerable<ModuleClientBehaviorViewModel> GetFieldClientBehaviors(IEnumerable<ModuleClientBehaviorInfo> clientBehaviors)
+        {
+            return HybridMapper.MapCollection<ModuleClientBehaviorInfo, ModuleClientBehaviorViewModel>(clientBehaviors);
+        }
+
+        public async Task<Guid> SaveClientBehaviorAsync(ModuleClientBehaviorViewModel clientBehavior)
+        {
+            var objModuleClientBehaviorViewModel = HybridMapper.Map<ModuleClientBehaviorViewModel, ModuleClientBehaviorInfo>(clientBehavior);
+            if (objModuleClientBehaviorViewModel.Id == Guid.Empty)
+            {
+                objModuleClientBehaviorViewModel.Id = await _moduleClientBehaviorRepository.AddAsync(objModuleClientBehaviorViewModel);
+            }
+            else
+            {
+                await _moduleClientBehaviorRepository.UpdateAsync(objModuleClientBehaviorViewModel);
+            }
+
+            return objModuleClientBehaviorViewModel.Id;
         }
 
         #endregion
@@ -372,7 +405,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
             if (context.Scope == ImportExportScope.ScenarioFullComponents)
             {
                 await BulkInsertFieldsAndSettingsAsync(fields, fieldsDataSource, fieldsSettings);
-
             }
             else if (context.Scope == ImportExportScope.Module)
             {

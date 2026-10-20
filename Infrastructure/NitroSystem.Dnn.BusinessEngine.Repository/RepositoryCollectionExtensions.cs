@@ -58,6 +58,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository
             services.AddScoped<IModuleFieldSettingRepository, ModuleFieldSettingRepository>();
             services.AddScoped<IModuleCustomLibraryRepository, ModuleCustomLibraryRepository>();
             services.AddScoped<IModuleCustomResourceRepository, ModuleCustomResourceRepository>();
+            services.AddScoped<IModuleClientBehaviorRepository, ModuleClientBehaviorRepository>();
             services.AddScoped<IModuleEventTypeRepository, ModuleEventTypeRepository>();
             services.AddScoped<IActionTypeRepository, ActionTypeRepository>();
             services.AddScoped<IActionRepository, ActionRepository>();

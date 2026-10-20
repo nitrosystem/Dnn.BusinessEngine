@@ -21,5 +21,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.
         public EntityType EntityType { get; set; }
         public IDictionary<string, object> Settings { get; set; }
         public IEnumerable<EntityColumnViewModel> Columns { get; set; }
+        public IEnumerable<EntityRelationshipViewModel> Relationships { get; set; }
     }
 }

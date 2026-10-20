@@ -11,6 +11,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
     public interface IModuleVariableRepository
     {
         Task<Guid> AddAsync(ModuleVariableInfo objModuleVariableInfo);
+        Task BulkInsertAsync(IReadOnlyList<ModuleVariableInfo> variables);
 
         Task<string> GetVariableNameAsync(Guid id);
         Task<IReadOnlyList<ModuleVariableInfo>> GetsAsync(Guid moduleId, params string[] columns);

@@ -4,6 +4,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule
 {
     public class BuildModuleRequest
     {
+        public BuildModuleRequest(int userId, string basePath)
+        {
+            UserId = userId;
+            BasePath = basePath;
+        }
+
         public int UserId { get; set; }
         public string BasePath { get; set; }
         public ModuleDto Module { get; set; }

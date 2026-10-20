@@ -25,6 +25,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
            IReadOnlyList<ModuleResourceSpResult> Resources,
            IReadOnlyList<ModuleResourceSpResult> ExternalResources)>
            GetDataForBuildAsync(Guid id);
+        Task<IReadOnlyList<Guid>> GetModuleIdsAsync(Guid scenarioId);
+
         ModuleLiteSpResult GetLiteData(int? siteModuleId, Guid? id);
 
         Task<bool> UpdateAsync(ModuleInfo objModuleInfo, params string[] columns);

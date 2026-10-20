@@ -15,6 +15,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 
+
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 {
     public class ModuleLibraryAndResourceService : IModuleLibraryAndResourceService, IExportable, IImportable
@@ -164,17 +165,25 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 
         public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
         {
+            var items = JsonConvert.DeserializeObject<List<object>>(json);
+            var libraries = JsonConvert.DeserializeObject<IReadOnlyList<ModuleCustomLibraryInfo>>(items[0].ToString());
+            var resources = JsonConvert.DeserializeObject<IReadOnlyList<ModuleCustomResourceInfo>>(items[1].ToString());
+
             switch (context.Scope)
             {
+                case ImportExportScope.ScenarioFullComponents:
+                    await BulkInsertLibrariesAsync(libraries);
+                    await BulkInsertResourcesAsync(resources);
+
+                    return new ImportResponse()
+                    {
+                        IsSuccess = true
+                    };
                 case ImportExportScope.Module:
                     var moduleId = (Guid)context.DataTrack["ModuleId"];
-                    var items = JsonConvert.DeserializeObject<List<object>>(json);
 
-                    if (items[0] as IEnumerable<ModuleCustomLibraryInfo> != null)
-                        await AddLibrariesAsync(moduleId, (IReadOnlyList<ModuleCustomLibraryInfo>)items[0]);
-
-                    if (items[1] as IEnumerable<ModuleCustomResourceInfo> != null)
-                        await AddResourcesAsync(moduleId, (IReadOnlyList<ModuleCustomResourceInfo>)items[1]);
+                    await AddLibrariesAsync(moduleId, libraries);
+                    await AddResourcesAsync(moduleId, resources);
 
                     return new ImportResponse()
                     {
@@ -215,6 +224,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
                 resource.ModuleId = moduleId;
                 await _moduleCustomResourceRepository.AddAsync(resource);
             }
+        }
+
+        private async Task BulkInsertLibrariesAsync(IReadOnlyList<ModuleCustomLibraryInfo> libraries)
+        {
+            await _moduleCustomLibraryRepository.BulkInsertAsync(libraries);
+        }
+
+        private async Task BulkInsertResourcesAsync(IReadOnlyList<ModuleCustomResourceInfo> resources)
+        {
+            await _moduleCustomResourceRepository.BulkInsertAsync(resources);
         }
 
         #endregion

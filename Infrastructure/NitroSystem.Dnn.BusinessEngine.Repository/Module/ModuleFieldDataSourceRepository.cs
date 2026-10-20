@@ -63,7 +63,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
 
         public async Task<IReadOnlyList<Guid>> GetModuleListIdsAsync(Guid moduleId)
         {
-            return await _sql.ExecuteStoredProcedureAsListAsync<Guid>("dbo.BusinessEngine_GetModuleDefinedListIds", "BE_Modules_Fields_DataSource_ListIds_",
+            return await _sql.ExecuteStoredProcedureAsListAsync<Guid>("dbo.BusinessEngine_ImportExport_GetModuleDefinedListIds", "BE_Modules_Fields_DataSource_ListIds_",
                 new
                 {
                     ModuleId = moduleId,

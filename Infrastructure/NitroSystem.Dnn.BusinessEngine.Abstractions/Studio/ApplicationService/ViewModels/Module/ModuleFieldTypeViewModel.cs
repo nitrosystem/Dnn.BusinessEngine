@@ -23,6 +23,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.
         public string Icon { get; set; }
         public string Description { get; set; }
         public int ViewOrder { get; set; }
+        public IEnumerable<OptionInfo> ClientBehaviorEvents { get; set; }
         public IEnumerable<ModuleFieldTypeTemplateViewModel> Templates { get; set; }
         public IEnumerable<ModuleFieldTypeThemeViewModel> Themes { get; set; }
         public IDictionary<string, object> DefaultSettings { get; set; }

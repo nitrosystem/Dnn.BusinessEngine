@@ -23,9 +23,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.BackgroundJob
         public async Task RunAsync(JobContext context, CancellationToken token)
         {
             var moduleId = context.Get<Guid>("ModuleId");
-            var request = new BuildModuleRequest();
-            request.BasePath = context.Get<string>("BasePath");
-            request.UserId = context.Get<int>("UserId");
+            var userId = context.Get<int>("UserId");
+            var basePath = context.Get<string>("BasePath");
+            var request = new BuildModuleRequest(userId, basePath);
             request.Module = await _moduleService.GetDataForModuleBuildingAsync(moduleId);
             await _buildModuleRunner.RunAsync(request);
         }

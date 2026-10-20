@@ -14,9 +14,10 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.
         Task<string> GetModuleNameAsync(Guid moduleId);
         Task<string> GetModulePathAsync(Guid scenarioId, Guid moduleId, Guid? parentModuleId, string moduleName, string basePath);
         string GetModulePath(string scenarioName, string parentModuleName, string moduleName, string basePath);
-        Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId);
         Task<List<ModuleEventTypeListItem>> GetModuleEventTypesListItem(string fieldType = null);
         Task<ModuleViewModel> GetModuleViewModelAsync(Guid moduleId, string basePath);
+        Task<IEnumerable<ModuleViewModel>> GetModulesViewModelAsync(Guid scenarioId);
+        Task<IEnumerable<Guid>> GetModulesIdsAsync(Guid scenarioId);
 
         Task<Guid> CreateModuleAsync(ModuleViewModel module, int userId, string basePath);
 
@@ -37,10 +38,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.
 
         #region Build Module
 
-        Task<ModuleDto> GetDataForModuleBuildingAsync(Guid moduleId);
         Task<bool> IsRebuildRequiredAsync(Guid moduleId);
+        Task<ModuleDto> GetDataForModuleBuildingAsync(Guid moduleId);
+        Task BuildModuleAsync(Guid moduleId, int userId, string basePath);
         Task DeleteModuleResourcesAsync(Guid moduleId);
         Task BulkInsertModuleOutputResourcesAsync(int? sitePageId, IEnumerable<ModuleResourceDto> resources);
+
+        #endregion
+
+        #region Module Client Behaviors
+
+        Task<Guid> SaveClientBehaviorAsync(ModuleClientBehaviorViewModel clientBehavior);
+        Task<bool> DeleteClientBehaviorAsync(Guid eventId);
+
         #endregion
     }
 }

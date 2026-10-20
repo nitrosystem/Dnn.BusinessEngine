@@ -100,6 +100,31 @@ namespace NitroSystem.Dnn.BusinessEngine.ORM.Dapper.Sql
             ), cacheAttr.timeOut);
         }
 
+        public async Task<IReadOnlyList<TColumnType>> GetColumnValuesAsync<T, TColumnType>(string column, string filterColumn, object filterValue) where T : class, IEntity, new()
+        {
+            Type type = typeof(T);
+            var props = _types.GetOrAdd(type, t => t.GetProperties().Select(p => p.Name).ToHashSet(StringComparer.Ordinal));
+            if (!props.Contains(column))
+                throw new ArgumentException($"Invalid column name {column}.", nameof(column));
+            if (!props.Contains(filterColumn))
+                throw new ArgumentException($"Invalid column name {filterColumn}.", nameof(filterColumn));
+
+            var table = AttributeCache.Instance.GetTableName<T>();
+            var cacheAttr = AttributeCache.Instance.GetCache<T>();
+            var cacheKey = !string.IsNullOrEmpty(cacheAttr.key)
+                ? cacheAttr.key + $"_{column}_{filterColumn}_{filterValue}"
+                : string.Empty;
+
+            var query = $"SELECT {column} FROM {table} WHERE {filterColumn} = @Value";
+
+            return await _cacheService.GetOrCreateReadOnlyListAsync<TColumnType>(cacheKey, () =>
+             _unitOfWork.Connection.QueryAsync<TColumnType>(
+                query,
+                new { Value = filterValue },
+                _unitOfWork.Transaction
+            ), cacheAttr.timeOut);
+        }
+
         public async Task<IReadOnlyList<TColumnType>> GetColumnsValueAsync<T, TColumnType>(string column, string filterColumn, object filterValue) where T : class, IEntity, new()
         {
             Type type = typeof(T);
@@ -990,9 +1015,17 @@ namespace NitroSystem.Dnn.BusinessEngine.ORM.Dapper.Sql
         {
             string query = null;
             if (type == 0)
-                query = "SELECT name FROM sys.objects WHERE type = N'U' ORDER BY name"; // Tables
+                query = @"SELECT o.name 
+                            FROM sys.objects AS o
+                            INNER JOIN sys.schemas AS s ON s.schema_id = o.schema_id
+                            WHERE o.type = N'U'
+                            ORDER BY s.name, o.name;"; // Tables
             else if (type == 1)
-                query = "SELECT name FROM sys.objects WHERE type = N'V' ORDER BY name"; // Views
+                query = @"SELECT o.name
+                            FROM sys.views AS v
+                            INNER JOIN sys.schemas AS s ON s.schema_id = v.schema_id
+                            WHERE v.is_ms_shipped = 0
+                            ORDER BY s.name, v.name;"; // Views
 
             if (string.IsNullOrEmpty(query))
                 return new string[0];

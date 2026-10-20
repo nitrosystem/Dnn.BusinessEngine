@@ -1,0 +1,81 @@
+<b-right-widget ng-if="$.workingMode==='client-behavior'" data-module="$" data-title="Add/Edit Client Behavior"
+    data-icon="notebook-template" data-subtitle="Add or Edit dsl script for {{$.currentField.FieldName}}"
+    data-await-action="$.awaitAction" data-close-method="onCancelClientBehaviorClick" data-hide-refresh="true">
+    <!------------------------------------>
+    <!--Select Event-->
+    <!------------------------------------>
+    <div class="b-field">
+        <label class="form-label">Title</label>
+        <div class="b-input-group">
+            <input type="text" class="b-input form-control" ng-model="$.clientBehavior.Title"
+                placeholder="Enter event title" required />
+            <span><i class="codicon codicon-new-session"></i></span>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Select Event-->
+    <!------------------------------------>
+    <div class="b-field">
+        <label class="form-label">Select Event</label>
+        <div class="b-input-group">
+            <select class="b-input form-select" ng-model="$.clientBehavior.Event" chosen inherit-select-classes="true"
+                placeholder-text-single="'Select an event'" ng-disabled="$.running">
+                <option value=""></option>
+                <option ng-repeat="option in $.currentField.FieldTypeObject.ClientBehaviorEvents"
+                    ng-value="option.Value">{{option.Text}}</option>
+                <option value="OnActionCompleted">On Action Completed</option>
+            </select>
+            <span><i class="codicon codicon-list-selection"></i></span>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Select Action-->
+    <!------------------------------------>
+    <div class="b-field" ng-if="$.clientBehavior.Event==='OnActionCompleted'">
+        <label class="form-label">Select Action</label>
+        <div class="b-input-group">
+            <select class="b-input form-select" ng-model="$.clientBehavior.ActionId" chosen
+                inherit-select-classes="true" placeholder-text-single="'Select an action'" ng-disabled="$.running">
+                <option value=""></option>
+                <option ng-repeat="action in $.currentField.Actions | filter:{ParentId : null}" ng-value="action.Id">
+                    {{action.ActionName}}</option>
+            </select>
+            <span><i class="codicon codicon-list-selection"></i></span>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!--Script-->
+    <!------------------------------------>
+    <div class="b-field">
+        <label class="form-label">Script</label>
+        <div html-editor ng-model="$.clientBehavior.Script"
+            data-source="['fields','form','_b','variables','actionParams']" data-language="javascript"
+            data-height="320px" required>
+        </div>
+    </div>
+
+    <hr class="mb-4" />
+
+    <!------------------------------------>
+    <!-- Actions Button -->
+    <!------------------------------------>
+    <div class="d-flex">
+        <div class="d-flex justify-content-start">
+            <button type="button" class="b-btn btn-red-lite me-auto" ng-click="$.onDeleteClientBehaviorClick()"
+                ng-disabled="!$.clientBehavior.Id || $.running">
+                <i class="codicon codicon-trash"></i>
+            </button>
+        </div>
+        <div class="d-flex justify-content-end ms-auto">
+            <button type="button" class="b-btn btn-text-icon btn-submit me-2"
+                ng-click="$.onSaveClientBehaviorClick($event)" ng-disabled="$.running">
+                <i class="codicon codicon-save" ng-class="{'loading-circle mini':$.running==='save-action'}"></i>
+                Save
+            </button>
+            <button type="button" class="b-btn btn-text-icon btn-cancel" ng-click="$.onCancelClientBehaviorClick()"
+                ng-disabled="$.running">
+                <i class="codicon codicon-circle-slash"></i>
+                Cancel
+            </button>
+        </div>
+</b-right-widget>

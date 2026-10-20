@@ -3,8 +3,9 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Studio;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Studio.Services;
-
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Startup
 {
@@ -31,6 +32,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Startup
             services.AddScoped<CustomQueryService>();
 
             ServiceMappingProfile.Register();
+
+            services.AddTransient<IExportComponentProvider, ExportComponentProvider>();
+            services.AddTransient<IImportComponentProvider, ImportComponentProvider>();
         }
     }
 }

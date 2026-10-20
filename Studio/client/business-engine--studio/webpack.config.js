@@ -69,7 +69,7 @@ module.exports = (env) => {
                 ignoreOrder: true,
             }),
             new MonacoWebpackPlugin({
-                languages: ['html', 'css', 'sql']
+                languages: ['html', 'css', 'js', 'typescript', 'sql']
             }),
             new webpack.ProvidePlugin({
                 $: 'jquery',

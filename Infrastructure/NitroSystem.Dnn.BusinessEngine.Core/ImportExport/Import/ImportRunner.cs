@@ -27,7 +27,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import
             _request = request;
         }
 
-        public async Task Import()
+        public async Task<ImportContext> Import()
         {
             var json = await FileUtil.GetFileContentAsync(_request.ExportedFile);
             var exportedItems = JsonConvert.DeserializeObject<ImportableModel>(json);
@@ -50,6 +50,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import
             }
 
             await worker.ImportAsync(_unitOfWork, exportedItems.Items, context);
+
+            return context;
         }
 
         #region Events

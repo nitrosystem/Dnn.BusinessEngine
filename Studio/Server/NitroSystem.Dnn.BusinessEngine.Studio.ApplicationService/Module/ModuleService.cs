@@ -1,6 +1,6 @@
-﻿using DotNetNuke.Data;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Template;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Procedures.Module;
@@ -9,6 +9,8 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Modu
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Models;
 using NitroSystem.Dnn.BusinessEngine.Core.BackgroundJob;
@@ -16,6 +18,7 @@ using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
+using NitroSystem.Dnn.BusinessEngine.Core.UnitOfWork;
 using NitroSystem.Dnn.BusinessEngine.Shared.Helpers;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
@@ -25,7 +28,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 {
     public class ModuleService : IModuleService, IExportable, IImportable
@@ -34,7 +36,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
         private readonly IModuleRepository _moduleRepository;
         private readonly IModuleEventTypeRepository _moduleEventTypeRepository;
         private readonly IModuleOutputResourceRepository _moduleOutputResourceRepository;
+        private readonly IModuleClientBehaviorRepository _moduleClientBehaviorRepository;
         private readonly ITemplateRepository _templateRepository;
+        private readonly ICacheService _cacheService;
+
+        private readonly IBuildModuleRunner _buildModuleRunner;
         private readonly BackgroundJobWorker _backgroundJobWorker;
 
         public ModuleService(
@@ -42,16 +48,21 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
             IModuleRepository moduleRepository,
             IModuleEventTypeRepository moduleEventTypeRepository,
             IModuleOutputResourceRepository moduleOutputResourceRepository,
+            IModuleClientBehaviorRepository moduleClientBehaviorRepository,
             ITemplateRepository templateRepository,
+            ICacheService cacheService,
+            IBuildModuleRunner buildModuleRunner,
             BackgroundJobWorker backgroundJobWorker)
         {
             _baseService = baseService;
             _moduleRepository = moduleRepository;
             _moduleEventTypeRepository = moduleEventTypeRepository;
             _moduleOutputResourceRepository = moduleOutputResourceRepository;
+            _moduleClientBehaviorRepository = moduleClientBehaviorRepository;
             _templateRepository = templateRepository;
+            _cacheService = cacheService;
+            _buildModuleRunner = buildModuleRunner;
             _backgroundJobWorker = backgroundJobWorker;
-
         }
 
         #region Module 
@@ -82,6 +93,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
             return HybridMapper.MapCollection<ModuleView, ModuleViewModel>(modules);
         }
 
+        public async Task<IEnumerable<Guid>> GetModulesIdsAsync(Guid scenarioId)
+        {
+            return await _moduleRepository.GetModuleIdsAsync(scenarioId);
+        }
+
         public async Task<string> GetModulePathAsync(
            Guid scenarioId,
            Guid moduleId,
@@ -103,7 +119,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
                 ? StringHelper.ToKebabCase(parentModuleName) + @"\"
                 : string.Empty;
             var moduleFolder = StringHelper.ToKebabCase(moduleName);
-            return $@"{basePath}\business-engine\{scenarioFolder}\{parentFolder}{moduleFolder}\";
+            return $@"{basePath}\{scenarioFolder}\{parentFolder}{moduleFolder}\";
         }
 
         public async Task<Guid> CreateModuleAsync(ModuleViewModel module, int userId, string basePath)
@@ -165,6 +181,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 
         #region Building Module
 
+        public async Task<bool> IsRebuildRequiredAsync(Guid moduleId)
+        {
+            return await _moduleRepository.IsRebuildRequiredAsync(moduleId);
+        }
+
         public async Task<ModuleDto> GetDataForModuleBuildingAsync(Guid moduleId)
         {
             var module = await _moduleRepository.GetViewAsync(moduleId);
@@ -221,9 +242,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
             return result;
         }
 
-        public async Task<bool> IsRebuildRequiredAsync(Guid moduleId)
+        public async Task BuildModuleAsync(Guid moduleId, int userId, string basePath)
         {
-            return await _moduleRepository.IsRebuildRequiredAsync(moduleId);
+            var request = new BuildModuleRequest(userId, basePath);
+            request.Module = await GetDataForModuleBuildingAsync(moduleId);
+            var response = await _buildModuleRunner.RunAsync(request);
+            if (response.IsSuccess)
+            {
+                await BulkInsertModuleOutputResourcesAsync(request.Module.SitePageId, response.FinalizedResources);
+                _cacheService.RemoveByPrefix("BE_Modules_");
+            }
         }
 
         public async Task DeleteModuleResourcesAsync(Guid moduleId)
@@ -287,30 +315,68 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 
         #endregion
 
+        #region Module Client Behaviors
+
+        public async Task<Guid> SaveClientBehaviorAsync(ModuleClientBehaviorViewModel clientBehavior)
+        {
+            var objModuleClientBehaviorViewModel = HybridMapper.Map<ModuleClientBehaviorViewModel, ModuleClientBehaviorInfo>(clientBehavior);
+            if (objModuleClientBehaviorViewModel.Id == Guid.Empty)
+            {
+                objModuleClientBehaviorViewModel.Id = await _moduleClientBehaviorRepository.AddAsync(objModuleClientBehaviorViewModel);
+            }
+            else
+            {
+                await _moduleClientBehaviorRepository.UpdateAsync(objModuleClientBehaviorViewModel);
+            }
+
+            return objModuleClientBehaviorViewModel.Id;
+        }
+
+        public async Task<bool> DeleteClientBehaviorAsync(Guid eventId)
+        {
+            return await _moduleClientBehaviorRepository.DeleteAsync(eventId);
+        }
+
+        #endregion
+
         #region Import Export
 
         public async Task<ExportResponse> ExportAsync(ExportContext context)
         {
-            Guid scenarioId;
+            var scenarioId = context.Get<Guid>("ScenarioId");
+            var basePath = context.Get<string>("BasePath");
             switch (context.Scope)
             {
                 case ImportExportScope.ScenarioFullComponents:
-                    scenarioId = context.Get<Guid>("ScenarioId");
-                    var modules = await _moduleRepository.GetAsync(scenarioId);
+                    var result = new List<object>();
+                    var modules = await _moduleRepository.GetsAsync(scenarioId, "ParentId");
+                    foreach (var module in modules)
+                    {
+                        var modulePath = await GetModulePathAsync(module.ScenarioId, module.Id, module.ParentId, module.ModuleName, basePath);
+                        var preloaderTemplate = await FileUtil.GetFileContentAsync($@"{modulePath}\_preloader.html");
+                        var layoutTemplate = await FileUtil.GetFileContentAsync($@"{modulePath}\_layout.html");
+                        var layoutCss = await FileUtil.GetFileContentAsync($@"{modulePath}\_layout.css");
+                        result.Add(new
+                        {
+                            Module = module,
+                            Path = modulePath.Replace(basePath, ""),
+                            LayoutTemplate = layoutTemplate,
+                            LayoutCss = layoutCss,
+                            PreloaderTemplate = preloaderTemplate
+                        });
+                    }
 
                     return new ExportResponse()
                     {
-                        Result = modules,
+                        Result = result,
                         IsSuccess = true
                     };
                 case ImportExportScope.Module:
-                    scenarioId = context.Get<Guid>("ScenarioId");
                     var moduleId = context.Get<Guid>("ModuleId");
-                    var module = await _moduleRepository.GetAsync(moduleId);
-
+                    var exportedModule = await _moduleRepository.GetAsync(moduleId);
                     return new ExportResponse()
                     {
-                        Result = module,
+                        Result = exportedModule,
                         IsSuccess = true
                     };
                 default:
@@ -323,25 +389,35 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
             switch (context.Scope)
             {
                 case ImportExportScope.ScenarioFullComponents:
-                    var modules = JsonConvert.DeserializeObject<IReadOnlyList<ModuleInfo>>(json);
+                    var items = JsonConvert.DeserializeObject<List<object>>(json);
+                    var basePath = context.Get<string>("BasePath");
 
                     context.TryGet<JObject>("ModulesNewPages", out var newPages);
 
-                    foreach (var mod in modules.OrderBy(m => m.ParentId))
+                    foreach (var item in items)
                     {
-                        if (mod.SiteModuleId.HasValue)
+                        var jtoken = JsonConvert.DeserializeObject<JToken>(item.ToString());
+                        var moduleToken = jtoken["Module"].Value<JObject>();
+                        var module = moduleToken.ToObject<ModuleInfo>();
+                        if (module.SiteModuleId.HasValue)
                         {
                             var portalId = context.Get<int>("CurrentPortalId");
                             var userId = context.Get<int>("CurrentUserId");
-                            var newTabId = newPages[mod.Id.ToString()].Value<int>();
-                            var moduleDefName = mod.ModuleType == 0
+                            var newTabId = newPages[module.Id.ToString()].Value<int>();
+                            var moduleDefName = module.ModuleType == 0
                                 ? "BusinessEngine.Dashboard"
                                 : "BusinessEngine.Module";
 
-                            mod.SiteModuleId = await AddModuleToSitePage(portalId, userId, newTabId, moduleDefName, mod.ModuleTitle);
+                            module.SiteModuleId = await AddModuleToSitePage(portalId, userId, newTabId, moduleDefName, module.ModuleTitle);
                         }
 
-                        await SaveModuleAsync(mod);
+                        await SaveModuleAsync(module);
+
+                        var modulePath = jtoken["Path"].Value<string>();
+                        var layoutTemplate = jtoken["LayoutTemplate"].Value<string>();
+                        var layoutCss = jtoken["LayoutCss"].Value<string>();
+                        var preloaderTemplate = jtoken["PreloaderTemplate"].Value<string>();
+                        await WriteImportedModuleTemplates(basePath, modulePath, layoutTemplate, layoutCss, preloaderTemplate);
                     }
 
                     return new ImportResponse()
@@ -349,9 +425,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
                         IsSuccess = true
                     };
                 case ImportExportScope.Module:
-                    var module = JsonConvert.DeserializeObject<ModuleInfo>(json);
-                    var oldScenarioId = module.ScenarioId;
-
+                    var newModule = JsonConvert.DeserializeObject<ModuleInfo>(json);
+                    var oldScenarioId = newModule.ScenarioId;
                     var scenarioId = context.Get<Guid>("ScenarioId");
                     var moduleName = context.Get<string>("ModuleName");
                     var moduleTitle = context.Get<string>("ModuleTitle");
@@ -361,13 +436,13 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
                     context.TryGet<int?>("SiteModuleId", out var siteModuleId);
                     context.TryGet<bool?>("DeleteModuleBeforeImport", out var deleteModule);
 
-                    module.ScenarioId = scenarioId;
-                    module.ModuleName = moduleName;
-                    module.ModuleTitle = moduleTitle;
-                    module.ParentId = parentId;
-                    module.SiteModuleId = siteModuleId;
+                    newModule.ScenarioId = scenarioId;
+                    newModule.ModuleName = moduleName;
+                    newModule.ModuleTitle = moduleTitle;
+                    newModule.ParentId = parentId;
+                    newModule.SiteModuleId = siteModuleId;
 
-                    var id = await SaveModuleAsync(module, moduleId, deleteModule);
+                    var id = await SaveModuleAsync(newModule, moduleId, deleteModule);
 
                     context.DataTrack.Add("ScenarioId", scenarioId);
                     context.DataTrack.Add("ModuleId", id);
@@ -408,6 +483,15 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
         private async Task SaveModuleAsync(ModuleInfo module)
         {
             await _moduleRepository.AddAsync(module);
+        }
+
+        private async Task WriteImportedModuleTemplates(string basePath, string modulePath, string layoutTemplate, string layoutCss, string preloaderTemplate)
+        {
+            modulePath = basePath + modulePath;
+            await FileUtil.WriteFileContentAsync(modulePath + "_layout.html", layoutTemplate);
+            await FileUtil.WriteFileContentAsync(modulePath + "_layout.css", layoutCss);
+            if (!string.IsNullOrWhiteSpace(preloaderTemplate))
+                await FileUtil.WriteFileContentAsync(modulePath + "_preloader.html", preloaderTemplate);
         }
 
         #endregion

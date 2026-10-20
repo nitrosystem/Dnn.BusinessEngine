@@ -7,7 +7,7 @@
                 <!------------------------------------>
                 <!--Entity Columns Table-->
                 <!------------------------------------>
-                <div class="entity-columns">
+                <div class="entity-columns mb-4">
                     <div class="b-table theme-gray cursor-default">
                         <div class="table-header p-4">
                             <div class="header-label">
@@ -154,6 +154,215 @@
                     </div>
                 </div>
                 <!------------------------------------>
+                <!--Entity Relationships-->
+                <!------------------------------------>
+                <div class="b-group mb-4">
+                    <div class="group-header collapsed" data-bs-toggle="collapse"
+                        data-bs-target="#grpEntityRelationships">
+                        <h3 class="group-label">
+                            <span class="group-icon">
+                                <i class="codicon codicon-references"></i>
+                            </span> Entity Relationships
+                        </h3>
+                        <span class="group-collapse">
+                            <i class="codicon codicon-chevron-up"></i>
+                        </span>
+                    </div>
+                    <div id="grpEntityRelationships" class="group-content collapse">
+                        <div class="mb-3" ng-repeat="relationship in $.entity.Relationships">
+                            <div class="d-flex">
+                                <div class="col-7 border-end b-splitter pe-3">
+                                    <div class="d-flex mb-3 gap-1">
+                                        <!------------------------------------>
+                                        <!--Parent Table-->
+                                        <!------------------------------------>
+                                        <div class="col-6">
+                                            <div class="b-field mb-0">
+                                                <label class="form-label">Parent Table</label>
+                                                <div class="b-input-group">
+                                                    <select ng-model="relationship.ParentTableName" class="b-input"
+                                                        ng-options="table for table in $.dbTables" chosen
+                                                        inherit-select-classes="true"
+                                                        placeholder-text-single="'Select parent table'"
+                                                        ng-change="$.onParentEntityChange(relationship)"
+                                                        ng-disabled="$.running || $.entity.IsReadonly" required>
+                                                        <option disabled value=""></option>
+                                                    </select>
+                                                    <span><i class="codicon codicon-table"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!------------------------------------>
+                                        <!--Foreign Table-->
+                                        <!------------------------------------>
+                                        <div class="col-6">
+                                            <div class="b-field mb-0">
+                                                <label class="form-label">Foreign Table</label>
+                                                <div class="b-input-group">
+                                                    <input type="button" class="b-input text-start" readonly
+                                                        value="{{$.entity.TableName}}"
+                                                        ng-disabled="$.running || $.entity.IsReadonly" />
+                                                    <span><i class="codicon codicon-table"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-end gap-1 mb-3">
+                                        <!------------------------------------>
+                                        <!--Primary Keys-->
+                                        <!------------------------------------>
+                                        <div class="col-6">
+                                            <div class="b-field mb-0" ng-if="relationship.PrimaryKeys.length">
+                                                <label class="form-label">Primary Key(s)</label>
+                                            </div>
+                                            <div class="b-field mt-1 mb-0"
+                                                ng-repeat="column in relationship.PrimaryKeys track by $index">
+                                                <div class="b-input-group">
+                                                    <select class="b-input form-select"
+                                                        ng-model="relationship.PrimaryKeys[$index]"
+                                                        ng-options="col.ColumnName as col.ColumnName for col in $.selectedTableColumns"
+                                                        chosen inherit-select-classes="true"
+                                                        placeholder-text-single="'Select primary field'"
+                                                        ng-disabled="$.running || $.entity.IsReadonly">
+                                                        <option value=""></option>
+                                                    </select>
+                                                    <span><i class="codicon codicon-table"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!------------------------------------>
+                                        <!--Foreign Keys-->
+                                        <!------------------------------------>
+                                        <div class="col-5">
+                                            <div class="b-field mb-0" ng-if="relationship.ForeignKeys.length">
+                                                <label class="form-label">Foreign Key(s)</label>
+                                            </div>
+                                            <div class="b-field mt-1 mb-0"
+                                                ng-repeat="column in relationship.ForeignKeys track by $index">
+                                                <div class="b-input-group">
+                                                    <select class="b-input form-select"
+                                                        ng-model="relationship.ForeignKeys[$index]"
+                                                        ng-options="col.ColumnName as col.ColumnName for col in $.entity.Columns"
+                                                        chosen inherit-select-classes="true"
+                                                        placeholder-text-single="'Select foreign field'"
+                                                        ng-disabled="$.running || $.entity.IsReadonly">
+                                                        <option value=""></option>
+                                                    </select>
+                                                    <span><i class="codicon codicon-table"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!------------------------------------>
+                                        <!--Remove Key-->
+                                        <!------------------------------------>
+                                        <div class="col-1">
+                                            <div class="b-field mt-1 mb-0"
+                                                ng-if="relationship.PrimaryKeys.length || relationship.ForeignKeys.length"
+                                                ng-repeat="item in relationship.PrimaryKeys track by $index">
+                                                <button type="button" class="b-btn btn-cancel p-2"
+                                                    ng-click="$.onRemoveRelationshipColumnClick(relationship,$index)"
+                                                    ng-disabled="$.running || $.entity.IsReadonly">
+                                                    <i class="codicon codicon-trash me-0"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!------------------------------------>
+                                    <!--Add Key-->
+                                    <!------------------------------------>
+                                    <button type="button" class="b-btn btn-sm btn-action"
+                                        ng-if="relationship.PrimaryKeys.length"
+                                        ng-click="$.onAddRelationshipColumnClick(relationship)"
+                                        ng-disabled="$.running || $.entity.IsReadonly">
+                                        <i class="codicon codicon-plus"></i>
+                                    </button>
+                                </div>
+                                <!------------------------------------>
+                                <!--Relationship Options-->
+                                <!------------------------------------>
+                                <div class="col ps-3">
+                                    <div class="b-field">
+                                        <label class="form-label d-block">Enforce For Replication</label>
+                                        <label class="b-switch">
+                                            <input type="checkbox" ng-model="relationship.EnforceForReplication"
+                                                ng-disabled="$.running || $.entity.IsReadonly">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="b-field">
+                                        <label class="form-label d-block">Enforce Foreign Key Constraint</label>
+                                        <label class="b-switch">
+                                            <input type="checkbox" ng-model="relationship.EnforceForeignKeyConstraint"
+                                                ng-disabled="$.running || $.entity.IsReadonly">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="b-field">
+                                        <label class="form-label d-block">DELETE Specification</label>
+                                        <div class="b-input-group">
+                                            <select ng-model="relationship.DELETESpecification"
+                                                class="b-input form-select" chosen inherit-select-classes="true"
+                                                placeholder-text-single="'Delete rule'"
+                                                ng-disabled="$.running || $.entity.IsReadonly">
+                                                <option value=""></option>
+                                                <option value="NO_ACTION">No Action</option>
+                                                <option value="CASCADE">Cascade</option>
+                                                <option value="SET_NULL">Set Null</option>
+                                                <option value="SET_DEFAULT">Set Default</option>
+                                            </select>
+                                            <span><i class="codicon codicon-table"></i></span>
+                                        </div>
+                                    </div>
+                                    <div class="b-field">
+                                        <label class="form-label d-block">UPDATE Specification</label>
+                                        <div class="b-input-group">
+                                            <select ng-model="relationship.UPDATESpecification"
+                                                class="b-input form-select" chosen inherit-select-classes="true"
+                                                placeholder-text-single="'Update rule'"
+                                                ng-disabled="$.running || $.entity.IsReadonly">
+                                                <option value=""></option>
+                                                <option value="NO_ACTION">No Action</option>
+                                                <option value="CASCADE">Cascade</option>
+                                                <option value="SET_NULL">Set Null</option>
+                                                <option value="SET_DEFAULT">Set Default</option>
+                                            </select>
+                                            <span><i class="codicon codicon-table"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!------------------------------------>
+                            <!--Relationship Name-->
+                            <!------------------------------------>
+                            <div class="b-field">
+                                <label class="form-label">Relationship Name</label>
+                                <div class="b-input-group">
+                                    <input type="text" ng-model="relationship.RelationshipName" class="b-input"
+                                        placeholder="Enter relationship name" autocomplete="off" required
+                                        ng-disabled="!relationship.isNew || $.entity.IsReadonly" />
+                                    <span><i class="codicon codicon-account"></i></span>
+                                </div>
+                            </div>
+                            <!------------------------------------>
+                            <!--Remove Relationship-->
+                            <!------------------------------------>
+                            <button type="button" class="b-btn btn-cancel d-flex ms-auto" ng-if="!$.entity.IsReadonly"
+                                ng-click="$.entity.Relationships.splice($index,1)" ng-disabled="$.running">
+                                <i class="codicon codicon-trash me-0"></i>
+                            </button>
+                            <hr />
+                        </div>
+                        <!------------------------------------>
+                        <!--Add Relationship-->
+                        <!------------------------------------>
+                        <button type="button" class="b-btn btn-text-icon btn-action ms-auto"
+                            ng-if="!$.entity.IsReadonly" ng-click="$.onAddRelationshipClick()" ng-disabled="$.running">
+                            <i class="codicon codicon-plus"></i>
+                            Add Relationship
+                        </button>
+                    </div>
+                </div>
+                <!------------------------------------>
                 <!-- More Info -->
                 <!------------------------------------>
                 <div class="more-info">
@@ -169,8 +378,8 @@
                 <!-- Buttons -->
                 <!------------------------------------>
                 <div class="d-flex justify-content-end">
-                    <button type="button" class="b-btn btn-red-lite me-auto"
-                        ng-click="$.onDeleteEntityClick()" ng-disabled="$.running">
+                    <button type="button" class="b-btn btn-red-lite me-auto" ng-click="$.onDeleteEntityClick()"
+                        ng-disabled="$.running">
                         <i class="codicon codicon-trash"></i>
                     </button>
                     <button type="button" class="b-btn btn-text-icon btn-submit me-2" ng-click="$.onSaveEntityClick()"

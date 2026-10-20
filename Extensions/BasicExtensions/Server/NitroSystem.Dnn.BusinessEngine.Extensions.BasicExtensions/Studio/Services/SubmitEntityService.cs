@@ -1,22 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Newtonsoft.Json;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Service;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Service;
-using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.DatabaseEntities.Tables;
-using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Studio.ViewModels;
 using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Studio.Enums;
+using NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Studio.ViewModels;
+using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Studio.Services
 {
-    public class SubmitEntityService : IExtensionServiceFactory
+    public class SubmitEntityService : IExtensionServiceFactory, IExportable, IImportable
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISql _sql;
@@ -152,5 +156,81 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.BasicExtensions.Studio.Servi
 
             return objSubmitEntityServiceInfo.Id;
         }
+
+        #region Import Export
+
+        public async Task<ExportResponse> ExportAsync(ExportContext context)
+        {
+            switch (context.Scope)
+            {
+                case ImportExportScope.ScenarioFullComponents:
+                    var items = await GetServicesAsync(context.Get<Guid>("ScenarioId"));
+
+                    return new ExportResponse()
+                    {
+                        Result = items,
+                        IsSuccess = true
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
+        {
+            var items = JsonConvert.DeserializeObject<List<object>>(json);
+            var services = JsonConvert.DeserializeObject<IEnumerable<SubmitEntityServiceInfo>>(items[0].ToString());
+            var spScripts = JsonConvert.DeserializeObject<List<string>>(items[1].ToString());
+
+            if (context.Scope == ImportExportScope.ScenarioFullComponents)
+            {
+                await BulkInsertServicesAndParamsAsync(services);
+
+                foreach (var spScript in spScripts)
+                {
+                    await _sql.ExecuteSqlCommandTextAsync(context.UnitOfWork, spScript);
+                }
+            }
+
+            return new ImportResponse()
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task<object> GetServicesAsync(Guid scenarioId)
+        {
+            var submitEntityServices = new List<SubmitEntityServiceInfo>();
+            var spScripts = new List<string>();
+
+            var services = await _sql.GetItemsByColumnsAsync<ServiceInfo>(
+                new string[2] { "ScenarioId", "ServiceType" },
+                new
+                {
+                    ScenarioId = scenarioId,
+                    ServiceType = "SubmitEntity"
+                }
+            );
+
+            foreach (var service in services)
+            {
+                var submitEntityService = await _sql.GetByColumnAsync<SubmitEntityServiceInfo>("ServiceId", service.Id);
+                if (submitEntityService != null)
+                {
+                    submitEntityServices.Add(submitEntityService);
+
+                    spScripts.Add(await _sql.GetStoredProcedureScriptAsync(submitEntityService.StoredProcedureName));
+                }
+            }
+
+            return new List<object>() { submitEntityServices, spScripts };
+        }
+
+        private async Task BulkInsertServicesAndParamsAsync(IEnumerable<SubmitEntityServiceInfo> services)
+        {
+            await _sql.BulkInsertAsync<SubmitEntityServiceInfo>(services);
+        }
+
+        #endregion
     }
 }

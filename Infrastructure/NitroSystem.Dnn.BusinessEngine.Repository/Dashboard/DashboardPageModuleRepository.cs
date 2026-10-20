@@ -34,6 +34,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Dashboard
             return await _sql.GetAsync<DashboardPageModuleInfo>(id);
         }
 
+        public async Task<IReadOnlyList<DashboardPageModuleInfo>> GetsAsync(Guid pageId)
+        {
+            return await _sql.GetByScopeAsync<DashboardPageModuleInfo>(pageId);
+        }
+
         public async Task<IReadOnlyList<DashboardPageModuleInfo>> GetsByAncestorAsync(Guid scenarioId)
         {
             return await _sql.GetChildsByParentColumnAsync<ModuleInfo, DashboardPageModuleInfo>
@@ -42,9 +47,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Dashboard
              );
         }
 
-        public async Task<IReadOnlyList<DashboardPageModuleView>> GetsViewAsync(Guid id)
+        public async Task<IReadOnlyList<DashboardPageModuleView>> GetsViewAsync(Guid pageId)
         {
-            return await _sql.GetByScopeAsync<DashboardPageModuleView>(id);
+            return await _sql.GetByScopeAsync<DashboardPageModuleView>(pageId);
         }
 
         public async Task<bool> UpdateAsync(DashboardPageModuleInfo objDashboardPageModuleInfo, params string[] columns)

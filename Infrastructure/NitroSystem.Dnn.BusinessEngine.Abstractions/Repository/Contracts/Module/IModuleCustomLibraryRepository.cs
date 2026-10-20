@@ -9,6 +9,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Modul
     public interface IModuleCustomLibraryRepository
     {
         Task<Guid> AddAsync(ModuleCustomLibraryInfo objModuleCustomLibraryInfo);
+        Task BulkInsertAsync(IReadOnlyList<ModuleCustomLibraryInfo> libraries);
 
         Task<ModuleCustomLibraryInfo> GetAsync(Guid id);
         Task<IReadOnlyList<ModuleCustomLibraryInfo>> GetsAsync(Guid moduleId, params string[] columns);

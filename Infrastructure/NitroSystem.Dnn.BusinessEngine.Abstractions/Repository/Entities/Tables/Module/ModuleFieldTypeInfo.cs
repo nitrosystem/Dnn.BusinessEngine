@@ -22,6 +22,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables
         public bool HasDataSource { get; set; }
         public bool IsContentField { get; set; }
         public string DefaultSettings { get; set; }
+        public string ClientBehaviorEvents { get; set; }
         public string GeneratePanesBusinessControllerClass { get; set; }
         public bool IsPopular { get; set; }
         public string Icon { get; set; }

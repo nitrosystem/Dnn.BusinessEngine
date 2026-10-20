@@ -1,4 +1,7 @@
-﻿using DotNetNuke.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Dashboard;
@@ -16,11 +19,6 @@ using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Dashboard
 {
@@ -267,9 +265,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Dashboard
                {
                    if (dest.PageType == DashboardPageType.Standard && dest.IncludeModule)
                    {
-                       var module = (await _dashboardPageModuleRepository.GetsViewAsync(src.Id))?.First();
-                       if (module != null)
-                           dest.Module = HybridMapper.Map<DashboardPageModuleView, DashboardPageModuleViewModel>(module);
+                       var modules = await _dashboardPageModuleRepository.GetsViewAsync(src.Id);
+                       if (modules != null && modules.Any())
+                           dest.Module = HybridMapper.Map<DashboardPageModuleView, DashboardPageModuleViewModel>(modules.First());
                    }
 
                    dest.Pages = await PopulateDashboardPages(src.Id, lookup);
@@ -286,7 +284,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Dashboard
             switch (context.Scope)
             {
                 case ImportExportScope.ScenarioFullComponents:
-                    var module = await GetDashboarsdAndPagesAsync(context.Get<Guid>("ScenarioId"));
+                    var module = await GetDashboarsdAndPagesAndModulesAsync(context.Get<Guid>("ScenarioId"));
 
                     return new ExportResponse()
                     {
@@ -307,7 +305,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Dashboard
 
             if (context.Scope == ImportExportScope.ScenarioFullComponents)
             {
-                await BulkInsertDashboardsAndPagesAsync(dashboards, dashboardsPages, dashboardsPagesModules);
+                await BulkInsertDashboardsAndPagesAndModulesAsync(dashboards, dashboardsPages, dashboardsPagesModules);
             }
 
             return new ImportResponse()
@@ -316,7 +314,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Dashboard
             };
         }
 
-        private async Task<object> GetDashboarsdAndPagesAsync(Guid scenarioId)
+        private async Task<object> GetDashboarsdAndPagesAndModulesAsync(Guid scenarioId)
         {
             var dashboards = await _dashboardRepository.GetsByAncestorAsync(scenarioId);
             var dashboardsPages = new List<DashboardPageInfo>();
@@ -325,15 +323,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Dashboard
             foreach (var dashboard in dashboards)
             {
                 var pages = await _dashboardPageRepository.GetsAsync(dashboard.Id);
-                var pageModules = await _dashboardPageModuleRepository.GetsByAncestorAsync(dashboard.ModuleId);
+                foreach (var page in pages)
+                {
+                    var pageModules = await _dashboardPageModuleRepository.GetsByAncestorAsync(page.Id);
+                    dashboardsPagesModules.AddRange(pageModules);
+                }
+
                 dashboardsPages.AddRange(pages);
-                dashboardsPagesModules.AddRange(pageModules);
             }
 
             return new List<object>() { dashboards, dashboardsPages, dashboardsPagesModules };
         }
 
-        private async Task BulkInsertDashboardsAndPagesAsync(IReadOnlyList<DashboardInfo> dashboards, IReadOnlyList<DashboardPageInfo> dashboardsPages, IReadOnlyList<DashboardPageModuleInfo> dashboardsPagesModules)
+        private async Task BulkInsertDashboardsAndPagesAndModulesAsync(IReadOnlyList<DashboardInfo> dashboards, IReadOnlyList<DashboardPageInfo> dashboardsPages, IReadOnlyList<DashboardPageModuleInfo> dashboardsPagesModules)
         {
             await _dashboardRepository.BulkInsertAsync(dashboards);
             await _dashboardPageRepository.BulkInsertAsync(dashboardsPages);

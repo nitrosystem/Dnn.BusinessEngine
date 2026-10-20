@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.Entity;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Procedures.Entity;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Entity;
-
 
 namespace NitroSystem.Dnn.BusinessEngine.Repository.Entity
 {
@@ -107,6 +107,16 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Entity
                     {
                         ScenarioId = scenarioId,
                         SortBy = sortBy
+                    });
+        }
+
+        public async Task<IReadOnlyList<EntityRelationshipSpResult>> GetRelationshipsAsync(Guid entityId)
+        {
+            return await _sql.ExecuteStoredProcedureAsListAsync<EntityRelationshipSpResult>(
+                "dbo.BusinessEngine_Studio_GetEntityRelationships", "BE_Entities_Studio_Relationships",
+                    new
+                    {
+                        EntityId = entityId,
                     });
         }
 

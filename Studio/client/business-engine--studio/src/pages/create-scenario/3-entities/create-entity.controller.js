@@ -61,11 +61,18 @@ export class CreateEntityController {
                         IsPrimary: true,
                         IsIdentity: true,
                         ViewOrder: 0,
-                    }]
+                    }],
+                    Relationships: []
                 };
             }
             else {
-                if (this.entity.IsReadonly) this._getDatabaseObjects();
+                if (this.entity.IsReadonly) {
+                    this._getDatabaseObjects();
+                }
+
+                this.entity.Relationships?.forEach(r => {
+                    this.onParentEntityChange(r);
+                });
 
                 this.entity.Settings = this.entity.Settings ?? {};
 
@@ -274,6 +281,56 @@ export class CreateEntityController {
                 });
             }
         });
+    }
+
+    onAddRelationshipClick() {
+        this.running = "get-database-tables";
+        this.awaitAction = {
+            title: "Loading Db Tables",
+            subtitle: "Just a moment for loading database tables...",
+        };
+
+        this.apiService.get('Studio', 'GetDatabaseObjects', { includeViews: false }).then((data) => {
+            this.dbTables = data.Tables;
+
+            this.entity.Relationships = this.entity.Relationships ?? [];
+            this.entity.Relationships.push({ EnforceForReplication: true, EnforceForeignKeyConstraint: true, isNew: true });
+
+            this.running = null;
+            this.awaitAction = null;
+        });
+    }
+
+    onParentEntityChange(relationship) {
+        this.running = "get-table-columns";
+        this.awaitAction = {
+            title: "Loading The Table Columns",
+            subtitle: "Just a moment for loading the table columns...",
+        };
+
+        this.apiService.get('Studio', 'GetDatabaseObjectColumns', { objectName: relationship.ParentTableName }).then((data) => {
+            this.selectedTableColumns = data;
+
+            relationship.PrimaryKeys = relationship.PrimaryKeys ?? [];
+            relationship.ForeignKeys = relationship.ForeignKeys ?? [];
+            if (!relationship.PrimaryKeys.length) relationship.PrimaryKeys.push('');
+            if (!relationship.ForeignKeys.length) relationship.ForeignKeys.push('');
+
+            this.running = null;
+            this.awaitAction = null;
+        });
+
+        relationship.RelationshipName = 'FK_' + relationship.ParentTableName + '_' + (this.entity.TableName || '');
+    }
+
+    onAddRelationshipColumnClick(relationship) {
+        relationship.PrimaryKeys.push('');
+        relationship.ForeignKeys.push('');
+    }
+
+    onRemoveRelationshipColumnClick(relationship, $index) {
+        relationship.PrimaryKeys.splice($index, 1);
+        relationship.ForeignKeys.splice($index, 1);
     }
 
     onCloseWindow() {

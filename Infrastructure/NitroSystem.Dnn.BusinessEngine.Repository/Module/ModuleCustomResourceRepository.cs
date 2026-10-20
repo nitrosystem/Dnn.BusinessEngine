@@ -21,6 +21,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
             return await _sql.InsertAsync<ModuleCustomResourceInfo>(objModuleCustomResourceInfo);
         }
 
+        public async Task BulkInsertAsync(IReadOnlyList<ModuleCustomResourceInfo> resources)
+        {
+            await _sql.BulkInsertAsync<ModuleCustomResourceInfo>(resources);
+        }
+
         public async Task<ModuleCustomResourceInfo> GetAsync(Guid id)
         {
             return await _sql.GetAsync<ModuleCustomResourceInfo>(id);

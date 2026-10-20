@@ -1,29 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Web.Http;
 using DotNetNuke.Web.Api;
+using DotNetNuke.Entities.Controllers;
+using DotNetNuke.Entities.Host;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Models;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Dto;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Action;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Dashboard;
-using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
-using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
-using NitroSystem.Dnn.BusinessEngine.Core.ExpressionEngine.Functions;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Module;
+using NitroSystem.Dnn.BusinessEngine.Core.BackgroundJob;
 using NitroSystem.Dnn.BusinessEngine.Core.DslEngine;
 using NitroSystem.Dnn.BusinessEngine.Core.DslEngine.Models;
-using NitroSystem.Dnn.BusinessEngine.Core.BackgroundJob;
+using NitroSystem.Dnn.BusinessEngine.Core.ExpressionEngine.Functions;
+using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
+using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -40,7 +40,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IModuleLibraryAndResourceService _moduleLibraryAndResourceService;
         private readonly IActionService _actionService;
         private readonly ITemplateService _templateService;
-        private readonly IBuildModuleRunner _buildModuleRunner;
+        private readonly string _basePath;
 
         public ModuleController(
             IBaseService globalService,
@@ -53,8 +53,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             IModuleLibraryAndResourceService moduleLibraryAndResourceService,
             IActionService actionService,
             ITemplateService templateService,
-            BackgroundJobWorker backgroundJobWorker,
-            IBuildModuleRunner buildModuleRunner
+            BackgroundJobWorker backgroundJobWorker
         )
         {
             _baseService = globalService;
@@ -67,7 +66,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _moduleLibraryAndResourceService = moduleLibraryAndResourceService;
             _actionService = actionService;
             _templateService = templateService;
-            _buildModuleRunner = buildModuleRunner;
+            _basePath = PortalSettings.HomeSystemDirectoryMapPath + @"business-engine\";
         }
 
         #region Create Dashboard
@@ -162,12 +161,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                string basePath = PortalSettings.HomeSystemDirectoryMapPath + @"business-engine\";
-                var result = await _dashboardService.CreateDashboardPageAsync(page, UserInfo.UserID, basePath);
+                var result = await _dashboardService.CreateDashboardPageAsync(page, UserInfo.UserID, _basePath);
 
                 //Check & Rebuild page module
                 if (page.PageType == DashboardPageType.Standard && page.IncludeModule && page.Module?.ModuleId != Guid.Empty)
-                    await _moduleService.EnqueueRebuildIfRequiredAsync(page.Module.ScenarioId, page.Module.ModuleId, UserInfo.UserID, basePath);
+                    await _moduleService.EnqueueRebuildIfRequiredAsync(page.Module.ScenarioId, page.Module.ModuleId, UserInfo.UserID, _basePath);
 
                 return Request.CreateResponse(HttpStatusCode.OK, result);
             }
@@ -269,8 +267,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                string basePath = PortalSettings.HomeSystemDirectoryMapPath + @"business-engine\";
-                Guid moduleId = await _moduleService.CreateModuleAsync(module, UserInfo.UserID, basePath);
+                Guid moduleId = await _moduleService.CreateModuleAsync(module, UserInfo.UserID, _basePath);
 
                 return Request.CreateResponse(HttpStatusCode.OK, moduleId);
             }
@@ -328,7 +325,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var modulePath = await _moduleService.GetModulePathAsync(module.ScenarioId, module.Id, module.ParentId, module.ModuleName, PortalSettings.HomeSystemDirectoryMapPath);
+                var modulePath = await _moduleService.GetModulePathAsync(module.ScenarioId, module.Id, module.ParentId, module.ModuleName, _basePath);
                 await FileUtil.WriteFileContentAsync(modulePath + "_layout.html", module.LayoutTemplate);
                 await FileUtil.WriteFileContentAsync(modulePath + "_layout.css", module.LayoutCss);
                 if (!string.IsNullOrWhiteSpace(module.PreloadingTemplate))
@@ -398,8 +395,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 library.Id = await _moduleLibraryAndResourceService.CreateCustomLibraryAsync(library);
 
                 //Check & Rebuild page module
-                string basePath = PortalSettings.HomeSystemDirectoryMapPath + @"business-engine\";
-                await _moduleService.EnqueueRebuildIfRequiredAsync(scenarioId, library.ModuleId, UserInfo.UserID, basePath);
+                await _moduleService.EnqueueRebuildIfRequiredAsync(scenarioId, library.ModuleId, UserInfo.UserID, _basePath);
 
                 return Request.CreateResponse(HttpStatusCode.OK, library.Id);
             }
@@ -418,8 +414,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 resource.Id = await _moduleLibraryAndResourceService.CreateCustomResourceAsync(resource);
 
                 //Check & Rebuild page module
-                string basePath = PortalSettings.HomeSystemDirectoryMapPath + @"business-engine\";
-                await _moduleService.EnqueueRebuildIfRequiredAsync(scenarioId, resource.ModuleId, UserInfo.UserID, basePath);
+                await _moduleService.EnqueueRebuildIfRequiredAsync(scenarioId, resource.ModuleId, UserInfo.UserID, _basePath);
 
                 return Request.CreateResponse(HttpStatusCode.OK, resource.Id);
             }
@@ -438,8 +433,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var isDeleted = await _moduleLibraryAndResourceService.DeleteCustomLibraryAsync(postData.Id);
 
                 //Check & Rebuild page module
-                string basePath = PortalSettings.HomeSystemDirectoryMapPath + @"business-engine\";
-                await _moduleService.EnqueueRebuildIfRequiredAsync(scenarioId, postData.ParentId, UserInfo.UserID, basePath);
+                await _moduleService.EnqueueRebuildIfRequiredAsync(scenarioId, postData.ParentId, UserInfo.UserID, _basePath);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
@@ -458,8 +452,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 var isDeleted = await _moduleLibraryAndResourceService.DeleteCustomResourceAsync(postData.Id);
 
                 //Check & Rebuild page module
-                string basePath = PortalSettings.HomeSystemDirectoryMapPath + @"business-engine\";
-                await _moduleService.EnqueueRebuildIfRequiredAsync(scenarioId, postData.ParentId, UserInfo.UserID, basePath);
+                await _moduleService.EnqueueRebuildIfRequiredAsync(scenarioId, postData.ParentId, UserInfo.UserID, _basePath);
 
                 return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
@@ -568,7 +561,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var module = await _moduleService.GetModuleViewModelAsync(moduleId, PortalSettings.HomeSystemDirectoryMapPath);
+                var module = await _moduleService.GetModuleViewModelAsync(moduleId, _basePath);
                 var fieldTypes = await _moduleFieldService.GetFieldTypesViewModelAsync();
                 var fields = await _moduleFieldService.GetFieldsViewModelAsync(moduleId);
                 var variables = await _moduleVariableService.GetVariablesListItemAsync(moduleId);
@@ -622,6 +615,36 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
                 }
 
                 return Request.CreateResponse(HttpStatusCode.OK, postData.Field.Id);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> SaveModuleClientBehavior(ModuleClientBehaviorViewModel clientBehavior)
+        {
+            try
+            {
+                clientBehavior.Id = await _moduleService.SaveClientBehaviorAsync(clientBehavior);
+                return Request.CreateResponse(HttpStatusCode.OK, clientBehavior.Id);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> DeleteModuleClientBehavior(GuidInfo postData)
+        {
+            try
+            {
+                var isDeleted = await _moduleService.DeleteClientBehaviorAsync(postData.Id);
+                return Request.CreateResponse(HttpStatusCode.OK, isDeleted);
             }
             catch (Exception ex)
             {
@@ -686,14 +709,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var request = new BuildModuleRequest();
-                string basePath = PortalSettings.HomeSystemDirectoryMapPath + @"business-engine\";
-                request.BasePath = basePath;
-                request.UserId = UserInfo.UserID;
-                request.Module = await _moduleService.GetDataForModuleBuildingAsync(moduleId);
-                var result = await _buildModuleRunner.RunAsync(request);
+                await _moduleService.BuildModuleAsync(moduleId, UserInfo.UserID, _basePath);
 
-                return Request.CreateResponse(HttpStatusCode.OK, result);
+                HostController.Instance.Update("CrmVersion", (Host.CrmVersion + 1).ToString());
+
+                return Request.CreateResponse(HttpStatusCode.OK, true);
             }
             catch (Exception ex)
             {
@@ -714,7 +734,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var module = await _moduleService.GetModuleViewModelAsync(moduleId, PortalSettings.HomeSystemDirectoryMapPath);
+                var module = await _moduleService.GetModuleViewModelAsync(moduleId, _basePath);
                 var fileds = await _moduleFieldService.GetFieldsListItemAsync(moduleId, "FieldName");
                 var actionTypes = await _actionService.GetActionTypesListItemAsync("ActionType", "ViewOrder");
                 var results = await _actionService.GetActionsViewModelAsync(moduleId, fieldId, searchText, actionType);

@@ -20,7 +20,6 @@ using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module;
 using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Provider;
 using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Service;
 using NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Template;
-using NitroSystem.Dnn.BusinessEngine.Studio.DataService.Providers;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService
 {
@@ -43,6 +42,18 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService
             services.AddScoped<IModuleVariableService, ModuleVariableService>();
             services.AddScoped<IModuleFieldService, ModuleFieldService>();
             services.AddScoped<IActionService, ActionService>();
+
+            services.AddScoped<BaseService>();
+            services.AddScoped<EntityService>();
+            services.AddScoped<AppModelService>();
+            services.AddScoped<ServiceFactory>();
+            services.AddScoped<DefinedListService>();
+            services.AddScoped<DashboardService>();
+            services.AddScoped<ModuleService>();
+            services.AddScoped<ModuleLibraryAndResourceService>();
+            services.AddScoped<ModuleVariableService>();
+            services.AddScoped<ModuleFieldService>();
+            services.AddScoped<ActionService>();
 
             services.AddScoped<BuildModuleJob>();
 

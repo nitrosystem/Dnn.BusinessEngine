@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Module;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Views.Module;
@@ -43,6 +44,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
             #endregion
 
             #region Module Fields Types
+
+            HybridMapper.AfterMap<ModuleFieldTypeInfo, ModuleFieldTypeViewModel>(
+               (src, dest) => dest.ClientBehaviorEvents = ReflectionUtil.TryJsonCasting<IEnumerable<OptionInfo>>(src.ClientBehaviorEvents));
 
             HybridMapper.AfterMap<ModuleFieldTypeInfo, ModuleFieldTypeViewModel>(
                 (src, dest) => dest.Icon = src.Icon?.ReplaceFrequentTokens());

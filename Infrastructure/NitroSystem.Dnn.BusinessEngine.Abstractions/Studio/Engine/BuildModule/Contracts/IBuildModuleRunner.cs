@@ -4,6 +4,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.
 {
     public interface IBuildModuleRunner
     {
-        Task<bool> RunAsync(BuildModuleRequest request);
+        Task<BuildModuleResponse> RunAsync(BuildModuleRequest request);
     }
 }

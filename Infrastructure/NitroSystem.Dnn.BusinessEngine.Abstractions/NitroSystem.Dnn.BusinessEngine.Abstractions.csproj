@@ -91,6 +91,7 @@
     <Compile Include="Repository\Contracts\Module\IModuleCustomLibraryRepository.cs" />
     <Compile Include="Repository\Contracts\Module\IModuleCustomResourceRepository.cs" />
     <Compile Include="Repository\Contracts\Module\IModuleEventTypeRepository.cs" />
+    <Compile Include="Repository\Contracts\Module\IModuleClientBehaviorRepository.cs" />
     <Compile Include="Repository\Contracts\Module\IModuleFieldDataSourceRepository.cs" />
     <Compile Include="Repository\Contracts\Module\IModuleFieldRepository.cs" />
     <Compile Include="Repository\Contracts\Module\IModuleFieldSettingRepository.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="Repository\Entities\Procedures\Action\ActionSpResult.cs" />
     <Compile Include="Repository\Entities\Procedures\Base\GroupItemResult.cs" />
     <Compile Include="Repository\Entities\Procedures\Dashboard\DashboardPageModuleSpResult.cs" />
+    <Compile Include="Repository\Entities\Procedures\Entity\EntityRelationshipSpResult.cs" />
     <Compile Include="Repository\Entities\Procedures\Module\ModuleFieldDataSourceSpResult.cs" />
     <Compile Include="Repository\Entities\Procedures\Module\ModuleFieldSettingSpResult.cs" />
     <Compile Include="Repository\Entities\Procedures\Module\ModuleFieldSpResult.cs" />
@@ -135,6 +137,7 @@
     <Compile Include="Repository\Entities\Tables\Module\ModuleCustomLibraryInfo.cs" />
     <Compile Include="Repository\Entities\Tables\Module\ModuleCustomResourceInfo.cs" />
     <Compile Include="Repository\Entities\Tables\Module\ModuleEventTypeInfo.cs" />
+    <Compile Include="Repository\Entities\Tables\Module\ModuleClientBehaviorInfo.cs" />
     <Compile Include="Repository\Entities\Tables\Module\ModuleFieldDataSourceInfo.cs" />
     <Compile Include="Repository\Entities\Tables\Module\ModuleFieldInfo.cs" />
     <Compile Include="Repository\Entities\Tables\Module\ModuleFieldSettingInfo.cs" />
@@ -203,7 +206,9 @@
     <Compile Include="Studio\ApplicationService\ViewModels\Dashboard\DashboardPageViewModel.cs" />
     <Compile Include="Studio\ApplicationService\ViewModels\Dashboard\DashboardViewModel.cs" />
     <Compile Include="Studio\ApplicationService\ViewModels\DiagnosticEntry\DiagnosticEntryViewModel.cs" />
+    <Compile Include="Studio\ApplicationService\ViewModels\Entity\EntityRelationshipViewModel.cs" />
     <Compile Include="Studio\ApplicationService\ViewModels\Extension\ExtensionViewModel.cs" />
+    <Compile Include="Studio\ApplicationService\ViewModels\Module\ModuleClientBehaviorViewModel.cs" />
     <Compile Include="Studio\ApplicationService\ViewModels\Module\ModuleFieldDataSourceViewModel.cs" />
     <Compile Include="Studio\ApplicationService\ViewModels\Provider\ProviderViewModel.cs" />
     <Compile Include="Studio\ApplicationService\ViewModels\Service\ServiceParamViewModel.cs" />

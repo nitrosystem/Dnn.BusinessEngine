@@ -46,10 +46,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Base
 
         #region General Service
 
-        public async Task<(IEnumerable<string> Tables, IEnumerable<string> Views)> GetDatabaseObjectsAsync()
+        public async Task<(IEnumerable<string> Tables, IEnumerable<string> Views)> GetDatabaseObjectsAsync(bool includeTables = true, bool includeViews = true)
         {
-            var tables = await _sql.GetDatabaseObjectsAsync(0);
-            var views = await _sql.GetDatabaseObjectsAsync(1);
+            var tables = includeTables
+                ? await _sql.GetDatabaseObjectsAsync(0)
+                : null;
+            var views = includeViews
+                ? await _sql.GetDatabaseObjectsAsync(1)
+                : null;
 
             return (tables, views);
         }
@@ -189,6 +193,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Base
 
                     await SaveScenarioAndGroupsAsync(scenario, groups);
 
+                    context.Set<string>("ScenarioId", scenario.Id.ToString());
                     context.Set<string>("ScenarioName", scenario.ScenarioName);
                     break;
             }

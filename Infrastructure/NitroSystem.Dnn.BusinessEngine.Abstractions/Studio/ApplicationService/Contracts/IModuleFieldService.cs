@@ -29,7 +29,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.
         Task<bool> UpdateFieldPaneAsync(PaneFieldsOrder data);
         Task SortFieldsAsync(PaneFieldsOrder data);
 
-        Task<bool> DeleteFieldAsync(Guid moduleId);
+        Task<bool> DeleteFieldAsync(Guid fieldId);
 
         #endregion
     }

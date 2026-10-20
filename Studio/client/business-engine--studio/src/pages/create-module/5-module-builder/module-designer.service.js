@@ -474,12 +474,36 @@ export class ModuleDesignerService {
                       </div>
                   </div>
               </div>
+                <!------------------------------------>
+                <!--Field Client Behaviors-->
+                <!------------------------------------>
+                <button type="button" class="b-btn btn-text-icon btn-action btn-sm mb-3"
+                    ng-if="$.field.${field.FieldName}.FieldTypeObject.ClientBehaviorEvents.length || $.field.${FieldName}.Actions.length"
+                    ng-click="$.onAddClientBehaviorClick($event,'${field.Id}')">
+                    <i class="codicon codicon-plus"></i>
+                    Add Client Event
+                </button>
+                <div class="b-field mt-3"
+                    ng-if="$.field.${field.FieldName}.ClientBehaviors && $.field.${field.FieldName}.ClientBehaviors.length">
+                    <label class="form-label">Field Client Behaviors</label>
+                    <div ng-repeat="clientBehavior in $.field.${field.FieldName}.ClientBehaviors" role="button"
+                        ng-click="$.onEditClientBehaviorClick(action.Id,'${field.Id}',clientBehavior)">
+                        <div class="b-notify notify mb-3">
+                            <i class="codicon codicon-github-action icon-sm"></i>
+                            <div class="text">
+                                <span class="subtext">
+                                    {{clientBehavior.Title}}<small>({{clientBehavior.Event}})</small>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
               <!------------------------------------>
               <!--Action button-->
               <!------------------------------------>
               <button type="button" ng-if="$.field.${FieldName}.CanHaveAction" class="b-btn btn-sm" ng-click="$.onAddActionClick('${field.FieldType}','${field.Id}',$event)">
                   <i class="codicon codicon-pulse"></i>
-                  Add Action
+                  Add Server Action
               </button>              
           </div>
       </div>

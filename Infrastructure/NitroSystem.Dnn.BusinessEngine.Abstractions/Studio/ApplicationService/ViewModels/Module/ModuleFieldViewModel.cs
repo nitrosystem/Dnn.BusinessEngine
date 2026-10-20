@@ -29,6 +29,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.
         public int LastModifiedByUserId { get; set; }
         public int ViewOrder { get; set; }
         public ModuleFieldDataSourceViewModel DataSource { get; set; }
+        public IEnumerable<ModuleClientBehaviorViewModel> ClientBehaviors { get; set; }
         public IEnumerable<ActionListItem> Actions { get; set; }
         public IDictionary<string, object> Settings { get; set; }
     }

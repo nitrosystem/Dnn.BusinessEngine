@@ -24,6 +24,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
             return await _sql.InsertAsync<ModuleVariableInfo>(objModuleVariableInfo);
         }
 
+        public async Task BulkInsertAsync(IReadOnlyList<ModuleVariableInfo> variables)
+        {
+            await _sql.BulkInsertAsync<ModuleVariableInfo>(variables);
+        }
+
         public async Task<string> GetVariableNameAsync(Guid id)
         {
             return await _sql.GetColumnValueAsync<ModuleVariableInfo, string>(id, "ModuleVariableName");

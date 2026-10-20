@@ -7,6 +7,7 @@ import fieldTemplateWidget from './field-options/field-template.html';
 import fieldEditWidget from './field-options/field-edit.html';
 import fieldSettingsWidget from './field-options/field-settings.html';
 import fieldDataSourceWidget from './field-options/field-data-source.html';
+import clientBehaviorWidget from "./client-behavior.html";
 
 export class CreateModuleModuleBuilderController {
     constructor(
@@ -41,6 +42,7 @@ export class CreateModuleModuleBuilderController {
         this.fieldEditWidget = fieldEditWidget;
         this.fieldSettingsWidget = fieldSettingsWidget;
         this.fieldDataSourceWidget = fieldDataSourceWidget;
+        this.clientBehaviorWidget = clientBehaviorWidget;
 
         this.currentTabKey = this.$rootScope.currentTab?.key;
         this.uiState = {};
@@ -97,7 +99,7 @@ export class CreateModuleModuleBuilderController {
 
             for (const field of this.fields) {
                 field.FieldTypeBackup = field.FieldType;
-                field.FieldTypeObject = this.fieldTypes.find(ft => ft.FieldType === field.FieldType) ?? {}
+                field.FieldTypeObject = this.fieldTypes.find(ft => ft.FieldType === field.FieldType) ?? {};
 
                 this.field[field.FieldName] = field;
             }
@@ -543,6 +545,140 @@ export class CreateModuleModuleBuilderController {
             title: title,
             subParams: subParams,
         });
+    }
+
+    //#endregion
+
+    //#region Client Behavior
+
+    onAddClientBehaviorClick($event, fieldId) {
+        if (!this.currentField || this.currentField.Id !== fieldId)
+            this.onFieldItemClick($event, fieldId);
+
+        this.workingMode = 'client-behavior';
+        this.$scope.$emit("onShowRightWidget", { controller: this });
+        this.clientBehavior = {
+            FieldId: fieldId
+        };
+
+        if ($event) $event.stopPropagation();
+    }
+
+    onEditClientBehaviorClick($event, fieldId, clientBehavior) {
+        if (!this.currentField || this.currentField.Id !== fieldId)
+            this.onFieldItemClick($event, fieldId);
+
+        this.clientBehavior = clientBehavior;
+
+        this.workingMode = 'client-behavior';
+        this.$scope.$emit("onShowRightWidget", { controller: this });
+
+        if ($event) $event.stopPropagation();
+    }
+
+    onSaveClientBehaviorClick($event) {
+        this.clientBehavior.ModuleId = this.module.Id;
+        if (this.clientBehavior.Event !== 'OnActionCompleted')
+            this.clientBehavior.ActionId = null;
+
+        this.running = "save-client-behavior";
+        this.awaitAction = {
+            title: "Saving Client Behavior",
+            subtitle: "Just a moment for saving the client behavior...",
+        };
+
+        this.apiService.post("Module", "SaveModuleClientBehavior", this.clientBehavior).then((data) => {
+            if (!this.clientBehavior.Id) {
+                this.notifyService.success("Field client behavior saved has been successfully");
+
+                this.clientBehavior.Id = data;
+                this.currentField.ClientBehaviors.push(this.clientBehavior);
+            }
+            else {
+                this.notifyService.info("Field client behavior saved has been successfully");
+
+                this.clientBehavior.Id = data;
+            }
+
+            this._disposeWorkingMode();
+
+            delete this.clientBehavior;
+            delete this.awaitAction;
+            delete this.running;
+        }, (error) => {
+            this.awaitAction.isError = true;
+            this.awaitAction.subtitle = error.statusText;
+            this.awaitAction.desc = this.globalService.getErrorHtmlFormat(error);
+
+            this.notifyService.error(error.data);
+
+            delete this.clientBehavior;
+            delete this.running;
+        });
+
+        if ($event) $event.stopPropagation();
+    }
+
+    onDeleteClientBehaviorClick() {
+        let timerInterval;
+        Swal.fire({
+            title: '<h4>Are you sure delete this event!?</h4><b></b>',
+            icon: 'warning',
+            timer: 5000,
+            timerProgressBar: true,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!',
+            backdrop: false,
+            didOpen: () => {
+                const timer = Swal.getPopup().querySelector('b');
+                timerInterval = setInterval(() => {
+                    timer.textContent = `${Swal.getTimerLeft()}`;
+                }, 100);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const field = this.currentField;
+
+                this.running = 'delete-field';
+                this.awaitAction = {
+                    title: 'Delete Field',
+                    subtitle: 'Just a moment for deleting the client event...',
+                };
+
+                this.apiService.post('Module', 'DeleteModuleClientBehavior', { Id: this.clientBehavior.Id }).then((data) => {
+                    if (data) {
+                        this.notifyService.info('Event has been deleted successfully.');
+
+                        const index = this.currentField.ClientBehaviors.findIndex(c => c.Id === this.clientBehavior.Id);
+                        if (index >= 0) this.currentField.ClientBehaviors.splice(index, 1);
+                        this.clientBehavior = null;
+                    }
+
+                    this._disposeWorkingMode();
+
+                    this.awaitAction = null;
+                    this.running = null;
+                }, (error) => {
+                    this.awaitAction.isError = true;
+                    this.awaitAction.subtitle = error.statusText;
+                    this.awaitAction.desc = GlobalUtil.renderErrorHtml(error);
+
+                    this.notifyService.error(error.data);
+
+                    this.running = null;
+                });
+            }
+        });
+    }
+
+    onCancelClientBehaviorClick() {
+        this.clientBehavior = null;
+        this._disposeWorkingMode();
     }
 
     //#endregion

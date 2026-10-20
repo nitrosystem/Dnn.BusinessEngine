@@ -53,6 +53,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
             return await _sql.GetByScopeAsync<ModuleView>(scenarioId, columns);
         }
 
+        public async Task<IReadOnlyList<Guid>> GetModuleIdsAsync(Guid scenarioId)
+        {
+            return await _sql.GetColumnValuesAsync<ModuleInfo, Guid>("Id", "ScenarioId", scenarioId);
+        }
+
         public async Task<bool> UpdateAsync(ModuleInfo objModuleInfo, params string[] columns)
         {
             return await _sql.UpdateAsync<ModuleInfo>(objModuleInfo, columns);
@@ -109,8 +114,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Repository.Module
 
         public async Task<int> AddModuleToSitePage(int portalId, int userId, int pageId, string moduleDefName, string moduleTitle, string paneName)
         {
-            return await _sql.ExecuteStoredProcedureAsync<int>(
-                "dbo.BusinessEngine_AddModuleToSitePage", "Be_Modules_App_LiteData",
+            return await _sql.ExecuteStoredProcedureAsync<int>("dbo.BusinessEngine_ImportExport_AddModuleToSitePage", "",
                 new
                 {
                     Portald = portalId,

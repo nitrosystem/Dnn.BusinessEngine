@@ -1,4 +1,7 @@
-﻿using DotNetNuke.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.AppModel;
@@ -16,10 +19,6 @@ using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Core.Reflection.TypeGeneration.Models;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.AppModel
 {
@@ -187,7 +186,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.AppModel
         {
             var items = JsonConvert.DeserializeObject<List<object>>(json);
             var models = JsonConvert.DeserializeObject<IReadOnlyList<AppModelInfo>>(items[0].ToString());
-            var modelsProperties = JsonConvert.DeserializeObject<IReadOnlyList<AppModelPropertyInfo>>(items[1].ToString()).ToList();
+            var modelsProperties = JsonConvert.DeserializeObject<IReadOnlyList<AppModelPropertyInfo>>(items[1].ToString());
 
             if (context.Scope == ImportExportScope.ScenarioFullComponents)
             {

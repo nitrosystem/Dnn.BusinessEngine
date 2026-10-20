@@ -1,4 +1,6 @@
-﻿using DotNetNuke.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Contracts.AppModel;
@@ -15,10 +17,6 @@ using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 {
@@ -126,11 +124,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 
         public async Task<ImportResponse> ImportAsync(string json, ImportContext context)
         {
+            var variables = JsonConvert.DeserializeObject<IReadOnlyList<ModuleVariableInfo>>(json);
+
             switch (context.Scope)
             {
+                case ImportExportScope.ScenarioFullComponents:
+                    await BulkInsertVariablesAsync(variables);
+
+                    return new ImportResponse()
+                    {
+                        IsSuccess = true
+                    };
                 case ImportExportScope.Module:
                     var moduleId = (Guid)context.DataTrack["ModuleId"];
-                    var variables = JsonConvert.DeserializeObject<IReadOnlyList<ModuleVariableInfo>>(json);
 
                     await SaveVariablesAsync(moduleId, variables);
 
@@ -163,6 +169,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Module
 
                 await _moduleVariableRepository.AddAsync(variable);
             }
+        }
+
+        private async Task BulkInsertVariablesAsync(IReadOnlyList<ModuleVariableInfo> variables)
+        {
+            await _moduleVariableRepository.BulkInsertAsync(variables);
         }
 
         #endregion

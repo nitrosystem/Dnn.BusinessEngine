@@ -94,9 +94,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export
             };
             var json = JsonConvert.SerializeObject(manifestModel);
 
-            var relativePath = $@"{_baseRelativePath}business-engine/import-export/export/";
-            var exportFolder = $@"{_basePath}business-engine\import-export\export\";
-            var exportPath = $@"{_basePath}business-engine\import-export\export\{_request.Id}\";
+            var relativePath = $@"{_baseRelativePath}import-export/export/";
+            var exportFolder = $@"{_basePath}\import-export\export\";
+            var exportPath = $@"{_basePath}\import-export\export\{_request.Id}\";
             if (!Directory.Exists(exportPath))
                 Directory.CreateDirectory(exportPath);
 

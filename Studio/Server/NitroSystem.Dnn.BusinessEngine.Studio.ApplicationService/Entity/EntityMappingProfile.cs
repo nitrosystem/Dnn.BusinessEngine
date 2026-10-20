@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Procedures.Entity;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables.Entity;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ListItems;
@@ -27,6 +28,12 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.Entity
 
             HybridMapper.AfterMap<EntityInfo, EntityListItem>(
                 (src, dest) => dest.EntityType = (EntityType)src.EntityType);
+
+            HybridMapper.AfterMap<EntityRelationshipSpResult, EntityRelationshipViewModel>(
+                (src, dest) => dest.PrimaryKeys = ReflectionUtil.TryJsonCasting<List<string>>(src.PrimaryKeys, true));
+
+            HybridMapper.AfterMap<EntityRelationshipSpResult, EntityRelationshipViewModel>(
+                (src, dest) => dest.ForeignKeys = ReflectionUtil.TryJsonCasting<List<string>>(src.ForeignKeys, true));
         }
     }
 }

@@ -20,7 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts
         #region Get Column Value(s)
 
         Task<IReadOnlyList<TColumnType>> GetColumnValuesAsync<T, TColumnType>(string column) where T : class, IEntity, new();
-        Task<IReadOnlyList<TColumnType>> GetColumnsValueAsync<T, TColumnType>(string column, string filterColumn, object filterValue) where T : class, IEntity, new();
+        Task<IReadOnlyList<TColumnType>> GetColumnValuesAsync<T, TColumnType>(string column, string filterColumn, object filterValue) where T : class, IEntity, new();
         Task<TColumnType> GetColumnValueAsync<T, TColumnType>(Guid id, string column) where T : class, IEntity, new();
         Task<TColumnType> GetColumnValueAsync<T, TColumnType>(string column, string filterColumn, object filterValue) where T : class, IEntity, new();
         TColumnType GetColumnValue<T, TColumnType>(string column, string filterColumn, object filterValue) where T : class, IEntity, new();
@@ -135,7 +135,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.ORM.Contracts
 
         Task<string> GenerateCreateTableScript(string schema, string table);
         Task<(string Name, string Columns)?> GetPrimaryKey(string schema, string table);
-        
+
         #endregion
     }
 }

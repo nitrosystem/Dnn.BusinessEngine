@@ -28,6 +28,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -60,6 +61,8 @@
     <Compile Include="Functions\NumericFunctions.cs" />
     <Compile Include="Functions\StringFunctions.cs" />
     <Compile Include="Studio\Enums\SubmitEntityActionType.cs" />
+    <Compile Include="Studio\ExportComponentProvider.cs" />
+    <Compile Include="Studio\ImportComponentProvider.cs" />
     <Compile Include="Studio\ViewModels\EntityViewModel.cs" />
     <Compile Include="Studio\ViewModels\EntityJoinRelationViewModel.cs" />
     <Compile Include="Studio\ViewModels\FilterItemViewModel.cs" />

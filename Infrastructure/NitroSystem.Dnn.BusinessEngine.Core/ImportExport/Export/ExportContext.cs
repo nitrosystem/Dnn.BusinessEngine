@@ -18,6 +18,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export
             public const string FieldId = "FieldId";
             public const string ActionId = "ActionId";
             public const string GenerateEntityScripts = "GenerateEntityScripts";
+            public const string BasePath = "BasePath";
         }
 
         private static readonly HashSet<string> _keys = new()
@@ -29,7 +30,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export
             ExportContextKeys.ModuleId,
             ExportContextKeys.FieldId,
             ExportContextKeys.ActionId,
-            ExportContextKeys.GenerateEntityScripts
+            ExportContextKeys.GenerateEntityScripts,
+            ExportContextKeys.BasePath
         };
 
         public ImportExportScope Scope { get; set; }

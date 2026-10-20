@@ -1,13 +1,20 @@
-﻿using DotNetNuke.Entities.Controllers;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using DotNetNuke.Entities.Controllers;
 using DotNetNuke.Entities.Host;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Tabs;
 using DotNetNuke.Security.Roles;
 using DotNetNuke.Web.Api;
-using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Enums;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
+using NitroSystem.Dnn.BusinessEngine.Abstractions.Core.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.AppModel;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Base;
@@ -15,19 +22,13 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.View
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.ViewModels.Entity;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.InstallExtension;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Dto;
+using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Enums;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Export;
 using NitroSystem.Dnn.BusinessEngine.Core.ImportExport.Import;
 using NitroSystem.Dnn.BusinessEngine.Core.WebApi;
 using NitroSystem.Dnn.BusinessEngine.Shared.Globals;
 using NitroSystem.Dnn.BusinessEngine.Shared.Utils;
 using NitroSystem.Dnn.BusinessEngine.Studio.Api.Dto;
-using System;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
 
 namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
 {
@@ -41,6 +42,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         private readonly IAppModelService _appModelServices;
         private readonly IServiceFactory _serviceFactory;
         private readonly IDefinedListService _definedListService;
+        private readonly IModuleService _moduleService;
         private readonly IExtensionService _extensionService;
         private readonly string _basePath;
 
@@ -52,6 +54,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             IAppModelService appModelService,
             IServiceFactory serviceFactory,
             IDefinedListService definedListService,
+            IModuleService moduleService,
             IExtensionService extensionService
             )
         {
@@ -62,6 +65,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
             _appModelServices = appModelService;
             _serviceFactory = serviceFactory;
             _definedListService = definedListService;
+            _moduleService = moduleService;
             _extensionService = extensionService;
             _basePath = PortalSettings.HomeSystemDirectoryMapPath + @"business-engine\";
         }
@@ -305,11 +309,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         }
 
         [HttpGet]
-        public async Task<HttpResponseMessage> GetDatabaseObjects()
+        public async Task<HttpResponseMessage> GetDatabaseObjects(bool includeTables = true, bool includeViews = true)
         {
             try
             {
-                var results = await _baseService.GetDatabaseObjectsAsync();
+                var results = await _baseService.GetDatabaseObjectsAsync(includeTables, includeViews);
                 return Request.CreateResponse(HttpStatusCode.OK, new { results.Tables, results.Views });
             }
             catch (Exception ex)
@@ -772,12 +776,9 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                var basePath = PortalSettings.HomeSystemDirectoryMapPath;
-                var baseRelativePath = PortalSettings.HomeSystemDirectory;
-
                 postData.Id = Guid.NewGuid();
-
-                var exportRunner = new ExportRunner(_serviceProvider, postData, basePath, baseRelativePath);
+                postData.Params.Add("BasePath", _basePath);
+                var exportRunner = new ExportRunner(_serviceProvider, postData, _basePath, PortalSettings.HomeSystemDirectory);
                 await exportRunner.Export();
 
                 return Request.CreateResponse(HttpStatusCode.OK);
@@ -794,12 +795,22 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Api
         {
             try
             {
-                postData.Params.Add("BasePath", PortalSettings.HomeSystemDirectoryMapPath);
+                postData.Params.Add("BasePath", _basePath);
                 postData.Params.Add("CurrentPortalId", PortalSettings.PortalId);
                 postData.Params.Add("CurrentUserId", UserInfo.UserID);
 
                 var importRunner = new ImportRunner(_serviceProvider, postData);
-                await importRunner.Import();
+                var context = await importRunner.Import();
+
+                if (postData.ImportScope == ImportExportScope.ScenarioFullComponents)
+                {
+                    var scenarioId = context.Get<Guid>("ScenarioId");
+                    var modulesIds = await _moduleService.GetModulesIdsAsync(scenarioId);
+                    foreach (var moduleId in modulesIds)
+                    {
+                        await _moduleService.BuildModuleAsync(moduleId, UserInfo.UserID, _basePath);
+                    }
+                }
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }

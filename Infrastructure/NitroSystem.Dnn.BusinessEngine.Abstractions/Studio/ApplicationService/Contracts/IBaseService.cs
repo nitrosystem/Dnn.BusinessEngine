@@ -11,7 +11,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.ApplicationService.
     {
         #region Common
         
-        Task<(IEnumerable<string> Tables, IEnumerable<string> Views)> GetDatabaseObjectsAsync();
+        Task<(IEnumerable<string> Tables, IEnumerable<string> Views)> GetDatabaseObjectsAsync(bool includeTables = true, bool includeViews = true);
+
         Task<IEnumerable<DbTableColumnInfo>> GetDatabaseObjectColumnsAsync(string objectName);
 
         #endregion
