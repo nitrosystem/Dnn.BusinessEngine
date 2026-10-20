@@ -7,6 +7,5 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Proced
         public Guid Id { get; set; }
         public string ScenarioName { get; set; }
         public string ModuleName { get; set; }
-        public bool IsSSR { get; set; }
     }
 }

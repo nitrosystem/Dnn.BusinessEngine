@@ -126,13 +126,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                         pageModuleTemplate = pageModuleTemplate.Replace("[PAGE_TITLE]", pageModule.PageTitle);
                         pageModuleTemplate = pageModuleTemplate.Replace("[PAGE_DESCRIPTION]", pageModule.PageDescription);
 
-                        if (pageModule.IsSSR)
-                        {
-                            pageModuleTemplate = ModuleService.BuildSSRTemplate(_dashboardService, _actionService, _userDataStore, _actionRunner,
-                                                                    pageModuleTemplate, connectionId, basePath, rawUrl,
-                                                                    userId, isSuperUser, roles, pageModule.ModuleId);
-                        }
-
                         pageModuleId = module.Id;
                     }
                 }
@@ -143,12 +136,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                 template = template.Replace("[USER_DISPAYNAME]", UserInfo.DisplayName);
                 template = template.Replace("[USER_IMAGE]", $"/dnnimagehandler.ashx?mode=profilepic&userid={UserInfo.UserID}");
                 template = template.Replace("[PAGE_MODULE]", pageModuleTemplate);
-
-                if (dashboardModule.IsSSR)
-                {
-                    template = ModuleService.BuildSSRTemplate(_dashboardService, _actionService, _userDataStore, _actionRunner,
-                                template, connectionId, basePath, rawUrl, userId, isSuperUser, roles, dashboardModule.Id, true, currentPage);
-                }
 
                 pnlTemplate.InnerHtml = template;
 

@@ -102,12 +102,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web.Modules
                 template = template.Replace("[CONNECTION_ID]", connectionId);
                 template = template.Replace("[RTL_CLASS]", rtlCssClass);
 
-                if (module.IsSSR)
-                {
-                    template = ModuleService.BuildSSRTemplate(null, _actionService, _userDataStore, _actionRunner, template,
-                                                connectionId, basePath, rawUrl, userId, isSuperUser, roles, module.Id);
-                }
-
                 pnlTemplate.InnerHtml = template;
 
                 CtlPageResource.DnnTabId = TabId;

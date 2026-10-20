@@ -18,7 +18,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Repository.Entities.Tables
         public int ModuleType { get; set; }
         public string ModuleName { get; set; }
         public string ModuleTitle { get; set; }
-        public bool IsSSR { get; set; }
         public string Template { get; set; }
         public string Theme { get; set; }
         public string ThemeCssClass { get; set; }

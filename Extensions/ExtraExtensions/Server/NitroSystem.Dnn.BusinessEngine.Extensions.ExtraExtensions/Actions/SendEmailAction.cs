@@ -6,7 +6,6 @@ using NitroSystem.Dnn.BusinessEngine.Abstractions.App.ApplicationService.Dto;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.Shared.Models;
 using NitroSystem.Dnn.BusinessEngine.Shared.Mapper;
 using NitroSystem.Dnn.BusinessEngine.Extensions.ExtraExtensions.Services;
-using NitroSystem.Dnn.BusinessEngine.Core.TemplateEngine;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.ExtraExtensions.Actions
 {
@@ -28,14 +27,14 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.ExtraExtensions.Actions
             var subject = action.Settings["Subject"]?.ToString();
             var body = action.Settings["Body"]?.ToString();
 
-            if (!string.IsNullOrEmpty(body))
-            {
-                var context = new TemplateContext(moduleData);
-                var builder = new BuildTemplate();
-                var parser = new TemplateParser();
-                var parsedTemplate = parser.Parse(body);
-                body = builder.Render(parsedTemplate, context);
-            }
+            //if (!string.IsNullOrEmpty(body))
+            //{
+            //    var context = new TemplateContext(moduleData);
+            //    var builder = new BuildTemplate();
+            //    var parser = new TemplateParser();
+            //    var parsedTemplate = parser.Parse(body);
+            //    body = builder.Render(parsedTemplate, context);
+            //}
 
             var filledParams = HybridMapper.MapCollection<ActionParamDto, ParamInfo>(action.Params);
             return await _service.SendEmail(action.ServiceId.Value, subject, body, filledParams);

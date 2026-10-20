@@ -6,7 +6,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.Web.Dto
     {
         public Guid ModuleId { get; set; }
         public string ModuleName { get; set; }
-        public bool IsSSR { get; set; }
         public string PageTitle { get; set; }
         public string PageIcon { get; set; }
         public string PageDescription { get; set; }
