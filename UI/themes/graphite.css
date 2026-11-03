@@ -1,0 +1,31 @@
+/* Theme: Graphite — خاکستری تیره، بی‌رنگ و رسمی
+   فقط مقدار خام؛ بدون calc یا color-mix */
+:root,
+[data-b-theme="graphite"] {
+  --bt-surface: #ffffff;
+  --bt-surface-muted: #f9fafb;
+  --bt-surface-sunken: #f3f4f6;
+  --bt-line: #d1d5db;
+  --bt-line-strong: #9ca3af;
+  --bt-ink: #111827;
+  --bt-ink-muted: #4b5563;
+  --bt-ink-subtle: #6b7280;
+  --bt-primary: #1f2937;
+  --bt-primary-hover: #111827;
+  --bt-primary-soft: #f3f4f6;
+  --bt-primary-ink: #1f2937;
+  --bt-on-primary: #ffffff;
+  --bt-accent: #4b5563;
+  --bt-success: #047857;
+  --bt-success-soft: #ecfdf5;
+  --bt-success-ink: #065f46;
+  --bt-danger: #dc2626;
+  --bt-danger-soft: #fef2f2;
+  --bt-danger-ink: #b91c1c;
+  --bt-warning: #d97706;
+  --bt-warning-soft: #fffbeb;
+  --bt-warning-ink: #b45309;
+  --bt-info: #2563eb;
+  --bt-info-soft: #eff6ff;
+  --bt-info-ink: #1d4ed8;
+}

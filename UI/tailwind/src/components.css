@@ -1,0 +1,271 @@
+/* ==========================================================================
+   کامپوننت‌ها: بدون @layer تا در برابر reset بدون‌لایه‌ی DNN برنده شوند
+   ========================================================================== */
+
+.b--module { height: 100%; }
+
+/* ---------- فیلدها ---------- */
+.b-field-label {
+  @apply b:block b:text-sm b:font-semibold b:text-ink-muted b:mb-1.5;
+}
+.b-field-input-group {
+  @apply b:flex b:gap-2 b:items-center b:px-2 b:py-1.5 b:rounded-lg b:bg-surface
+         b:border b:border-line b:transition-all b:duration-200
+         b:hover:border-line-strong
+         b:focus-within:border-primary b:focus-within:ring-3 b:focus-within:ring-ring;
+}
+
+.b-field-input {
+  @apply b:flex-1 b:min-w-0 b:h-6 b:m-0 b:p-0 b:bg-transparent b:border-0 b:outline-none b:shadow-none
+         b:text-ink b:text-sm b:leading-6 b:placeholder:text-ink-subtle;
+}
+
+.b-field-input-icon {
+  @apply b:shrink-0 b:text-base b:leading-none b:text-ink-subtle b:transition-colors b:duration-200;
+}
+.b-field-input-group:focus-within .b-field-input-icon { color: var(--bt-primary); }
+.b-field-required-message {
+  @apply b:mt-2 b:flex b:items-center b:gap-1.5 b:text-xs b:text-danger;
+}
+
+/* Multi-line (textarea): put b-field-input-group-multiline on the group and
+   b-field-textarea next to b-field-input on the <textarea> */
+.b-field-input-group-multiline {
+  @apply b:items-start;
+}
+.b-field-input-group-multiline .b-field-input-icon {
+  @apply b:inline-flex b:h-6 b:items-center;
+}
+.b-field-textarea {
+  @apply b:block b:h-auto b:resize-y;
+}
+
+/* ---------- SlimSelect ---------- */
+.b-field-input-group {
+  --ss-bg-color: transparent;
+  --ss-border-color: transparent;
+  --ss-placeholder-color: var(--bt-ink-subtle);
+  --ss-font-color: var(--bt-ink);
+  --ss-spacing-l: 0px;
+}
+.b-field-input-group .ss-main {
+  flex: 1; min-width: 0; background: transparent; border: 0; padding: 0;
+  min-height: 0; box-shadow: none; color: inherit; font-size: inherit;
+}
+.b-field-input-group .ss-main:focus { box-shadow: none; }
+
+.b-field-input-group .ss-main .ss-values  { padding: .22rem; }
+.b-field-input-group .ss-main .ss-values .ss-placeholder { @apply b:text-ink-subtle; }
+.b-field-input-group .ss-main .ss-values .ss-single      { @apply b:text-ink; }
+.b-field-input-group .ss-main .ss-values .ss-placeholder,
+.b-field-input-group .ss-main .ss-values .ss-single { padding: 0; font-size: var(--b-text-sm); }
+.b-field-input-group .ss-main .ss-arrow { color: var(--bt-ink-subtle); }
+.b-field-input-group .ss-main .ss-arrow path { stroke: currentColor; }
+
+/* ---------- دکمه‌ها ---------- */
+.b-btn {
+  @apply b:inline-flex b:items-center b:justify-center b:gap-2
+         b:px-4 b:py-2 b:rounded-lg b:border b:border-transparent
+         b:text-sm b:font-medium b:leading-5 b:cursor-pointer b:select-none b:no-underline
+         b:transition-all b:duration-200
+         b:focus-visible:outline-none b:focus-visible:ring-3 b:focus-visible:ring-ring
+         b:disabled:opacity-50 b:disabled:cursor-not-allowed b:disabled:pointer-events-none;
+}
+.b-btn-sm    { @apply b:px-3 b:py-1 b:text-xs b:rounded-md; }
+.b-btn-lg    { @apply b:px-5 b:py-2.5 b:text-base; }
+.b-btn-block { @apply b:w-full; }
+
+.b-btn-primary   { @apply b:bg-primary b:text-on-primary b:hover:bg-primary-hover; }
+.b-btn-secondary { @apply b:bg-surface b:text-ink b:border-line b:hover:bg-surface-muted b:hover:border-line-strong; }
+.b-btn-soft      { @apply b:bg-primary-soft b:text-primary-ink b:hover:bg-primary/15; }
+.b-btn-ghost     { @apply b:bg-transparent b:text-ink-muted b:hover:bg-surface-sunken b:hover:text-ink; }
+.b-btn-success   { @apply b:bg-success b:text-on-primary b:hover:bg-success/90; }
+.b-btn-danger    { @apply b:bg-danger b:text-on-primary b:hover:bg-danger/90; }
+.b-btn-danger-soft { @apply b:bg-danger-soft b:text-danger-ink b:hover:bg-danger/15; }
+.b-btn-gradient  {
+  @apply b:bg-gradient-to-r b:from-primary b:to-accent b:text-on-primary b:shadow-sm
+         b:hover:shadow-md b:hover:-translate-y-px b:active:translate-y-0;
+}
+.b-btn-icon { @apply b:size-9 b:p-0 b:bg-transparent b:text-ink-subtle b:hover:bg-surface-sunken b:hover:text-ink; }
+
+/* ---------- پیام‌های بعد از ثبت فرم ---------- */
+.b-alert {
+  @apply b:relative b:flex b:items-start b:gap-3 b:overflow-hidden b:rounded-xl b:border b:p-4 b:shadow-sm;
+  animation: b-alert-in .25s ease-out both;
+}
+.b-alert-icon  { @apply b:flex b:items-center b:justify-center b:shrink-0 b:size-9 b:rounded-full; }
+.b-alert-title { @apply b:m-0 b:text-sm b:font-semibold; }
+.b-alert-text  { @apply b:m-0 b:mt-0.5 b:text-xs; }
+
+.b-alert-primary { @apply b:border-primary/30 b:bg-primary-soft; }
+.b-alert-primary .b-alert-icon  { @apply b:bg-primary/15 b:text-primary; }
+.b-alert-primary .b-alert-title { @apply b:text-primary-ink; }
+.b-alert-primary .b-alert-text  { @apply b:text-primary-ink/80; }
+
+.b-alert-success { @apply b:border-success/30 b:bg-success-soft; }
+.b-alert-success .b-alert-icon  { @apply b:bg-success/15 b:text-success; }
+.b-alert-success .b-alert-title { @apply b:text-success-ink; }
+.b-alert-success .b-alert-text  { @apply b:text-success-ink/80; }
+
+.b-alert-danger { @apply b:border-danger/30 b:bg-danger-soft; }
+.b-alert-danger .b-alert-icon  { @apply b:bg-danger/15 b:text-danger; }
+.b-alert-danger .b-alert-title { @apply b:text-danger-ink; }
+.b-alert-danger .b-alert-text  { @apply b:text-danger-ink/80; }
+
+.b-alert-warning { @apply b:border-warning/30 b:bg-warning-soft; }
+.b-alert-warning .b-alert-icon  { @apply b:bg-warning/15 b:text-warning; }
+.b-alert-warning .b-alert-title { @apply b:text-warning-ink; }
+.b-alert-warning .b-alert-text  { @apply b:text-warning-ink/80; }
+
+.b-alert-info { @apply b:border-info/30 b:bg-info-soft; }
+.b-alert-info .b-alert-icon  { @apply b:bg-info/15 b:text-info; }
+.b-alert-info .b-alert-title { @apply b:text-info-ink; }
+.b-alert-info .b-alert-text  { @apply b:text-info-ink/80; }
+
+/* ---------- انیمیشن‌ها (نام keyframe ها با b- شروع می‌شوند) ---------- */
+@keyframes b-alert-in  { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes b-indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+@keyframes b-draw  { to { stroke-dashoffset: 0; } }
+@keyframes b-pop   { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes b-shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-3px); } 40%, 80% { transform: translateX(3px); } }
+@keyframes b-spin  { to { transform: rotate(360deg); } }
+@keyframes b-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+.b-progress-indeterminate { animation: b-indeterminate 1.2s ease-in-out infinite; }
+.b-check-draw { stroke-dasharray: 24; stroke-dashoffset: 24; animation: b-draw .5s .15s ease-out forwards; }
+.b-pop   { animation: b-pop .4s ease-out both; }
+.b-shake { animation: b-shake .4s .1s ease-in-out; }
+.b-spinner {
+  @apply b:size-5 b:rounded-full b:border-2 b:border-primary/30 b:border-t-primary;
+  animation: b-spin .8s linear infinite;
+}
+.b-skeleton { @apply b:bg-surface-sunken; animation: b-pulse 1.6s ease-in-out infinite; }
+
+/* ---------- Upload box (image / video / file upload tiles) ----------
+   Structure:
+   ul.b-upload-box
+     li.b-upload-box-button            dashed "add file" tile (input + icon + label)
+     li.b-upload-box-file-wrapper      one uploaded file tile (progress, media, info bar)
+     li.b-upload-box-error             error / warning message
+   Tile size: set --b-upload-box-size on the ul (default 8 units = 128px at 16px unit). */
+.b-upload-box {
+  --b-upload-box-size: calc(var(--b-unit) * 8);
+  @apply b:flex b:flex-wrap b:items-start b:gap-3 b:m-0 b:p-0 b:list-none;
+}
+
+.b-upload-box-button,
+.b-upload-box-file-wrapper {
+  width: var(--b-upload-box-size);
+  height: var(--b-upload-box-size);
+  @apply b:box-border b:relative b:max-w-full b:rounded-xl;
+}
+
+.b-upload-box-button {
+  @apply b:flex b:flex-col b:items-center b:justify-center b:gap-1.5
+         b:border-2 b:border-dashed b:border-line b:bg-surface-muted b:text-ink-subtle b:cursor-pointer
+         b:transition-colors b:duration-200
+         b:hover:border-primary b:hover:bg-primary-soft b:hover:text-primary
+         b:focus-within:border-primary b:focus-within:ring-3 b:focus-within:ring-ring;
+}
+.b-upload-box-input {
+  @apply b:absolute b:inset-0 b:size-full b:opacity-0 b:cursor-pointer;
+}
+.b-upload-box-icon {
+  @apply b:inline-flex b:items-center b:justify-center b:size-8 b:text-3xl b:leading-none
+         b:text-primary-ink b:pointer-events-none;
+}
+.b-upload-box-label {
+  @apply b:text-xs b:font-medium b:text-primary-ink b:pointer-events-none;
+}
+
+.b-upload-box-file-wrapper {
+  @apply b:overflow-hidden b:border b:border-line b:bg-surface b:shadow-sm;
+}
+.b-upload-box-file-progress {
+  @apply b:absolute b:inset-x-0 b:top-0 b:z-10 b:h-1 b:bg-surface-sunken;
+}
+.b-upload-box-file-progress-bar {
+  @apply b:h-full b:w-0 b:bg-primary b:transition-all b:duration-200;
+}
+/* img or video thumbnail */
+.b-upload-box-file-media {
+  @apply b:block b:size-full b:object-cover b:bg-surface-sunken;
+}
+/* generic file (no thumbnail): put an icon inside */
+.b-upload-box-file-placeholder {
+  @apply b:flex b:size-full b:items-center b:justify-center b:bg-surface-sunken b:text-ink-subtle b:text-3xl;
+}
+.b-upload-box-file-info {
+  @apply b:absolute b:inset-x-0 b:bottom-0 b:flex b:flex-col b:bg-ink/70 b:px-2 b:py-1 b:text-surface;
+}
+.b-upload-box-file-name {
+  @apply b:truncate b:text-2xs b:font-medium;
+}
+.b-upload-box-file-meta {
+  @apply b:flex b:items-center b:gap-1.5 b:text-2xs;
+}
+.b-upload-box-file-size {
+  @apply b:flex-1 b:min-w-0 b:truncate b:opacity-80;
+}
+.b-upload-box-file-status {
+  @apply b:size-4 b:shrink-0 b:text-success;
+}
+.b-upload-box-file-remove {
+  @apply b:inline-flex b:items-center b:justify-center b:shrink-0 b:size-6 b:p-0
+         b:rounded-md b:border-0 b:bg-transparent b:text-inherit b:cursor-pointer
+         b:transition-colors b:duration-200 b:hover:bg-danger;
+}
+.b-upload-box-file-remove svg { @apply b:size-4; }
+
+.b-upload-box-error {
+  @apply b:basis-full b:rounded-lg b:border b:border-danger b:bg-danger-soft b:px-3 b:py-2
+         b:text-xs b:text-danger-ink;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b-alert, .b-progress-indeterminate, .b-pop, .b-shake, .b-spinner, .b-skeleton { animation: none; }
+  .b-check-draw { animation: none; stroke-dashoffset: 0; }
+}
+
+
+/* module builder button*/
+.b--module-builder {
+    box-shadow: -6px 8px 10px rgba(81,41,10,0.1),0px 2px 2px rgba(81,41,10,0.2);
+    border: .1em solid #4a4b4c;
+    border-radius: .5rem;
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: -2.15em;
+    opacity: .1;
+    font-size: 14px;
+    appearance: button;
+    margin: 0;
+    padding: .4em .5em;
+    user-select: none;
+    touch-action: manipulation;
+    text-transform: none;
+    text-decoration: none;
+    transition: all .1s cubic-bezier(.4, 0, .2, 1);
+    -webkit-user-select: none;
+    z-index: 9999;
+}
+
+    .b--module-builder:hover {
+        opacity: 1;
+        text-decoration: none;
+    }
+
+    .b--module-builder:active {
+        background-color: #f3f4f6;
+        box-shadow: -1px 2px 5px rgba(81,41,10,0.15),0px 1px 1px rgba(81,41,10,0.15);
+        transform: translateY(0.125rem);
+    }
+
+    .b--module-builder:focus {
+        box-shadow: rgba(72, 35, 7, .46) 0 0 0 4px, -6px 8px 10px rgba(81,41,10,0.1), 0px 2px 2px rgba(81,41,10,0.2);
+    }
+
+[b-show]:not([b-show-val]), [b-show-val=false], [b-hide-val=true], [b-if]:not([b-if-val]), [b-if-val=false] {
+    display: none !important
+}

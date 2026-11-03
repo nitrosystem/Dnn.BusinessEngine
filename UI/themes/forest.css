@@ -1,0 +1,31 @@
+/* Theme: Forest — سبز، آرام و طبیعی
+   فقط مقدار خام؛ بدون calc یا color-mix */
+:root,
+[data-b-theme="forest"] {
+  --bt-surface: #ffffff;
+  --bt-surface-muted: #f7faf8;
+  --bt-surface-sunken: #eff5f1;
+  --bt-line: #cfdcd4;
+  --bt-line-strong: #98ada0;
+  --bt-ink: #14231b;
+  --bt-ink-muted: #4b6355;
+  --bt-ink-subtle: #6b8074;
+  --bt-primary: #047857;
+  --bt-primary-hover: #065f46;
+  --bt-primary-soft: #ecfdf5;
+  --bt-primary-ink: #065f46;
+  --bt-on-primary: #ffffff;
+  --bt-accent: #0d9488;
+  --bt-success: #15803d;
+  --bt-success-soft: #ecfdf5;
+  --bt-success-ink: #166534;
+  --bt-danger: #dc2626;
+  --bt-danger-soft: #fef2f2;
+  --bt-danger-ink: #b91c1c;
+  --bt-warning: #d97706;
+  --bt-warning-soft: #fffbeb;
+  --bt-warning-ink: #b45309;
+  --bt-info: #2563eb;
+  --bt-info-soft: #eff6ff;
+  --bt-info-ink: #1d4ed8;
+}

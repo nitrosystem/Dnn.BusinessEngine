@@ -6,10 +6,10 @@ const webpack = require('webpack');
 
 module.exports = (env) => {
     return {
-        mode: 'production',
-        //mode: env.production ? 'production' : 'development',
-        devtool: false,
-        //devtool: env.production ? 'source-map' : 'eval-cheap-module-source-map',
+        //mode: 'production',
+        mode: env.production ? 'production' : 'development',
+        //devtool: false,
+        devtool: env.production ? 'source-map' : 'eval-cheap-module-source-map',
         entry: path.resolve(__dirname, './src/index.js'),
         output: {
             globalObject: 'self',

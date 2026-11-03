@@ -1,0 +1,31 @@
+/* Theme: Violet — بنفش، مرزهای بنفش‌رنگ
+   فقط مقدار خام؛ بدون calc یا color-mix */
+:root,
+[data-b-theme="violet"] {
+  --bt-surface: #ffffff;
+  --bt-surface-muted: #faf9ff;
+  --bt-surface-sunken: #f5f3ff;
+  --bt-line: #ddd6fe;
+  --bt-line-strong: #a78bfa;
+  --bt-ink: #1e1b4b;
+  --bt-ink-muted: #5b5785;
+  --bt-ink-subtle: #8580ad;
+  --bt-primary: #7c3aed;
+  --bt-primary-hover: #6d28d9;
+  --bt-primary-soft: #ede9fe;
+  --bt-primary-ink: #6d28d9;
+  --bt-on-primary: #ffffff;
+  --bt-accent: #c026d3;
+  --bt-success: #047857;
+  --bt-success-soft: #ecfdf5;
+  --bt-success-ink: #065f46;
+  --bt-danger: #e11d48;
+  --bt-danger-soft: #fff1f2;
+  --bt-danger-ink: #be123c;
+  --bt-warning: #d97706;
+  --bt-warning-soft: #fffbeb;
+  --bt-warning-ink: #b45309;
+  --bt-info: #2563eb;
+  --bt-info-soft: #eff6ff;
+  --bt-info-ink: #1d4ed8;
+}

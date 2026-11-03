@@ -2,12 +2,93 @@
     <!------------------------------------>
     <!--Add/Edit Scenario-->
     <!------------------------------------>
-    <b-content-widget data-icon="archive" data-title="Create Scenario" data-subtitle="Add or edit scenario"
+    <b-content-widget data-icon="archive" data-title="Install New Package" data-subtitle="or create new scenario"
         data-module="$" data-await-action="$.awaitAction" data-reload-method="onPageLoad"
         extra-icon1="codicon codicon-git-stash-pop" extra-icon1-title="Export Scenario"
         extra-icon1-method="onShowExportScenarioWinClick" extra-icon2="codicon codicon-git-stash"
         extra-icon2-title="Import External Scenario" extra-icon2-method="onShowImportScenarioWinClick"
         data-close-method="onCloseWindow">
+        <!------------------------------------>
+        <!--Install Package From Local-->
+        <!------------------------------------>
+        <div class="b-group mb-4">
+            <div class="group-header collapsed" data-bs-toggle="collapse" data-bs-target="#grpInstallPackageFromLocal">
+                <h3 class="group-label">
+                    <span class="group-icon">
+                        <i class="codicon codicon-references"></i>
+                    </span> Install Package From Local
+                </h3>
+                <span class="group-collapse">
+                    <i class="codicon codicon-chevron-up"></i>
+                </span>
+            </div>
+            <div id="grpInstallPackageFromLocal" class="group-content">
+                <div class="d-flex">
+                    <div class="col-6 b-splitter border-end pe-5">
+                        <div class="b-upload-box">
+                            <input type="file" id="extensionFileInput" class="form-control" accept=".zip" />
+                            <i class="codicon codicon-package mb-2"></i>
+                            <p class="mb-0">Click to open browse files and select one zip file for install package.</p>
+                        </div>
+                    </div>
+                    <div class="col-6 ps-5">
+                        <div class="d-flex gap-4 b-scrollbar">
+                            <div class="col-4 b-content-widget border text-center">
+                                <i class="codicon codicon-account text-success fs-1 mb-2"></i>
+                                <h5>Login / Register</h5>
+                                <p class="mb-3 small text-secondary-emphasis">Sign-in, sign-up and password reset with
+                                    basic features.</p>
+                                <button type="button" class="b-btn btn-text-icon btn-sm btn-action mx-auto">
+                                    <i class="codicon codicon-symbol-field"></i>
+                                    Use template
+                                </button>
+                            </div>
+                            <div class="col-4 b-content-widget border text-center">
+                                <i class="codicon codicon-pass text-primary fs-1 mb-2"></i>
+                                <h5>Ticketing System</h5>
+                                <p class="mb-3 small text-secondary-emphasis">Tickets, agents and departments with basic
+                                    features.</p>
+                                <button type="button" class="b-btn btn-text-icon btn-sm btn-action mx-auto">
+                                    <i class="codicon codicon-symbol-field"></i>
+                                    Use template
+                                </button>
+                            </div>
+                            <div class="col-4 b-content-widget border text-center">
+                                <i class="codicon codicon-mail text-info fs-1 mb-2"></i>
+                                <h5>Contact Us</h5>
+                                <p class="mb-3 small text-secondary-emphasis">Contacts, deals and follow-ups with basic
+                                    features.</p>
+                                <button type="button" class="b-btn btn-text-icon btn-sm btn-action mx-auto">
+                                    <i class="codicon codicon-symbol-field"></i>
+                                    Use template
+                                </button>
+                            </div>
+                            <div class="col-4 b-content-widget border text-center">
+                                <i class="codicon codicon-pass text-primary fs-1 mb-2"></i>
+                                <h5>Ticketing System</h5>
+                                <p class="mb-3 small text-secondary-emphasis">Tickets, agents and departments with basic
+                                    features.</p>
+                                <button type="button" class="b-btn btn-text-icon btn-sm btn-action mx-auto">
+                                    <i class="codicon codicon-symbol-field"></i>
+                                    Use template
+                                </button>
+                            </div>
+                            <div class="col-4 b-content-widget border text-center">
+                                <i class="codicon codicon-mail text-info fs-1 mb-2"></i>
+                                <h5>Contact Us</h5>
+                                <p class="mb-3 small text-secondary-emphasis">Contacts, deals and follow-ups with basic
+                                    features.</p>
+                                <button type="button" class="b-btn btn-text-icon btn-sm btn-action mx-auto">
+                                    <i class="codicon codicon-symbol-field"></i>
+                                    Use template
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="d-flex">
             <div class="col-7 b-splitter border-end pe-5">
                 <div class="b-field">

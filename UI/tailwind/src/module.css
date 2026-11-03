@@ -1,0 +1,158 @@
+/* ==========================================================================
+   Business Engine UI kit: Tailwind v4, prefix "b"
+   - Colors come only from semantic roles; their values live in theme files.
+   - Sizes (spacing, text, radius) are all derived from --b-unit.
+   ========================================================================== */
+
+/* Declare the layer so Tailwind's design tokens (variables) live in it. */
+@layer theme;
+
+/* Default Tailwind design tokens as CSS variables, renamed to --b-*.
+   Preflight (Tailwind's reset) is intentionally NOT imported: the host page
+   (DNN) has its own reset and we must not touch global elements. */
+@import "tailwindcss/theme.css" layer(theme) prefix(b);
+
+/* Component classes (.b-btn, .b-alert, ...) come BEFORE utilities.
+   They are not wrapped in @layer, so they beat DNN's unlayered reset,
+   while utilities such as b:px-6 can still override them (later in source). */
+@import "./components.css";
+
+/* Utilities are NOT layered either, for the same reason (DNN reset wins over layers). */
+@import "tailwindcss/utilities.css" prefix(b);
+
+/* Template paths of your module: add them here (relative to this file), e.g.
+   @source "../../../Views";   (a folder; Tailwind scans it recursively) */
+
+/* Base utility classes that are always generated (b:m-1 ... b:p-20, etc.) */
+@import "./safelist.css";
+
+/* Extra general-purpose classes that are always generated (not part of the base set) */
+@import "./extras.css";
+
+/* "inline" writes the value directly into every generated class, so changing
+   --b-unit or --bt-* on any element updates its children immediately.
+   Without it, the values would be frozen on :root. */
+@theme inline {
+  /* Container query sizes. Static px on purpose: var() is not allowed inside
+     @container conditions, and container queries follow the html font size,
+     so rem would be unreliable on a DNN page. */
+  --container-3xs: 256px;  --container-2xs: 288px;  --container-xs: 320px;
+  --container-sm: 384px;   --container-md: 448px;   --container-lg: 512px;
+  --container-xl: 576px;   --container-2xl: 672px;  --container-3xl: 768px;
+  --container-4xl: 896px;  --container-5xl: 1024px; --container-6xl: 1152px; --container-7xl: 1280px;
+
+  /* Remove the default palette: b:bg-slate-500, b:text-white, etc. no longer exist. */
+  --color-*: initial;
+
+  --color-slate-50:  oklch(98.4% 0.003 247.858);
+  --color-slate-100: oklch(96.8% 0.007 247.896);
+  --color-slate-200: oklch(92.9% 0.013 255.508);
+  --color-slate-300: oklch(86.9% 0.022 252.894);
+  --color-slate-400: oklch(70.4% 0.04 256.788);
+  --color-slate-500: oklch(55.4% 0.046 257.417);
+  --color-slate-600: oklch(44.6% 0.043 257.281);
+  --color-slate-700: oklch(37.2% 0.044 257.287);
+  --color-slate-800: oklch(27.9% 0.041 260.031);
+  --color-slate-900: oklch(20.8% 0.042 265.755);
+  --color-slate-950: oklch(12.9% 0.042 264.695);
+
+  /* ---- Color roles ---- */
+  --color-surface:        var(--bt-surface);
+  --color-surface-muted:  var(--bt-surface-muted);
+  --color-surface-sunken: var(--bt-surface-sunken);
+
+  --color-line:           var(--bt-line);
+  --color-line-strong:    var(--bt-line-strong);
+
+  --color-ink:            var(--bt-ink);
+  --color-ink-muted:      var(--bt-ink-muted);
+  --color-ink-subtle:     var(--bt-ink-subtle);
+
+  --color-primary:        var(--bt-primary);
+  --color-primary-hover:  var(--bt-primary-hover);
+  --color-primary-soft:   var(--bt-primary-soft);
+  --color-primary-ink:    var(--bt-primary-ink);
+  --color-on-primary:     var(--bt-on-primary);
+  --color-accent:         var(--bt-accent);
+
+  --color-success:        var(--bt-success);
+  --color-success-soft:   var(--bt-success-soft);
+  --color-success-ink:    var(--bt-success-ink);
+
+  --color-danger:         var(--bt-danger);
+  --color-danger-soft:    var(--bt-danger-soft);
+  --color-danger-ink:     var(--bt-danger-ink);
+
+  --color-warning:        var(--bt-warning);
+  --color-warning-soft:   var(--bt-warning-soft);
+  --color-warning-ink:    var(--bt-warning-ink);
+
+  --color-info:           var(--bt-info);
+  --color-info-soft:      var(--bt-info-soft);
+  --color-info-ink:       var(--bt-info-ink);
+
+  /* Derived color: defined here (not in theme files) so it is always computed
+     from the current theme. Usage: b:ring-ring */
+  --color-ring: color-mix(in oklab, var(--bt-primary) 20%, transparent);
+
+  /* ---- Size scale: everything is based on --b-unit ---- */
+  --spacing: calc(var(--b-unit) * 0.25);
+
+  --text-2xs:  calc(var(--b-unit) * 0.6875);   /* 11px at the default unit */
+  --text-2xs--line-height: 1.5;
+  --text-xs:   calc(var(--b-unit) * 0.75);
+  --text-sm:   calc(var(--b-unit) * 0.875);
+  --text-base: var(--b-unit);
+  --text-lg:   calc(var(--b-unit) * 1.125);
+  --text-xl:   calc(var(--b-unit) * 1.25);
+  --text-2xl:  calc(var(--b-unit) * 1.5);
+  --text-3xl:  calc(var(--b-unit) * 1.875);
+  --text-4xl:  calc(var(--b-unit) * 2.25);
+  --text-5xl:  calc(var(--b-unit) * 3);
+
+  --radius-xs:  calc(var(--b-unit) * 0.125);
+  --radius-sm:  calc(var(--b-unit) * 0.25);
+  --radius-md:  calc(var(--b-unit) * 0.375);
+  --radius-lg:  calc(var(--b-unit) * 0.5);
+  --radius-xl:  calc(var(--b-unit) * 0.75);
+  --radius-2xl: calc(var(--b-unit) * 1);
+  --radius-3xl: calc(var(--b-unit) * 1.5);
+}
+
+/* ---- Base size (can be changed on :root or on any parent element) ---- */
+:root     { --b-unit: 16px; }
+.b-small  { --b-unit: 14px; }
+.b-large  { --b-unit: 18px; }
+.b-xlarge { --b-unit: 24px; }
+
+/* ---- Default theme (Ocean) ----
+   Specificity is zero (:where), so any theme file overrides it
+   regardless of load order. */
+:where(:root) {
+  --bt-surface: #ffffff;
+  --bt-surface-muted: #f8fafc;
+  --bt-surface-sunken: #f1f5f9;
+  --bt-line: #cbd5e1;
+  --bt-line-strong: #94a3b8;
+  --bt-ink: #1e293b;
+  --bt-ink-muted: #5a6a80;
+  --bt-ink-subtle: #7a8aa0;
+  --bt-primary: #0e7490;
+  --bt-primary-hover: #155e75;
+  --bt-primary-soft: #ecfeff;
+  --bt-primary-ink: #0e7490;
+  --bt-on-primary: #ffffff;
+  --bt-accent: #0284c7;
+  --bt-success: #047857;
+  --bt-success-soft: #ecfdf5;
+  --bt-success-ink: #065f46;
+  --bt-danger: #dc2626;
+  --bt-danger-soft: #fef2f2;
+  --bt-danger-ink: #b91c1c;
+  --bt-warning: #d97706;
+  --bt-warning-soft: #fffbeb;
+  --bt-warning-ink: #b45309;
+  --bt-info: #2563eb;
+  --bt-info-soft: #eff6ff;
+  --bt-info-ink: #1d4ed8;
+}

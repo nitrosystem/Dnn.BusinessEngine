@@ -1,0 +1,31 @@
+/* Theme: Sunset — نارنجی به صورتی، گرم و پرانرژی
+   فقط مقدار خام؛ بدون calc یا color-mix */
+:root,
+[data-b-theme="sunset"] {
+  --bt-surface: #ffffff;
+  --bt-surface-muted: #fafaf9;
+  --bt-surface-sunken: #f5f5f4;
+  --bt-line: #d6d3d1;
+  --bt-line-strong: #a8a29e;
+  --bt-ink: #292524;
+  --bt-ink-muted: #57534e;
+  --bt-ink-subtle: #78716c;
+  --bt-primary: #c2410c;
+  --bt-primary-hover: #9a3412;
+  --bt-primary-soft: #fff7ed;
+  --bt-primary-ink: #9a3412;
+  --bt-on-primary: #ffffff;
+  --bt-accent: #db2777;
+  --bt-success: #047857;
+  --bt-success-soft: #ecfdf5;
+  --bt-success-ink: #065f46;
+  --bt-danger: #dc2626;
+  --bt-danger-soft: #fef2f2;
+  --bt-danger-ink: #b91c1c;
+  --bt-warning: #ca8a04;
+  --bt-warning-soft: #fefce8;
+  --bt-warning-ink: #854d0e;
+  --bt-info: #2563eb;
+  --bt-info-soft: #eff6ff;
+  --bt-info-ink: #1d4ed8;
+}

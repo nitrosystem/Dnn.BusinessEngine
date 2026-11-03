@@ -14,6 +14,7 @@ import SlimSelectDropdownFieldComponent from './field-types/slimselect-dropdown/
 import CaptchaFieldComponent from './field-types/captcha/captcha.component';
 import BootstrapModalFieldComponent from './field-types/bootstrap-modal/bootstrap-modal.component';
 import GroupFieldComponent from './field-types/group/group-studio.component';
+import TemplatedSelectFieldComponent from './field-types/templated-select/templated-select.component';
 
 //fields options
 import UploadFileOptions from './field-types/upload-file/upload-file-options.html';
@@ -42,6 +43,7 @@ app.component('bFieldSlimSelectDropdown', SlimSelectDropdownFieldComponent);
 app.component('bFieldCaptcha', CaptchaFieldComponent);
 app.component('bFieldBootstrapModal', BootstrapModalFieldComponent);
 app.component('bFieldGroup', GroupFieldComponent);
+app.component('bFieldTemplatedSelect', TemplatedSelectFieldComponent);
 
 // set base options when add field
 window['UploadFileOptions'] = UploadFileOptions;

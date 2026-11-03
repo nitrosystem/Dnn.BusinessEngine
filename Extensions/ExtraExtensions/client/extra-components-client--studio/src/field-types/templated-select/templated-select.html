@@ -1,0 +1,34 @@
+﻿<div class="b-group group-sm mb-4">
+    <div class="group-header collapsed" data-bs-toggle="collapse" data-bs-target="#grpEditTemplate_{{$.field.Id}}">
+        <h3 class="group-label">
+            <span class="group-icon">
+                <i class="codicon codicon-references"></i>
+            </span>Edit Template
+        </h3>
+        <span class="group-collapse">
+            <i class="codicon codicon-chevron-up"></i>
+        </span>
+    </div>
+    <div id="grpEditTemplate_{{$.field.Id}}" class="group-content collapse">
+        <div class="row">
+            <div class="col-8">
+                <div class="b-field">
+                    <div class="b-field">
+                        <label class="form-label">Layout Template</label>
+                        <div html-editor id="editorTemplatedSelect_{{$.field.Id}}_Html"
+                            ng-model="$.field.Settings.Content" data-language="html" data-height="250px">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="b-field">
+                    <div class="b-field">
+                        <label class="form-label">Layout Css</label>
+                        <div html-editor id="editorTemplatedSelect_{{$.field.Id}}_Css"
+                            ng-model="$.field.Settings.ContentCss" data-language="css" data-height="250px">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>

@@ -20,7 +20,6 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.Studio.Engine.BuildModule.
         public bool CanHaveValue { get; set; }
         public bool IsRequired { get; set; }
         public bool IsGroupField { get; set; }
-        public bool IsContent { get; set; }
         public bool IsParent { get; set; }
         public bool HasDataSource { get; set; }
         public string HiddenConditions { get; set; }

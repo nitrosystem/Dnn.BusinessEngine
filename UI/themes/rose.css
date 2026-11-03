@@ -1,0 +1,31 @@
+/* Theme: Rose — صورتی، ملایم و مدرن
+   فقط مقدار خام؛ بدون calc یا color-mix */
+:root,
+[data-b-theme="rose"] {
+  --bt-surface: #ffffff;
+  --bt-surface-muted: #fefafb;
+  --bt-surface-sunken: #fcf3f7;
+  --bt-line: #ead3de;
+  --bt-line-strong: #c79bb0;
+  --bt-ink: #2b1220;
+  --bt-ink-muted: #6b4a5a;
+  --bt-ink-subtle: #8f6c7d;
+  --bt-primary: #be185d;
+  --bt-primary-hover: #9d174d;
+  --bt-primary-soft: #fdf2f8;
+  --bt-primary-ink: #9d174d;
+  --bt-on-primary: #ffffff;
+  --bt-accent: #f43f5e;
+  --bt-success: #047857;
+  --bt-success-soft: #ecfdf5;
+  --bt-success-ink: #065f46;
+  --bt-danger: #dc2626;
+  --bt-danger-soft: #fef2f2;
+  --bt-danger-ink: #b91c1c;
+  --bt-warning: #d97706;
+  --bt-warning-soft: #fffbeb;
+  --bt-warning-ink: #b45309;
+  --bt-info: #2563eb;
+  --bt-info-soft: #eff6ff;
+  --bt-info-ink: #1d4ed8;
+}

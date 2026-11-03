@@ -1,0 +1,15 @@
+{
+  "name": "@business-engine/ui-tailwind",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tailwind CSS v4 flavour of the Business Engine UI kit (prefix: b)",
+  "license": "MIT",
+  "scripts": {
+    "build": "tailwindcss -i src/module.css -o dist/module.css --minify",
+    "watch": "tailwindcss -i src/module.css -o dist/module.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}

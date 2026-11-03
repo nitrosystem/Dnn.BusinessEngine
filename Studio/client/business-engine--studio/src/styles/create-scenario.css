@@ -1,0 +1,15 @@
+.activity-bar {
+    display: none !important;
+}
+
+.sidebar {
+    display: none !important;
+}
+
+.workspace-panel {
+    margin: 2rem !important;
+}
+
+.workspace-panel .top-bar-tabs {
+    display: none !important;
+}

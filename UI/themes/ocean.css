@@ -1,0 +1,31 @@
+/* Theme: Ocean — آبی-فیروزه‌ای، خنثی و حرفه‌ای (پیش‌فرض)
+   فقط مقدار خام؛ بدون calc یا color-mix */
+:root,
+[data-b-theme="ocean"] {
+  --bt-surface: #ffffff;
+  --bt-surface-muted: #f8fafc;
+  --bt-surface-sunken: #f1f5f9;
+  --bt-line: #cbd5e1;
+  --bt-line-strong: #94a3b8;
+  --bt-ink: #1e293b;
+  --bt-ink-muted: #5a6a80;
+  --bt-ink-subtle: #7a8aa0;
+  --bt-primary: #0e7490;
+  --bt-primary-hover: #155e75;
+  --bt-primary-soft: #ecfeff;
+  --bt-primary-ink: #0e7490;
+  --bt-on-primary: #ffffff;
+  --bt-accent: #0284c7;
+  --bt-success: #047857;
+  --bt-success-soft: #ecfdf5;
+  --bt-success-ink: #065f46;
+  --bt-danger: #dc2626;
+  --bt-danger-soft: #fef2f2;
+  --bt-danger-ink: #b91c1c;
+  --bt-warning: #d97706;
+  --bt-warning-soft: #fffbeb;
+  --bt-warning-ink: #b45309;
+  --bt-info: #2563eb;
+  --bt-info-soft: #eff6ff;
+  --bt-info-ink: #1d4ed8;
+}

@@ -332,15 +332,15 @@ export class CreateModuleModuleBuilderController {
     }
 
     onCancelFieldClick($event, fieldId) {
-        const field = GlobalHelper.clone(this.currentFieldBackup);
-        if (field) {
-            const index = this._getFieldIndex(fieldId)
-            if (index >= 0) this.fields[index] = field;
-            this.field[field.FieldName] = field;
+        const oldField = GlobalHelper.clone(this.currentFieldBackup);
+        if (this.currentField?.Id === fieldId && oldField) {
+            const index = this._getFieldIndex(fieldId);
+            if (index >= 0) {
+                this.fields[index] = oldField;
+                this.field[oldField.FieldName] = oldField;
+                this._removeCurrentField(true);
+            }
         }
-
-        if (this.currentField?.Id === fieldId)
-            this._removeCurrentField(true);
 
         this._disposeWorkingMode();
 

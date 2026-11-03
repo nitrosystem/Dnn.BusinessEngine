@@ -1,0 +1,14 @@
+{
+  "name": "business-engine-ui",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Themeable UI kit for Business Engine (DNN)",
+  "license": "MIT",
+  "workspaces": [
+    "tailwind"
+  ],
+  "scripts": {
+    "build": "yarn workspace @business-engine/ui-tailwind build",
+    "build:all": "yarn workspaces run build"
+  }
+}

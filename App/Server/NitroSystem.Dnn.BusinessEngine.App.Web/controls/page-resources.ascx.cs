@@ -59,7 +59,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Web
                         var resources = moduleService.GetModuleOutputResources(DnnTabId, string.Join(",", ModuleIds));
                         foreach (var item in resources)
                         {
-                            RegisterPageResources(item.ResourceContentType, item.ResourcePath, item.LoadOrder);
+                            RegisterPageResources(item.ResourceContentType, item.ResourcePath, (int)DotNetNuke.Web.Client.FileOrder.Css.ModuleCss + item.LoadOrder);
                         }
 
                         this.Page.Header.Controls.Add(new LiteralControl(@"<span id=""b-page-resources""><!--business engine registered resources--></span>"));

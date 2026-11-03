@@ -1,0 +1,19 @@
+/* ==========================================================================
+   Extra utility classes: always generated, but NOT part of the base set.
+   Add here any general-purpose class that the Business Engine templates need
+   and that is not in safelist.css (e.g. sizes used by the dashboard shell).
+   Classes that belong to ONE component go in components.css instead.
+   Syntax is the same as safelist.css: always write the full "b:" prefix.
+   ========================================================================== */
+
+@source inline("b:{w-65,h-22.5}");
+@source inline("b:{from-primary-soft,via-surface,to-primary-soft/60}");
+@source inline("b:{border-l-2,border-primary-hover}");
+@source inline("b:rounded-[50%]");
+@source inline("b:visited:text-{ink-muted,on-primary}");
+@source inline("b:@container");
+@source inline("b:@[900px]:block");
+@source inline("b:{w-[25%],basis-[30%],min-w-64,max-w-80}");
+@source inline("b:{-mt-9}");
+@source inline("b:animate-{spin,ping,pulse,bounce,none}");
+@source inline("b:motion-safe:animate-{spin,ping,pulse,bounce}");

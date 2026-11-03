@@ -116,10 +116,10 @@ export class StudioController {
             this.sseClientService.init(scenarioName);
 
         this._getStudioOptions().then((data) => {
-            if (!scenarioName) {
-                this.$timeout(() => window['wnSelectScenario'].show());
-            }
-            else {
+            // if (!scenarioName) {
+            //     this.$timeout(() => window['wnSelectScenario'].show());
+            // }
+            // else {
                 const currentTabs = JsonHelper.getJsonString(
                     sessionStorage.getItem('bEngineCurrentTabs_' + scenarioName) || '[]'
                 );
@@ -136,7 +136,7 @@ export class StudioController {
                     this._createOrGotoTab(moduleType, parentId, id, '', subParams, null, newKey);
                 else if (!moduleType && this.$rootScope.tabs.length)
                     this.onTabClick(this.$rootScope.tabs[0]);
-            }
+            // }
         });
     }
 

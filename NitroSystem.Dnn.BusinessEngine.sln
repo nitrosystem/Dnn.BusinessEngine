@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.4.33213.308
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12224.181 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Studio", "Studio", "{DCC36880-8C71-4F77-B65D-17E8D0CB3E3C}"
 EndProject
@@ -227,6 +227,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService", "Studio\Server\NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService\NitroSystem.Dnn.BusinessEngine.Studio.ApplicationService.csproj", "{1FC5279B-B157-4A01-BD60-49F42F8C3971}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.App.ApplicationService", "App\Server\NitroSystem.Dnn.BusinessEngine.App.ApplicationService\NitroSystem.Dnn.BusinessEngine.App.ApplicationService.csproj", "{88BEE964-C0A8-4617-B114-DD8728C40B87}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{86593B0B-B5B9-417F-93C7-638671096BF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
