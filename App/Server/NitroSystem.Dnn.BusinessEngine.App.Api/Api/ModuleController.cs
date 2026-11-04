@@ -126,7 +126,6 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Api
                     items.IsRequiredToUpdateData,
                     items.Results,
                     Data = data,
-                    FirstActionId = items.Results.FirstOrDefault()?.Id
                 });
             }
             catch (Exception ex)

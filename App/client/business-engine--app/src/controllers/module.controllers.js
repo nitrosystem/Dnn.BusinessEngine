@@ -300,6 +300,45 @@ export class ModuleController {
 
     //#endregion
 
+    //#region Client Behaviors
+
+    executeClientScript(fieldId, target, context = this.scope) {
+        const field = this.getFieldById(fieldId);
+        const clientBehavior = field.ClientBehaviors.find(c =>
+            (c.ActionId === target && c.Event === 'OnActionCompleted') ||
+            (c.Event === target && c.Event !== 'OnActionCompleted'));
+        if (clientBehavior) {
+            const script = clientBehavior.Script;
+
+            const proxyContext = new Proxy(context, {
+                set(target, property, value) {
+                    target[property] = value;
+                    return true;
+                },
+                get(target, property) {
+                    return target[property];
+                }
+            });
+
+            try {
+                const wrappedScript = `
+                    with (proxyContext) {
+                        ${script}
+                    }`;
+
+                const func = new Function('proxyContext', wrappedScript);
+                func(proxyContext);
+
+                return true;
+            } catch (error) {
+                console.error("Error executing client script:", error);
+                return false;
+            }
+        }
+    }
+
+    //#endregion
+
     //#region Actions
 
     hasFieldAction(fieldId, event) {
@@ -314,12 +353,12 @@ export class ModuleController {
         return this._actions.filter(a => a.FieldId === fieldId && a.Event === event);
     }
 
-    async callActionByName(fieldId, actionName, extraParams) {
+    async callActionByName(fieldId, actionName, extraParams, context = this.scope) {
         const action = this.getActionByName(actionName);
         if (action) return await this.callAction(fieldId, action.Id, action.Event, extraParams)
     }
 
-    async callAction(fieldId, actionId, event, extraParams) {
+    async callAction(fieldId, actionId, event, extraParams, context = this.scope) {
         const postData = {};
         for (const key in this.scope) {
             const variable = this._variables.find(v => v.VariableName === key);
@@ -362,6 +401,11 @@ export class ModuleController {
                             this.set(key, newValue, true);
                     }
                 }
+            }
+
+            if (payload.Results?.length) {
+                context.action = payload.Results[0];
+                this.executeClientScript(fieldId, payload.Results[0].Id, context);
             }
 
             for (const result of payload.Results ?? []) {

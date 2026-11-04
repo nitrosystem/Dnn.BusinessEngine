@@ -20,6 +20,7 @@ namespace NitroSystem.Dnn.BusinessEngine.Abstractions.App.ApplicationService.Dto
         public bool HasDataSource { get; set; }
         public string HiddenConditions { get; set; }
         public ModuleFieldDataSourceDto DataSource { get; set; }
+        public IEnumerable<ModuleClientBehaviorDto> ClientBehaviors { get; set; }
         public IDictionary<string, object> Settings { get; set; }
     }
 }

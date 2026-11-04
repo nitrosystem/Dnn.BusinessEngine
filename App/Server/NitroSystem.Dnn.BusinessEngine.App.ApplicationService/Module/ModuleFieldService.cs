@@ -18,17 +18,20 @@ namespace NitroSystem.Dnn.BusinessEngine.App.ApplicationService.Module
         private readonly IModuleFieldRepository _moduleFieldRepository;
         private readonly IModuleFieldDataSourceRepository _moduleFieldDataSourceRepository;
         private readonly IModuleFieldSettingRepository _moduleFieldSettingRepository;
+        private readonly IModuleClientBehaviorRepository _moduleClientBehaviorRepository;
         private readonly IDefinedListItemRepository _definedListItemRepository;
 
         public ModuleFieldService(
             IModuleFieldRepository moduleFieldRepository,
             IModuleFieldDataSourceRepository moduleFieldDataSourceRepository,
             IModuleFieldSettingRepository moduleFieldSettingRepository,
+            IModuleClientBehaviorRepository moduleClientBehaviorRepository,
             IDefinedListItemRepository definedListItemRepository)
         {
             _moduleFieldRepository = moduleFieldRepository;
             _moduleFieldDataSourceRepository = moduleFieldDataSourceRepository;
             _moduleFieldSettingRepository = moduleFieldSettingRepository;
+            _moduleClientBehaviorRepository = moduleClientBehaviorRepository;
             _definedListItemRepository = definedListItemRepository;
         }
 
@@ -36,6 +39,7 @@ namespace NitroSystem.Dnn.BusinessEngine.App.ApplicationService.Module
         {
             var fields = await _moduleFieldRepository.GetsAsync(moduleId);
             var fieldsDataSource = await _moduleFieldDataSourceRepository.GetsByAncestorAsync(moduleId);
+            var fieldsClientBehaviors = await _moduleClientBehaviorRepository.GetsAsync(moduleId);
             var fieldsSettings = await _moduleFieldSettingRepository.GetsByAncestorAsync(moduleId);
 
             return await HybridMapper.MapCollectionAsync<ModuleFieldInfo, ModuleFieldDto>(fields,
@@ -43,6 +47,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.ApplicationService.Module
                 {
                     if (src.HasDataSource)
                         dest.DataSource = await GetFieldDataSource(fieldsDataSource.FirstOrDefault(d => d.FieldId == src.Id));
+
+                    dest.ClientBehaviors = HybridMapper.MapCollection<ModuleClientBehaviorInfo, ModuleClientBehaviorDto>(fieldsClientBehaviors
+                        .Where(c => c.FieldId == src.Id));
 
                     var dict = fieldsSettings.GroupBy(c => c.FieldId).ToDictionary(g => g.Key, g => g.AsEnumerable());
                     if (dict.TryGetValue(src.Id, out var settings))

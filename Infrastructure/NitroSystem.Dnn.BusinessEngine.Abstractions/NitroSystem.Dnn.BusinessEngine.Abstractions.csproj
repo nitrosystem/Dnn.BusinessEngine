@@ -53,6 +53,7 @@
     <Compile Include="App\ApplicationService\Contracts\IUserDataStore.cs" />
     <Compile Include="App\ApplicationService\Dto\DashboardDto.cs" />
     <Compile Include="App\ApplicationService\Dto\DashboardPageDto.cs" />
+    <Compile Include="App\ApplicationService\Dto\ModuleClientBehaviorDto.cs" />
     <Compile Include="App\ApplicationService\Dto\ModuleClientVariableDto.cs" />
     <Compile Include="App\ApplicationService\Dto\ModuleFieldDataSourceDto.cs" />
     <Compile Include="App\Engine\ActionExecution\IActionExecutor.cs" />

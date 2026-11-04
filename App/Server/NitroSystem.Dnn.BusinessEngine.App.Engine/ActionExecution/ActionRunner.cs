@@ -106,12 +106,9 @@ namespace NitroSystem.Dnn.BusinessEngine.App.Engine.ActionExecution
                 catch (Exception ex)
                 {
                     result.Status = ActionResultStatus.Failure;
+                    result.Data = new { Code = ex.HResult, Message = ex.Message };
 
                     isRequiredToUpdateData = true;
-
-                    moduleData.AddOrUpdate("_ActionError", new { Code = ex.HResult, Message = ex.Message }, (key, value) => value);
-                    moduleData = await _userDataStore.UpdateModuleDataAsync(connectionId, moduleId,
-                            moduleData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value), basePath);
 
                     EnqueueChildren(buffer, node.ErrorActions);
                 }

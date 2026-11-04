@@ -2,8 +2,8 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const config = {
     mode: 'production',
-    devtool: false,
-    //devtool: 'source-map',
+    //devtool: false,
+    devtool: 'source-map',
     performance: {
         hints: false,
     },

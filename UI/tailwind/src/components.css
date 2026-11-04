@@ -228,6 +228,26 @@
 }
 
 
+/* ---------- Collapse (smooth show/hide of any block) ----------
+   <div class="b-collapse" b-class="{'b-open': isOpen}"><div> content </div></div>
+   The single child must exist: it is the element that gets clipped while the height animates. */
+.b-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows .3s ease, opacity .3s ease;
+}
+.b-collapse.b-open { grid-template-rows: 1fr; opacity: 1; }
+.b-collapse > * { min-height: 0; overflow: hidden; }
+
+/* Technical details box inside an alert (error message, stack trace, ...) */
+.b-alert-details {
+  @apply b:m-0 b:mt-3 b:rounded-lg b:border b:border-danger/30 b:bg-surface b:px-3 b:py-2
+         b:font-mono b:text-xs b:leading-relaxed b:text-danger-ink;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 /* module builder button*/
 .b--module-builder {
     box-shadow: -6px 8px 10px rgba(81,41,10,0.1),0px 2px 2px rgba(81,41,10,0.2);
@@ -269,3 +289,5 @@
 [b-show]:not([b-show-val]), [b-show-val=false], [b-hide-val=true], [b-if]:not([b-if-val]), [b-if-val=false] {
     display: none !important
 }
+
+
