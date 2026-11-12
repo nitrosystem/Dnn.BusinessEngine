@@ -1,19 +1,21 @@
 /* ==========================================================================
-   کلاس‌های پایه‌ی عمومی (معادل utility های Bootstrap): همیشه ساخته می‌شوند.
-   کلاس‌های خاص (مثل b:text-[11px]) همچنان از روی template ها اسکن می‌شوند.
+   Base utility classes (the equivalent of Bootstrap utilities): always generated.
+   One-off classes (like b:text-[11px]) are still picked up by scanning templates.
 
-   {a,b} فهرست است و {{0..12}} بازه. بخش اول هر الگو، پیشوند و variant هاست.
-   variant ها:
-     sm: md: lg: xl: 2xl:   ← بر اساس عرض صفحه (viewport)
-     @sm: @md: @lg: @xl:    ← بر اساس عرض کانتینر (والد باید b:@container باشد)
-     max-sm: max-md: ...    ← «کوچک‌تر از»
+   {a,b} is a list and {{0..12}} is a range. The first part of each pattern is
+   the prefix and the variants.
+   Variants:
+     sm: md: lg: xl: 2xl:   <- based on viewport width
+     @sm: @md: @lg: @xl:    <- based on container width (a parent must have b:@container)
+     max-sm: max-md: ...    <- "smaller than"
    ========================================================================== */
 
-/* ================= display و visibility ================= */
+/* ================= display and visibility ================= */
 @source inline("b:{,sm:,md:,lg:,xl:,2xl:,@sm:,@md:,@lg:,@xl:}{block,inline,inline-block,flex,inline-flex,grid,inline-grid,hidden,contents}");
 @source inline("b:{max-sm:,max-md:,max-lg:}{block,flex,grid,hidden}");
 @source inline("b:{table,table-row,table-cell,flow-root,visible,invisible}");
 @source inline("b:{md:,lg:}table-cell");
+@source inline("b:@max-{sm,md,lg}:{block,flex,grid,hidden}");
 
 /* ================= flex ================= */
 @source inline("b:{,sm:,md:,lg:,xl:,@sm:,@md:,@lg:,@xl:}{flex-row,flex-row-reverse,flex-col,flex-col-reverse,flex-wrap,flex-wrap-reverse,flex-nowrap}");
@@ -64,15 +66,15 @@
 @source inline("b:line-clamp-{{1..6}}");
 @source inline("b:list-{none,disc,decimal,inside,outside}");
 
-/* ================= رنگ‌ها: فقط نقش‌های تم (رنگ ثابت مثل slate وجود ندارد) ================= */
+/* ================= colors: theme roles (fixed palettes such as slate are added at the end of the file) ================= */
 @source inline("b:{,hover:,focus:}text-{ink,ink-muted,ink-subtle,primary,primary-hover,primary-ink,on-primary,accent,success,success-ink,danger,danger-ink,warning,warning-ink,info,info-ink}");
-@source inline("b:{,hover:,focus:}bg-{surface,surface-muted,surface-sunken,transparent,primary,primary-hover,primary-soft,accent,success,success-soft,danger,danger-soft,warning,warning-soft,info,info-soft}");
+@source inline("b:{,hover:,focus:}bg-{surface,surface-muted,surface-sunken,line-strong,transparent,primary,primary-hover,primary-soft,accent,success,success-soft,danger,danger-soft,warning,warning-soft,info,info-soft}");
 @source inline("b:{,hover:,focus:,focus-within:}border-{line,line-strong,transparent,primary,success,danger,warning,info}");
 @source inline("b:{text-inherit,text-current,text-transparent}");
 @source inline("b:bg-{primary,success,danger,warning,info}/{10,20}");
 @source inline("b:{bg-gradient-to-{r,l,t,b,br},from-{primary,accent,surface},to-{primary,accent,surface}}");
 
-/* ================= border، گوشه‌ها، سایه ================= */
+/* ================= border, corners, shadow ================= */
 @source inline("b:{border,border-t,border-b,border-l,border-r,border-x,border-y}");
 @source inline("b:{border-0,border-t-0,border-b-0,border-l-0,border-r-0,border-2,border-4}");
 @source inline("b:{border-solid,border-dashed,border-dotted,border-none}");
@@ -83,14 +85,14 @@
 @source inline("b:{ring-0,ring-1,ring-2,ring-3,outline-none}");
 @source inline("b:{border-collapse,border-separate,table-auto,table-fixed}");
 
-/* ================= موقعیت، float، سرریز ================= */
+/* ================= position, float, overflow ================= */
 @source inline("b:{static,relative,absolute,fixed,sticky}");
 @source inline("b:{inset-0,inset-x-0,inset-y-0,top-0,bottom-0,left-0,right-0,top-full,top-1/2,left-1/2,-translate-x-1/2,-translate-y-1/2}");
 @source inline("b:z-{0,10,20,30,40,50,auto}");
 @source inline("b:{float-left,float-right,float-none,clear-both,clear-left,clear-right,clear-none}");
 @source inline("b:overflow-{hidden,auto,scroll,visible,x-auto,y-auto,x-hidden,y-hidden}");
 
-/* ================= تعامل، انیمیشن و دسترسی‌پذیری ================= */
+/* ================= interaction, transitions and accessibility ================= */
 @source inline("b:cursor-{pointer,default,not-allowed,wait,move,grab}");
 @source inline("b:pointer-events-{none,auto}");
 @source inline("b:select-{none,text,all,auto}");
@@ -100,7 +102,7 @@
 @source inline("b:ease-{in,out,in-out}");
 @source inline("b:{rotate-45,rotate-90,rotate-180,scale-95,scale-100,scale-105}");
 
-/* ================= تکمیل‌ها (مقایسه با utility های Bootstrap) ================= */
+/* ================= additions (compared with Bootstrap utilities) ================= */
 @source inline("b:{md:,lg:,xl:}{pl,pr,ml,mr}-{{0..8}}");
 @source inline("b:{md:,lg:}{ml,mr}-auto");
 @source inline("b:{sm:,md:,lg:,xl:}{float-left,float-right,float-none}");
@@ -127,5 +129,13 @@
 @source inline("b:{top,bottom,left,right,inset,inset-x,inset-y}-{{0..19}.5}");
 
 /* Slate palette (fixed colors, not theme roles) */
-@source inline("b:{text,bg}-slate-{50,100,200,300,400,500,600,700,800,900,950}");
 @source inline("b:{text,bg,border}-slate-{50,100,200,300,400,500,600,700,800,900,950}");
+
+/* Font sizes by device: phone (max-sm), tablet (sm) and desktop (lg) */
+@source inline("b:{sm:,lg:,max-sm:}text-{2xs,xs,sm,base,lg,xl,2xl,3xl,4xl,5xl}");
+
+/* Padding and margin 0..10 by device */
+@source inline("b:{sm:,lg:,max-sm:}{p,px,py,pt,pr,pb,pl,m,mx,my,mt,mr,mb,ml}-{{0..10}}");
+
+/* Gap 0..10 by device */
+@source inline("b:{sm:,lg:,max-sm:}{gap,gap-x,gap-y}-{{0..10}}");

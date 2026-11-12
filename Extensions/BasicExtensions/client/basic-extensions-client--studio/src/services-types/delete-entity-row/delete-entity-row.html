@@ -122,21 +122,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="filter in $.deleteEntityRowService.Conditions">
+                    <tr ng-repeat="condition in $.deleteEntityRowService.Conditions">
                         <td class="w-150">
-                            <select ng-model="filter.Type" class="b-input form-select">
+                            <select ng-model="condition.Type" class="b-input form-select">
                                 <option disabled value="">Type</option>
                                 <option ng-value="0" disabled>Standard</option>
                                 <option ng-value="1">Custom</option>
                             </select>
                         </td>
-                        <td ng-if="filter.Type==0"></td>
-                        <td ng-if="filter.Type==1">
-                            <input type="text" ng-model="filter.CustomQuery" class="b-input form-control"
+                        <td ng-if="condition.Type==0"></td>
+                        <td ng-if="condition.Type==1">
+                            <input type="text" ng-model="condition.CustomQuery" class="b-input form-control"
                                 placeholder="Custom Query" required />
                         </td>
                         <td class="w-200">
-                            <input type="text" ng-model="filter.ConditionGroupName" class="b-input form-control"
+                            <input type="text" ng-model="condition.ConditionGroupName" class="b-input form-control"
                                 placeholder="Custom Query" required />
                         </td>
                         <td>
@@ -150,7 +150,7 @@
                 <tfoot>
                     <tr>
                         <th colspan="20">
-                            <button type="button" class="b-btn" ng-click="$.onAddFilterClick()">
+                            <button type="button" class="b-btn" ng-click="$.onAddConditionClick()">
                                 <i class="codicon codicon-plus me-0"></i>
                             </button>
                         </th>

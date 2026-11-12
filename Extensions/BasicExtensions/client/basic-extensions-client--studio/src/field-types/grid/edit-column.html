@@ -180,6 +180,37 @@
                     </div>
                 </div>
             </div>
+            <div class="b-field">
+                <label class="form-label d-block">Show In Details</label>
+                <label class="b-switch d-block">
+                    <input type="checkbox" ng-model="$.column.ShowInDetails">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="b-field" ng-if="$.column.ShowInDetails">
+                <label class="form-label">Display In Mode</label>
+                <div class="b-input-group">
+                    <select ng-model="$.column.DisplayInMode" class="b-input form-select" chosen
+                        inherit-select-classes="true" placeholder-text-single="'Select column Type'" required>
+                        <option value="">Always</option>
+                        <option value="custom">Container Custom Width</option>
+                        <option value="sm">sm</option>
+                        <option value="md">md</option>
+                        <option value="lg">lg</option>
+                        <option value="xl">xl</option>
+                        <option value="2xl">2xl</option>
+                    </select>
+                    <span><i class="codicon codicon-symbol-structure"></i></span>
+                </div>
+            </div>
+            <div class="b-field" ng-if="$.column.ShowInDetails && $.column.DisplayInMode==='custom'">
+                <label class="form-label">Container Max Width(px)</label>
+                <div class="b-input-group">
+                    <input type="number" class="b-input form-control" ng-model="$.column.ContainerMaxWidth"
+                        placeholder="For example: 800 =>  800px" autocomplete="off" required />
+                    <span><i class="codicon codicon-warning"></i></span>
+                </div>
+            </div>
         </div>
         <!------------------------------------>
         <!-- Right Fields -->

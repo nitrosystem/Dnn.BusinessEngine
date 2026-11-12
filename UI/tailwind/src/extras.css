@@ -10,6 +10,7 @@
 @source inline("b:{from-primary-soft,via-surface,to-primary-soft/60}");
 @source inline("b:{border-l-2,border-primary-hover}");
 @source inline("b:rounded-[50%]");
+@source inline("b:{,hover:}{text-surface,text-surface-muted}");
 @source inline("b:visited:text-{ink-muted,on-primary}");
 @source inline("b:@container");
 @source inline("b:@[900px]:block");
@@ -17,3 +18,18 @@
 @source inline("b:{-mt-9}");
 @source inline("b:animate-{spin,ping,pulse,bounce,none}");
 @source inline("b:motion-safe:animate-{spin,ping,pulse,bounce}");
+@source inline("b:{first:,last:}{border-0,border-t-0,border-b-0,border-t,border-b,pt-0,pb-0,mt-0,mb-0,rounded-none}");
+@source inline("b:{odd:,even:}bg-{surface-muted,surface-sunken}");
+@source inline("b:{from,via,to}-{primary,accent,surface}/{10,20,30,40,50,60,70,80}");
+@source inline("b:group-has-[input:checked]:{bg-primary,translate-x-5}");
+
+/* Glass background in the theme's primary color: b:bg-primary-glass (also hover:, focus:).
+   Only the glass parts live here; add your own b:rounded-2xl, b:shadow-md, ...
+   Pair it with b:border so the border-color shows (b:border b:border-transparent when idle, to avoid layout jumps). */
+@utility bg-primary-glass {
+    background-color: color-mix(in oklab, var(--bt-primary) 54%, transparent);
+    border-color: color-mix(in oklab, var(--bt-primary) 33%, transparent);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+}
+@source inline("b:{,hover:,focus:}bg-primary-glass");

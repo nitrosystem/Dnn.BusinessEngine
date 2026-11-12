@@ -1021,7 +1021,7 @@ namespace NitroSystem.Dnn.BusinessEngine.ORM.Dapper.Sql
                             WHERE o.type = N'U'
                             ORDER BY s.name, o.name;"; // Tables
             else if (type == 1)
-                query = @"SELECT o.name
+                query = @"SELECT v.name
                             FROM sys.views AS v
                             INNER JOIN sys.schemas AS s ON s.schema_id = v.schema_id
                             WHERE v.is_ms_shipped = 0

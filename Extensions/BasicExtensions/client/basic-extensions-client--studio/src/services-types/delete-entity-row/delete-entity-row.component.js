@@ -12,8 +12,8 @@ class DeleteEntityRowServiceController {
 
         this.baseQueryTemplate = deleteEntityRow_baseQuery;
 
-        $scope.$on('onValidateService', (e, task, args) => {
-            this._validateService(task, args);
+        $scope.$on('onValidateService_DeleteEntityRow', (e, defer) => {
+            this._validateService(defer);
         });
 
         const serviceNameWatch = $scope.$watch('$.service.ServiceName', (newVal, oldVal) => {
@@ -55,13 +55,13 @@ class DeleteEntityRowServiceController {
         if (entity) this.deleteEntityRowService.EntityTableName = entity.TableName;
     }
 
-    onAddFilterClick() {
+    onAddConditionClick() {
         this.deleteEntityRowService.Conditions = this.deleteEntityRowService.Conditions ?? [];
         this.deleteEntityRowService.Conditions.push({
             Type: 1,
             ConditionGroupName:
                 Global.getSuggestedName(
-                    this.deleteEntityRowService.Filters.map(f => f.ConditionGroupName),
+                    this.deleteEntityRowService.Conditions.map(f => f.ConditionGroupName),
                     'ConditionGroup'
                 )
         });
