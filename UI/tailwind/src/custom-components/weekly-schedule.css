@@ -1,0 +1,204 @@
+/* ==========================================================================
+   Weekly Schedule component (b-weekly*)
+   Standalone file: load it only on pages that use the WeeklySchedule component.
+   Depends on theme roles (--bt-*) and --b-unit from the base theme.
+   Not wrapped in a layer, like components.css, so utilities can still override.
+   ========================================================================== */
+
+/* Root: a container, so the layout follows the field width, not the viewport.
+   (A container cannot be styled by its own query, so the tiles live in .b-weekly-days.) */
+.b-weekly {
+  container-type: inline-size;
+  width: 100%;
+}
+
+/* Tiles grid: 1 column by default; 2 columns from 720px (see container queries below) */
+.b-weekly-days {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--b-unit) * .5) calc(var(--b-unit) * .75);
+}
+
+/* ---- Day row ---------------------------------------------------------- */
+.b-weekly-day {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);   /* stacked: name above hours */
+  align-items: start;
+  row-gap: calc(var(--b-unit) * .375);
+  column-gap: calc(var(--b-unit) * .75);
+  padding: calc(var(--b-unit) * .625) calc(var(--b-unit) * .75);
+  background: var(--bt-surface);
+  border: 1px solid var(--bt-line);
+  border-radius: calc(var(--b-unit) * .625);
+  transition: background-color .2s ease, border-color .2s ease;
+}
+.b-weekly-day:hover {
+  border-color: color-mix(in oklab, var(--bt-primary) 35%, var(--bt-line));
+}
+.b-weekly-day-closed {
+  background: color-mix(in oklab, var(--bt-ink) 3%, var(--bt-surface));
+}
+/* Closed tile is short: name and "Closed" always sit side by side */
+.b-weekly-day.b-weekly-day-closed {
+  grid-template-columns: calc(var(--b-unit) * 9.5) minmax(0, 1fr);
+  align-items: center;
+}
+
+/* ---- Head: switch + day name ----------------------------------------- */
+.b-weekly-day-head {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--b-unit) * .625);
+  min-height: calc(var(--b-unit) * 2.5);
+  cursor: pointer;
+  user-select: none;
+}
+/* Switch track (drawn on the label; the checkbox itself is sr-only) */
+.b-weekly-day-head::before {
+  content: "";
+  flex: none;
+  width: calc(var(--b-unit) * 2.25);
+  height: calc(var(--b-unit) * 1.25);
+  border-radius: 999px;
+  background-color: color-mix(in oklab, var(--bt-ink) 22%, var(--bt-surface));
+  /* knob */
+  background-image: radial-gradient(circle at center, #fff 0 calc(var(--b-unit) * .45), transparent calc(var(--b-unit) * .47));
+  background-repeat: no-repeat;
+  background-size: calc(var(--b-unit) * 1.25) calc(var(--b-unit) * 1.25);
+  background-position: 0 center;
+  transition: background-color .2s ease, background-position .2s ease;
+}
+.b-weekly-day-head:has(input:checked)::before {
+  background-color: var(--bt-primary);
+  background-position: 100% center;
+}
+.b-weekly-day-head:has(input:focus-visible)::before {
+  outline: 2px solid var(--bt-primary);
+  outline-offset: 2px;
+}
+.b-weekly-day-name {
+  font-size: calc(var(--b-unit) * .875);
+  font-weight: 600;
+  color: var(--bt-ink);
+}
+.b-weekly-day-closed .b-weekly-day-name {
+  color: var(--bt-ink-muted);
+  font-weight: 500;
+}
+
+/* ---- Ranges ---------------------------------------------------------- */
+.b-weekly-ranges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(var(--b-unit) * .5);
+  min-width: 0;
+}
+.b-weekly-range {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--b-unit) * .5);
+  max-width: 100%;
+}
+.b-weekly-range .b-field-input {
+  width: calc(var(--b-unit) * 8.5);
+  min-width: 0;
+  text-align: center;
+}
+.b-weekly-range-sep {
+  color: var(--bt-ink-subtle);
+  font-weight: 600;
+}
+
+/* Remove range */
+.b-weekly-range-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: calc(var(--b-unit) * 1.75);
+  height: calc(var(--b-unit) * 1.75);
+  padding: 0;
+  font-size: calc(var(--b-unit) * .875);
+  line-height: 1;
+  color: var(--bt-ink-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .15s ease, background-color .15s ease, border-color .15s ease;
+}
+.b-weekly-range-remove:hover,
+.b-weekly-range-remove:focus-visible {
+  color: var(--bt-danger-ink);
+  background: var(--bt-danger-soft);
+  border-color: color-mix(in oklab, var(--bt-danger) 30%, transparent);
+}
+
+/* Add range */
+.b-weekly-range-add {
+  display: inline-flex;
+  align-items: center;
+  padding: calc(var(--b-unit) * .125) calc(var(--b-unit) * .5);
+  font-size: calc(var(--b-unit) * .8125);
+  font-weight: 600;
+  color: var(--bt-primary);
+  background: transparent;
+  border: 1px dashed color-mix(in oklab, var(--bt-primary) 45%, transparent);
+  border-radius: calc(var(--b-unit) * .5);
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.b-weekly-range-add:hover,
+.b-weekly-range-add:focus-visible {
+  background: color-mix(in oklab, var(--bt-primary) 10%, var(--bt-surface));
+  border-style: solid;
+}
+
+/* Closed label */
+.b-weekly-closed {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--b-unit) * 2.5);
+  font-size: calc(var(--b-unit) * .8125);
+  color: var(--bt-ink-subtle);
+}
+
+/* ---- Layout by field width (container queries need static px) -----------
+   < 480px      1 tile per row, name above hours
+   480 - 719px  1 tile per row, name beside hours   (hours need ~300px + name 152px + padding)
+   720 - 1039px 2 tiles per row, name above hours   (each tile ~350px)
+   >= 1040px    2 tiles per row, name beside hours  (each tile >= 510px)
+   The last (7th) tile spans the full row so the odd one out doesn't leave a hole. */
+@container (min-width: 480px) {
+  .b-weekly-day {
+    grid-template-columns: calc(var(--b-unit) * 9.5) minmax(0, 1fr);
+  }
+}
+@container (min-width: 720px) {
+  .b-weekly-days { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .b-weekly-day { grid-template-columns: minmax(0, 1fr); }
+  .b-weekly-day-last { grid-column: 1 / -1; }
+}
+@container (min-width: 1040px) {
+  .b-weekly-day { grid-template-columns: calc(var(--b-unit) * 9.5) minmax(0, 1fr); }
+}
+
+/* ---- Touch: bigger targets (matches components.css touch block) ------- */
+@media (max-width: 767.98px), (pointer: coarse) {
+  .b-weekly-range .b-field-input { font-size: 16px; } /* avoid iOS zoom */
+  .b-weekly-range-remove {
+    width: calc(var(--b-unit) * 2.25);
+    height: calc(var(--b-unit) * 2.25);
+  }
+  .b-weekly-range-add {
+    padding: calc(var(--b-unit) * .375) calc(var(--b-unit) * .75);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b-weekly-day,
+  .b-weekly-day-head::before,
+  .b-weekly-range-remove,
+  .b-weekly-range-add { transition: none; }
+}

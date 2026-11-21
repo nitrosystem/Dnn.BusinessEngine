@@ -1,0 +1,234 @@
+/* ==========================================================================
+   Wizard component (wizard / wz-*)
+   Standalone file: load it after components.css.
+   Depends on theme roles (--bt-*) and --b-unit (small / medium / large).
+
+   Structure
+     .wizard                  base: sizing tokens + step panes (shared by every future style)
+     .wizard-dots             style 1: dashed dot stepper (the default)
+   Add new looks as new modifier blocks (.wizard-chevron, .wizard-pills ...) next to .wizard-dots.
+
+   Layout is driven by the width of the wizard itself (container query), not the viewport:
+     >= 560px   dots with a title under each dot
+     <  560px   compact: dots only + "Step 3 of 7 / Title" summary above (big touch targets)
+   ========================================================================== */
+
+.wizard {
+  --wz-node: calc(var(--b-unit) * 1.75);   /* dot size */
+  --wz-gap:  calc(var(--b-unit) * .375);   /* space between a dot and its connector */
+  --wz-pad:  0px;                          /* extra top/bottom padding for touch targets */
+  --wz-ease: cubic-bezier(.34, 1.56, .64, 1);
+  --wz-glyph: none;
+
+  container-type: inline-size;
+  width: 100%;
+}
+
+/* ---- Panes ------------------------------------------------------------------ */
+.wizard-panes {
+  margin-top: calc(var(--b-unit) * 1.25);
+}
+.wizard-panes > * {
+  animation: b-wizard-in .28s ease-out both;
+}
+
+/* ==========================================================================
+   Style: dots
+   ========================================================================== */
+.wizard-dots .wz-steps {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  /* room for the active glow; also lets many steps scroll instead of squeezing */
+  padding: calc(var(--b-unit) * .75) calc(var(--b-unit) * .25);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.wizard-dots .wz-steps::-webkit-scrollbar { display: none; }
+
+/* Step = one dot + its title (a button: keyboard and screen readers work) */
+.wizard-dots .wz-step {
+  position: relative;
+  flex: 1 1 0;
+  min-width: calc(var(--wz-node) + var(--b-unit));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--b-unit) * .5);
+  padding: var(--wz-pad) 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Dashed connector that leads INTO this step (so a hidden step never leaves a loose line) */
+.wizard-dots .wz-step::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--wz-pad) + var(--wz-node) / 2);
+  inset-inline-start: calc(-50% + var(--wz-node) / 2 + var(--wz-gap));
+  inset-inline-end:   calc(50% + var(--wz-node) / 2 + var(--wz-gap));
+  height: 0;
+  border-top: 2px dashed var(--bt-line-strong);
+  transform: translateY(-1px);
+  transition: border-color .4s ease;
+}
+.wizard-dots .wz-step:first-child::before { display: none; }
+.wizard-dots .wz-step.done::before,
+.wizard-dots .wz-step.active::before { border-top-color: var(--bt-primary); }
+
+/* Dot */
+.wizard-dots .step-number {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--wz-node);
+  height: var(--wz-node);
+  font-size: calc(var(--b-unit) * .8125);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--bt-ink-muted);
+  background: var(--bt-surface);
+  border: 2px solid var(--bt-line-strong);
+  border-radius: 50%;
+  transition: transform .35s var(--wz-ease), background-color .3s ease,
+              border-color .3s ease, color .3s ease, box-shadow .3s ease;
+}
+.wizard-dots .step-number > i { font-size: calc(var(--b-unit) * .875); line-height: 1; }
+
+/* Check / exclamation glyph, drawn with a mask so it follows the text colour */
+.wizard-dots .step-number::after {
+  content: "";
+  display: none;
+  width: 58%;
+  height: 58%;
+  background-color: currentColor;
+  -webkit-mask: var(--wz-glyph) center / contain no-repeat;
+  mask: var(--wz-glyph) center / contain no-repeat;
+}
+.wizard-dots .wz-step.done          { --wz-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-7'/%3E%3C/svg%3E"); }
+.wizard-dots .wz-step.validated-error { --wz-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M8 3v6M8 12.6v.1'/%3E%3C/svg%3E"); }
+.wizard-dots .wz-step.done .step-number > *,
+.wizard-dots .wz-step.validated-error .step-number > * { display: none; }
+.wizard-dots .wz-step.done .step-number::after,
+.wizard-dots .wz-step.validated-error .step-number::after { display: block; }
+
+/* Title */
+.wizard-dots .wz-step-title {
+  max-width: 100%;
+  padding: 0 calc(var(--b-unit) * .125);
+  overflow: hidden;
+  font-size: calc(var(--b-unit) * .6875);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--bt-ink-muted);
+  transition: color .3s ease;
+}
+
+/* Hover / focus */
+.wizard-dots .wz-step:not(.disabled):hover .step-number {
+  border-color: var(--bt-primary);
+  color: var(--bt-primary-ink);
+}
+.wizard-dots .wz-step:focus-visible { outline: none; }
+.wizard-dots .wz-step:focus-visible .step-number {
+  outline: 2px solid var(--bt-primary);
+  outline-offset: 3px;
+}
+
+/* Done */
+.wizard-dots .wz-step.done .step-number {
+  color: var(--bt-on-primary);
+  background: var(--bt-primary);
+  border-color: var(--bt-primary);
+}
+.wizard-dots .wz-step.done .wz-step-title { color: var(--bt-primary-ink); }
+
+/* Active (wins over done) */
+.wizard-dots .wz-step.active .step-number {
+  color: var(--bt-on-primary);
+  background: var(--bt-primary);
+  border-color: var(--bt-primary);
+  transform: scale(1.22);
+  box-shadow: 0 0 0 calc(var(--b-unit) * .25) color-mix(in oklab, var(--bt-primary) 22%, transparent),
+              0 0 calc(var(--b-unit) * 1) color-mix(in oklab, var(--bt-primary) 32%, transparent);
+}
+.wizard-dots .wz-step.active .wz-step-title {
+  color: var(--bt-ink);
+  font-weight: 700;
+}
+
+/* Validation error */
+.wizard-dots .wz-step.validated-error .step-number {
+  color: var(--bt-danger-ink);
+  background: var(--bt-danger-soft);
+  border-color: var(--bt-danger);
+}
+.wizard-dots .wz-step.validated-error .wz-step-title { color: var(--bt-danger-ink); }
+.wizard-dots .wz-step.validated-error.active .step-number {
+  color: #fff;
+  background: var(--bt-danger);
+  box-shadow: 0 0 0 calc(var(--b-unit) * .25) color-mix(in oklab, var(--bt-danger) 22%, transparent);
+}
+
+/* Disabled */
+.wizard-dots .wz-step.disabled { opacity: .45; cursor: not-allowed; }
+
+/* ---- Summary (only used on narrow wizards) ---------------------------------- */
+.wizard .wz-summary { display: none; }
+
+@container (max-width: 559.98px) {
+  /* A container cannot be styled by its own query: tokens go on the child (.wz-steps) */
+  .wizard-dots .wz-steps {
+    --wz-node: min(calc(var(--b-unit) * 1.5), 30px);                /* keep many steps on one line */
+    --wz-pad: max(0px, calc((44px - var(--wz-node)) / 2));         /* >= 44px tap target */
+  }
+
+  .wizard .wz-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--b-unit) * .125);
+    margin-bottom: calc(var(--b-unit) * .25);
+    text-align: center;
+  }
+  .wizard .wz-summary-count {
+    font-size: calc(var(--b-unit) * .6875);
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--bt-ink-muted);
+  }
+  .wizard .wz-summary-title {
+    font-size: calc(var(--b-unit) * 1.0625);
+    font-weight: 700;
+    color: var(--bt-ink);
+  }
+
+  /* Titles are in the summary: dots only */
+  .wizard-dots .wz-step { min-width: calc(var(--wz-node) + 6px); }
+  .wizard-dots .wz-step-title { display: none; }
+}
+
+/* ---- Motion --------------------------------------------------------------------- */
+@keyframes b-wizard-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wizard-panes > * { animation: none; }
+  .wizard-dots .step-number,
+  .wizard-dots .wz-step::before,
+  .wizard-dots .wz-step-title { transition: none; }
+  .wizard-dots .wz-step.active .step-number { transform: none; }
+}

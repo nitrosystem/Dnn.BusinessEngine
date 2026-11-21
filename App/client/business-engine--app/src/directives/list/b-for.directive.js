@@ -18,8 +18,7 @@ export function BindFor(app, expressionService) {
             const render = () => {
                 const list = expressionService.evaluateExpression(listName, scope) ?? [];
 
-                // NEW — ثبت رابطه‌ی این لیست با والدش (برای پشتیبانی از watch سطح بالاتر مثل field.Matrix1)
-                const purePath = listName.split('|')[0].trim(); // اگر فیلتر داشت، فیلتر را کنار بگذار
+                const purePath = listName.split('|')[0].trim();
                 const { parent: listOwner } = app.resolvePropReference(purePath, scope);
                 if (listOwner) app.linkParent(list, listOwner);
 
@@ -37,7 +36,7 @@ export function BindFor(app, expressionService) {
                 let lastNode = placeholder;
                 let index = 0;
                 for (const item of list) {
-                    app.linkParent(item, list);   // NEW — ثبت رابطه‌ی آیتم با لیست
+                    app.linkParent(item, list); 
 
                     const clone = element.cloneNode(true);
                     clone.removeAttribute('b-for');

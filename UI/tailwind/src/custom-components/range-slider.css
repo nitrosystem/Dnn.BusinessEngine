@@ -1,0 +1,233 @@
+/* ==========================================================================
+   RangeSlider component (b-range*)
+   Standalone file: load it after components.css.
+   Depends on theme roles (--bt-*) and --b-unit (small / medium / large).
+   Overridable per instance: --b-range-thumb, --b-range-track-h
+   ========================================================================== */
+
+/* Animatable position (0..1) so the fill, bubble and ticks glide together */
+@property --b-range-pos {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+.b-range {
+  --b-range-thumb: calc(var(--b-unit) * 1.375);
+  --b-range-track-h: calc(var(--b-unit) * .375);
+  --b-range-ease: cubic-bezier(.22, 1, .36, 1);
+
+  display: flex;
+  align-items: center;
+  gap: calc(var(--b-unit) * .75);
+  width: 100%;
+  min-height: calc(var(--b-unit) * 2.5);
+  transition: --b-range-pos .28s var(--b-range-ease);
+}
+/* No easing while the pointer is dragging: the fill follows 1:1 */
+.b-range-dragging { transition: none; }
+
+/* ---- Bar: [min] [track] [max] with 3 layouts ------------------------- */
+.b-range-bar {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  column-gap: calc(var(--b-unit) * .75);
+  row-gap: calc(var(--b-unit) * .125);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "min track max";
+}
+.b-range-wrap { grid-area: track; min-width: 0; }
+.b-range-limit-min { grid-area: min; justify-self: start; }
+.b-range-limit-max { grid-area: max; justify-self: end; }
+
+.b-range-minmax-above .b-range-bar {
+  grid-template-areas: "min . max" "track track track";
+}
+.b-range-minmax-below .b-range-bar {
+  grid-template-areas: "track track track" "min . max";
+}
+/* No min/max labels in the DOM (b-if false): single column, no empty gaps */
+.b-range-bar:not(:has(.b-range-limit)) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "track";
+}
+
+.b-range-limit {
+  font-size: calc(var(--b-unit) * .75);
+  font-weight: 500;
+  color: var(--bt-ink-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Field: input + bubble + ticks ----------------------------------- */
+.b-range-field {
+  position: relative;
+  height: var(--b-range-thumb);
+}
+/* Reserve room for the bubble above the thumb */
+.b-range-value-thumb .b-range-wrap { padding-top: calc(var(--b-unit) * 1.875); }
+
+.b-range-input {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: var(--b-range-thumb);
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  touch-action: pan-y;
+  /* Fill ends exactly under the thumb centre */
+  --b-range-stop: calc(var(--b-range-thumb) / 2 + var(--b-range-pos) * (100% - var(--b-range-thumb)));
+}
+.b-range:dir(rtl) .b-range-input { --b-range-dir: to left; }
+.b-range-input { --b-range-dir: to right; }
+
+/* Track (WebKit / Blink) */
+.b-range-input::-webkit-slider-runnable-track {
+  height: var(--b-range-track-h);
+  border-radius: 999px;
+  background: linear-gradient(var(--b-range-dir),
+    var(--bt-primary) 0 var(--b-range-stop),
+    color-mix(in oklab, var(--bt-ink) 16%, var(--bt-surface)) var(--b-range-stop) 100%);
+}
+/* Track (Firefox) */
+.b-range-input::-moz-range-track {
+  height: var(--b-range-track-h);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--bt-ink) 16%, var(--bt-surface));
+}
+.b-range-input::-moz-range-progress {
+  height: var(--b-range-track-h);
+  border-radius: 999px;
+  background: var(--bt-primary);
+}
+
+/* Thumb */
+.b-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--b-range-thumb);
+  height: var(--b-range-thumb);
+  margin-top: calc((var(--b-range-track-h) - var(--b-range-thumb)) / 2);
+  border-radius: 50%;
+  background: var(--bt-surface);
+  border: calc(var(--b-unit) * .1875) solid var(--bt-primary);
+  box-shadow: 0 1px 3px color-mix(in oklab, var(--bt-ink) 30%, transparent);
+  transition: transform .18s var(--b-range-ease), box-shadow .18s ease;
+}
+.b-range-input::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--b-range-thumb);
+  height: var(--b-range-thumb);
+  border-radius: 50%;
+  background: var(--bt-surface);
+  border: calc(var(--b-unit) * .1875) solid var(--bt-primary);
+  box-shadow: 0 1px 3px color-mix(in oklab, var(--bt-ink) 30%, transparent);
+  transition: transform .18s var(--b-range-ease), box-shadow .18s ease;
+}
+
+.b-range-input:hover::-webkit-slider-thumb { transform: scale(1.1); }
+.b-range-input:hover::-moz-range-thumb     { transform: scale(1.1); }
+.b-range-input:active::-webkit-slider-thumb {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 calc(var(--b-unit) * .375) color-mix(in oklab, var(--bt-primary) 20%, transparent);
+}
+.b-range-input:active::-moz-range-thumb {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 calc(var(--b-unit) * .375) color-mix(in oklab, var(--bt-primary) 20%, transparent);
+}
+.b-range-input:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 calc(var(--b-unit) * .25) color-mix(in oklab, var(--bt-primary) 35%, transparent);
+}
+.b-range-input:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 calc(var(--b-unit) * .25) color-mix(in oklab, var(--bt-primary) 35%, transparent);
+}
+
+/* Disabled */
+.b-range-input:disabled { cursor: not-allowed; opacity: .55; }
+
+/* ---- Bubble (follows the thumb) -------------------------------------- */
+.b-range-bubble {
+  display: none; /* shown only for ValuePosition = thumb */
+  position: absolute;
+  bottom: calc(100% + calc(var(--b-unit) * .25));
+  inset-inline-start: calc(var(--b-range-thumb) / 2 + var(--b-range-pos) * (100% - var(--b-range-thumb)));
+  transform: translateX(-50%);
+  padding: calc(var(--b-unit) * .125) calc(var(--b-unit) * .5);
+  font-size: calc(var(--b-unit) * .75);
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--bt-on-primary);
+  background: var(--bt-primary);
+  border-radius: calc(var(--b-unit) * .375);
+  pointer-events: none;
+  /* small arrow */
+}
+.b-range-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: calc(var(--b-unit) * -.25);
+  border: calc(var(--b-unit) * .25) solid transparent;
+  border-top-color: var(--bt-primary);
+}
+.b-range:dir(rtl) .b-range-bubble { transform: translateX(50%); }
+.b-range-value-thumb .b-range-bubble { display: block; }
+
+/* ---- Value badge (start / end) --------------------------------------- */
+.b-range-value {
+  display: none; /* shown only for ValuePosition = start | end */
+  flex: none;
+  min-width: calc(var(--b-unit) * 3.5);
+  padding: calc(var(--b-unit) * .25) calc(var(--b-unit) * .625);
+  font-size: calc(var(--b-unit) * .8125);
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--bt-primary-ink);
+  background: var(--bt-primary-soft);
+  border: 1px solid color-mix(in oklab, var(--bt-primary) 25%, transparent);
+  border-radius: calc(var(--b-unit) * .5);
+}
+.b-range-value-start .b-range-value { display: block; order: -1; }
+.b-range-value-end .b-range-value { display: block; order: 2; }
+
+/* ---- Ticks ----------------------------------------------------------- */
+.b-range-ticks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.b-range-tick {
+  position: absolute;
+  top: calc(50% + var(--b-range-track-h) / 2 + calc(var(--b-unit) * .1875));
+  inset-inline-start: calc(var(--b-range-thumb) / 2 + var(--b-range-tick-pos) * (100% - var(--b-range-thumb)));
+  width: 1px;
+  height: calc(var(--b-unit) * .3125);
+  background: var(--bt-line-strong);
+  transform: translateX(-50%);
+}
+
+/* ---- Touch: larger thumb / track -------------------------------------- */
+@media (max-width: 767.98px), (pointer: coarse) {
+  .b-range {
+    --b-range-thumb: calc(var(--b-unit) * 1.75);
+    --b-range-track-h: calc(var(--b-unit) * .5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b-range { transition: none; }
+  .b-range-input::-webkit-slider-thumb,
+  .b-range-input::-moz-range-thumb { transition: none; }
+}

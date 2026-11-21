@@ -137,6 +137,7 @@ export class CreateModuleCreateActionController {
         this.actionType = actionType;
         this.action.ActionType = actionType.ActionType;
         this.action.HasResult = actionType.HasResult;
+        this.action.ServiceType = null;
 
         this._gotoStep(2);
 

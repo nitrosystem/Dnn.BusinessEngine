@@ -28,8 +28,8 @@ const config = {
                 terserOptions: {
                     ecma: 2020,
                     compress: {
-                        drop_console: true,
-                        drop_debugger: true,
+                        // drop_console: true,
+                        // drop_debugger: true,
                         passes: 2,
                     },
                     mangle: false,

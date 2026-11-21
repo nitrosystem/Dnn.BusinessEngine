@@ -1,3 +1,8 @@
+@import "./custom-components/weekly-schedule.css";
+@import "./custom-components/range-slider.css";
+@import "./custom-components/booking-calendar.css";
+@import "./custom-components/wizard.css";
+
 /* ==========================================================================
    Business Engine UI components: not wrapped in @layer, so they beat DNN's unlayered reset (utilities still override them)
    ========================================================================== */
@@ -53,27 +58,30 @@
 /* ==========================================================================
    Field row / group: responsive form layout driven by the CONTAINER width (not the viewport)
    ========================================================================== */
-/* .b-field-row-group   optional stack of rows
+/* .b-field-row-group   12-column grid of rows (rows can sit side by side with .b-field-span-N / .b-order-mobile-N)
    .b-field-row         12-column grid; children are full width in a narrow container (< 640px)
    .b-field-span-N      child width in columns (1-12) in a wide container (>= 640px)
    .b-order-mobile-N    child/row order (1-6) in the narrow layout only
    .b-field-span-mobile-N child width in columns (1-12) in the narrow layout (default: 12 = full width)
    .b-order-desktop-N   child/row order (1-6) in the wide layout only
    .b-field-row-end     align children to the bottom (e.g. input + button toolbars)
+   .b-field-row-dense   fill gaps: a small field jumps up beside an earlier wide one (visual order differs from Tab order)
    Tune the gaps with --b-field-gap-x / --b-field-gap-y on any parent.
    Container queries cannot use var(), so the 640px breakpoint is written out below. */
 .b-field-row-group,
 .b-field-row { container-type: inline-size; }
 
 .b-field-row-group {
-  display: flex; flex-direction: column;
-  gap: var(--b-field-gap-y, calc(var(--b-unit) * 1.25));
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start;
+  gap: var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) min(var(--b-field-gap-x, calc(var(--b-unit) * 1.75)), 4%);
 }
+.b-field-row-group > * { grid-column: span 12; min-width: 0; }
 .b-field-row {
   display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start;
-  gap: var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) var(--b-field-gap-x, calc(var(--b-unit) * 1.75));
+  gap: var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) min(var(--b-field-gap-x, calc(var(--b-unit) * 1.75)), 4%);
 }
 .b-field-row-end { align-items: end; }
+.b-field-row-dense { grid-auto-flow: row dense; }
 .b-field-row > * { grid-column: span 12; min-width: 0; }
 
 @container (min-width: 640px) {
@@ -128,8 +136,20 @@
    ========================================================================== */
 
 .b-dash { container-type: inline-size; position: relative; overflow-x: clip; }
-.b-dash-body { flex: 1 1 0%; min-width: 0; display: flex; flex-direction: column; }
+.b-dash-body { flex: 1 1 0%; min-width: 0; display: flex; flex-direction: column; box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;}
 .b-dash-topbar, .b-dash-backdrop { display: none; }
+
+/* Sidebar background: a light, solid tint of the theme (primary at the top, accent at the bottom) so it differs from the
+   white content area but stays light enough for dark text. Tune with --b-dash-sidebar-tint (default 14%). */
+.b-dash-sidebar {
+  --b-dash-sidebar-tint: 14%;
+  background-color: var(--bt-surface);
+  background-image: linear-gradient(180deg,
+    color-mix(in oklab, var(--bt-primary) var(--b-dash-sidebar-tint), var(--bt-surface)),
+    color-mix(in oklab, var(--bt-accent) calc(var(--b-dash-sidebar-tint) * .75), var(--bt-surface)));
+  border-color: color-mix(in oklab, var(--bt-primary) 25%, var(--bt-line));
+  /* box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset; */
+}
 
 /* Hamburger button: 3 lines that morph into an X; color follows the theme */
 .b-dash-toggle {
@@ -223,81 +243,134 @@
 /* ==========================================================================
    Collapsible field row: shows only the first line in a narrow container, expands smoothly
    ========================================================================== */
-/* <div class="b-field-row b-field-row-collapsible" b-class="{'b-expanded': isOpen}">
+/* <div class="b-field-row b-field-row-collapsible">
      <div class="b-field b-field-span-6">...always visible...</div>
-     <div class="b-field b-field-row-toggle">your button (+ .b-field-row-toggle-icon on its arrow)</div>
-     <div class="b-field-more"><div>
+     <div class="b-field-row-toggle" b-class="{'b-expanded': isOpen}">
+       <button type="button" class="b-field-row-toggle-btn"><svg class="b-field-row-toggle-icon">...</svg></button>
+     </div>
+     <div class="b-field-more">   <- put the hidden fields DIRECTLY inside (no extra wrapper)
        <div class="b-field b-field-span-3">...hidden until expanded...</div>
-     </div></div>
+     </div>
    </div>
-   - Wide container: everything is one normal row (the .b-field-more wrappers disappear, the toggle is hidden).
-   - Narrow container: only the first line shows; the toggle appears; .b-expanded opens the rest.
-   - .b-field-row-collapsible collapses below 640px; .b-field-row-collapsible-lg below 960px (tablets too).
+   - Wide container: one normal row (.b-field-more disappears into the row grid, the toggle is hidden).
+   - Narrow container: only the first line shows; the toggle appears; .b-expanded opens .b-field-more.
+   - .b-expanded can sit on the row itself OR on the .b-field-row-toggle (handy when the row is a pane).
+   - .b-field-row-collapsible collapses below 640px; .b-field-row-collapsible-lg below 960px (tablets too);
+     .b-field-row-collapsible-always collapses at every width (desktop too).
    - Speed: --b-field-more-duration (default .35s). Respects prefers-reduced-motion. */
-.b-field-more,
-.b-field-more > * { display: contents; }
+.b-field-more { display: contents; }
+:where(.b-field-more) > * { grid-column: span 12; min-width: 0; }   /* :where() keeps b-field-span-N able to override */
 .b-field-row-toggle { display: none; }
-.b-field-row-toggle-icon { transition: transform .3s ease; }
+.b-field-row-toggle-icon { display: block; width: 100%; height: 100%; transition: transform .3s ease; }
+
+/* Toggle: a thin divider line with a round button in the middle */
+.b-field-row-toggle {
+  position: relative; align-items: center; justify-content: center;
+  height: calc(var(--b-unit) * 1.75);
+}
+.b-field-row-toggle::before {
+  content: ""; position: absolute; inset-inline: 0; top: 50%; border-top: 1px solid var(--bt-line);
+}
+.b-field-row-toggle-btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: calc(var(--b-unit) * 1.75); height: calc(var(--b-unit) * 1.75); padding: calc(var(--b-unit) * .3125); margin: 0;
+  color: var(--bt-ink-muted); background: var(--bt-surface);
+  border: 1px solid var(--bt-line); border-radius: 9999px; cursor: pointer;
+  transition: color .2s, border-color .2s, background-color .2s, box-shadow .2s;
+}
+.b-field-row-toggle-btn:hover { color: var(--bt-primary); border-color: var(--bt-primary); background: var(--bt-primary-soft); }
+.b-field-row-toggle-btn:focus-visible {
+  outline: 0; border-color: var(--bt-primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--bt-primary) 20%, transparent);
+}
 
 @container (max-width: 639.98px) {
   .b-field-row-collapsible > .b-field-more {
-    display: grid; grid-column: 1 / -1;
-    grid-template-rows: 0fr; opacity: 0; visibility: hidden;
-    margin-top: calc(var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) * -1);            /* cancels the row gap while collapsed */
-    transition: grid-template-rows var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), opacity calc(var(--b-field-more-duration, .35s) * .7) ease,
-                margin-top var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), visibility 0s linear var(--b-field-more-duration, .35s);
-  }
-  .b-field-row-collapsible > .b-field-more > * {
-    display: flex; flex-direction: column; gap: var(--b-field-gap-y, calc(var(--b-unit) * 1.25));
-    min-height: 0; overflow: hidden;
-    padding: 4px; margin: -4px;              /* room for focus rings while clipped */
-    transform: translateY(-8px);
-    transition: transform var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), overflow 0s var(--b-field-more-duration, .35s);
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start;
+    gap: var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) min(var(--b-field-gap-x, calc(var(--b-unit) * 1.75)), 4%);
+    grid-column: 1 / -1; box-sizing: border-box;
+    height: 0; overflow: hidden; opacity: 0; visibility: hidden; transform: translateY(-8px);
+    interpolate-size: allow-keywords;        /* lets height animate to auto (browsers without it just open instantly) */
+    transition: height var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), opacity calc(var(--b-field-more-duration, .35s) * .7) ease,
+                transform var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1),
+                visibility 0s linear var(--b-field-more-duration, .35s), overflow 0s;
     transition-behavior: allow-discrete;
   }
-  .b-field-row-collapsible.b-expanded > .b-field-more {
-    grid-template-rows: 1fr; opacity: 1; visibility: visible; margin-top: 0;
-    transition: grid-template-rows var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), opacity calc(var(--b-field-more-duration, .35s) * .7) ease,
-                margin-top var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), visibility 0s linear 0s;
-  }
-  .b-field-row-collapsible.b-expanded > .b-field-more > * {
-    transform: none;
-    overflow: visible;                        /* after the animation, so dropdowns are not clipped */
-    transition: transform var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), overflow 0s var(--b-field-more-duration, .35s);
+  .b-field-row-collapsible:is(.b-expanded, :has(> .b-field-row-toggle.b-expanded)) > .b-field-more {
+    height: auto; overflow: visible;          /* visible only after the animation, so dropdowns are not clipped */
+    opacity: 1; visibility: visible; transform: none; margin-top: 0;
+    transition: height var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), opacity calc(var(--b-field-more-duration, .35s) * .7) ease,
+                transform var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1),
+                visibility 0s linear 0s, overflow 0s var(--b-field-more-duration, .35s);
     transition-behavior: allow-discrete;
   }
-  .b-field-row-collapsible > .b-field-row-toggle { display: block; }
-  .b-field-row-collapsible.b-expanded .b-field-row-toggle-icon { transform: rotate(180deg); }
+  .b-field-row-collapsible > .b-field-row-toggle {
+    display: flex;
+    margin-bottom: calc(var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) * -1);        /* cancels one row gap while collapsed (a grid track cannot go negative on the empty .b-field-more) */
+    transition: margin-bottom var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1);
+  }
+  .b-field-row-collapsible:is(.b-expanded, :has(> .b-field-row-toggle.b-expanded)) > .b-field-row-toggle { margin-bottom: 0; }
+  .b-field-row-collapsible:is(.b-expanded, :has(> .b-field-row-toggle.b-expanded)) .b-field-row-toggle-icon { transform: rotate(180deg); }
 }
 @container (max-width: 959.98px) {
   .b-field-row-collapsible-lg > .b-field-more {
-    display: grid; grid-column: 1 / -1;
-    grid-template-rows: 0fr; opacity: 0; visibility: hidden;
-    margin-top: calc(var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) * -1);            /* cancels the row gap while collapsed */
-    transition: grid-template-rows var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), opacity calc(var(--b-field-more-duration, .35s) * .7) ease,
-                margin-top var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), visibility 0s linear var(--b-field-more-duration, .35s);
-  }
-  .b-field-row-collapsible-lg > .b-field-more > * {
-    display: flex; flex-direction: column; gap: var(--b-field-gap-y, calc(var(--b-unit) * 1.25));
-    min-height: 0; overflow: hidden;
-    padding: 4px; margin: -4px;              /* room for focus rings while clipped */
-    transform: translateY(-8px);
-    transition: transform var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), overflow 0s var(--b-field-more-duration, .35s);
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start;
+    gap: var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) min(var(--b-field-gap-x, calc(var(--b-unit) * 1.75)), 4%);
+    grid-column: 1 / -1; box-sizing: border-box;
+    height: 0; overflow: hidden; opacity: 0; visibility: hidden; transform: translateY(-8px);
+    interpolate-size: allow-keywords;        /* lets height animate to auto (browsers without it just open instantly) */
+    transition: height var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), opacity calc(var(--b-field-more-duration, .35s) * .7) ease,
+                transform var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1),
+                visibility 0s linear var(--b-field-more-duration, .35s), overflow 0s;
     transition-behavior: allow-discrete;
   }
-  .b-field-row-collapsible-lg.b-expanded > .b-field-more {
-    grid-template-rows: 1fr; opacity: 1; visibility: visible; margin-top: 0;
-    transition: grid-template-rows var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), opacity calc(var(--b-field-more-duration, .35s) * .7) ease,
-                margin-top var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), visibility 0s linear 0s;
-  }
-  .b-field-row-collapsible-lg.b-expanded > .b-field-more > * {
-    transform: none;
-    overflow: visible;                        /* after the animation, so dropdowns are not clipped */
-    transition: transform var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), overflow 0s var(--b-field-more-duration, .35s);
+  .b-field-row-collapsible-lg:is(.b-expanded, :has(> .b-field-row-toggle.b-expanded)) > .b-field-more {
+    height: auto; overflow: visible;          /* visible only after the animation, so dropdowns are not clipped */
+    opacity: 1; visibility: visible; transform: none; margin-top: 0;
+    transition: height var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), opacity calc(var(--b-field-more-duration, .35s) * .7) ease,
+                transform var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1),
+                visibility 0s linear 0s, overflow 0s var(--b-field-more-duration, .35s);
     transition-behavior: allow-discrete;
   }
-  .b-field-row-collapsible-lg > .b-field-row-toggle { display: block; }
-  .b-field-row-collapsible-lg.b-expanded .b-field-row-toggle-icon { transform: rotate(180deg); }
+  .b-field-row-collapsible-lg > .b-field-row-toggle {
+    display: flex;
+    margin-bottom: calc(var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) * -1);        /* cancels one row gap while collapsed (a grid track cannot go negative on the empty .b-field-more) */
+    transition: margin-bottom var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1);
+  }
+  .b-field-row-collapsible-lg:is(.b-expanded, :has(> .b-field-row-toggle.b-expanded)) > .b-field-row-toggle { margin-bottom: 0; }
+  .b-field-row-collapsible-lg:is(.b-expanded, :has(> .b-field-row-toggle.b-expanded)) .b-field-row-toggle-icon { transform: rotate(180deg); }
+}
+
+/* .b-field-row-collapsible-always: collapsible at EVERY width (desktop too) */
+.b-field-row-collapsible-always > .b-field-more {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: center;
+  gap: var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) min(var(--b-field-gap-x, calc(var(--b-unit) * 1.75)), 4%);
+  grid-column: 1 / -1; box-sizing: border-box;
+  height: 0; overflow: hidden; opacity: 0; visibility: hidden; transform: translateY(-8px);
+  interpolate-size: allow-keywords;        /* lets height animate to auto (browsers without it just open instantly) */
+  transition: height var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), opacity calc(var(--b-field-more-duration, .35s) * .7) ease,
+              transform var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1),
+              visibility 0s linear var(--b-field-more-duration, .35s), overflow 0s;
+  transition-behavior: allow-discrete;
+}
+.b-field-row-collapsible-always:is(.b-expanded, :has(> .b-field-row-toggle.b-expanded)) > .b-field-more {
+  height: auto; overflow: visible;          /* visible only after the animation, so dropdowns are not clipped */
+  opacity: 1; visibility: visible; transform: none; margin-top: 0;
+  transition: height var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1), opacity calc(var(--b-field-more-duration, .35s) * .7) ease,
+              transform var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1),
+              visibility 0s linear 0s, overflow 0s var(--b-field-more-duration, .35s);
+  transition-behavior: allow-discrete;
+}
+.b-field-row-collapsible-always > .b-field-row-toggle {
+  display: flex;
+  margin-bottom: calc(var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) * -1);        /* cancels one row gap while collapsed (a grid track cannot go negative on the empty .b-field-more) */
+  transition: margin-bottom var(--b-field-more-duration, .35s) cubic-bezier(.2,.8,.2,1);
+}
+.b-field-row-collapsible-always:is(.b-expanded, :has(> .b-field-row-toggle.b-expanded)) > .b-field-row-toggle { margin-bottom: 0; }
+.b-field-row-collapsible-always:is(.b-expanded, :has(> .b-field-row-toggle.b-expanded)) .b-field-row-toggle-icon { transform: rotate(180deg); }
+
+.b-field {
+    --b-field-message-gap: calc(var(--b-unit) * .3);
 }
 
 /* ==========================================================================
@@ -324,6 +397,29 @@
 .b-field-input-group:focus-within .b-field-input-icon { color: var(--bt-primary); }
 .b-field-required-message {
   @apply b:mt-2 b:flex b:items-center b:gap-1.5 b:text-xs b:text-danger;
+}
+
+/* Validation message under a field: <p class="b-field-invalid-message">Please fill out this field</p>
+   Colors come from the danger roles (--bt-danger*), so a theme can retune them; sizes follow --b-unit.
+   No margin (resets DNN's p margin); add a gap with --b-field-message-gap on any parent if you want one.
+   The warning icon is drawn by CSS, so the markup stays a single <p>. */
+.b-field-invalid-message {
+  display: flex; align-items: center; gap: calc(var(--b-unit) * .375);
+  box-sizing: border-box; margin: var(--b-field-message-gap,0) 0 0; padding: calc(var(--b-unit) * .25) calc(var(--b-unit) * .625);
+  font-size: calc(var(--b-unit) * .75); font-weight: 500; line-height: 1.4;
+  color: var(--bt-danger-ink); background: var(--bt-danger-soft);
+  border: 1px solid color-mix(in oklab, var(--bt-danger) 30%, transparent); 
+  animation: b-alert-in .2s ease-out both;
+}
+.b-field-invalid-message::before {
+  content: ""; flex: none; width: 1.15em; height: 1.15em; background: currentColor;
+  -webkit-mask: var(--b-invalid-icon) center / contain no-repeat; mask: var(--b-invalid-icon) center / contain no-repeat;
+  --b-invalid-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14m0-1.2A5.8 5.8 0 1 1 8 2.2a5.8 5.8 0 0 1 0 11.6M7.4 4.5h1.2v4.2H7.4zm0 5.4h1.2v1.2H7.4z'/%3E%3C/svg%3E");
+}
+/* An invalid field also gets a danger border and focus ring on its input group */
+.b-field-invalid .b-field-input-group { border-color: var(--bt-danger); }
+.b-field-invalid .b-field-input-group:focus-within {
+  border-color: var(--bt-danger); --tw-ring-color: color-mix(in oklab, var(--bt-danger) 20%, transparent);
 }
 
 /* Multi-line (textarea): put b-field-input-group-multiline on the group and
@@ -380,9 +476,10 @@
   position: absolute; top: 100%; left: -1px; right: -1px; width: auto; height: auto;
   margin: calc(var(--b-unit) * 0.25) 0 0 !important;
   border-radius: 0 0 calc(var(--b-unit) * 0.5) calc(var(--b-unit) * 0.5);
-  box-shadow: 0 10px 28px rgb(0 0 0 / .14);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
   font-size: calc(var(--b-unit) * 0.875);
   border-top: 0;
+  z-index: 999;
 }
 .b-field-input-group > .ss-content.ss-open-below,
 .b-field-input-group > .ss-content.ss-open-above { border-radius: calc(var(--b-unit) * 0.5); }
@@ -426,6 +523,25 @@
          b:hover:shadow-md b:hover:-translate-y-px b:active:translate-y-0;
 }
 .b-btn-icon { @apply b:size-9 b:p-0 b:bg-transparent b:text-ink-subtle b:hover:bg-surface-sunken b:hover:text-ink; }
+
+/* ==========================================================================
+   Touch sizing: taller fields and buttons on phones and touch screens
+   ========================================================================== */
+/* Applies on narrow screens (< 768px) and on touch devices (pointer: coarse).
+   Field height goes from ~38px to ~44px (the recommended minimum touch target) and the text becomes at least 16px,
+   which also stops iOS Safari from zooming the page when a field is focused.
+   Desktop with a mouse is untouched. Tune with --b-touch-pad (vertical padding inside the field). */
+@media (max-width: 767.98px), (pointer: coarse) {
+  .b-field-input-group { padding-block: var(--b-touch-pad, calc(var(--b-unit) * 0.5625)); }
+  .b-field-input,
+  .b-field-input-group .ss-main .ss-values .ss-placeholder,
+  .b-field-input-group .ss-main .ss-values .ss-single,
+  .b-field-input-group > .ss-content,
+  .b-field-input-group > .ss-content .ss-search input:focus { font-size: max(16px, calc(var(--b-unit) * 0.875)); }
+  .b-field-input-icon { font-size: calc(var(--b-unit) * 1.125); }
+  .b-btn { min-height: calc(var(--b-unit) * 2.75); }
+  .b-btn-sm { min-height: 0; }
+}
 
 /* ==========================================================================
    Alerts: form result messages (saving / success / error) with optional technical details
@@ -526,6 +642,19 @@
   @apply b:text-xs b:font-medium b:text-primary-ink b:pointer-events-none;
 }
 
+/* Empty-state frame next to the button: shown (with b-if) while no image is uploaded.
+   <li class="b-upload-box-empty"><svg class="b-upload-box-empty-art">...</svg><span class="b-upload-box-empty-label">No photo yet</span></li> */
+.b-upload-box-empty {
+  width: var(--b-upload-box-size);
+  height: var(--b-upload-box-size);
+  background-image: linear-gradient(145deg, var(--bt-primary-soft), var(--bt-surface) 70%);
+  @apply b:box-border b:relative b:max-w-full b:rounded-xl b:border b:border-line
+         b:flex b:flex-col b:items-center b:justify-center b:gap-1
+         b:text-primary b:overflow-hidden b:select-none b:pointer-events-none;
+}
+.b-upload-box-empty-art   { @apply b:w-3/5 b:h-auto b:shrink-0; }
+.b-upload-box-empty-label { @apply b:text-2xs b:font-medium b:text-ink-subtle; }
+
 .b-upload-box-file-wrapper {
   @apply b:overflow-hidden b:border b:border-line b:bg-surface b:shadow-sm;
 }
@@ -590,6 +719,112 @@
 .b-collapse > * { min-height: 0; overflow: hidden; }
 
 /* ==========================================================================
+   Paging: page buttons for the generic Paging library (paging.lib.js stays theme-free)
+   ========================================================================== */
+/* <nav aria-label="Pagination"><ul class="b-paging"></ul></nav>  - the library fills the <ul> with
+   <li class="page-item [active|disabled]"><a class="page-link">; we style those by structure, so a custom pageClass still works.
+   .b-paging-start / .b-paging-end   align left / right instead of centered
+   Inside a wide scrolling table the bar stays pinned to the visible area (sticky + the nearest container's width).
+   Selectors are doubled (.b-paging.b-paging) so they also beat Bootstrap's .page-link rules if the host site loads them. */
+.b-paging {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: calc(var(--b-unit) * .375); margin: 0; padding: calc(var(--b-unit) * .75) calc(var(--b-unit) * .75);
+  list-style: none; box-sizing: border-box;
+  position: sticky; inset-inline-start: 0; width: min(100cqw, 100%);
+}
+.b-paging-start { justify-content: flex-start; }
+.b-paging-end   { justify-content: flex-end; }
+.b-paging.b-paging > li { display: block; margin: 0; padding: 0; list-style: none; }
+
+.b-paging.b-paging > li > a.page-link {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  min-width: calc(var(--b-unit) * 2.25); height: calc(var(--b-unit) * 2.25);
+  margin: 0; padding: 0 calc(var(--b-unit) * .75);
+  font-size: calc(var(--b-unit) * .875); font-weight: 500; line-height: 1; text-decoration: none;
+  color: var(--bt-ink-muted); background: var(--bt-surface);
+  border: 1px solid var(--bt-line); border-radius: calc(var(--b-unit) * .5);
+  transition: color .2s, background-color .2s, border-color .2s, box-shadow .2s;
+}
+.b-paging.b-paging > li > a.page-link:hover {
+  color: var(--bt-primary); background: var(--bt-primary-soft); border-color: var(--bt-primary);
+}
+.b-paging.b-paging > li > a.page-link:focus-visible {
+  outline: 0; border-color: var(--bt-primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--bt-primary) 20%, transparent);
+}
+.b-paging.b-paging > li.active > a.page-link,
+.b-paging.b-paging > li.active > a.page-link:hover {
+  color: var(--bt-on-primary); background: var(--bt-primary); border-color: var(--bt-primary);
+  font-weight: 600; cursor: default;
+}
+.b-paging.b-paging > li.disabled > a.page-link {
+  opacity: .45; cursor: not-allowed; pointer-events: none;
+}
+@media (max-width: 767.98px), (pointer: coarse) {
+  .b-paging.b-paging > li > a.page-link { min-width: calc(var(--b-unit) * 2.75); height: calc(var(--b-unit) * 2.75); }
+}
+
+/* ==========================================================================
+   Loading overlay: translucent frame over a block (grid, panel) while data reloads
+   ========================================================================== */
+/* <div class="b:overflow-x-auto b:@container b-loading-host">
+     <div class="b-loading" b-if="isLoading" role="status">
+       <div class="b-loading-card"><svg class="b-loading-spinner">...</svg><span class="b-loading-label">Loading...</span></div>
+     </div>
+     <table>...</table>
+   </div>
+   - The host stacks the overlay on top of the content (same grid cell), so the frame always matches the content size.
+   - In a horizontally scrolling host the frame stays pinned to the visible area (sticky + the container's width),
+     so the host must also be a container (b:@container).
+   - It fades in after a short delay (no flash on fast loads) and blocks clicks while loading.
+   - The spinner takes its color from the theme (--bt-primary). */
+.b-loading-host { display: grid; }
+.b-loading-host > * { grid-area: 1 / 1; }
+
+.b-loading {
+  position: sticky; inset-inline-start: 0; z-index: 20; justify-self: start; box-sizing: border-box;
+  width: 100cqw; min-height: calc(var(--b-unit) * 9);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: calc(var(--b-unit) * 2.5) calc(var(--b-unit) * 1);
+  background: color-mix(in oklab, var(--bt-surface) 62%, transparent);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+  cursor: progress;
+  animation: b-loading-in .25s ease-out .12s both;
+}
+.b-loading-card {
+  display: flex; flex-direction: column; align-items: center; gap: calc(var(--b-unit) * .5);
+  padding: calc(var(--b-unit) * .875) calc(var(--b-unit) * 1.5);
+  color: var(--bt-primary); background: var(--bt-surface);
+  border: 1px solid var(--bt-line); border-radius: calc(var(--b-unit) * 1);
+  box-shadow: 0 10px 30px rgb(0 0 0 / .12);
+}
+.b-loading-label { font-size: calc(var(--b-unit) * .75); font-weight: 500; line-height: 1.2; color: var(--bt-ink-muted); }
+
+/* Spinner (viewBox 0 0 48 48): faint track + a growing/shrinking arc + a pulsing core */
+.b-loading-spinner {
+  width: calc(var(--b-unit) * 2.75); height: calc(var(--b-unit) * 2.75); flex: none; overflow: visible;
+  animation: b-loading-rotate 1.6s linear infinite;
+}
+.b-loading-track { stroke: currentColor; stroke-width: 4; opacity: .15; }
+.b-loading-arc {
+  stroke: currentColor; stroke-width: 4; stroke-linecap: round;
+  stroke-dasharray: 6 113; animation: b-loading-arc 1.6s ease-in-out infinite;
+}
+.b-loading-dot {
+  fill: currentColor; transform-box: fill-box; transform-origin: center;
+  animation: b-loading-dot 1.2s ease-in-out infinite;
+}
+
+@keyframes b-loading-in     { from { opacity: 0; } to { opacity: 1; } }
+@keyframes b-loading-rotate { to { transform: rotate(360deg); } }
+@keyframes b-loading-arc {
+  0%   { stroke-dasharray: 6 113;  stroke-dashoffset: 0; }
+  50%  { stroke-dasharray: 70 113; stroke-dashoffset: -22; }
+  100% { stroke-dasharray: 6 113;  stroke-dashoffset: -113; }
+}
+@keyframes b-loading-dot { 0%, 100% { transform: scale(.55); opacity: .5; } 50% { transform: scale(1); opacity: 1; } }
+
+/* ==========================================================================
    Animations and loading: keyframes (prefixed b- to avoid clashes), progress, spinner, skeleton
    ========================================================================== */
 @keyframes b-alert-in  { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
@@ -611,11 +846,13 @@
 .b-skeleton { @apply b:bg-surface-sunken; animation: b-pulse 1.6s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .b-alert, .b-progress-indeterminate, .b-pop, .b-shake, .b-spinner, .b-skeleton { animation: none; }
+  .b-alert, .b-progress-indeterminate, .b-pop, .b-shake, .b-spinner, .b-skeleton, .b-field-invalid-message { animation: none; }
   .b-check-draw { animation: none; stroke-dashoffset: 0; }
   .b-collapse { transition: none; }
-  .b-field-more, .b-field-more > *, .b-field-row-toggle-icon { transition: none !important; }
-  .b-dash-sidebar, .b-dash-backdrop, .b-dash-toggle-line { transition: none !important; }
+  .b-field-more, .b-field-row-toggle, .b-field-row-toggle-icon, .b-field-row-toggle-btn { transition: none !important; }
+  .b-dash-sidebar, .b-dash-backdrop, .b-dash-toggle-line, .b-paging a.page-link { transition: none !important; }
+  .b-loading, .b-loading-spinner, .b-loading-arc, .b-loading-dot { animation: none; }
+  .b-loading-arc { stroke-dasharray: 40 113; }
 }
 
 
@@ -629,4 +866,16 @@
   .personaBarContainer {
     display: none;
   }
+}
+
+
+/* Divider between form fields and the action buttons */
+.b-form-divider {
+  display: block;
+  width: 100%;
+  height: 0;
+  margin: calc(var(--b-unit) * 1.25) 0;
+  border: 0;
+  border-top: 1px solid var(--bt-line);
+  opacity: 1;
 }

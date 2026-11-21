@@ -188,28 +188,61 @@ export class BusinessEngineApp {
     //#region Reactive Data & Paths
 
     listenTo(expr, scope, callback, ...args) {
-        const { parent, key } = this.resolvePropReference(expr, scope);
-        if (!parent) return;
+        // A watcher is stored on the OBJECT that owns the last key ("parent"), not on the path.
+        // For "field.X.selectedDay.groups" that owner is the selectedDay object of that moment, so when
+        // selectedDay is replaced by another object the watcher stays on the old one and never fires.
+        // Fix: also watch every ancestor of the path; when one of them changes, re-bind the deeper
+        // levels to the new objects and run the callback.
+        const segments = expr.includes('[') ? [expr] : expr.split('.');   // bracket paths: old behaviour
+        const last = segments.length - 1;
+        const levels = new Array(segments.length);
 
-        let propMap = this._watchMap.get(parent);
-        if (!propMap) {
-            propMap = new Map();
-            this._watchMap.set(parent, propMap);
-        }
+        const pathOf = (level) => (level === last ? expr : segments.slice(0, level + 1).join('.'));
 
-        if (!propMap.has(key)) {
-            propMap.set(key, new Set());
-            this._createReactive(parent, key);
-        }
+        const readLeaf = () => {
+            const { parent, key } = this.resolvePropReference(expr, scope);
+            return parent ? parent[key] : undefined;
+        };
 
-        const getter = () => parent[key];
+        const bindLevel = (level) => {
+            const { parent, key } = this.resolvePropReference(pathOf(level), scope);
+            if (!parent) return;
 
-        const watcher = this._createWatcher(
-            getter,
-            (n, o) => callback(n, o, ...args)
-        );
+            let propMap = this._watchMap.get(parent);
+            if (!propMap) {
+                propMap = new Map();
+                this._watchMap.set(parent, propMap);
+            }
+            if (!propMap.has(key)) {
+                propMap.set(key, new Set());
+                this._createReactive(parent, key);
+            }
 
-        propMap.get(key).add(watcher);
+            const cb = level === last
+                ? (n, o) => callback(n, o, ...args)
+                : () => onAncestorChanged(level);
+
+            const watcher = this._createWatcher(() => parent[key], cb);
+            const set = propMap.get(key);
+            set.add(watcher);
+            levels[level] = { set, watcher };
+        };
+
+        const unbindLevel = (level) => {
+            levels[level]?.set.delete(levels[level].watcher);
+            levels[level] = null;
+        };
+
+        // An ancestor object was replaced: deeper watchers must move to the new objects.
+        // (Only deeper levels are touched, never the Set that is being iterated right now.)
+        const onAncestorChanged = (level) => {
+            for (let i = level + 1; i <= last; i++) unbindLevel(i);
+            for (let i = level + 1; i <= last; i++) bindLevel(i);
+            callback(readLeaf(), undefined, ...args);
+        };
+
+        // level 0 is the scope root key ("field"), nobody replaces it: start from 1
+        for (let i = last > 0 ? 1 : 0; i <= last; i++) bindLevel(i);
     }
 
     watch(expt, scope, callback) {

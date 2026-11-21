@@ -139,3 +139,5 @@
 
 /* Gap 0..10 by device */
 @source inline("b:{sm:,lg:,max-sm:}{gap,gap-x,gap-y}-{{0..10}}");
+
+@source inline("b:min-w-max");
