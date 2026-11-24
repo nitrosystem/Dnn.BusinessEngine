@@ -33,10 +33,10 @@ class SendEmailServiceController {
     _setForm() {
         this.form = this.validationService.init(
             {
-                Subject: {
+                From: {
                     required: true,
                 },
-                Body: {
+                To: {
                     required: true,
                 },
             },

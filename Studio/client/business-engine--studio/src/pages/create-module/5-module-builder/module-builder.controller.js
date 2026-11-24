@@ -1171,7 +1171,7 @@ export class CreateModuleModuleBuilderController {
 
             fieldIds.forEach((fieldId, index) => {
                 const field = this._getFieldById(fieldId);
-                field.ViewOrder = index;
+                if (field) field.ViewOrder = index;
             });
 
             this.awaitAction = null;

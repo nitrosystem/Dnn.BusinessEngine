@@ -7,7 +7,6 @@ module.exports = (env) => {
     return {
         mode: 'production',
         devtool: false,
-        //devtool: env.production ? "source-map" : "eval-cheap-module-source-map",
         entry: path.resolve(__dirname, './src/app.js'),
         output: {
             globalObject: 'self',

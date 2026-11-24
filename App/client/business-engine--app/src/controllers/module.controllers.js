@@ -194,9 +194,7 @@ export class ModuleController {
                 controllerInstance &&
                 typeof controllerInstance.init === "function"
             ) {
-                const fieldelement = document.querySelector(
-                    `[__b='${field.Id}']`,
-                );
+                const fieldelement = document.querySelector(`[__b='${field.Id}']`,);
                 controllerInstance.init(field, fieldelement);
             }
         } catch (error) {
@@ -300,6 +298,7 @@ export class ModuleController {
 
         if (field.validateMethod) {
             field.isValid = await field.validateMethod(field);
+            field.requiredError = field.isValid;
         } else {
             if (
                 !field.CanHaveValue ||

@@ -1,22 +1,21 @@
 /* ==========================================================================
-   Wizard component (wizard / wz-*)
+   Wizard component (b-wizard*)
    Standalone file: load it after components.css.
    Depends on theme roles (--bt-*) and --b-unit (small / medium / large).
 
    Structure
-     .wizard                  base: sizing tokens + step panes (shared by every future style)
-     .wizard-dots             style 1: dashed dot stepper (the default)
-   Add new looks as new modifier blocks (.wizard-chevron, .wizard-pills ...) next to .wizard-dots.
+     .b-wizard                base: sizing tokens + step panes (shared by every future style)
+     .b-wizard-dots           style 1: dashed dot stepper (the default)
+   Add new looks as new modifier blocks (.b-wizard-chevron, .b-wizard-pills ...) next to .b-wizard-dots.
 
    Layout is driven by the width of the wizard itself (container query), not the viewport:
-     >= 560px   dots with a title under each dot
-     <  560px   compact: dots only + "Step 3 of 7 / Title" summary above (big touch targets)
+     >= 560px   dots joined by dashed lines, title under each dot
+     <  560px   swipeable tab strip: [icon + title] tabs side by side, tap or swipe to move
    ========================================================================== */
 
-.wizard {
+.b-wizard {
   --wz-node: calc(var(--b-unit) * 1.75);   /* dot size */
   --wz-gap:  calc(var(--b-unit) * .375);   /* space between a dot and its connector */
-  --wz-pad:  0px;                          /* extra top/bottom padding for touch targets */
   --wz-ease: cubic-bezier(.34, 1.56, .64, 1);
   --wz-glyph: none;
 
@@ -25,17 +24,18 @@
 }
 
 /* ---- Panes ------------------------------------------------------------------ */
-.wizard-panes {
-  margin-top: calc(var(--b-unit) * 1.25);
+.b-wizard-panes {
+  margin-top: calc(var(--b-unit) * 2.75);
 }
-.wizard-panes > * {
+.b-wizard-panes > * {
   animation: b-wizard-in .28s ease-out both;
 }
 
 /* ==========================================================================
-   Style: dots
+   Style: dots  (wide wizard)
    ========================================================================== */
-.wizard-dots .wz-steps {
+.b-wizard-dots .b-wizard-steps {
+  position: relative;               /* offsetParent for the auto-scroll in wizard.js */
   display: flex;
   align-items: flex-start;
   width: 100%;
@@ -44,10 +44,10 @@
   overflow-x: auto;
   scrollbar-width: none;
 }
-.wizard-dots .wz-steps::-webkit-scrollbar { display: none; }
+.b-wizard-dots .b-wizard-steps::-webkit-scrollbar { display: none; }
 
 /* Step = one dot + its title (a button: keyboard and screen readers work) */
-.wizard-dots .wz-step {
+.b-wizard-dots .b-wizard-step {
   position: relative;
   flex: 1 1 0;
   min-width: calc(var(--wz-node) + var(--b-unit));
@@ -55,7 +55,7 @@
   flex-direction: column;
   align-items: center;
   gap: calc(var(--b-unit) * .5);
-  padding: var(--wz-pad) 0;
+  padding: 0;
   margin: 0;
   font: inherit;
   color: inherit;
@@ -67,10 +67,10 @@
 }
 
 /* Dashed connector that leads INTO this step (so a hidden step never leaves a loose line) */
-.wizard-dots .wz-step::before {
+.b-wizard-dots .b-wizard-step::before {
   content: "";
   position: absolute;
-  top: calc(var(--wz-pad) + var(--wz-node) / 2);
+  top: calc(var(--wz-node) / 2);
   inset-inline-start: calc(-50% + var(--wz-node) / 2 + var(--wz-gap));
   inset-inline-end:   calc(50% + var(--wz-node) / 2 + var(--wz-gap));
   height: 0;
@@ -78,12 +78,12 @@
   transform: translateY(-1px);
   transition: border-color .4s ease;
 }
-.wizard-dots .wz-step:first-child::before { display: none; }
-.wizard-dots .wz-step.done::before,
-.wizard-dots .wz-step.active::before { border-top-color: var(--bt-primary); }
+.b-wizard-dots .b-wizard-step:first-child::before { display: none; }
+.b-wizard-dots .b-wizard-step.done::before,
+.b-wizard-dots .b-wizard-step.active::before { border-top-color: var(--bt-primary); }
 
 /* Dot */
-.wizard-dots .step-number {
+.b-wizard-dots .b-wizard-step-number {
   position: relative;
   z-index: 1;
   display: grid;
@@ -101,10 +101,10 @@
   transition: transform .35s var(--wz-ease), background-color .3s ease,
               border-color .3s ease, color .3s ease, box-shadow .3s ease;
 }
-.wizard-dots .step-number > i { font-size: calc(var(--b-unit) * .875); line-height: 1; }
+.b-wizard-dots .b-wizard-step-number > i { font-size: calc(var(--b-unit) * .875); line-height: 1; }
 
 /* Check / exclamation glyph, drawn with a mask so it follows the text colour */
-.wizard-dots .step-number::after {
+.b-wizard-dots .b-wizard-step-number::after {
   content: "";
   display: none;
   width: 58%;
@@ -113,15 +113,17 @@
   -webkit-mask: var(--wz-glyph) center / contain no-repeat;
   mask: var(--wz-glyph) center / contain no-repeat;
 }
-.wizard-dots .wz-step.done          { --wz-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-7'/%3E%3C/svg%3E"); }
-.wizard-dots .wz-step.validated-error { --wz-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M8 3v6M8 12.6v.1'/%3E%3C/svg%3E"); }
-.wizard-dots .wz-step.done .step-number > *,
-.wizard-dots .wz-step.validated-error .step-number > * { display: none; }
-.wizard-dots .wz-step.done .step-number::after,
-.wizard-dots .wz-step.validated-error .step-number::after { display: block; }
+.b-wizard-dots .b-wizard-step.done            { --wz-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-7'/%3E%3C/svg%3E"); }
+.b-wizard-dots .b-wizard-step.done .b-wizard-step-number > * { display: none; }
+.b-wizard-dots .b-wizard-step.done .b-wizard-step-number::after { display: block; }
+
+/* Error mark: inline SVG from wizard.html (shown instead of icon / number) */
+.b-wizard-dots .b-wizard-step-err { width: 58%; height: 58%; }
+/* error + done: the error mark wins, hide the check */
+.b-wizard-dots .b-wizard-step.validated-error .b-wizard-step-number::after { display: none; }
 
 /* Title */
-.wizard-dots .wz-step-title {
+.b-wizard-dots .b-wizard-step-title {
   max-width: 100%;
   padding: 0 calc(var(--b-unit) * .125);
   overflow: hidden;
@@ -136,26 +138,26 @@
 }
 
 /* Hover / focus */
-.wizard-dots .wz-step:not(.disabled):hover .step-number {
+.b-wizard-dots .b-wizard-step:not(.disabled):hover .b-wizard-step-number {
   border-color: var(--bt-primary);
   color: var(--bt-primary-ink);
 }
-.wizard-dots .wz-step:focus-visible { outline: none; }
-.wizard-dots .wz-step:focus-visible .step-number {
+.b-wizard-dots .b-wizard-step:focus-visible { outline: none; }
+.b-wizard-dots .b-wizard-step:focus-visible .b-wizard-step-number {
   outline: 2px solid var(--bt-primary);
   outline-offset: 3px;
 }
 
 /* Done */
-.wizard-dots .wz-step.done .step-number {
+.b-wizard-dots .b-wizard-step.done .b-wizard-step-number {
   color: var(--bt-on-primary);
   background: var(--bt-primary);
   border-color: var(--bt-primary);
 }
-.wizard-dots .wz-step.done .wz-step-title { color: var(--bt-primary-ink); }
+.b-wizard-dots .b-wizard-step.done .b-wizard-step-title { color: var(--bt-primary-ink); }
 
 /* Active (wins over done) */
-.wizard-dots .wz-step.active .step-number {
+.b-wizard-dots .b-wizard-step.active .b-wizard-step-number {
   color: var(--bt-on-primary);
   background: var(--bt-primary);
   border-color: var(--bt-primary);
@@ -163,61 +165,124 @@
   box-shadow: 0 0 0 calc(var(--b-unit) * .25) color-mix(in oklab, var(--bt-primary) 22%, transparent),
               0 0 calc(var(--b-unit) * 1) color-mix(in oklab, var(--bt-primary) 32%, transparent);
 }
-.wizard-dots .wz-step.active .wz-step-title {
+.b-wizard-dots .b-wizard-step.active .b-wizard-step-title {
   color: var(--bt-ink);
   font-weight: 700;
 }
 
 /* Validation error */
-.wizard-dots .wz-step.validated-error .step-number {
+.b-wizard-dots .b-wizard-step.validated-error .b-wizard-step-number {
   color: var(--bt-danger-ink);
   background: var(--bt-danger-soft);
   border-color: var(--bt-danger);
 }
-.wizard-dots .wz-step.validated-error .wz-step-title { color: var(--bt-danger-ink); }
-.wizard-dots .wz-step.validated-error.active .step-number {
+.b-wizard-dots .b-wizard-step.validated-error .b-wizard-step-title { color: var(--bt-danger-ink); }
+.b-wizard-dots .b-wizard-step.validated-error.active .b-wizard-step-number {
   color: #fff;
   background: var(--bt-danger);
   box-shadow: 0 0 0 calc(var(--b-unit) * .25) color-mix(in oklab, var(--bt-danger) 22%, transparent);
 }
 
 /* Disabled */
-.wizard-dots .wz-step.disabled { opacity: .45; cursor: not-allowed; }
+.b-wizard-dots .b-wizard-step.disabled { opacity: .45; cursor: not-allowed; }
 
-/* ---- Summary (only used on narrow wizards) ---------------------------------- */
-.wizard .wz-summary { display: none; }
-
+/* ==========================================================================
+   Narrow wizard (phones): swipeable tab strip
+   A container cannot be styled by its own query; everything below targets children.
+   ========================================================================== */
 @container (max-width: 559.98px) {
-  /* A container cannot be styled by its own query: tokens go on the child (.wz-steps) */
-  .wizard-dots .wz-steps {
-    --wz-node: min(calc(var(--b-unit) * 1.5), 30px);                /* keep many steps on one line */
-    --wz-pad: max(0px, calc((44px - var(--wz-node)) / 2));         /* >= 44px tap target */
+  .b-wizard-dots .b-wizard-steps {
+    align-items: stretch;
+    gap: calc(var(--b-unit) * .5);
+    padding: calc(var(--b-unit) * .5) calc(var(--b-unit) * 1) calc(var(--b-unit) * 1);
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: calc(var(--b-unit) * 1);
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+    /* fade at both edges: tells the user there is more to swipe */
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 calc(var(--b-unit) * 1), #000 calc(100% - var(--b-unit) * 1), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 calc(var(--b-unit) * 1), #000 calc(100% - var(--b-unit) * 1), transparent 100%);
   }
 
-  .wizard .wz-summary {
-    display: flex;
-    flex-direction: column;
+  /* Tab: [icon square] Title */
+  .b-wizard-dots .b-wizard-step {
+    flex: none;
+    min-width: 0;
+    flex-direction: row;
     align-items: center;
-    gap: calc(var(--b-unit) * .125);
-    margin-bottom: calc(var(--b-unit) * .25);
-    text-align: center;
+    gap: calc(var(--b-unit) * .625);
+    min-height: 44px;
+    padding: calc(var(--b-unit) * .375) calc(var(--b-unit) * 1) calc(var(--b-unit) * .375) calc(var(--b-unit) * .375);
+    text-align: start;
+    background: var(--bt-surface);
+    border: 1px solid var(--bt-line);
+    border-radius: calc(var(--b-unit) * .875);
+    scroll-snap-align: center;
+    transition: background-color .25s ease, border-color .25s ease, box-shadow .25s ease, color .25s ease;
   }
-  .wizard .wz-summary-count {
-    font-size: calc(var(--b-unit) * .6875);
-    font-weight: 600;
-    letter-spacing: .06em;
-    text-transform: uppercase;
+  .b-wizard-dots .b-wizard-step::before { display: none; }       /* no connectors between tabs */
+
+  .b-wizard-dots .b-wizard-step-number {
+    border: 0;
+    border-radius: calc(var(--b-unit) * .625);
+    background: color-mix(in oklab, var(--bt-ink) 7%, var(--bt-surface));
+  }
+  .b-wizard-dots .b-wizard-step-title {
+    max-width: none;
+    padding: 0;
+    overflow: visible;
+    font-size: calc(var(--b-unit) * .8125);
+    letter-spacing: 0;
+    text-transform: none;
     color: var(--bt-ink-muted);
   }
-  .wizard .wz-summary-title {
-    font-size: calc(var(--b-unit) * 1.0625);
+
+  /* States: tab colours replace the dot colours */
+  .b-wizard-dots .b-wizard-step:not(.disabled):hover { border-color: var(--bt-primary); }
+  .b-wizard-dots .b-wizard-step:not(.disabled):hover .b-wizard-step-number { border: 0; }
+  .b-wizard-dots .b-wizard-step:focus-visible { outline: 2px solid var(--bt-primary); outline-offset: 2px; }
+  .b-wizard-dots .b-wizard-step:focus-visible .b-wizard-step-number { outline: 0; }
+
+  .b-wizard-dots .b-wizard-step.done {
+    background: var(--bt-primary-soft);
+    border-color: color-mix(in oklab, var(--bt-primary) 30%, transparent);
+  }
+  .b-wizard-dots .b-wizard-step.done .b-wizard-step-number {
+    color: var(--bt-on-primary);
+    background: var(--bt-primary);
+  }
+  .b-wizard-dots .b-wizard-step.done .b-wizard-step-title { color: var(--bt-primary-ink); }
+
+  .b-wizard-dots .b-wizard-step.active {
+    background: var(--bt-primary);
+    border-color: var(--bt-primary);
+    box-shadow: 0 6px 14px color-mix(in oklab, var(--bt-primary) 32%, transparent);
+  }
+  .b-wizard-dots .b-wizard-step.active .b-wizard-step-number {
+    transform: none;
+    box-shadow: none;
+    color: var(--bt-on-primary);
+    background: color-mix(in oklab, var(--bt-on-primary) 20%, transparent);
+  }
+  .b-wizard-dots .b-wizard-step.active .b-wizard-step-title {
+    color: var(--bt-on-primary);
     font-weight: 700;
-    color: var(--bt-ink);
   }
 
-  /* Titles are in the summary: dots only */
-  .wizard-dots .wz-step { min-width: calc(var(--wz-node) + 6px); }
-  .wizard-dots .wz-step-title { display: none; }
+  .b-wizard-dots .b-wizard-step.validated-error {
+    background: var(--bt-danger-soft);
+    border-color: color-mix(in oklab, var(--bt-danger) 40%, transparent);
+  }
+  .b-wizard-dots .b-wizard-step.validated-error .b-wizard-step-number {
+    color: #fff;
+    background: var(--bt-danger);
+    box-shadow: none;
+  }
+  .b-wizard-dots .b-wizard-step.validated-error .b-wizard-step-title { color: var(--bt-danger-ink); }
+  .b-wizard-dots .b-wizard-step.validated-error.active { background: var(--bt-danger); border-color: var(--bt-danger); }
+  .b-wizard-dots .b-wizard-step.validated-error.active .b-wizard-step-number { background: color-mix(in oklab, #fff 22%, transparent); }
+  .b-wizard-dots .b-wizard-step.validated-error.active .b-wizard-step-title { color: #fff; }
 }
 
 /* ---- Motion --------------------------------------------------------------------- */
@@ -226,9 +291,10 @@
   to   { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .wizard-panes > * { animation: none; }
-  .wizard-dots .step-number,
-  .wizard-dots .wz-step::before,
-  .wizard-dots .wz-step-title { transition: none; }
-  .wizard-dots .wz-step.active .step-number { transform: none; }
+  .b-wizard-panes > * { animation: none; }
+  .b-wizard-dots .b-wizard-step,
+  .b-wizard-dots .b-wizard-step-number,
+  .b-wizard-dots .b-wizard-step::before,
+  .b-wizard-dots .b-wizard-step-title { transition: none; }
+  .b-wizard-dots .b-wizard-step.active .b-wizard-step-number { transform: none; }
 }

@@ -6,7 +6,6 @@ class DropdownListFieldController {
         'ngInject';
 
         this.$scope = $scope;
-
         $scope.$on('onBindFieldSettings_DropdownList', (e, args) => {
             this.field.CustomSettings = sidebarSettingsTemplate;
         });

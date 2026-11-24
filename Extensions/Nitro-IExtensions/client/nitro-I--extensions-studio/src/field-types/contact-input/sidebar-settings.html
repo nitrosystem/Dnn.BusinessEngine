@@ -1,0 +1,156 @@
+<!-- ContactInput settings (Studio). Runtime reads them in contact-input.js (field.Settings.*) -->
+<div class="b-field">
+    <label class="form-label">Mode</label>
+    <div class="b-radio-list">
+        <div class="radio-item">
+            <input type="radio" id="contactMode_{{$.currentField.Id}}_both" name="contactMode_{{$.currentField.Id}}"
+                value="both" ng-model="$.currentField.Settings.Mode">
+            <label for="contactMode_{{$.currentField.Id}}_both">Both</label>
+        </div>
+        <div class="radio-item">
+            <input type="radio" id="contactMode_{{$.currentField.Id}}_mobile" name="contactMode_{{$.currentField.Id}}"
+                value="mobile" ng-model="$.currentField.Settings.Mode">
+            <label for="contactMode_{{$.currentField.Id}}_mobile">Only Mobile</label>
+        </div>
+        <div class="radio-item">
+            <input type="radio" id="contactMode_{{$.currentField.Id}}_email" name="contactMode_{{$.currentField.Id}}"
+                value="email" ng-model="$.currentField.Settings.Mode">
+            <label for="contactMode_{{$.currentField.Id}}_email">Only Email</label>
+        </div>
+    </div>
+</div>
+
+<!-- Which method is selected first (only when both are shown) -->
+<div class="b-field" ng-if="!$.currentField.Settings.Mode || $.currentField.Settings.Mode == 'both'">
+    <label class="form-label">Default Method</label>
+    <div class="b-radio-list inline-items">
+        <div class="radio-item">
+            <input type="radio" id="contactDefaultMethod_{{$.currentField.Id}}_mobile"
+                name="contactDefaultMethod_{{$.currentField.Id}}" value="mobile"
+                ng-model="$.currentField.Settings.DefaultMethod">
+            <label for="contactDefaultMethod_{{$.currentField.Id}}_mobile">Mobile first</label>
+        </div>
+        <div class="radio-item">
+            <input type="radio" id="contactDefaultMethod_{{$.currentField.Id}}_email"
+                name="contactDefaultMethod_{{$.currentField.Id}}" value="email"
+                ng-model="$.currentField.Settings.DefaultMethod">
+            <label for="contactDefaultMethod_{{$.currentField.Id}}_email">Email first</label>
+        </div>
+    </div>
+</div>
+
+<!-- Labels of the switch (only when both are shown) -->
+<div ng-if="!$.currentField.Settings.Mode || $.currentField.Settings.Mode == 'both'">
+    <div class="b-field">
+        <label class="form-label">Mobile Tab Label</label>
+        <div class="b-input-group">
+            <input type="text" ng-model="$.currentField.Settings.MobileLabel" class="b-input form-control"
+                placeholder="Mobile" />
+            <span><i class="codicon codicon-device-mobile"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Email Tab Label</label>
+        <div class="b-input-group">
+            <input type="text" ng-model="$.currentField.Settings.EmailLabel" class="b-input form-control"
+                placeholder="Email" />
+            <span><i class="codicon codicon-mail"></i></span>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile settings -->
+<div ng-if="$.currentField.Settings.Mode != 'email'">
+    <div class="b-field">
+        <label class="form-label">Mobile Placeholder</label>
+        <div class="b-input-group">
+            <input type="text" ng-model="$.currentField.Settings.MobilePlaceholder" class="b-input form-control"
+                placeholder="Mobile number" />
+            <span><i class="codicon codicon-symbol-string"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Default Country (ISO code)</label>
+        <div class="b-input-group">
+            <input type="text" ng-model="$.currentField.Settings.DefaultCountry" class="b-input form-control"
+                maxlength="2" placeholder="e.g. IR, US, GB" />
+            <span><i class="codicon codicon-location"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Preferred Countries</label>
+        <div class="b-input-group">
+            <input type="text" ng-model="$.currentField.Settings.PreferredCountries" class="b-input form-control"
+                placeholder="Pinned on top, e.g. IR,TR,AE" />
+            <span><i class="codicon codicon-star-full"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Allowed Countries</label>
+        <div class="b-input-group">
+            <input type="text" ng-model="$.currentField.Settings.Countries" class="b-input form-control"
+                placeholder="Empty = all countries, e.g. IR,TR,AE" />
+            <span><i class="codicon codicon-filter"></i></span>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Flag Image URL</label>
+        <div class="b-input-group">
+            <input type="text" ng-model="$.currentField.Settings.FlagUrl" class="b-input form-control"
+                list="contactFlagUrls_{{$.currentField.Id}}" placeholder="https://flagcdn.com/w40/{cc}.png" />
+            <datalist id="contactFlagUrls_{{$.currentField.Id}}">
+                <option value="https://flagcdn.com/w40/{cc}.png" />
+                <option value="emoji" />
+            </datalist>
+            <span><i class="codicon codicon-link"></i></span>
+        </div>
+    </div>
+</div>
+
+<!-- Email settings -->
+<div class="b-field" ng-if="$.currentField.Settings.Mode != 'mobile'">
+    <label class="form-label">Email Placeholder</label>
+    <div class="b-input-group">
+        <input type="text" ng-model="$.currentField.Settings.EmailPlaceholder" class="b-input form-control"
+            placeholder="name@example.com" />
+        <span><i class="codicon codicon-symbol-string"></i></span>
+    </div>
+</div>
+
+<div class="b-field">
+    <label class="form-label">Hint</label>
+    <div class="b-input-group">
+        <input type="text" ng-model="$.currentField.Settings.Hint" class="b-input form-control"
+            placeholder="Small text under the field" />
+        <span><i class="codicon codicon-info"></i></span>
+    </div>
+</div>
+
+<div class="b-field">
+    <label class="form-label">Country Names Language</label>
+    <div class="b-input-group">
+        <input type="text" ng-model="$.currentField.Settings.Locale" class="b-input form-control"
+            placeholder="Empty = page language, e.g. en, fa" />
+        <span><i class="codicon codicon-globe"></i></span>
+    </div>
+</div>
+
+<div class="b-field">
+    <label class="form-label">Type Property</label>
+    <div properties-editor editor-id="propType_{{$.currentField.Id}}" ng-model="$.currentField.Settings.Type"
+        suggestions="$.suggestions">
+    </div>
+</div>
+
+<div class="b-field">
+    <label class="form-label">Disabled Condition(s)</label>
+    <div properties-editor editor-id="propFieldDisabledCondition_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.DisabledConditions" suggestions="$.suggestions">
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Readonly Condition(s)</label>
+    <div properties-editor editor-id="propFieldReadonlyCondition_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.ReadonlyConditions" suggestions="$.suggestions">
+    </div>
+</div>

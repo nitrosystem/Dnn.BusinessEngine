@@ -1,0 +1,281 @@
+<b-right-widget ng-if="$.workingMode=='edit-column'" data-title="Edit Column" data-icon="notebook-template" data-subtitle="Add or edit matrix column" data-await-action="$.awaitAction">
+    <div class="d-flex">
+        <!------------------------------------>
+        <!-- Left Fields -->
+        <!------------------------------------>
+        <div class="col-7 b-splitter border-end pe-3">
+            <div class="b-field">
+                <label class="form-label">Column Name</label>
+                <div class="b-input-group">
+                    <input type="text" class="b-input form-control" ng-model="$.column.ColumnName" placeholder="Enter column name" autocomplete="off" required />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Column Title</label>
+                <div class="b-input-group">
+                    <input type="text" class="b-input form-control" ng-model="$.column.ColumnTitle" placeholder="Enter column title" autocomplete="off" required />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Column Type</label>
+                <div class="b-input-group">
+                    <select ng-model="$.column.ColumnType" class="b-input form-select" chosen placeholder-text-single="'Select column Type'" required>
+                        <option value="Textbox">Textbox</option>
+                        <option value="Number">Number Box</option>
+                        <option value="DropDownList">Drop Down List</option>
+                        <option value="CheckboxList">Checkbox List</option>
+                        <option value="RadioButtonList">Radio Button List</option>
+                        <option value="DateTime">Date Time</option>
+                        <option value="Button">Button</option>
+                        <option value="File">File</option>
+                        <option value="Label">Label</option>
+                    </select>
+                    <span><i class="codicon codicon-activate-breakpoints"></i></span>
+                </div>
+            </div>
+            <div class="b-field" ng-if="$.column.ColumnType=='DropDownList'||$.column.ColumnType=='CheckboxList'||$.column.ColumnType=='RadioButtonList'">
+                <label class="form-label">Column Type</label>
+                <textarea class="form-control b-input" ng-model="$.column.Options" placeholder="One option per line" rows="6"></textarea>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Column Placeholder</label>
+                <div class="b-input-group">
+                    <input type="text" class="b-input form-control" ng-model="$.column.Placeholder" placeholder="Enter column placeholder" autocomplete="off" />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+        </div>
+        <!------------------------------------>
+        <!-- Right Fields -->
+        <!------------------------------------>
+        <div class="col-5 ps-3">
+            <div class="b-field">
+                <div class="form-label">Is Required</div>
+                <label class="b-switch">
+                    <input type="checkbox" ng-model="$.column.IsRequired">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Column Width</label>
+                <div class="b-input-group">
+                    <input type="text" class="b-input form-control" ng-model="$.column.ColumnWidth" placeholder="Enter column width" autocomplete="off" required />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Header Css</label>
+                <div class="b-input-group">
+                    <input type="text" class="b-input form-control" ng-model="$.column.HeaderCssClass" placeholder="Enter column css class" autocomplete="off" required />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Header Icon</label>
+                <div class="b-input-group">
+                    <input type="text" class="b-input form-control" ng-model="$.column.HeaderIcon" placeholder="Enter column icon" autocomplete="off" required />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">View Order</label>
+                <div class="b-input-group">
+                    <input type="number" class="b-input form-control" ng-model="$.column.ViewOrder" placeholder="Enter column view order" autocomplete="off" />
+                    <span><i class="codicon codicon-list-ordered"></i></span>
+                </div>
+            </div>
+            <button type="button" ng-click="$.onColumnShowConditionsClick()" class="b-btn btn-action">
+                <i class="codicon codicon-gear"></i>
+                Column Show Conditions
+            </button>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!-- Action Params -->
+    <!------------------------------------>
+    <div class="mt-3" ng-if="$.column.ColumnType=='ActionButton' && $.column.ActionID && $.column.ActionParams">
+        <b-action-param-list params="$.column.ActionParams" data-action-id="$.column.ActionID" data-actions="$.actions" data-source="['fields','form','variables']" data-variables="$.variables" data-fields="$.fields">
+        </b-action-param-list>
+    </div>
+    <!------------------------------------>
+    <!-- Conditional Contents -->
+    <!------------------------------------>
+    <div class="mt-3" ng-if="$.column.ColumnType=='ConditionalContents'">
+        <div class="b-table theme-gray">
+            <div class="table-body p-0">
+                <div class="d-flex columns-name p-2">
+                    <div class="col-5">Content</div>
+                    <div class="col-2">Css Class</div>
+                    <div class="col-2">Icon</div>
+                    <div class="col-2">Conditions</div>
+                    <div class="col-1">
+                        <i class="codicon codicon-ellipsis"></i>
+                    </div>
+                </div>
+                <div class="d-flex table-row" ng-repeat="item in $.column.ContentItems">
+                    <div class="col-5 my-auto">
+                        <input type="text" class="b-input form-control" ng-model="item.Content" />
+                    </div>
+                    <div class="col-2 my-auto">
+                        <input type="text" class="b-input form-control" ng-model="item.CssClass" />
+                    </div>
+                    <div class="col-2 my-auto">
+                        <input type="text" class="b-input form-control" ng-model="item.Icon" />
+                    </div>
+                    <div class="col-2 my-auto">
+                        <button type="button" ng-if="!item.Conditions.length" ng-click="$.onShowContentItemConditionsClick(item)" class="b-btn btn-action btn-sm">
+                            <i class="codicon codicon-plus me-0"></i>
+                        </button>
+                        <button type="button" ng-if="item.Conditions.length" ng-click="$.onShowContentItemConditionsClick(item)" class="b-btn btn-action btn-sm">
+                            {{item.Conditions.length}} Conditions
+                        </button>
+                    </div>
+                    <div class="col-2 my-auto">
+                        <button type="button" class="b-btn btn-sm btn-action" ng-click="$.column.ContentItems.splice($index,1)">
+                            <i class="codicon codicon-trash me-0"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-footer">
+                <button type="button" class="b-btn btn-sm btn-action" ng-click="$.onAddContentItemClick()">
+                    <i class="codicon codicon-plus me-0"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!------------------------------------>
+    <!-- Action Button List -->
+    <!------------------------------------>
+    <div class="mt-3" ng-if="$.column.ColumnType=='ActionButtonList'">
+        <div class="b-table theme-gray">
+            <div class="table-body p-0">
+                <div class="d-flex columns-name p-2">
+                    <div class="col-4">Action</div>
+                    <div class="col-3">Text</div>
+                    <div class="col-2">Css Class</div>
+                    <div class="col-2">Icon</div>
+                    <div class="col-1">
+                        <i class="codicon codicon-ellipsis"></i>
+                    </div>
+                </div>
+                <div class="d-flex table-row" ng-repeat="item in $.column.ActionItems">
+                    <div class="col-4 my-auto">
+                        <select ng-model="item.ActionID" class="b-input form-select" chosen ng-options="action.ActionID as action.ActionName for action in $.actions" placeholder-text-single="'Select action'" required>
+                        </select>
+                    </div>
+                    <div class="col-3 my-auto">
+                        <input type="text" class="b-input form-control" ng-model="item.Text" />
+                    </div>
+                    <div class="col-2 my-auto">
+                        <input type="text" class="b-input form-control" ng-model="item.CssClass" />
+                    </div>
+                    <div class="col-2 my-auto">
+                        <input type="text" class="b-input form-control" ng-model="item.Icon" />
+                    </div>
+                    <div class="col-2 my-auto">
+                        <button type="button" class="b-btn btn-action btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="codicon codicon-kebab-vertical me-0"></i>
+                        </button>
+                        <div class="dropdown-menu b-dropdown-menu">
+                            <a class="dropdown-item" href="" ng-if="item.ActionID" ng-click="$.onSetActionParamsClick(item)">
+                                <i class="codicon codicon-refresh me-2"></i> Set Action Params
+                            </a>
+                            <a class="dropdown-item" href="">
+                                <i class="codicon codicon-plus me-2"></i> Set Show Conditions
+                            </a>
+                            <a class="dropdown-item" href="" ng-click="$.column.ActionItems.splice($index,1)">
+                                <i class="codicon codicon-trash me-2"></i> Delete Item
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-footer">
+                <button type="button" class="b-btn btn-sm btn-action" ng-click="$.onAddActionItemClick()">
+                    <i class="codicon codicon-plus me-0"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr class="mb-4" />
+    <div class="mb-1 d-flex justify-content-end mt-auto">
+        <button type="button" class="b-btn btn-submit me-2" ng-click="$.onSaveColumnClick()">
+            <i class="codicon codicon-save"></i>
+            Save Column
+        </button>
+        <button type="button" class="b-btn btn-cancel" ng-click="$.onCancelColumnClick()">
+            <i class="codicon codicon-circle-slash"></i>
+            Cancel
+        </button>
+    </div>
+</b-right-widget>
+
+<!------------------------------------>
+<!-- Column Show Conditions Modal-->
+<!------------------------------------>
+<div id="wnColumnShowConditions" ng-if="$.workingMode=='edit-column'" b-custom-modal class="modal fade b-modal-dark b-front" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Column Show Conditions
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <b-condition-list ng-model="$.column.ShowConditions" data-source="['fields','form','variables','actionParams']" data-variables="variables" data-fields="fields" data-action-params="$.action.Params"></b-condition-list>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="b-btn btn-submit me-2" data-bs-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!------------------------------------>
+<!-- Action Params Modal-->
+<!------------------------------------>
+<div id="wnActionParams" ng-if="$.workingMode=='edit-column'" b-custom-modal class="modal fade b-modal-dark" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Set Params
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <b-action-param-list params="$.actionItem.ActionParams" data-action-id="$.actionItem.ActionID" data-actions="$.actions" data-source="['fields','form','variables']" data-variables="$.variables" data-fields="$.fields">
+                </b-action-param-list>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="b-btn btn-submit me-2" data-bs-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!------------------------------------>
+<!-- Content Item Conditions Modal-->
+<!------------------------------------>
+<div id="wnContentItemConditions" ng-if="$.workingMode=='edit-column'" b-custom-modal class="modal fade b-modal-dark b-front">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Content Conditions
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <b-condition-list ng-model="$.contentItem.Conditions" data-source="['fields','form','variables','actionParams']" data-variables="variables" data-fields="fields" data-action-params="$.action.Params"></b-condition-list>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="b-btn btn-submit me-2" data-bs-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+</div>

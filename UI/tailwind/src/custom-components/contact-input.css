@@ -1,0 +1,327 @@
+/* ==========================================================================
+   ContactInput component (b-contact*)
+   Standalone file: load it after components.css.
+   Depends on theme roles (--bt-*) and --b-unit (small / medium / large).
+   Overridable per instance: --b-contact-h (control height), --b-contact-radius
+   ========================================================================== */
+
+.b-contact {
+  /* Same box as .b-field-input-group: line + 2 x vertical padding + 1px borders */
+  --b-contact-line: calc(calc(var(--b-unit) * .28) * 6);      /* same as .b-field-input height */
+  --b-contact-pad: .375rem;                                   /* b:py-1.5 */
+  --b-contact-h: calc(var(--b-contact-line) + var(--b-contact-pad) * 2 + 2px);
+  --b-contact-fs: calc(var(--b-unit) * .875);                 /* b:text-sm, follows the size scale */
+  --b-contact-radius: .5rem;                                  /* b:rounded-lg */
+  --b-contact-ease: cubic-bezier(.22, 1, .36, 1);
+  --b-contact-i: 0;               /* 0 = mobile, 1 = email (set by JS, drives the tab thumb) */
+
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: var(--b-unit);
+  line-height: 1.4;
+  color: var(--bt-ink);
+}
+.b-contact *, .b-contact *::before, .b-contact *::after { box-sizing: border-box; }
+.b-contact [hidden] { display: none !important; }
+.b-contact svg { display: block; flex: none; }
+
+/* ---- Method switch (segmented control) ------------------------------------- */
+.b-contact-tabs {
+  --pad: calc(var(--b-unit) * .1875);
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: calc(var(--b-unit) * .625);
+  padding: var(--pad);
+  background: var(--bt-surface-sunken);
+  border-radius: calc(var(--b-contact-radius) + var(--pad));
+}
+.b-contact-tabs-thumb {
+  position: absolute;
+  top: var(--pad);
+  bottom: var(--pad);
+  width: calc((100% - var(--pad) * 2) / 2);
+  inset-inline-start: calc(var(--pad) + var(--b-contact-i) * (100% - var(--pad) * 2) / 2);
+  background: var(--bt-surface);
+  border-radius: var(--b-contact-radius);
+  box-shadow: 0 1px 2px rgb(15 23 42 / .12), 0 0 0 1px color-mix(in oklab, var(--bt-line) 70%, transparent);
+  transition: inset-inline-start .32s var(--b-contact-ease);
+}
+.b-contact-tab {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--b-unit) * .5);
+  min-height: calc(var(--b-unit) * 2.5);
+  padding: 0 calc(var(--b-unit) * .75);
+  margin: 0;
+  font: inherit;
+  font-size: calc(var(--b-unit) * .9375);
+  font-weight: 600;
+  color: var(--bt-ink-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--b-contact-radius);
+  cursor: pointer;
+  transition: color .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.b-contact-tab svg { width: calc(var(--b-unit) * 1.25); height: calc(var(--b-unit) * 1.25); }
+.b-contact-tab:hover { color: var(--bt-ink); }
+.b-contact-tab[aria-selected="true"] { color: var(--bt-primary-ink); }
+.b-contact-tab:focus-visible { outline: 2px solid var(--bt-primary); outline-offset: 1px; }
+
+/* ---- Box: [pane] [valid mark] ---------------------------------------------- */
+.b-contact-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--b-contact-h);
+  background: var(--bt-surface);
+  border: 1px solid var(--bt-line);
+  border-radius: var(--b-contact-radius);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.b-contact-box:hover { border-color: var(--bt-line-strong); }
+.b-contact-box:focus-within,
+.b-contact-open .b-contact-box {
+  border-color: var(--bt-primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--bt-primary) 20%, transparent);
+}
+.b-contact-invalid .b-contact-box { border-color: var(--bt-danger); }
+.b-contact-invalid .b-contact-box:focus-within {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--bt-danger) 20%, transparent);
+}
+
+.b-contact-pane {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  align-self: stretch;
+  min-width: 0;
+  animation: b-contact-in .22s ease-out both;
+}
+
+.b-contact-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 .5rem;
+  font: inherit;
+  font-size: var(--b-contact-fs);
+  line-height: var(--b-contact-line);
+  color: var(--bt-ink);
+  background: transparent;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+  text-overflow: ellipsis;
+}
+.b-contact-input::placeholder { color: var(--bt-ink-subtle); opacity: 1; }
+/* Numbers and e-mail are always left-to-right, even on an RTL page */
+.b-contact-input[type="tel"], .b-contact-input[type="email"] { direction: ltr; }
+.b-contact-input[type="tel"]:placeholder-shown, .b-contact-input[type="email"]:placeholder-shown { text-align: start; }
+:dir(rtl) > .b-contact-input[type="tel"], :dir(rtl) > .b-contact-input[type="email"] { text-align: right; }
+
+.b-contact-lead {
+  width: calc(var(--b-unit) * 1.25);
+  height: calc(var(--b-unit) * 1.25);
+  margin-inline-start: .5rem;
+  color: var(--bt-ink-subtle);
+  transition: color .2s ease;
+}
+.b-contact-box:focus-within .b-contact-lead { color: var(--bt-primary); }
+
+/* ---- Country button ---------------------------------------------------------- */
+.b-contact-country {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: calc(var(--b-unit) * .5);
+  align-self: stretch;
+  margin: 0;
+  padding: 0 .5rem;
+  font: inherit;
+  font-size: var(--b-contact-fs);
+  font-weight: 600;
+  color: var(--bt-ink);
+  background: none;
+  border: 0;
+  border-inline-end: 1px solid var(--bt-line);
+  border-radius: var(--b-contact-radius) 0 0 var(--b-contact-radius);
+  cursor: pointer;
+  transition: background-color .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+:dir(rtl) .b-contact-country { border-radius: 0 var(--b-contact-radius) var(--b-contact-radius) 0; }
+.b-contact-country:hover { background: var(--bt-surface-muted); }
+.b-contact-country:focus-visible { outline: 2px solid var(--bt-primary); outline-offset: -2px; }
+.b-contact-dial { direction: ltr; font-variant-numeric: tabular-nums; }
+.b-contact-chevron {
+  width: calc(var(--b-unit) * 1);
+  height: calc(var(--b-unit) * 1);
+  color: var(--bt-ink-subtle);
+  transition: transform .25s var(--b-contact-ease);
+}
+.b-contact-open .b-contact-chevron { transform: rotate(180deg); }
+
+/* ---- Flags ----------------------------------------------------------------------- */
+.b-contact-flag {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--b-unit) * 1.5);
+  height: calc(var(--b-unit) * 1.125);
+  overflow: hidden;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--bt-ink) 14%, transparent);
+  background: var(--bt-surface-sunken);
+}
+.b-contact-flag img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.b-contact-flag-emoji {
+  box-shadow: none;
+  background: none;
+  overflow: visible;
+  font-size: calc(var(--b-unit) * 1.1);
+  line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+
+/* ---- Valid mark -------------------------------------------------------------------- */
+.b-contact-ok {
+  flex: none;
+  width: calc(var(--b-unit) * 1.25);
+  height: calc(var(--b-unit) * 1.25);
+  margin-inline: 0 calc(var(--b-unit) * .75);
+  padding: calc(var(--b-unit) * .1875);
+  color: var(--bt-on-primary);
+  background: var(--bt-success);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(.5);
+  transition: opacity .2s ease, transform .3s cubic-bezier(.34, 1.56, .64, 1);
+}
+.b-contact-valid .b-contact-ok { opacity: 1; transform: none; }
+
+/* ---- Country menu --------------------------------------------------------------------- */
+.b-contact-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  inset-inline: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: min(22rem, 60vh);
+  overflow: hidden;
+  background: var(--bt-surface);
+  border: 1px solid var(--bt-line);
+  border-radius: calc(var(--b-contact-radius) + 2px);
+  box-shadow: 0 12px 32px rgb(15 23 42 / .16), 0 2px 6px rgb(15 23 42 / .08);
+  transform-origin: top;
+  animation: b-contact-pop .18s var(--b-contact-ease) both;
+}
+.b-contact-search {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: calc(var(--b-unit) * .5);
+  padding: 0 calc(var(--b-unit) * .75);
+  border-bottom: 1px solid var(--bt-line);
+  color: var(--bt-ink-subtle);
+}
+.b-contact-search svg { width: calc(var(--b-unit) * 1); height: calc(var(--b-unit) * 1); }
+.b-contact-search input {
+  flex: 1;
+  min-width: 0;
+  height: calc(var(--b-contact-line) + var(--b-contact-pad) * 2);
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: var(--b-contact-fs);
+  color: var(--bt-ink);
+  background: none;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.b-contact-search input::placeholder { color: var(--bt-ink-subtle); opacity: 1; }
+.b-contact-list {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: calc(var(--b-unit) * .25);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  scrollbar-width: thin;
+}
+.b-contact-option {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--b-unit) * .75);
+  min-height: calc(var(--b-unit) * 2.5);
+  margin: 0;
+  padding: calc(var(--b-unit) * .25) calc(var(--b-unit) * .625);
+  list-style: none;
+  border-radius: calc(var(--b-contact-radius) - 2px);
+  cursor: pointer;
+}
+.b-contact-option-active { background: var(--bt-primary-soft); }
+.b-contact-option-selected .b-contact-option-name { color: var(--bt-primary-ink); font-weight: 700; }
+.b-contact-option-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: calc(var(--b-unit) * .9375);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.b-contact-option-dial {
+  flex: none;
+  direction: ltr;
+  font-size: calc(var(--b-unit) * .875);
+  font-variant-numeric: tabular-nums;
+  color: var(--bt-ink-muted);
+}
+.b-contact-sep { height: 1px; margin: calc(var(--b-unit) * .25) calc(var(--b-unit) * .5); background: var(--bt-line); list-style: none; }
+.b-contact-empty { margin: 0; padding: calc(var(--b-unit) * 1.25); text-align: center; font-size: calc(var(--b-unit) * .875); color: var(--bt-ink-muted); }
+
+/* ---- Messages ---------------------------------------------------------------------------- */
+.b-contact-error { margin-top: calc(var(--b-unit) * .5); }
+.b-contact-hint {
+  margin: calc(var(--b-unit) * .375) 0 0;
+  font-size: calc(var(--b-unit) * .8125);
+  color: var(--bt-ink-muted);
+}
+
+/* ---- Touch: same rule as .b-field-input-group (< 768px or coarse pointer): taller box, >= 16px text ---- */
+@media (max-width: 767.98px), (pointer: coarse) {
+  .b-contact {
+    --b-contact-pad: var(--b-touch-pad, calc(var(--b-unit) * .5625));
+    --b-contact-fs: max(16px, calc(var(--b-unit) * .875));
+  }
+  .b-contact-tab { min-height: 44px; }
+  .b-contact-option { min-height: 44px; }
+}
+@media (max-width: 479.98px) {
+  /* Phones: the menu may use the whole width of the screen area it sits in */
+  .b-contact-menu { max-height: min(20rem, 55vh); }
+}
+
+/* ---- Motion --------------------------------------------------------------------------------- */
+@keyframes b-contact-in  { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+@keyframes b-contact-pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .b-contact-pane, .b-contact-menu { animation: none; }
+  .b-contact-tabs-thumb, .b-contact-chevron, .b-contact-ok, .b-contact-box { transition: none; }
+}
+
+/* Native clear button of type="search" is replaced by the plain look */
+.b-contact-search input::-webkit-search-cancel-button,
+.b-contact-search input::-webkit-search-decoration { -webkit-appearance: none; display: none; }

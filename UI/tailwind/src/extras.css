@@ -34,3 +34,6 @@
     backdrop-filter: blur(5px);
 }
 @source inline("b:{,hover:,focus:}bg-primary-glass");
+@source inline("b:{size-14,-rotate-90,stroke-line,stroke-primary,bg-primary/70,bg-primary/45,bg-primary/25,text-center}");
+@source inline("b:@[640px]:block");
+@source inline("b:{bg-line,to-line,bg-gradient-to-b,ring-4,ring-primary/20,max-w-28,whitespace-nowrap,grid-cols-4,size-12,size-6,size-5,size-3,w-0.5,h-8,h-1.5}");

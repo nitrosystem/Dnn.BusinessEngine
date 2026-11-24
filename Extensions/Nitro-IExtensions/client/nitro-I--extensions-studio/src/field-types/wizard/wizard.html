@@ -1,0 +1,75 @@
+﻿<!------------------------------------>
+<!-- Wizard Steps -->
+<!------------------------------------>
+<div class="b-table theme-gray mb-4">
+    <div class="table-body pt-4">
+        <div class="d-flex steps-name">
+            <div class="col-2">Step Name</div>
+            <div class="col-3">Step Title</div>
+            <div class="col-4">Condition(s)</div>
+            <div class="col-2">
+                <button type="button" class="b-clean text-light" disabled>
+                    <i class="codicon codicon-arrow-up d-inline-block me-1"></i>
+                </button>
+                <button type="button" class="b-clean text-light" disabled>
+                    <i class="codicon codicon-arrow-down d-inline-block"></i>
+                </button>
+            </div>
+            <div class="col-1">
+                <i class="codicon codicon-ellipsis"></i>
+            </div>
+        </div>
+        <div class="d-flex table-row" ng-repeat="step in $.field.Settings.Steps | orderBy:'ViewOrder'"
+            ng-style="{'order':($index+1)}">
+            <div class="col-2 my-auto"> {{step.Name}} </div>
+            <div class="col-3 my-auto">
+                <span class="text"> {{step.Title}} </span>
+                <span class="subtext"> {{step.Description}} </span>
+            </div>
+            <div class="col-4 my-auto">
+                <span class="subtext" ng-if="step.ShowConditions.length">
+                    {{step.ShowConditions.length}} Show Condition(s)
+                </span>
+                <span class="subtext" ng-if="step.EnableConditions.length">
+                    {{step.EnableConditions.length}} Enable Condition(s)
+                </span>
+            </div>
+            <div class="col-2 my-auto">
+                <button type="button" class="b-clean text-light" ng-disabled="$index==0">
+                    <i class="codicon codicon-arrow-up d-inline-block me-1"
+                        ng-click="$.onStepSwapClick($index,$index-1)"></i>
+                </button>
+                <button type="button" class="b-clean text-light" ng-disabled="$index==$.steps.length-1">
+                    <i class="codicon codicon-arrow-down d-inline-block"
+                        ng-click="$.onStepSwapClick($index,$index+1)"></i>
+                </button>
+            </div>
+            <div class=" col-1">
+                <div class="b-multi-btns">
+                    <button type="button" class="p-0" ng-click="$.onEditStepClick(step)" b-custom-tooltip
+                        data-bs-placement="bottom" title="Edit Step">
+                        <i class="codicon codicon-edit"></i>
+                    </button>
+                    <button type="button" ng-click="$.field.Settings.Steps.splice($index,1)" b-custom-tooltip
+                        data-bs-placement="bottom" title="Delete Step">
+                        <i class="codicon codicon-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-footer">
+        <button type="button" class="b-btn btn-action" ng-click="$.onAddStepClick()">
+            <i class="codicon codicon-plus"></i>
+            Add Step
+        </button>
+    </div>
+</div>
+
+<!------------------------------------>
+<!-- Wizard Step Panes -->
+<!------------------------------------>
+<div ng-repeat="step in $.field.Settings.Steps | orderBy:'ViewOrder'" data-pane="WizardStep_{{step.Name}}"
+    data-pane-title="{{step.Name}} Pane" data-parent-id="{{$.field.FieldID}}"></div>
+
+<div ng-include="$.editStepWidget"></div>

@@ -1,0 +1,78 @@
+<b-right-widget ng-if="$.workingMode=='edit-step'" data-title="Edit Step" data-icon="notebook-template"
+    data-subtitle="Add or edit grid step" data-await-action="$.awaitAction">
+    <div class="d-flex">
+        <div class="col-7 b-splitter border-end pe-3">
+            <div class="b-field">
+                <label class="form-label">Step Name</label>
+                <div class="b-input-group">
+                    <input type="text" id="txtStepName" class="b-input form-control" ng-model="$.step.Name"
+                        placeholder="Enter step name" autocomplete="off" required />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Step Title</label>
+                <div class="b-input-group">
+                    <input type="text" id="txtStepTitle" class="b-input form-control" ng-model="$.step.Title"
+                        placeholder="Enter step title" autocomplete="off" required />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-5 ps-3">
+            <div class="b-field">
+                <label class="form-label">Step Pane Css Class</label>
+                <div class="b-input-group">
+                    <input type="text" class="b-input form-control" ng-model="$.step.PaneCssClass"
+                        placeholder="Enter step pane css class" autocomplete="off" />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Step Icon</label>
+                <div class="b-input-group">
+                    <input type="text" class="b-input form-control" ng-model="$.step.Icon" placeholder="Enter step icon"
+                        autocomplete="off" required />
+                    <span><i class="codicon codicon-gear"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">View Order</label>
+                <div class="b-input-group">
+                    <input type="number" class="b-input form-control" ng-model="$.step.ViewOrder"
+                        placeholder="Enter step view order" autocomplete="off" />
+                    <span><i class="codicon codicon-list-ordered"></i></span>
+                </div>
+            </div>
+            <div class="b-field">
+                <label class="form-label">Description</label>
+                <div class="b-input-group">
+                    <textarea ng-model="$.step.Description" class="b-input form-control" rows="2"
+                        placeholder="Enter step description"></textarea>
+                    <span class="my-auto"><i class="codicon codicon-debug-stackframe-active"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Show Condition(s)</label>
+        <b-condition-list ng-model="$.step.ShowConditions" data-source="['fields','form','variables','actionParams']"
+            data-variables="variables" data-fields="fields" data-action-params="$.action.Params"></b-condition-list>
+    </div>
+    <div class="b-field">
+        <label class="form-label">Enable Condition(s)</label>
+        <b-condition-list ng-model="$.step.EnableConditions" data-source="['fields','form','variables','actionParams']"
+            data-variables="variables" data-fields="fields" data-action-params="$.action.Params"></b-condition-list>
+    </div>
+    <hr class="mb-4" />
+    <div class="mb-1 d-flex justify-content-end mt-auto">
+        <button type="button" class="b-btn btn-submit me-2" ng-click="$.onSaveStepClick()">
+            <i class="codicon codicon-save"></i>
+            Save Step
+        </button>
+        <button type="button" class="b-btn btn-cancel" ng-click="$.onCancelStepClick()">
+            <i class="codicon codicon-circle-slash"></i>
+            Cancel
+        </button>
+    </div>
+</b-right-widget>

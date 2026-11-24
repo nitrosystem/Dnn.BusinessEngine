@@ -282,7 +282,11 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
                 ";
             }
 
-            if (field.Settings != null && field.Settings.TryGetValue("ContentCss", out var contentCss) && contentCss != null && !string.IsNullOrWhiteSpace(contentCss.ToString()))
+            if (field.Settings != null && field.Settings.TryGetValue("ContentCss", out var contentCss)
+                && contentCss != null && !string.IsNullOrWhiteSpace(contentCss.ToString())
+                && field.Settings.TryGetValue("DisableWrapper", out var disableWrapper) &&
+                (((bool?)disableWrapper).HasValue == false || ((bool?)disableWrapper).Value == false)
+            )
             {
                 template = $@"
                     <style type=""text/css"">

@@ -2,6 +2,7 @@
 @import "./custom-components/range-slider.css";
 @import "./custom-components/booking-calendar.css";
 @import "./custom-components/wizard.css";
+@import "./custom-components/contact-input.css";
 
 /* ==========================================================================
    Business Engine UI components: not wrapped in @layer, so they beat DNN's unlayered reset (utilities still override them)
@@ -80,7 +81,7 @@
   display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start;
   gap: var(--b-field-gap-y, calc(var(--b-unit) * 1.25)) min(var(--b-field-gap-x, calc(var(--b-unit) * 1.75)), 4%);
 }
-.b-field-row-end { align-items: end; }
+.b-field-row-end { align-items: end; grid-column-end: -1 !important;  }
 .b-field-row-dense { grid-auto-flow: row dense; }
 .b-field-row > * { grid-column: span 12; min-width: 0; }
 
@@ -387,7 +388,7 @@
 }
 
 .b-field-input {
-  @apply b:flex-1 b:min-w-0 b:h-6 b:m-0 b:p-0 b:bg-transparent b:border-0 b:outline-none b:shadow-none
+  @apply b:flex-1 b:min-w-0 b:h-6.5 b:m-0 b:p-0 b:bg-transparent b:border-0 b:outline-none b:shadow-none
          b:text-ink b:text-sm b:leading-6 b:placeholder:text-ink-subtle;
 }
 

@@ -3,8 +3,10 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetNuke.DependencyInjection;
 using NitroSystem.Dnn.BusinessEngine.Abstractions.App.Engine.ActionExecution;
+using NitroSystem.Dnn.BusinessEngine.Core.Providers.Email.Contracts;
 using NitroSystem.Dnn.BusinessEngine.Extensions.ExtraExtensions.Fields.Captcha;
 using NitroSystem.Dnn.BusinessEngine.Extensions.ExtraExtensions.Studio.Services;
+using NitroSystem.Dnn.BusinessEngine.Extensions.ExtraExtensions.Providers;
 
 namespace NitroSystem.Dnn.BusinessEngine.Extensions.ExtraExtensions.Startup
 {
@@ -21,6 +23,8 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.ExtraExtensions.Startup
             services.AddScoped<SendEmailService>();
 
             services.AddTransient<Services.SendEmailService>();
+
+            services.AddScoped<IEmailProvider, MailtrapProvider>();
         }
     }
 }

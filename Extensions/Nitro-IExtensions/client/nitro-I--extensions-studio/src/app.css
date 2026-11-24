@@ -1,0 +1,108 @@
+.create-data-source {
+  display: block;
+}
+
+.create-data-source .selected-entities-diagram {
+  padding: 1rem;
+  background-color: #3c3c3e;
+}
+
+.create-data-source .selected-entities-diagram .entity-item {
+  background-color: #333;
+  border-radius: 0 0 0.5rem 0.5rem;
+  color: rgb(204, 204, 204);
+  border: solid 0.1rem #333333;
+  margin-bottom: 2rem;
+}
+
+.create-data-source .selected-entities-diagram .entity-item:hover {
+  background-color: #444;
+}
+
+.create-data-source .selected-entities-diagram .entity-item .header {
+  border-top: solid 0.1rem #5d5d5e;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.6rem 1rem;
+}
+
+.create-data-source .selected-entities-diagram .entity-item .header .title {
+  display: flex;
+  flex-direction: column;
+}
+
+.create-data-source
+  .selected-entities-diagram
+  .entity-item
+  .header
+  .title
+  .entity-name {
+  color: #eee;
+  font-size: 1rem;
+}
+
+.create-data-source
+  .selected-entities-diagram
+  .entity-item
+  .header
+  .title
+  .entity-alias {
+  color: #aaa;
+}
+
+.create-data-source .selected-entities-diagram .entity-item ul.tools {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: baseline;
+}
+
+.create-data-source .selected-entities-diagram .entity-item ul.tools > li {
+  margin: 0.1rem 0.2rem;
+  display: inline-flex;
+}
+
+.create-data-source .selected-entities-diagram .entity-item .columns {
+  border-top: solid 0.1rem rgb(66, 65, 65);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.create-data-source
+  .selected-entities-diagram
+  .entity-item
+  .entity-join-relationships {
+  position: relative;
+  color: #ccc;
+  padding: 0.4rem 1rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  font-size: 0.8rem;
+  border-top: solid 1px #6d6d6e;
+  box-shadow: 0 4px 4px rgb(0 0 0 / 10%), 0 1px 6px rgb(0 0 0 / 5%),
+    0 8px 8px rgb(0 0 0 / 10%), 0 16px 16px rgb(0 0 0 / 10%),
+    8px 32px 32px rgb(0 0 0 / 15%), 8px 64px 64px rgb(0 0 0 / 15%);
+  text-align: center;
+}
+
+.create-data-source
+  .selected-entities-diagram
+  .entity-item
+  .entity-join-relationships:hover {
+  color: #fff;
+}
+
+.create-data-source
+  .selected-entities-diagram
+  .entity-item
+  .entity-join-relationships
+  .add-join {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+}

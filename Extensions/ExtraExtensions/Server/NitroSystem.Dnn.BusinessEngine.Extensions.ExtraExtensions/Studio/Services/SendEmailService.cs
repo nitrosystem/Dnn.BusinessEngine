@@ -15,16 +15,19 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.ExtraExtensions.Studio.Servi
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cacheService;
+        private readonly ISql _sql;
         private readonly IProviderService _providerService;
 
         public SendEmailService(
             IUnitOfWork unitOfWork,
             ICacheService cacheService,
+            ISql sql,
             IAppModelService appModelService,
             IProviderService providerService)
         {
             _unitOfWork = unitOfWork;
             _cacheService = cacheService;
+            _sql = sql;
             _providerService = providerService;
         }
 

@@ -58,6 +58,7 @@
     <Compile Include="Fields\Captcha\CaptchaVerifyRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Fields\Captcha\CaptchaService.cs" />
+    <Compile Include="Providers\MailtrapProvider.cs" />
     <Compile Include="Services\SendEmailService.cs" />
     <Compile Include="Services\SendSmsService.cs" />
     <Compile Include="Startup\RouteMapper.cs" />

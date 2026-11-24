@@ -1,0 +1,26 @@
+﻿<div class="b-field">
+    <label class="form-label">Add Button Text</label>
+    <input type="text" ng-model="$.currentField.Settings.AddButtonText" class="b-input form-control" placeholder="Add button text" />
+</div>
+<div class="b-field">
+    <label class="form-label">Disable Delete Row</label>
+    <label class="b-switch d-block">
+        <input type="checkbox" hidden="hidden" ng-model="$.currentField.Settings.DisableDeleteRow" />
+        <div class="slider"></div>
+    </label>
+</div>
+<div class="b-field">
+    <label class="form-label">Table Type</label>
+    <select ng-model="$.currentField.Settings.TableType" class="b-input form-select" required>
+        <option disabled></option>
+        <option value="horizontal">Horizontal</option>
+        <option value="vertical">Vertical</option>
+    </select>
+</div>
+<div class="b-field">
+    <label class="form-label">Validation Method</label>
+    <select ng-model="$.currentField.Settings.ValidationMethod" class="b-input form-select" required>
+        <option disabled></option>
+        <option value="onValidateMatrixField">onValidateMatrixField</option>
+    </select>
+</div>

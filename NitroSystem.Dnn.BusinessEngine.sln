@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.10.12224.181 stable
+VisualStudioVersion = 18.10.12224.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Studio", "Studio", "{DCC36880-8C71-4F77-B65D-17E8D0CB3E3C}"
 EndProject
@@ -230,6 +230,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEng
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{86593B0B-B5B9-417F-93C7-638671096BF8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nitro-IExtensions", "Nitro-IExtensions", "{0EBD117D-15F0-407D-851F-B3C322175B61}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{642A0361-F1CC-49AF-B70A-2C56F0B9D47B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{3CA5A2A4-F525-42FF-8ECA-D9206A08A9E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NitroSystem.Dnn.BusinessEngine.Extensions.Nitro-IExtensions", "Extensions\Nitro-IExtensions\Server\NitroSystem.Dnn.BusinessEngine.Extensions.Nitro-IExtensions\NitroSystem.Dnn.BusinessEngine.Extensions.Nitro-IExtensions.csproj", "{1A80DDA7-F5BB-44D9-BA62-F14FF70A1F50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -328,6 +336,10 @@ Global
 		{88BEE964-C0A8-4617-B114-DD8728C40B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88BEE964-C0A8-4617-B114-DD8728C40B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88BEE964-C0A8-4617-B114-DD8728C40B87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A80DDA7-F5BB-44D9-BA62-F14FF70A1F50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A80DDA7-F5BB-44D9-BA62-F14FF70A1F50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A80DDA7-F5BB-44D9-BA62-F14FF70A1F50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A80DDA7-F5BB-44D9-BA62-F14FF70A1F50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -369,6 +381,10 @@ Global
 		{15E2CF1E-1960-4FF5-91B2-91D1E68C9D69} = {0991A001-E60E-489A-BABA-1A965C2FCC11}
 		{1FC5279B-B157-4A01-BD60-49F42F8C3971} = {204C7364-4BFB-459E-A7DC-D44CB082DF85}
 		{88BEE964-C0A8-4617-B114-DD8728C40B87} = {D65682D6-7E27-4DF3-972D-56AA80F8F27E}
+		{0EBD117D-15F0-407D-851F-B3C322175B61} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{642A0361-F1CC-49AF-B70A-2C56F0B9D47B} = {0EBD117D-15F0-407D-851F-B3C322175B61}
+		{3CA5A2A4-F525-42FF-8ECA-D9206A08A9E3} = {0EBD117D-15F0-407D-851F-B3C322175B61}
+		{1A80DDA7-F5BB-44D9-BA62-F14FF70A1F50} = {642A0361-F1CC-49AF-B70A-2C56F0B9D47B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B965EC00-B028-4FE7-9725-D2AECFAC2990}
