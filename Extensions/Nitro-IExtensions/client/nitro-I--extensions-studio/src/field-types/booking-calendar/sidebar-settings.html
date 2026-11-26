@@ -1,0 +1,33 @@
+<div class="b-field">
+    <label class="form-label">Start Time Property</label>
+    <div properties-editor editor-id="propStartTime_{{$.currentField.Id}}" ng-model="$.currentField.FieldValueProperty"
+        suggestions="$.suggestions">
+    </div>
+</div>
+
+<div class="b-field">
+    <label class="form-label">End Time Property</label>
+    <div properties-editor editor-id="propEndTime_{{$.currentField.Id}}" ng-model="$.currentField.Settings.EndTimeProperty"
+        suggestions="$.suggestions">
+    </div>
+</div>
+
+<div class="b-field">
+    <label class="form-label">Date Property</label>
+    <div properties-editor editor-id="propDate_{{$.currentField.Id}}" ng-model="$.currentField.Settings.DateProperty"
+        suggestions="$.suggestions">
+    </div>
+</div>
+
+<div class="b-field">
+    <label class="form-label">Disabled Condition(s)</label>
+    <div properties-editor editor-id="propFieldDisabledCondition_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.DisabledConditions" suggestions="$.suggestions">
+    </div>
+</div>
+<div class="b-field">
+    <label class="form-label">Readonly Condition(s)</label>
+    <div properties-editor editor-id="propFieldReadonlyCondition_{{$.currentField.Id}}"
+        ng-model="$.currentField.Settings.ReadonlyConditions" suggestions="$.suggestions">
+    </div>
+</div>

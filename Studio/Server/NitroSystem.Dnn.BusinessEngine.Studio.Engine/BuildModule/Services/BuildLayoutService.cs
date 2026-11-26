@@ -275,24 +275,25 @@ namespace NitroSystem.Dnn.BusinessEngine.Studio.Engine.BuildModule.Services
 
             if (field.Settings != null && field.Settings.TryGetValue("Content", out var content) && content != null)
             {
-                template = $@"
+                if (field.Settings.TryGetValue("DisableWrapper", out var disableWrapper) &&
+                        (((bool?)disableWrapper).HasValue  || ((bool?)disableWrapper).Value == true))
+                    template = content.ToString();
+                else
+                {
+                    template = $@"
                     <div [TOKENS] >
                         {content}
-                    </div>
-                ";
+                    </div>";
+                }
             }
 
             if (field.Settings != null && field.Settings.TryGetValue("ContentCss", out var contentCss)
-                && contentCss != null && !string.IsNullOrWhiteSpace(contentCss.ToString())
-                && field.Settings.TryGetValue("DisableWrapper", out var disableWrapper) &&
-                (((bool?)disableWrapper).HasValue == false || ((bool?)disableWrapper).Value == false)
-            )
+                && contentCss != null && !string.IsNullOrWhiteSpace(contentCss.ToString()))
             {
                 template = $@"
                     <style type=""text/css"">
                         {contentCss}
-                    </style>
-                ";
+                    </style>";
             }
 
             if (string.IsNullOrEmpty(template))

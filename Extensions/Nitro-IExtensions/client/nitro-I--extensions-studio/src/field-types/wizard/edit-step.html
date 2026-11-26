@@ -18,6 +18,14 @@
                     <span><i class="codicon codicon-gear"></i></span>
                 </div>
             </div>
+            <div class="b-field">
+                <label class="form-label">Description</label>
+                <div class="b-input-group">
+                    <textarea ng-model="$.step.Description" class="b-input form-control" rows="2"
+                        placeholder="Enter step description"></textarea>
+                    <span class="my-auto"><i class="codicon codicon-debug-stackframe-active"></i></span>
+                </div>
+            </div>
         </div>
         <div class="col-5 ps-3">
             <div class="b-field">
@@ -44,25 +52,17 @@
                     <span><i class="codicon codicon-list-ordered"></i></span>
                 </div>
             </div>
-            <div class="b-field">
-                <label class="form-label">Description</label>
-                <div class="b-input-group">
-                    <textarea ng-model="$.step.Description" class="b-input form-control" rows="2"
-                        placeholder="Enter step description"></textarea>
-                    <span class="my-auto"><i class="codicon codicon-debug-stackframe-active"></i></span>
-                </div>
-            </div>
+
         </div>
     </div>
     <div class="b-field">
-        <label class="form-label">Show Condition(s)</label>
-        <b-condition-list ng-model="$.step.ShowConditions" data-source="['fields','form','variables','actionParams']"
-            data-variables="variables" data-fields="fields" data-action-params="$.action.Params"></b-condition-list>
+        <label class="form-label">Disabled Conditions</label>
+        <div properties-editor ng-model="$.step.DisabledConditions" data-suggestions="$.suggestions"></div>
+
     </div>
     <div class="b-field">
-        <label class="form-label">Enable Condition(s)</label>
-        <b-condition-list ng-model="$.step.EnableConditions" data-source="['fields','form','variables','actionParams']"
-            data-variables="variables" data-fields="fields" data-action-params="$.action.Params"></b-condition-list>
+        <label class="form-label">Hidden Conditions</label>
+        <div properties-editor ng-model="$.step.HiddenConditions" data-suggestions="$.suggestions"></div>
     </div>
     <hr class="mb-4" />
     <div class="mb-1 d-flex justify-content-end mt-auto">

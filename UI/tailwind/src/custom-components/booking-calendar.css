@@ -176,7 +176,6 @@
   display: flex;
   flex-direction: column;
   gap: calc(var(--b-unit) * .375);
-  animation: b-booking-in .28s var(--b-booking-ease) both;
 }
 .b-booking-group-title {
   font-size: calc(var(--b-unit) * .6875);

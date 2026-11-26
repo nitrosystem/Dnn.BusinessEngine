@@ -143,6 +143,20 @@
 </div>
 
 <div class="b-field">
+    <label class="form-label">Email Property</label>
+    <div properties-editor editor-id="propEmail_{{$.currentField.Id}}" ng-model="$.currentField.Settings.EmailProperty"
+        suggestions="$.suggestions">
+    </div>
+</div>
+
+<div class="b-field">
+    <label class="form-label">Mobile Property</label>
+    <div properties-editor editor-id="propMobile_{{$.currentField.Id}}" ng-model="$.currentField.Settings.MobileProperty"
+        suggestions="$.suggestions">
+    </div>
+</div>
+
+<div class="b-field">
     <label class="form-label">Disabled Condition(s)</label>
     <div properties-editor editor-id="propFieldDisabledCondition_{{$.currentField.Id}}"
         ng-model="$.currentField.Settings.DisabledConditions" suggestions="$.suggestions">

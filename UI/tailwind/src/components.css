@@ -502,7 +502,7 @@
    ========================================================================== */
 .b-btn {
   @apply b:inline-flex b:items-center b:justify-center b:gap-2
-         b:px-4 b:py-2 b:rounded-lg b:border b:border-transparent
+         b:px-4 b:py-3 b:rounded-lg b:border b:border-transparent
          b:text-sm b:font-medium b:leading-5 b:cursor-pointer b:select-none b:no-underline
          b:transition-all b:duration-200
          b:focus-visible:outline-none b:focus-visible:ring-3 b:focus-visible:ring-ring

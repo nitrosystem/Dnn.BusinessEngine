@@ -27,11 +27,11 @@
                 <span class="subtext"> {{step.Description}} </span>
             </div>
             <div class="col-4 my-auto">
-                <span class="subtext" ng-if="step.ShowConditions.length">
-                    {{step.ShowConditions.length}} Show Condition(s)
+                <span class="subtext" ng-if="step.HiddenConditions">
+                    Hidden Conditions: {{step.HiddenConditions}}
                 </span>
-                <span class="subtext" ng-if="step.EnableConditions.length">
-                    {{step.EnableConditions.length}} Enable Condition(s)
+                <span class="subtext" ng-if="step.DisabledConditions">
+                    Disabled Conditions: {{step.DisabledConditions.length}}
                 </span>
             </div>
             <div class="col-2 my-auto">

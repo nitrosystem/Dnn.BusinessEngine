@@ -1,44 +1,40 @@
-import template from "./matrix.html";
-import sidebarSettingsTemplate from "./sidebar-settings.html";
-import editColumnWidget from "./edit-column.html";
+import template from './matrix.html';
+import sidebarSettingsTemplate from './sidebar-settings.html';
+import editColumnWidget from './edit-column.html';
+import { Global } from '../../shared/global';
 
 class MatrixFieldController {
-    constructor($scope, $timeout, globalService) {
-        "ngInject";
+    constructor($scope, $timeout) {
+        'ngInject';
 
         this.$scope = $scope;
         this.$timeout = $timeout;
-        this.globalService = globalService;
-
         this.editColumnWidget = editColumnWidget;
+
+        $scope.$on('onBindFieldSettings_Matrix', (e, args) => {
+            this.field.CustomSettings = sidebarSettingsTemplate;
+        });
     }
 
     $onInit() {
-        this.$scope.$on(
-            "onBindFieldSettings_" + this.field.FieldName,
-            (e, args) => {
-                this.field.CustomSettings = sidebarSettingsTemplate;
-            }
-        );
     }
 
     onAddColumnClick() {
-        this.workingMode = "edit-column";
-        this.$scope.$emit("onShowRightWidget");
-
+        this.workingMode = 'edit-column';
+        this.$scope.$emit('onShowRightWidget');
         this.column = { IsNew: true };
     }
 
     onEditColumnClick(column) {
         this.columnBackup = column;
-        this.column = _.clone(column);
+        this.column = Global.clone(column);
 
-        this.workingMode = "edit-column";
-        this.$scope.$emit("onShowRightWidget");
+        this.workingMode = 'edit-column';
+        this.$scope.$emit('onShowRightWidget');
     }
 
     onDeleteColumnClick(column) {
-        if (confirm("Are you sure for delete this column!?")) {
+        if (confirm('Are you sure for delete this column!?')) {
             this.field.Settings.Columns.splice(
                 this.field.Settings.Columns.indexOf(column),
                 1
@@ -54,15 +50,15 @@ class MatrixFieldController {
     onShowContentItemConditionsClick(item) {
         this.contentItem = item;
 
-        window["wnContentItemConditions"].show();
+        window['wnContentItemConditions'].show();
     }
 
     onSaveContentItemConditionsClick() {
-        window["wnContentItemConditions"].hide();
+        window['wnContentItemConditions'].hide();
     }
 
-    onColumnShowConditionsClick() {
-        window["wnColumnShowConditions"].show();
+    onColumnVisibilityConditionsClick() {
+        window['wnColumnVisibilityConditions'].show();
     }
 
     onActionChange() {
@@ -75,19 +71,15 @@ class MatrixFieldController {
     }
 
     onSetActionParamsClick(item) {
-        const action = _.find(this.actions, (a) => {
-            return a.ActionID == item.ActionID;
-        });
-
-        item.ActionParams = _.assign(
-            _.cloneDeep(action.Params),
+        const action = this.actions?.find(a => a.ActionID === item.ActionID);
+        item.ActionParams = Object.assign(
+            Global.cloneDeep(action.Params),
             item.ActionParams || []
         );
-        this.$scope.$broadcast("onReinitActionParams");
 
+        this.$scope.$broadcast('onReinitActionParams');
         this.actionItem = item;
-
-        window["wnActionParams"].show();
+        window['wnActionParams'].show();
     }
 
     onSaveColumnClick() {
@@ -114,11 +106,11 @@ class MatrixFieldController {
     }
 
     onEditFieldDataSourceClick() {
-        this.$scope.$emit("onShowFieldDataSource", { field: this.field });
+        this.$scope.$emit('onShowFieldDataSource', { field: this.field });
     }
 
     disposeWorkingMode() {
-        this.$scope.$emit("onHideRightWidget");
+        this.$scope.$emit('onHideRightWidget');
 
         this.$timeout(() => {
             delete this.workingMode;
@@ -128,11 +120,11 @@ class MatrixFieldController {
 
 const MatrixFieldComponent = {
     bindings: {
-        field: "<",
-        actions: "<",
+        field: '<',
+        actions: '<',
     },
     controller: MatrixFieldController,
-    controllerAs: "$",
+    controllerAs: '$',
     templateUrl: template,
 };
 

@@ -31,22 +31,27 @@ namespace NitroSystem.Dnn.BusinessEngine.Extensions.ExtraExtensions.Providers
 
             await Task.Yield();
 
-            var client = new SmtpClient("smtp.gmail.com", 587)
+            // A mail subject must be a single line: remove CR/LF and trim
+            static string CleanSubject(string subject) =>
+                System.Text.RegularExpressions.Regex.Replace(subject ?? "", @"\s+", " ").Trim();
+
+            using (var client = new SmtpClient("smtp.gmail.com", 587)
             {
                 Credentials = new NetworkCredential("norouzi.hosein@gmail.com", "sknxjjucbrmoiyzo"),
                 EnableSsl = true
-            };
-
-            var message = new MailMessage
+            })
+            
+            using (var message = new MailMessage
             {
                 From = new MailAddress(email.From),
-                Subject = email.Subject ,
+                Subject = CleanSubject(email.Subject),
                 Body = email.Body,
                 IsBodyHtml = true
-            };
-            message.To.Add(email.To);
-
-            client.Send(message);
+            })
+            {
+                message.To.Add(email.To);
+                client.Send(message);
+            }
 
             return new EmailSendResult()
             {
